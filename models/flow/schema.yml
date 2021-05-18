@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: flow_events
+    description: On-chain events for flow
+    columns:
+      - name: blockchain
+        description: Blockchain originating this event
+      - name: block_timestamp
+        description: Block timestamp for parent block
+      - name: block_number
+        description: Block number of parent block
+      - name: tx_id
+        description: Transaction id for this event
+      - name: tx_from
+        description: Initiator of the transaction
+      - name: tx_from_label_type
+        description: 'High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example).'
+      - name: tx_from_label_subtype
+        description: 'Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex.'
+      - name: tx_from_label
+        description: 'The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: tx_from_address_name
+        description: 'The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: tx_to
+        description: Receiver of the transaction
+      - name: tx_to_label_type
+        description: 'High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example).'
+      - name: tx_to_label_subtype
+        description: 'Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex.'
+      - name: tx_to_label
+        description: 'The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: tx_to_address_name
+        description: 'The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: tx_type
+        description: Top-level transaction type
+      - name: tx_fee
+        description: Transaction fee
+      - name: tx_fee_usd
+        description: USD transaction fee
+      - name: event_from
+        description: Initiator of the event
+      - name: event_from_label_type
+        description: 'High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example).'
+      - name: event_from_label_subtype
+        description: 'Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex.'
+      - name: event_from_label
+        description: 'The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: event_from_address_name
+        description: 'The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: event_to
+        description: Receiver of the event
+      - name: event_to_label_type
+        description: 'High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example).'
+      - name: event_to_label_subtype
+        description: 'Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex.'
+      - name: event_to_label
+        description: 'The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: event_to_address_name
+        description: 'The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+      - name: event_type
+        description: Specific type of event (e.g. transfer, mint, reward)
+      - name: event_amount
+        description: Amount associated with event, if applicable
+      - name: event_amount_usd
+        description: USD amount associated with event, if applicable
+      - name: event_currency
+        description: Token currency of event, if applicable
+  # - name: flow_daily_balances
+  #   description: Daily balances of on-chain denominations for all balance types, updated throughout the day
+  #   columns:
+  #     - name: date
+  #       description: Balance date
+  #     - name: nodde_id
+  #       description: Id of the node delegated to, if applicable.
+  #     - name: delegator_id
+  #       description: Id of the delegator in relationship to the node, if applicable.
+  #     - name: address
+  #       description: Account address
+  #     - name: address_label_type
+  #       description: 'High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example).'
+  #     - name: address_label_subtype
+  #       description: 'Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex.'
+  #     - name: address_label
+  #       description: 'The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+  #     - name: address_address_name
+  #       description: 'The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.'
+  #     - name: balance
+  #       description: Currency balance
+  #     - name: balance_type
+  #       description: Type of balance, e.g. liquid, staked, locked, etc.
+  #     - name: currency
+  #       description: Currency of held balance

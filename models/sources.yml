@@ -1,0 +1,57 @@
+version: 2
+
+sources:
+  - name: shared
+    schema: silver
+    tables:
+      - name: prices
+      - name: prices_v2
+      - name: cmc_assets
+      - name: market_asset_metadata
+      - name: coingecko_prices
+      - name: hours
+      - name: udm_address_labels
+      - name: udm_address_tags
+      - name: udm_balances
+      - name: udm_decimal_adjustments
+      - name: udm_velocity
+  - name: ethereum
+    schema: silver
+    tables:      
+      - name: ethereum_contracts
+      - name: daily_ethereum_token_balances
+      - name: ethereum_address_labels
+      - name: ethereum_address_labels_updates
+      - name: ethereum_contract_decimal_adjustments
+      - name: ethereum_decoded_log_methods
+      - name: ethereum_events
+      - name: ethereum_events_emitted
+      - name: ethereum_reads
+      - name: ethereum_transactions
+      - name: ethereum_token_balances
+      - name: ethereum_token_contracts
+      - name: sha256_function_signatures
+      - name: nft_metadata
+  - name: flow
+    schema: silver
+    tables:
+      - name: daily_flow_staked_balances
+      - name: udm_daily_balances_flow
+      - name: udm_events_flow
+  - name: uniswapv3_eth
+    schema: silver
+    tables:
+      - name: rinkeby_uniswapv3_liquidity_actions
+      - name: rinkeby_uniswapv3_pools
+      - name: rinkeby_uniswapv3_pool_stats
+      - name: rinkeby_uniswapv3_positions
+      - name: rinkeby_uniswapv3_swaps
+      - name: uniswapv3_liquidity_actions
+      - name: uniswapv3_pools
+      - name: uniswapv3_pool_stats
+      - name: uniswapv3_positions
+      - name: uniswapv3_swaps
+  - name: ethereum_nondbt
+    schema: ethereum
+    tables:      
+      - name: token_prices_hourly_v2

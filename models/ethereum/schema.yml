@@ -1,0 +1,140 @@
+version: 2
+
+models:
+  - name: transactions
+    description: Top-level Ethereum transactions, including contract calls, gas, success, and event counts.
+    columns:
+      - name: blockchain
+        description: Blockchain originating this transfer
+      - name: block_timestamp
+        description: Block timestamp for parent block
+      - name: block_number
+        description: Block number that transaction was included in
+      - name: tx_id
+        description: Transaction id for this transfer
+      - name: tx_position
+        description: Transaction position in this block
+      - name: nonce
+        description: Number of transactions sent from this address
+      - name: from_address
+        description: Sender of the transaction
+      - name: from_label_type
+        description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
+      - name: from_label_subtype
+        description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
+      - name: from_label
+        description: "The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: from_address_name
+        description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: to_address
+        description: Receiver of the transaction or contract being called
+      - name: to_label_type
+        description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
+      - name: to_label_subtype
+        description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
+      - name: to_label
+        description: The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable.
+      - name: to_address_name
+        description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: symbol
+        description: Project symbol, if applicable
+      - name: function_signature
+        description: Function signature of contract call, if applicable
+      - name: function_name
+        description: Function signature decoded to English name, if applicable
+      - name: gas_price
+        description: Gas price at the time of this transactions
+      - name: gas_limit
+        description: Gas limit specified in this transaction
+      - name: gas_used
+        description: Gas used by this transactions
+      - name: fee
+        description: Transaction fee calculated from on gas price and gas used
+      - name: success
+        description: Success status of this transaction execution
+      - name: event_count
+        description: The sum of events emitted by this contract call
+  - name: events
+    description: Ethereum events, transfers, and internal transactions
+    columns:
+      - name: blockchain
+        description: Blockchain originating this transfer
+      - name: block_timestamp
+        description: Block timestamp for parent block
+      - name: block_number
+        description: Block number that transaction was included in
+      - name: tx_id
+        description: Transaction id for this transfer
+      - name: origin_address
+        description: Initiator of the transaction
+      - name: origin_label_type
+        description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
+      - name: origin_label_subtype
+        description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
+      - name: origin_label
+        description: "The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: origin_address_name
+        description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: origin_function_signature
+        description: Function signature of original contract call, if applicable
+      - name: origin_function_name
+        description: Function signature decoded to English name, if applicable
+      - name: from_address
+        description: Sender of the event
+      - name: from_label_type
+        description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
+      - name: from_label_subtype
+        description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
+      - name: from_label
+        description: "The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: from_address_name
+        description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: to_address
+        description: Receiver of the transaction or contract being called
+      - name: to_label_type
+        description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
+      - name: to_label_subtype
+        description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
+      - name: to_label
+        description: "The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: to_address_name
+        description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: event_type
+        description: Hex encoded method called for this event
+      - name: event_name
+        description: Decoded method name for this event
+      - name: currency
+        description: ETH or contract address of token transferred in this event
+      - name: amount
+        description: Native amount of transfer (decimal adjusted)
+      - name: amount_usd
+        description: USD amount of transfer
+  - name: erc20_balances
+    description: Daily ERC20 Balances
+    columns:
+      - name: blockchain
+        description: Blockchain originating the transfer
+      - name: balance_date
+        description: Day the balance was recorded on
+      - name: user_address
+        description: Address that the balance is for
+      - name: label
+        description: "The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: address_name
+        description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
+      - name: label_type
+        description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
+      - name: label_subtype
+        description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
+      - name: contract_address
+        description: Token contract address
+      - name: contract_label
+        description: Name of the contract address if we have one.
+      - name: symbol
+        description: Token Symbol
+      - name: price
+        description: Average price of the token for that day
+      - name: balance
+        description: Latest recorded balance for that given day and token.
+      - name: amount_usd
+        description: USD Value of the token balance
