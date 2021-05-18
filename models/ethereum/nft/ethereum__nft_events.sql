@@ -283,6 +283,51 @@ with nft as (
       block_timestamp >= getdate() - interval '9 months'
   {% endif %}
 
+ UNION
+
+  SELECT
+    event_platform,
+    tx_id,
+    block_timestamp,
+    event_type,
+    contract_address,
+    token_id,
+    event_from,
+    event_to,
+    price,
+    platform_fee,
+    creator_fee,
+    tx_currency
+  FROM {{ ref('ethereum_dbt__euler_beats_mint_original') }}
+  WHERE 
+  {% if is_incremental() %}
+      block_timestamp >= getdate() - interval '1 days'
+  {% else %}
+      block_timestamp >= getdate() - interval '9 months'
+  {% endif %}
+
+  UNION
+
+  SELECT
+    event_platform,
+    tx_id,
+    block_timestamp,
+    event_type,
+    contract_address,
+    token_id,
+    event_from,
+    event_to,
+    price,
+    platform_fee,
+    creator_fee,
+    tx_currency
+  FROM {{ ref('ethereum_dbt__euler_beats_print_minted') }}
+  WHERE 
+  {% if is_incremental() %}
+      block_timestamp >= getdate() - interval '1 days'
+  {% else %}
+      block_timestamp >= getdate() - interval '9 months'
+  {% endif %}
 ),
 
 price as (
