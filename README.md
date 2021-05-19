@@ -3,7 +3,7 @@ This repository contains [DBT](https://docs.getdbt.com/docs/introduction) SQL Mo
 
 The framework used to manage SQL table composition is [DBT](https://docs.getdbt.com/docs/introduction) and we use [Snowflake](https://docs.snowflake.com/en/index.html) as our Data Warehouse.
 
-Project Docs: [sql-models.flipsidecrypto.com](sql-models.flipsidecrypto.com)
+Project Docs: [sql-models.lab3547.com](sql-models.lab3547.com/#!/overview)
 
 ## Getting Started
 
