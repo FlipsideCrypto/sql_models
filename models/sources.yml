@@ -15,6 +15,7 @@ sources:
       - name: udm_balances
       - name: udm_decimal_adjustments
       - name: udm_velocity
+      - name: udm_address_labels_new
   - name: ethereum
     schema: silver
     tables:      
@@ -55,3 +56,9 @@ sources:
     schema: ethereum
     tables:      
       - name: token_prices_hourly_v2
+  - name: algorand
+    schema: silver
+    tables:
+      - name: udm_daily_balances_algorand
+      - name: udm_events_algorand
+      - name: udm_transfers_algorand
