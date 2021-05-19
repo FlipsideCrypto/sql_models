@@ -16,14 +16,14 @@ WITH token_prices AS (
     lower(a.token_address) as token_address,
     avg(price) as price
   FROM
-    {{ source('shared', 'prices')}} p
+    {{ source('shared', 'prices_v2')}} p
 
   JOIN
-    {{ source('shared', 'cmc_assets')}} a
+    {{ source('shared', 'market_asset_metadata')}} a
       ON p.asset_id = a.asset_id
 
   WHERE
-      a.platform_id = 1027
+      a.platform_id = '1027'
 
      {% if is_incremental() %}
        AND recorded_at >= getdate() - interval '2 days'
@@ -152,6 +152,7 @@ token_transfers AS (
     'erc20_transfer' as event_type,
     event_id,
     e.contract_address,
+		decimals,
     coalesce(e.symbol, p.symbol) as symbol,
     token_value as amount,
     token_value * p.price  as amount_usd
@@ -161,6 +162,9 @@ token_transfers AS (
     token_prices p
       ON p.token_address = e.contract_address
         AND date_trunc('hour', e.block_timestamp) = p.hour
+	LEFT OUTER JOIN
+		{{ source('ethereum', 'ethereum_contract_decimal_adjustments')}} as d
+			ON e.contract_address=d.address
   WHERE
     event_name = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 ),
@@ -169,12 +173,12 @@ eth_prices AS (
     p.symbol,
     date_trunc('hour', recorded_at) as hour,
     avg(price) as price
-  FROM {{ source('shared', 'prices')}} p
+  FROM {{ source('shared', 'prices_v2')}} p
   JOIN
-    {{ source('shared', 'cmc_assets')}} a
+    {{ source('shared', 'market_asset_metadata')}} a
     ON p.asset_id = a.asset_id
   WHERE
-    a.asset_id = 1027
+    a.asset_id = '1027'
     {% if is_incremental() %}
       AND recorded_at >= getdate() - interval '2 days'
     {% else %}
@@ -208,6 +212,7 @@ eth_transfers AS (
     'native_eth' as event_type,
     event_id,
     NULL::text as contract_address,
+		18 as decimals,
     'ETH' as symbol,
     eth_value as amount,
     eth_value * p.price as amount_usd
@@ -245,6 +250,7 @@ logs AS (
     decoded_logs.type as event_type,
     event_id,
     contract_address,
+		decimals,
     e.symbol,
     NULL::float as amount,
     NULL::float as amount_usd
@@ -252,6 +258,9 @@ logs AS (
   LEFT OUTER JOIN 
     {{ source('ethereum', 'ethereum_decoded_log_methods')}} as decoded_logs
       ON e.event_name = decoded_logs.encoded_log_method
+	LEFT OUTER JOIN
+		{{ source('ethereum', 'ethereum_contract_decimal_adjustments')}} as d
+			ON e.contract_address=d.address
   WHERE
     event_name IS NOT NULL 
     AND event_name != '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
