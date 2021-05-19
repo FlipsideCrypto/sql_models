@@ -1,5 +1,5 @@
 # DOOR (Do Our Own Research) - SQL Models
-This repository contains [DBT](https://docs.getdbt.com/docs/introduction) SQL Models that glue together and transform low-level tables into analytics ready data sets. The tables that are output from this DBT project are available to Flipside users [here in Velocity](https://app.flipsidecrypto.com/)
+This repository contains [DBT](https://docs.getdbt.com/docs/introduction) SQL Models that glue together and transform low-level tables into analytics ready data sets. The tables that are output from this DBT project are available to Flipside users [here in Velocity](https://app.flipsidecrypto.com/auth/signup/velocity)
 
 The framework used to manage SQL table composition is [DBT](https://docs.getdbt.com/docs/introduction) and we use [Snowflake](https://docs.snowflake.com/en/index.html) as our Data Warehouse.
 
@@ -39,7 +39,7 @@ snowflake:
 We use two underscores in our model filenames `__` to denote the schema and table. For example `{schema}__{tablename}.sql`. We have configured a custom DBT macro that will split the filenames in this manner when creating the actual tables in snowflake. If the file name is `ethereum__transactions.sql`, the schema in snowflake will be `ethereum` and the table name will be `transactions`, queryable at `ethereum.transactions`. 
 
 ### Contributing
-If you would like to contribute a new model/table to our [Velocity](https://app.flipsidecrypto.com) product, please create a new branch, and once you are ready create a pull request with the following information: the goal of the PR, and the tables that will be produced by the PR. After submitting the PR a member of our analytics team will review it. If approved the models you produce here will be made available for querying in Flipside's [Velocity](https://app.flipsidecrypto.com) product. 
+If you would like to contribute a new model/table to our [Velocity](https://app.flipsidecrypto.com/auth/signup/velocity) product, please create a new branch, and once you are ready create a pull request with the following information: the goal of the PR, and the tables that will be produced by the PR. After submitting the PR a member of our analytics team will review it. If approved the models you produce here will be made available for querying in Flipside's [Velocity](https://app.flipsidecrypto.com/auth/signup/velocity) product. 
 
 ### Source Data
 Source tables that can be used when building models are outline here: `models/sources.yml`. The majority of tables you will use as source to your models can be found in Flipside's `silver` schema.
@@ -64,5 +64,5 @@ dbt test
 ### Resources:
 
 - Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Sign-up for [Flipside Velocity](https://app.flipsidecrypto.com/)
+- Sign-up for [Flipside Velocity](https://app.flipsidecrypto.com/auth/signup/velocity)
 - Questions on how to use repo or get started? Join our [Discord]()
