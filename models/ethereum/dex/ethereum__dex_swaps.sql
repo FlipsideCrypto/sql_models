@@ -25,7 +25,9 @@ WITH usd_swaps AS (
     event_inputs:amount0Out / POWER(10, price0.decimals) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    event_inputs:amount0In * price0.price / POWER(10, price0.decimals) AS amount_usd,
+    CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * price0.price / POWER(10, price0.decimals) 
+         ELSE event_inputs:amount0Out * price0.price / POWER(10, price0.decimals) END
+    AS amount_usd,
     'uniswap-v2' AS platform
   FROM {{ref('ethereum__events_emitted')}} s0
 
@@ -55,7 +57,9 @@ WITH usd_swaps AS (
     event_inputs:amount1Out / POWER(10, price1.decimals) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    event_inputs:amount1In * price1.price / POWER(10, price1.decimals) AS amount_usd,
+    CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, price1.decimals) 
+         ELSE event_inputs:amount1Out * price1.price / POWER(10, price1.decimals) END
+    AS amount_usd,
     'uniswap-v2' AS platform
   FROM  {{ref('ethereum__events_emitted')}} s0
 
