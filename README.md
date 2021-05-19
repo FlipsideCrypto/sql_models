@@ -1,18 +1,29 @@
-Welcome to the DOOR SQL Models (aka DBT)!
+# DOOR (Do Our Own Research) - SQL Models
+This repository contains [DBT](https://docs.getdbt.com/docs/introduction) SQL Models that glue together and transform low-level tables into analytics ready data sets. The tables that are output from this DBT project are available to Flipside users [here in Velocity](https://app.flipsidecrypto.com/)
 
-### Using the starter project
+The framework used to manage SQL table composition is [DBT](https://docs.getdbt.com/docs/introduction) and we use [Snowflake](https://docs.snowflake.com/en/index.html) as our Data Warehouse.
 
-Try running the following commands:
+Project Docs: [sql-models.flipsidecrypto.com](sql-models.flipsidecrypto.com)
 
-- dbt docs generate
-- dbt docs serve
-- dbt run
-- dbt test
+## Commands
+
+Run a model by matching on tag. In this case let's run all UniswapV3 models:
+```
+dbt run --models +tag:uniswapv3
+
+```
+
+Now let's do a full refresh of uniswapv3.
+```
+dbt run --models +tag:uniswapv3 --full-refresh
+```
+
+Run DBT tests
+```
+dbt test
+```
 
 ### Resources:
 
 - Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [chat](http://slack.getdbt.com/) on Slack for live discussions and support
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+- Sign-up for [Flipside Velocity](https://app.flipsidecrypto.com/)
