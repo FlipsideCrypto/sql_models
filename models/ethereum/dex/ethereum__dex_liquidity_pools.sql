@@ -42,7 +42,7 @@ WITH v3_pools AS ( -- uni v3
       REGEXP_REPLACE(p.event_inputs:pair,'\"','')   as pool_address, 
       REGEXP_REPLACE(p.event_inputs:token0,'\"','') as token0,
       REGEXP_REPLACE(p.event_inputs:token1,'\"','') as token1,
-      'uniswap-v2' AS platform
+      CASE WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
     FROM {{ source('ethereum', 'ethereum_events_emitted') }} p -- {{ref('ethereum__events_emitted')}} p
 
     LEFT JOIN {{source('ethereum','ethereum_contracts')}} a ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = a.address
