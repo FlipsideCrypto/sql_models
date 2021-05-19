@@ -28,7 +28,7 @@ WITH usd_swaps AS (
     CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * price0.price / POWER(10, price0.decimals) 
          ELSE event_inputs:amount0Out * price0.price / POWER(10, price0.decimals) END
     AS amount_usd,
-    'uniswap-v2' AS platform
+    CASE WHEN p.factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
   FROM {{ref('ethereum__events_emitted')}} s0
 
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} p 
@@ -60,7 +60,7 @@ WITH usd_swaps AS (
     CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, price1.decimals) 
          ELSE event_inputs:amount1Out * price1.price / POWER(10, price1.decimals) END
     AS amount_usd,
-    'uniswap-v2' AS platform
+    CASE WHEN p.factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
   FROM  {{ref('ethereum__events_emitted')}} s0
 
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} p 
