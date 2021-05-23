@@ -55,3 +55,36 @@ sources:
     schema: ethereum
     tables:      
       - name: token_prices_hourly_v2
+  - name: thorchain_midgard
+    schema: thorchain_midgard_public
+    tables:
+      - name: active_vault_events
+      - name: add_events
+      - name: asgard_fund_yggdrasil_events
+      - name: block_pool_depths
+      - name: swap_events
+      - name: block_log
+      - name: bond_events
+      - name: constants
+      - name: errata_events
+      - name: fee_events
+      - name: gas_events
+      - name: inactive_vault_events
+      - name: message_events
+      - name: new_node_events
+      - name: outbound_events
+      - name: pending_liquidity_events
+      - name: pool_balance_change_events
+      - name: pool_events
+      - name: refund_events
+      - name: reserve_events
+      - name: rewards_events
+      - name: rewards_event_entries
+
+
+
+
+
+
+
+
