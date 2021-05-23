@@ -14,3 +14,4 @@ SELECT
   e.ASSET
 FROM {{source('thorchain_midgard', 'gas_events')}} e
 INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = e.BLOCK_TIMESTAMP
+WHERE (e._FIVETRAN_DELETED IS NULL OR e._FIVETRAN_DELETED = False)

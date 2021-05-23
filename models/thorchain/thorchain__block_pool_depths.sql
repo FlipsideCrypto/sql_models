@@ -13,3 +13,4 @@ SELECT
     d.POOL as pool_name
 FROM {{source('thorchain_midgard', 'block_pool_depths')}} d
 INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = d.BLOCK_TIMESTAMP
+WHERE (d._FIVETRAN_DELETED IS NULL OR d._FIVETRAN_DELETED = False)

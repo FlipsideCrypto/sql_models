@@ -11,3 +11,4 @@ SELECT
   e.NODE_ADDR as node_address
 FROM {{source('thorchain_midgard', 'new_node_events')}} e
 INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = e.BLOCK_TIMESTAMP
+WHERE (e._FIVETRAN_DELETED IS NULL OR e._FIVETRAN_DELETED = False)

@@ -11,3 +11,4 @@ SELECT
   e.ADD_ASGARD_ADDR as add_asgard_address
 FROM {{source('thorchain_midgard', 'inactive_vault_events')}} e
 INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = e.BLOCK_TIMESTAMP
+WHERE (e._FIVETRAN_DELETED IS NULL OR e._FIVETRAN_DELETED = False)
