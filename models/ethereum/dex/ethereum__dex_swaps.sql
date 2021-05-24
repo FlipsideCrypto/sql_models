@@ -84,13 +84,15 @@ WITH usd_swaps AS (
     dl.pool_name, -- get from lp table
     dl.token0 AS token_address,
     tx_id,
-    CASE WHEN amount0 > 0 THEN amount0 ELSE NULL END  AS amount_in,
-    CASE WHEN amount0 <= 0 THEN -1*amount0 ELSE NULL END  AS amount_out,
+    CASE WHEN amount0_adjusted > 0 THEN amount0_adjusted ELSE NULL END  AS amount_in,
+    CASE WHEN amount0_adjusted <= 0 THEN -1*amount0_adjusted ELSE NULL END  AS amount_out,
     sender AS from_address,
     recipient AS to_address,
     COALESCE(amount_in,amount_out)*p.price AS amount_usd,
     'uniswap-v3' AS platform
-  FROM {{source('uniswapv3_eth','uniswapv3_swaps')}} s
+  FROM 
+  -- {{source('uniswapv3_eth','uniswapv3_swaps')}} 
+  {{ref('uniswapv3__swaps')}} s
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} dl 
     ON s.pool_address = dl.pool_address
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} p 
@@ -103,13 +105,15 @@ WITH usd_swaps AS (
     dl.pool_name, -- get from lp table
     dl.token1 AS token_address,
     tx_id,
-    CASE WHEN amount1 > 0 THEN amount1 ELSE NULL END  AS amount_in,
-    CASE WHEN amount1 <= 0 THEN -1*amount1 ELSE NULL END  AS amount_out,
+    CASE WHEN amount1_adjusted > 0 THEN amount1_adjusted ELSE NULL END  AS amount_in,
+    CASE WHEN amount1_adjusted <= 0 THEN -1*amount1_adjusted ELSE NULL END  AS amount_out,
     sender AS from_address,
     recipient AS to_address,
     COALESCE(amount_in,amount_out)*p.price AS amount_usd ,
     'uniswap-v3' AS platform
-  FROM {{source('uniswapv3_eth','uniswapv3_swaps')}} s
+  FROM 
+  -- {{source('uniswapv3_eth','uniswapv3_swaps')}} s
+  {{ref('uniswapv3__swaps')}} s
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} dl 
     ON s.pool_address = dl.pool_address
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} p 
