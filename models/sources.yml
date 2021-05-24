@@ -91,3 +91,11 @@ sources:
       - name: unstake_events
       - name: update_node_account_status_events
       - name: validator_request_leave_events
+  - name: terra
+    schema: silver
+    tables:
+      - name: terra_blocks
+      - name: terra_transitions
+      - name: terra_transactions
+      - name: terra_msgs
+      - name: terra_msg_events
