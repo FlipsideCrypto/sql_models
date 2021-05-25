@@ -81,8 +81,8 @@ WITH v3_pools AS ( -- uni v3
       ---- if the above is null, try cmc_assets
       ---- if the above is null, try to at least get a name instead of a symbol from ethereum_address_labels
       ---- if all else fails then just use the token contract address to yield an informative name
-      COALESCE(a.meta:symbol,aa.symbol,aaa.address_name,p.event_inputs:token0) ||'-'||COALESCE(b.meta:symbol,bb.symbol,bbb.address_name,p.event_inputs:token1)||' LP' AS pool_name,
-      REGEXP_REPLACE(p.event_inputs:pair,'\"','')   as pool_address, 
+      COALESCE(a.meta:symbol,aa.symbol,aaa.address_name,p.token0) ||'-'||COALESCE(b.meta:symbol,bb.symbol,bbb.address_name,p.token1)||' LP' AS pool_name,
+      pair   as pool_address, 
       token0,
       token1,
       CASE WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
@@ -106,12 +106,13 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} bbb 
       ON token1 = bbb.address
 
-    WHERE p.event_name    = 'PairCreated'
-    {% if is_incremental() %}
-      AND block_timestamp >= getdate() - interval '2 days'
-    {% else %}
-      AND block_timestamp >= getdate() - interval '12 months'
-    {% endif %}
+    -- WHERE 
+    -- p.event_name    = 'PairCreated'
+    -- {% if is_incremental() %}
+    --  block_timestamp >= getdate() - interval '2 days'
+    -- {% else %}
+    --  AND block_timestamp >= getdate() - interval '12 months'
+    -- {% endif %}
 
 ), stack AS (
   -- get pool info 
