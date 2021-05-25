@@ -99,3 +99,4 @@ sources:
       - name: terra_transactions
       - name: terra_msgs
       - name: terra_msg_events
+      - name: terra_validator_voting_power

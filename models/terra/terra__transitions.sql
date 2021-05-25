@@ -13,5 +13,7 @@ SELECT
   transition_type,
   index,
   event,
-  attributes
+  attributes:validator::string AS validator_address,
+  attributes:amount:denom::string AS attribute_denom,
+  attributes:amount:amount AS attribute_amount
 FROM {{source('terra', 'terra_transitions')}}

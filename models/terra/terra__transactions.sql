@@ -17,7 +17,8 @@ SELECT
   tx_code,
   tx_module,
   codespace,
-  fee,
+  fee[0]:denom::string AS fee_denom,
+  fee[0]:amount AS fee_amount,
   gas_used,
   gas_wanted
 FROM {{source('terra', 'terra_transactions')}}
