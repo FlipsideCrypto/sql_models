@@ -68,11 +68,68 @@ WITH v3_pools AS ( -- uni v3
     {% else %}
       AND creation_time >= getdate() - interval '12 months'
     {% endif %}
+
+), v2_redshift AS (
+
+    SELECT 
+      p.block_timestamp  AS creation_time,
+      p.transaction_hash AS creation_tx, 
+      p.contract_address AS factory_address, 
+      -- assign a liquidity pool name based on the two tokens in the pool in the format 'Token1-Token2 LP', i.e. 'WETH-DAI LP'
+      -- goes through a couple fallbacks, 
+      ---- try ethereum_contracts
+      ---- if the above is null, try cmc_assets
+      ---- if the above is null, try to at least get a name instead of a symbol from ethereum_address_labels
+      ---- if all else fails then just use the token contract address to yield an informative name
+      COALESCE(a.meta:symbol,aa.symbol,aaa.address_name,p.event_inputs:token0) ||'-'||COALESCE(b.meta:symbol,bb.symbol,bbb.address_name,p.event_inputs:token1)||' LP' AS pool_name,
+      REGEXP_REPLACE(p.event_inputs:pair,'\"','')   as pool_address, 
+      token0,
+      token1,
+      CASE WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
+    FROM {{ source('shared', 'uniswapv2factory_event_paircreated') }} p -- {{ref('ethereum__events_emitted')}} p
+
+    LEFT JOIN {{source('ethereum','ethereum_contracts')}} a 
+      ON token0 = a.address
+
+    LEFT JOIN {{source('shared', 'cmc_assets')}} aa
+      ON token0 = aa.token_address
+
+    LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} aaa 
+      ON token0 = aaa.address
+
+    LEFT JOIN {{source('ethereum', 'ethereum_contracts')}}  b 
+      ON token1 = b.address
+
+    LEFT JOIN {{source('shared', 'cmc_assets')}} bb 
+      ON token1 = bb.token_address
+
+    LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} bbb 
+      ON token1 = bbb.address
+
+    WHERE p.event_name    = 'PairCreated'
+    {% if is_incremental() %}
+      AND block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+      AND block_timestamp >= getdate() - interval '12 months'
+    {% endif %}
+
+), stack AS (
+  -- get pool info 
+  SELECT * FROM
+  v2_pools
+
+  UNION
+
+  SELECT * FROM
+  v2_redshift
+
+  UNION
+
+  SELECT * FROM
+  v3_pools
 )
 
--- get pool info 
-SELECT * FROM
-v2_pools
-UNION
-SELECT * FROM
-v3_pools
+
+SELECT DISTINCT * FROM 
+stack
+

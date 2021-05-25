@@ -15,6 +15,7 @@ sources:
       - name: udm_balances
       - name: udm_decimal_adjustments
       - name: udm_velocity
+      - name: uniswapv2factory_event_paircreated
   - name: ethereum
     schema: silver
     tables:      
