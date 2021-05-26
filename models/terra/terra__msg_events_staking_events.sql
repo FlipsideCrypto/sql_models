@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='view', 
-    tags=['snowflake', 'terra', 'msg_events_msgauth_grant']
+    tags=['snowflake', 'terra', 'msg_events_staking']
   )
 }}
 
@@ -17,9 +17,8 @@ SELECT
   msg_type, 
   event_type,
   event_attributes,
-  event_attributes:grant_type::string AS grant_type,
-  event_attributes:grantee::string AS grantee,
-  event_attributes:granter::string AS granter
+  event_attributes:amount AS amount,
+  event_attributes:validator::string AS validator
 FROM {{source('terra', 'terra_msg_events')}}
-WHERE msg_module = 'msgauth'
-AND event_type = 'grant_authorization'
+WHERE msg_module = 'staking'
+AND event_type = 'delegate'
