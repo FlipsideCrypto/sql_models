@@ -17,7 +17,7 @@ SELECT
   tx_code,
   tx_module,
   codespace,
-  fee[0]:denom::string AS fee_denom,
+  fee[0]:denom::string AS fee_currency,
   fee[0]:amount AS fee_amount,
   gas_used,
   gas_wanted

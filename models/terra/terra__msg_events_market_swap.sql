@@ -1,0 +1,26 @@
+{{ 
+  config(
+    materialized='view', 
+    tags=['snowflake', 'terra', 'msg_events_market_swap']
+  )
+}}
+
+SELECT 
+  blockchain,
+  chain_id,
+  tx_status,
+  block_id,
+  block_timestamp, 
+  tx_id, 
+  tx_type,
+  msg_module,
+  msg_type, 
+  event_type,
+  event_attributes,
+  event_attributes:offer::string AS offer,
+  event_attributes:swap_coin::string AS swap_coin,
+  event_attributes:swap_fee::string AS swap_fee,
+  event_attributes:trader::string AS trader
+FROM {{source('terra', 'terra_msg_events')}}
+WHERE msg_module = 'market'
+AND event_type = 'swap'
