@@ -30,9 +30,11 @@
   FROM {{ref('ethereum__events_emitted')}} p
   
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price0 
-  ON p.event_inputs:tokenIn = price0.token_address AND DATE_TRUNC('hour',p.block_timestamp) = price0.hour
+    ON p.event_inputs:tokenIn = price0.token_address 
+    AND DATE_TRUNC('hour',p.block_timestamp) = price0.hour
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price1 
-  ON p.event_inputs:tokenOut = price1.token_address AND DATE_TRUNC('hour',p.block_timestamp) = price1.hour
+    ON p.event_inputs:tokenOut = price1.token_address 
+    AND DATE_TRUNC('hour',p.block_timestamp) = price1.hour
   
   WHERE event_name = 'LOG_SWAP'
   {% if is_incremental() %}

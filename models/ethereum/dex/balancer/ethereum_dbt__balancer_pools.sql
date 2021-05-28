@@ -12,9 +12,12 @@
 -- all balancer v1 events
 WITH balancer AS (
 
-  SELECT DISTINCT contract_address AS balancer_pool, REGEXP_REPLACE(event_inputs:tokenIn,'\"','') AS token_contract_address  
+  SELECT 
+    DISTINCT 
+        contract_address AS balancer_pool, 
+        REGEXP_REPLACE(event_inputs:tokenIn,'\"','') AS token_contract_address  
   FROM {{ref('ethereum__events_emitted')}}
-  WHERE event_name = 'LOG_SWAP'
+  WHERE event_name = 'LOG_NEW_POOL'
   {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'
   {% else %}
@@ -24,7 +27,10 @@ WITH balancer AS (
 
   UNION 
 
-  SELECT DISTINCT contract_address AS balancer_pool, event_inputs:tokenOut AS token_contract_address  
+  SELECT 
+    DISTINCT 
+        contract_address AS balancer_pool, 
+        event_inputs:tokenOut AS token_contract_address  
   FROM {{ref('ethereum__events_emitted')}}
   WHERE event_name = 'LOG_SWAP'
   {% if is_incremental() %}
@@ -36,7 +42,10 @@ WITH balancer AS (
   
   UNION
    
-  SELECT DISTINCT contract_address AS balancer_pool, REGEXP_REPLACE(event_inputs:tokenIn,'\"','') AS token_contract_address  
+  SELECT 
+    DISTINCT 
+        contract_address AS balancer_pool, 
+        REGEXP_REPLACE(event_inputs:tokenIn,'\"','') AS token_contract_address  
   FROM {{ref('ethereum__events_emitted')}}
   WHERE event_name = 'LOG_JOIN'
   {% if is_incremental() %}
@@ -48,9 +57,12 @@ WITH balancer AS (
 
   UNION 
 
-  SELECT DISTINCT contract_address AS balancer_pool, event_inputs:tokenOut AS token_contract_address  
+  SELECT 
+    DISTINCT 
+        contract_address AS balancer_pool, 
+        event_inputs:tokenOut AS token_contract_address  
   FROM {{ref('ethereum__events_emitted')}}
-  WHERE event_name = 'LOG_JOIN'
+  WHERE event_name = 'LOG_EXIT'
   {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'
   {% else %}
@@ -59,9 +71,19 @@ WITH balancer AS (
   AND event_inputs:caller IS NOT NULL
 
 ), balancer_tokens_distinct AS (
-    SELECT DISTINCT balancer_pool,token_contract_address FROM balancer
+
+    SELECT 
+        DISTINCT 
+            balancer_pool,
+            token_contract_address 
+    FROM balancer
+
 )
 
 
-SELECT balancer_pool,ARRAY_AGG(token_contract_address) AS tokens FROM balancer_tokens_distinct
+SELECT 
+    balancer_pool,
+    ARRAY_AGG(token_contract_address) AS tokens 
+FROM 
+balancer_tokens_distinct
 GROUP BY 1
