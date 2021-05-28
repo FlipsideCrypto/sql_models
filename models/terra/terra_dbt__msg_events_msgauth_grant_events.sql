@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='view', 
-    tags=['snowflake', 'terra', 'msg_events_msgauth_grant]
+    tags=['snowflake', 'terra', 'msg_events_msgauth_grant']
   )
 }}
 

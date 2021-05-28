@@ -72,5 +72,7 @@ SELECT
     tbl_amount.currency,
     tbl_recipient.message_id
 FROM tbl_recipient
+
 LEFT JOIN tbl_amount
-ON tbl_recipient.tx_id = tbl_amount.tx_id AND tbl_recipient.message_id = tbl_amount.message_id
+  ON tbl_recipient.tx_id = tbl_amount.tx_id 
+  AND tbl_recipient.message_id = tbl_amount.message_id

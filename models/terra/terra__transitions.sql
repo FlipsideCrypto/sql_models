@@ -13,7 +13,4 @@ SELECT
   transition_type,
   index,
   event,
-  attributes:validator::string AS validator_address,
-  attributes:amount:denom::string AS attribute_currency,
-  attributes:amount:amount AS attribute_amount
 FROM {{source('terra', 'terra_transitions')}}
