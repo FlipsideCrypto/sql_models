@@ -15,17 +15,14 @@ commissions AS (
 
 commissions_event_base AS (
   SELECT DISTINCT
-      blockchain,
-      chain_id,
-      tx_status,
-      block_id,
-      block_timestamp, 
-      tx_id, 
-      tx_type,
-      msg_module,
-      msg_type, 
-      msg_index
-  FROM commissions_event 
+    blockchain,
+    chain_id,
+    tx_status,
+    block_id,
+    block_timestamp, 
+    tx_id, 
+    msg_type
+  FROM commissions 
 ), 
 
 message AS (

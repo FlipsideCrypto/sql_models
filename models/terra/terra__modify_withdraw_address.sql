@@ -15,17 +15,14 @@ rewards AS (
 
 rewards_event_base AS (
   SELECT DISTINCT
-      blockchain,
-      chain_id,
-      tx_status,
-      block_id,
-      block_timestamp, 
-      tx_id, 
-      tx_type,
-      msg_module,
-      msg_type, 
-      msg_index
-  FROM rewards_event 
+    blockchain,
+    chain_id,
+    tx_status,
+    block_id,
+    block_timestamp, 
+    tx_id, 
+    msg_type
+  FROM rewards 
 ), 
 
 message AS (
@@ -46,10 +43,7 @@ SELECT
   rewards_event_base.block_id,
   rewards_event_base.block_timestamp, 
   rewards_event_base.tx_id, 
-  rewards_event_base.tx_type,
-  rewards_event_base.msg_module,
   rewards_event_base.msg_type, 
-  rewards_event_base.msg_index,
   action,
   module,
   sender,

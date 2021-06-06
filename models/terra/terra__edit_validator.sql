@@ -16,17 +16,14 @@ staking AS (
 
 event_base AS (
   SELECT DISTINCT
-      blockchain,
-      chain_id,
-      tx_status,
-      block_id,
-      block_timestamp, 
-      tx_id, 
-      tx_type,
-      msg_module,
-      msg_type, 
-      msg_index
-  FROM staking_events 
+    blockchain,
+    chain_id,
+    tx_status,
+    block_id,
+    block_timestamp, 
+    tx_id, 
+    msg_type
+  FROM staking
 ),
 
 message AS (
@@ -57,10 +54,7 @@ SELECT
   event_base.block_id,
   event_base.block_timestamp, 
   event_base.tx_id, 
-  event_base.tx_type,
-  event_base.msg_module,
   event_base.msg_type, 
-  event_base.msg_index,
   action,
   module,
   sender,
