@@ -14,7 +14,7 @@ SELECT
   tx_id, 
   msg_type, 
   REGEXP_REPLACE(msg_value:denom,'\"','') as currency,
-  REGEXP_REPLACE(msg_value:exchange_rate,'\"','') as exchange_rate,
+  msg_value:exchange_rate as rate,
   REGEXP_REPLACE(msg_value:feeder,'\"','') as feeder,
   REGEXP_REPLACE(msg_value:salt,'\"','') as salt,
   REGEXP_REPLACE(msg_value:validator,'\"','') as validator
