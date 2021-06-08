@@ -15,7 +15,7 @@
 -- makes a table of swaps in a long format, i.e. swap_date, pool, token_address, swapped amount
 -- this is currently built for uniswap/sushiswap style swaps but that format would also work for pools that allow 2+ tokens (i.e. Curve's 3Pool, Balancer, etc.)
 WITH usd_swaps AS (
-  SELECT
+  SELECT DISTINCT
     block_timestamp, 
     p.pool_address,
     p.pool_name,
@@ -40,7 +40,7 @@ WITH usd_swaps AS (
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price0 
     ON p.token0 = price0.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price0.hour
 
-  WHERE event_name = 'Swap'
+  WHERE event_name = 'Swap' AND platform <> 'uniswap-v3' 
 
   {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'
@@ -50,7 +50,7 @@ WITH usd_swaps AS (
 
   UNION
 
-  SELECT  
+  SELECT DISTINCT
     block_timestamp, 
     p.pool_address,
     p.pool_name,
@@ -77,7 +77,7 @@ WITH usd_swaps AS (
     ON p.token1 = price1.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price1.hour
 
   WHERE 
-      event_name = 'Swap'
+      event_name = 'Swap' AND platform <> 'uniswap-v3' 
   {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'
   {% else %}
@@ -86,7 +86,7 @@ WITH usd_swaps AS (
 
 ), v3_swaps AS (
 
-  SELECT 
+  SELECT DISTINCT
     s.block_timestamp,s.pool_address, -- token 0 v3 swaps
     dl.pool_name, -- get from lp table
     dl.token0 AS token_address,
@@ -109,10 +109,11 @@ WITH usd_swaps AS (
     ON dl.token0 = p.token_address  AND p.hour = date_trunc('hour',block_timestamp)
   LEFT JOIN {{ref('ethereum__events_emitted')}} ind
     ON s.pool_address = ind.contract_address AND s.tx_id = ind.tx_id
+    WHERE (amount1_adjusted > 0 OR amount0_adjusted > 0) AND platform = 'uniswap-v3' 
 
   UNION
 
-  SELECT 
+  SELECT DISTINCT
     s.block_timestamp,s.pool_address, -- token1 v3 swaps
     dl.pool_name, -- get from lp table
     dl.token1 AS token_address,
@@ -135,7 +136,7 @@ WITH usd_swaps AS (
     ON dl.token1 = p.token_address  AND p.hour = date_trunc('hour',block_timestamp)
   LEFT JOIN {{ref('ethereum__events_emitted')}} ind
     ON s.pool_address = ind.contract_address AND s.tx_id = ind.tx_id
-
+    WHERE (amount1_adjusted > 0 OR amount0_adjusted > 0) AND platform = 'uniswap-v3' 
 )
 
 SELECT *
