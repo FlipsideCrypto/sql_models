@@ -65,6 +65,18 @@ select
 FROM flipside_prod_db.silver.terra_msg_events
 WHERE event_type = 'execute_contract'
   AND msg_type = 'wasm/MsgExecuteContract'
+),
+
+prices as (
+    SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(luna_exchange_rate) as luna_exchange_rate,
+      avg(price_usd) as price_usd,
+      avg(luna_usd_price) as luna_usd_price
+    FROM prices_prices  
+    GROUP BY 1,2,3
 )
 
 
@@ -76,25 +88,26 @@ SELECT
   m.block_timestamp, 
   m.tx_status,
   m.tx_id, 
-  f.swap_fee_amount,
-  f.swap_fee_currency,
-  m.trader,
-  m.ask_currency,
-  m.offer_amount,
-  m.offer_currency,
-  et."0_sender",
-  et."0_recipient",
-  et."0_amount",
-  et."0_amount_currency",
-  et."1_sender",
-  et."1_recipient",
-  et."1_amount",
-  et."1_amount_currency",
-  c.contract_address,
-  msg_value,
-  transfer_attr,
-  fee_attr,
-  contract_attr
+  f.swap_fee_amount / POW(10,6) as swap_fee_amount,
+  f.swap_fee_amount / POW(10,6) * fe.price_usd as swap_fee_amount_usd,
+  fe.symbol as swap_fee_currency,
+  m.trader, 
+  aa.symbol as ask_currency,
+  m.offer_amount / POW(10,6) as offer_amount,
+  m.offer_amount / POW(10,6) * oo.price_usd as offer_amount_usd,
+  oo.symbol as offer_currency,
+  et."0_sender" as sender,
+  et."0_recipient" as receiver,
+  et."0_amount" / POW(10,6) as token_0_amount,
+  token_0_amount * z.price_usd as token_0_amount_usd,
+  z.symbol as token_0_currency,
+  et."1_amount"/ POW(10,6) as token_1_amount,
+  token_1_amount * o.price_usd as token_1_amount_usd,
+  o.symbol as token_1_currency,
+  z.price_usd as price0_usd,
+  o.price_usd as price1_usd,
+  token_0_currency || ' to ' || token_1_currency as swap_pair,
+  c.contract_address
 FROM msgs m
 
 LEFT OUTER JOIN events_transfer et 
@@ -105,3 +118,23 @@ LEFT OUTER JOIN fees f
  
 LEFT OUTER JOIN contract c
  ON m.tx_id = c.tx_id 
+
+LEFT OUTER JOIN prices z
+ ON date_trunc('hour', m.block_timestamp) = z.hour
+ AND et."0_amount_currency" = z.currency
+
+LEFT OUTER JOIN prices o
+ ON date_trunc('hour', m.block_timestamp) = o.hour
+ AND et."1_amount_currency" = o.currency 
+
+LEFT OUTER JOIN prices fe
+ ON date_trunc('hour', m.block_timestamp) = fe.hour
+ AND f.swap_fee_currency = fe.currency 
+
+LEFT OUTER JOIN prices oo
+ ON date_trunc('hour', m.block_timestamp) = oo.hour
+ AND m.offer_currency = oo.currency 
+ 
+LEFT OUTER JOIN prices aa
+ ON date_trunc('hour', m.block_timestamp) = aa.hour
+ AND m.ask_currency = aa.currency 
