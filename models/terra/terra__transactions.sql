@@ -20,3 +20,8 @@ SELECT
   gas_used,
   gas_wanted
 FROM {{source('terra', 'terra_transactions')}}
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}

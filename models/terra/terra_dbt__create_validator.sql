@@ -28,6 +28,11 @@ WITH staking_events AS (
 FROM {{source('terra', 'terra_msg_events')}}
 WHERE msg_module = 'staking' 
 AND msg_type = 'staking/MsgCreateValidator'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 
 staking AS (
@@ -55,6 +60,11 @@ staking AS (
 FROM {{source('terra', 'terra_msgs')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgCreateValidator'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}  
 ), 
 
 event_base AS (

@@ -20,3 +20,8 @@ SELECT
 FROM {{source('terra', 'terra_msgs')}} 
 WHERE msg_module = 'gov' 
   AND msg_type = 'gov/MsgDeposit'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}

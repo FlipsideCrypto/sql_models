@@ -22,6 +22,11 @@ SELECT
 FROM flipside_prod_db.silver.terra_msgs 
 WHERE msg_module = 'market' 
   AND msg_type = 'market/MsgSwap' 
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 
 events_transfer as(  
@@ -40,6 +45,11 @@ SELECT tx_id,
 FROM flipside_prod_db.silver.terra_msg_events
 WHERE event_type = 'transfer'
   AND msg_type = 'market/MsgSwap'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 
 fees as(
@@ -53,6 +63,11 @@ select
 FROM flipside_prod_db.silver.terra_msg_events
 WHERE event_type = 'swap'
   AND msg_type = 'market/MsgSwap'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 
 contract as (
@@ -65,6 +80,11 @@ select
 FROM flipside_prod_db.silver.terra_msg_events
 WHERE event_type = 'execute_contract'
   AND msg_type = 'wasm/MsgExecuteContract'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 
 prices as (
@@ -75,7 +95,12 @@ prices as (
       avg(luna_exchange_rate) as luna_exchange_rate,
       avg(price_usd) as price_usd,
       avg(luna_usd_price) as luna_usd_price
-    FROM prices_prices  
+    FROM prices_prices 
+    {% if is_incremental() %}
+       AND block_timestamp >= getdate() - interval '1 days'
+    {% else %}
+       AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %} 
     GROUP BY 1,2,3
 )
 

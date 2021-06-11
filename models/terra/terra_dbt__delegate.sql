@@ -20,3 +20,8 @@ SELECT
 FROM {{source('terra', 'terra_msgs')}} 
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgDelegate'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}

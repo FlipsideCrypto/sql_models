@@ -13,6 +13,11 @@ SELECT
   avg(price) as price   
 FROM FLIPSIDE_PROD_DB.SILVER.PRICES
 WHERE asset_id = 4172
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 GROUP BY 1,2
 ),
 luna_rate as (
@@ -25,6 +30,11 @@ SELECT
   attributes:exchange_rate as exchange_rate
 FROM flipside_prod_db.silver.terra_transitions 
 WHERE event = 'exchange_rate_update' 
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 )
 
 SELECT 

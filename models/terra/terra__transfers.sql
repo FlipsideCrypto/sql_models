@@ -25,6 +25,11 @@ WITH inputs as(
   , lateral flatten(input => vm.value:coins) ve
   WHERE msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+    {% if is_incremental() %}
+      AND block_timestamp >= getdate() - interval '1 days'
+    {% else %}
+      AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
 ),
 outputs as(
   SELECT 
@@ -43,6 +48,11 @@ outputs as(
   , lateral flatten(input => vm.value:coins) ve
   WHERE msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+    {% if is_incremental() %}
+      AND block_timestamp >= getdate() - interval '1 days'
+    {% else %}
+      AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
 )
 SELECT 
   i.blockchain,
@@ -78,3 +88,8 @@ SELECT
 FROM flipside_prod_db.silver.terra_msgs 
 WHERE msg_module = 'bank'
   AND msg_type = 'bank/MsgSend'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}

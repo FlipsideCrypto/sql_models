@@ -32,6 +32,11 @@ SELECT
 FROM {{source('terra', 'terra_msg_events')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgEditValidator'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 
 staking AS (
@@ -54,6 +59,11 @@ FROM {{source('terra', 'terra_msgs')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgEditValidator'
   AND chain_id = 'columbus-3'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 
 UNION 
 
@@ -77,6 +87,11 @@ FROM {{source('terra', 'terra_msgs')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgEditValidator'
   AND chain_id = 'columbus-4'
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),  
 
 event_base AS (

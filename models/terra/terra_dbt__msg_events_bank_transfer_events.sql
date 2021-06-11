@@ -27,6 +27,11 @@ WITH input AS (
   WHERE msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
     AND event_type = 'transfer'
+    {% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 tbl_recipient AS (
   SELECT
@@ -45,6 +50,11 @@ tbl_recipient AS (
     message_id    
   FROM input
   WHERE message_attribute = 'recipient'
+  {% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
 ),
 tbl_amount AS (
   SELECT
