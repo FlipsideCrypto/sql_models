@@ -11,8 +11,8 @@ SELECT
   date_trunc('hour', recorded_at) as hour,
   symbol,
   avg(price) as price   
-FROM FLIPSIDE_PROD_DB.SILVER.PRICES
-WHERE asset_id = 4172
+FROM FLIPSIDE_PROD_DB.SILVER.PRICES_V2
+WHERE asset_id = '4172'
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
 {% else %}
