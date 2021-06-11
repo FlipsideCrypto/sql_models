@@ -1,10 +1,13 @@
 {{ 
   config(
-    materialized='view', 
+    materialized='incremental', 
+    sort='block_timestamp', 
+    unique_key='block_id', 
+    incremental_strategy='delete+insert',
+    cluster_by=['block_timestamp'],
     tags=['snowflake', 'terra', 'staking']
   )
 }}
-
 
 WITH staking_events AS (
 SELECT

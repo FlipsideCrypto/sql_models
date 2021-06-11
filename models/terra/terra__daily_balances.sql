@@ -1,6 +1,6 @@
 {{ 
   config(
-    materialized='view', 
+    materialized='incremental', 
     tags=['snowflake', 'terra', 'balances']
   )
 }}
