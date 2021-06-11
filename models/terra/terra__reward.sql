@@ -18,7 +18,7 @@ WITH withdraw_delegator_rewards AS (
     event_transfer_currency AS currency,
     recipient,
     validator
-  FROM {{ ref('terra__withdraw_delegator_rewards') }}
+  FROM {{ ref('terra_dbt__withdraw_delegator_rewards') }}
 ),
 
 withdraw_validator_commission AS (
@@ -34,7 +34,7 @@ withdraw_validator_commission AS (
     currency,
     recipient,
     validator_address AS validator
-  FROM {{ ref('terra__withdraw_validator_commission') }}
+  FROM {{ ref('terra_dbt__withdraw_validator_commission') }}
 ),
 prices AS (
     SELECT 
