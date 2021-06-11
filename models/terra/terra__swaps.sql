@@ -35,13 +35,12 @@ SELECT tx_id,
        event_attributes,
        REGEXP_REPLACE(event_attributes:"0_sender",'\"','') as "0_sender",
        REGEXP_REPLACE(event_attributes:"0_recipient",'\"','') as "0_recipient",
-       REGEXP_REPLACE(event_attributes:"0_amount":amount,'\"','') as "0_amount",
-       REGEXP_REPLACE(event_attributes:"0_amount":denom,'\"','') as "0_amount_currency",
+       REGEXP_REPLACE(event_attributes:"0_amount"[0]:amount,'\"','') as "0_amount",
+       REGEXP_REPLACE(event_attributes:"0_amount"[0]:denom,'\"','') as "0_amount_currency",
        REGEXP_REPLACE(event_attributes:"1_sender",'\"','') as "1_sender",
        REGEXP_REPLACE(event_attributes:"1_recipient",'\"','') as "1_recipient",
-       REGEXP_REPLACE(event_attributes:"1_amount":amount,'\"','') as "1_amount",
-       REGEXP_REPLACE(event_attributes:"1_amount":denom,'\"','') as "1_amount_currency",
-       event_attributes as transfer_attr
+       REGEXP_REPLACE(event_attributes:"1_amount"[0]:amount,'\"','') as "1_amount",
+       REGEXP_REPLACE(event_attributes:"1_amount"[0]:denom,'\"','') as "1_amount_currency"
 FROM {{source('terra', 'terra_msg_events')}}
 WHERE event_type = 'transfer'
   AND msg_type = 'market/MsgSwap'
@@ -53,13 +52,11 @@ WHERE event_type = 'transfer'
 ),
 
 fees as(
-select 
+SELECT 
   tx_id,
   event_type,
-  event_attributes,
-  REGEXP_SUBSTR(event_attributes:swap_fee, '[0-9]+\.[0-9]+') as swap_fee_amount,
-  REGEXP_REPLACE(event_attributes:swap_fee, '[^a-zA-Z]', '')as swap_fee_currency,
-  event_attributes as fee_attr
+  event_attributes:swap_fee[0]:amount as swap_fee_amount,
+  REGEXP_REPLACE(event_attributes:swap_fee[0]:denom,'\"','') as swap_fee_currency
 FROM {{source('terra', 'terra_msg_events')}}
 WHERE event_type = 'swap'
   AND msg_type = 'market/MsgSwap'
