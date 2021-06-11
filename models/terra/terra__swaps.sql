@@ -19,7 +19,7 @@ SELECT
   REGEXP_REPLACE(msg_value:offer_coin:amount,'\"','') as offer_amount,
   REGEXP_REPLACE(msg_value:offer_coin:denom,'\"','') as offer_currency,
   msg_value
-FROM flipside_prod_db.silver.terra_msgs 
+FROM {{source('terra', 'terra_msgs')}}
 WHERE msg_module = 'market' 
   AND msg_type = 'market/MsgSwap' 
 {% if is_incremental() %}
@@ -42,7 +42,7 @@ SELECT tx_id,
        REGEXP_REPLACE(event_attributes:"1_amount":amount,'\"','') as "1_amount",
        REGEXP_REPLACE(event_attributes:"1_amount":denom,'\"','') as "1_amount_currency",
        event_attributes as transfer_attr
-FROM flipside_prod_db.silver.terra_msg_events
+FROM {{source('terra', 'terra_msg_events')}}
 WHERE event_type = 'transfer'
   AND msg_type = 'market/MsgSwap'
 {% if is_incremental() %}
@@ -60,7 +60,7 @@ select
   REGEXP_SUBSTR(event_attributes:swap_fee, '[0-9]+\.[0-9]+') as swap_fee_amount,
   REGEXP_REPLACE(event_attributes:swap_fee, '[^a-zA-Z]', '')as swap_fee_currency,
   event_attributes as fee_attr
-FROM flipside_prod_db.silver.terra_msg_events
+FROM {{source('terra', 'terra_msg_events')}}
 WHERE event_type = 'swap'
   AND msg_type = 'market/MsgSwap'
 {% if is_incremental() %}
@@ -77,7 +77,7 @@ select
   event_attributes,
   REGEXP_REPLACE(event_attributes:contract_address,'\"','') as contract_address,
   event_attributes as contract_attr
-FROM flipside_prod_db.silver.terra_msg_events
+FROM {{source('terra', 'terra_msg_events')}}
 WHERE event_type = 'execute_contract'
   AND msg_type = 'wasm/MsgExecuteContract'
 {% if is_incremental() %}
@@ -95,7 +95,7 @@ prices as (
       avg(luna_exchange_rate) as luna_exchange_rate,
       avg(price_usd) as price_usd,
       avg(luna_usd_price) as luna_usd_price
-    FROM prices_prices 
+    FROM {{ ref('terra__oracle_prices')}} 
     {% if is_incremental() %}
        AND block_timestamp >= getdate() - interval '1 days'
     {% else %}
@@ -117,12 +117,24 @@ SELECT
   f.swap_fee_amount / POW(10,6) * fe.price_usd as swap_fee_amount_usd,
   fe.symbol as swap_fee_currency,
   m.trader, 
+  trader_labels.l1_label as trader_label_type,
+  trader_labels.l2_label as trader_label_subtype,
+  trader_labels.project_name as trader_address_label,
+  trader_labels.address_name as trader_address_name,
   aa.symbol as ask_currency,
   m.offer_amount / POW(10,6) as offer_amount,
   m.offer_amount / POW(10,6) * oo.price_usd as offer_amount_usd,
   oo.symbol as offer_currency,
   et."0_sender" as sender,
+  sender_labels.l1_label as sender_label_type,
+  sender_labels.l2_label as sender_label_subtype,
+  sender_labels.project_name as sender_address_label,
+  sender_labels.address_name as sender_address_name,
   et."0_recipient" as receiver,
+  receiver_labels.l1_label as receiver_label_type,
+  receiver_labels.l2_label as receiver_label_subtype,
+  receiver_labels.project_name as receiver_address_label,
+  receiver_labels.address_name as receiver_address_name,
   et."0_amount" / POW(10,6) as token_0_amount,
   token_0_amount * z.price_usd as token_0_amount_usd,
   z.symbol as token_0_currency,
@@ -163,3 +175,12 @@ LEFT OUTER JOIN prices oo
 LEFT OUTER JOIN prices aa
  ON date_trunc('hour', m.block_timestamp) = aa.hour
  AND m.ask_currency = aa.currency 
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as trader_labels
+ON m.trader = trader_labels.address
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as sender_labels
+ON et."0_sender" = sender_labels.address
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as receiver_labels
+ON et."0_recipient" = receiver_labels.address
