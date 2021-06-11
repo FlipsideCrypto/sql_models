@@ -93,12 +93,12 @@ prices as (
       avg(price_usd) as price_usd,
       avg(luna_usd_price) as luna_usd_price
     FROM {{ ref('terra__oracle_prices')}} 
-    WHERE 
-    {% if is_incremental() %}
-       AND block_timestamp >= getdate() - interval '1 days'
-    {% else %}
-       AND block_timestamp >= getdate() - interval '9 months'
-    {% endif %} 
+    WHERE
+  {% if is_incremental() %}
+    block_timestamp >= getdate() - interval '3 days'
+  {% else %}
+    block_timestamp >= getdate() - interval '12 months'
+  {% endif %}
     GROUP BY 1,2,3
 )
 
