@@ -14,9 +14,9 @@ SELECT
 FROM {{ source('shared', 'prices')}}
 WHERE asset_id = '4172'
 {% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
+ AND recorded_at >= getdate() - interval '1 days'
 {% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+ AND recorded_at >= getdate() - interval '9 months'
 {% endif %}
 GROUP BY 1,2
 ),
