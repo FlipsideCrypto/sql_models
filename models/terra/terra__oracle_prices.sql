@@ -11,7 +11,7 @@ SELECT
   date_trunc('hour', recorded_at) as hour,
   symbol,
   avg(price) as price   
-FROM FLIPSIDE_PROD_DB.SILVER.PRICES_V2
+FROM {{ source('shared', 'prices')}}
 WHERE asset_id = '4172'
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
@@ -28,7 +28,7 @@ SELECT
   block_id,
   REGEXP_REPLACE(attributes:denom::string,'\"','') as currency,
   attributes:exchange_rate as exchange_rate
-FROM flipside_prod_db.silver.terra_transitions 
+FROM {{source('terra', 'terra_transitions')}}
 WHERE event = 'exchange_rate_update' 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'

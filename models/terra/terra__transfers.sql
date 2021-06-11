@@ -21,7 +21,7 @@ WITH inputs as(
     ve.value:amount/ pow(10,6) as event_amount,
     REGEXP_REPLACE(ve.value:denom,'\"','') as event_currency,
     msg_value
-  FROM flipside_prod_db.silver.terra_msgs
+  FROM {{source('terra', 'terra_msgs')}}
   , lateral flatten(input => tendermintBankMsgMultiSendAddIndex(msg_value):inputs) vm
   , lateral flatten(input => vm.value:coins) ve
   WHERE msg_module = 'bank'
@@ -44,7 +44,7 @@ outputs as(
     REGEXP_REPLACE(vm.value:address,'\"','') as event_to,
     ve.value:amount/ pow(10,6) as event_amount,
     REGEXP_REPLACE(ve.value:denom,'\"','') as event_currency
-  FROM flipside_prod_db.silver.terra_msgs
+  FROM {{source('terra', 'terra_msgs')}}
   , lateral flatten(input => tendermintBankMsgMultiSendAddIndex(msg_value):outputs) vm
   , lateral flatten(input => vm.value:coins) ve
   WHERE msg_module = 'bank'
@@ -86,7 +86,7 @@ SELECT
   REGEXP_REPLACE(msg_value:to_address,'\"','') as event_to,
   msg_value:amount[0]:amount / pow(10,6) as event_amount,
   REGEXP_REPLACE(msg_value:amount[0]:denom,'\"','') as event_currency
-FROM flipside_prod_db.silver.terra_msgs 
+FROM {{source('terra', 'terra_msgs')}}
 WHERE msg_module = 'bank'
   AND msg_type = 'bank/MsgSend'
 {% if is_incremental() %}
