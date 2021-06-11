@@ -26,7 +26,7 @@ SELECT
   address_labels.l1_label as address_label_type,
   address_labels.l2_label as address_label_subtype,
   address_labels.project_name as address_label,
-  address_labels.address_name as address_address_name,
+  address_labels.address_name as address_name,
   balance,
   balance * p.price as balance_usd,
   b.balance_type,
