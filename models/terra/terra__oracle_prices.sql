@@ -63,7 +63,7 @@ SELECT
    ELSE currency
   END as symbol,
   exchange_rate as luna_exchange_rate,
-  exchange_rate / price as price_usd,
+  price / exchange_rate as price_usd,
   price as luna_usd_price
 FROM luna_rate
 

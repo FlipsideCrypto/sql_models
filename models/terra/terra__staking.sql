@@ -51,19 +51,20 @@ redelegate AS (
     FROM {{ ref('terra__redelegate') }}
 ),
 prices AS (
-SELECT
-    p.symbol,
-    date_trunc('day', block_timestamp) as day,
-    avg(price_usd) as price
-FROM
-    {{ ref('terra__oracle_prices')}} p
-WHERE
+    SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(luna_exchange_rate) as luna_exchange_rate,
+      avg(price_usd) as price_usd,
+      avg(luna_usd_price) as luna_usd_price
+    FROM {{ ref('terra__oracle_prices')}} 
     {% if is_incremental() %}
-        block_timestamp >= getdate() - interval '3 days'
+       AND block_timestamp >= getdate() - interval '1 days'
     {% else %}
-        block_timestamp >= getdate() - interval '12 months'
-    {% endif %}
-GROUP BY p.symbol, day
+       AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %} 
+    GROUP BY 1,2,3
 )
 
 SELECT 
@@ -76,16 +77,17 @@ SELECT
     a.tx_id, 
     a.action,
     a.delegator_address,
-    address_labels_delegator.l1_label as address_label_delegator_type,
-    address_labels_delegator.l2_label as address_label_delegator_subtype,
-    address_labels_delegator.project_name as address_delegator_label,
-    address_labels_delegator.address_name as address_delegator_address_name,
+    delegator_labels.l1_label as delegator_label_type,
+    delegator_labels.l2_label as delegator_label_subtype,
+    delegator_labels.project_name as delegator_address_label,
+    delegator_labels.address_name as delegator_address_name,
     a.validator_address,
-    address_labels_validator.l1_label as address_label_validator_type,
-    address_labels_validator.l2_label as address_label_validator_subtype,
-    address_labels_validator.project_name as address_validator_label,
-    address_labels_validator.address_name as address_validator_address_name,
-    a.amount,
+    validator_labels.l1_label as validator_label_type,
+    validator_labels.l2_label as validator_label_subtype,
+    validator_labels.project_name as validator_address_label,
+    validator_labels.address_name as validator_address_name,
+    a.amount as event_amount,
+    a.amount * price_usd as event_amount_usd,
     p.symbol AS currency
 FROM (
     SELECT * FROM delegate
@@ -95,18 +97,12 @@ FROM (
     SELECT * FROM redelegate
 ) a
 
-LEFT OUTER JOIN
-  prices p
-ON
-  p.symbol = a.currency
-  AND p.day = date_trunc('day', a.block_timestamp)
+LEFT OUTER JOIN prices p
+  ON p.currency = a.currency
+  AND p.hour = date_trunc('hour', a.block_timestamp)
 
-LEFT OUTER JOIN
-  {{source('shared','udm_address_labels')}} address_labels_delegator
-ON
-  a.address = address_labels_delegator.address
+LEFT OUTER JOIN {{source('shared','udm_address_labels')}} delegator_labels
+  ON a.address = address_labels_delegator.address
 
-LEFT OUTER JOIN
-  {{source('shared','udm_address_labels')}} address_labels_validator
-ON
-  a.address = address_labels_validator.address
+LEFT OUTER JOIN {{source('shared','udm_address_labels')}} validator_labels
+  ON a.address = address_labels_validator.address
