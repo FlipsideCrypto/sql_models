@@ -18,7 +18,7 @@ WITH delegate AS (
     validator AS validator_address,
     event_transfer_amount AS amount,
     event_transfer_currency AS currency
-  FROM {{ ref('terra__delegate') }}
+  FROM {{ ref('terra_dbt__delegate') }}
 ),
 undelegate AS (
   SELECT
@@ -33,7 +33,7 @@ undelegate AS (
     validator_address AS validator_address,
     CASE WHEN event_transfer_1_amount IS NOT NULL THEN event_transfer_1_amount ELSE event_amount END AS amount,
     CASE WHEN event_transfer_1_currency IS NOT NULL THEN event_transfer_1_currency ELSE event_currency END AS currency
-  FROM {{ ref('terra__undelegate') }}
+  FROM {{ ref('terra_dbt__undelegate') }}
 ),
 redelegate AS (
   SELECT
@@ -48,7 +48,7 @@ redelegate AS (
     validator_dst_address AS validator_address,
     event_amount AS amount,
     event_currency AS currency
-    FROM {{ ref('terra__redelegate') }}
+    FROM {{ ref('terra_dbt__redelegate') }}
 ),
 prices AS (
     SELECT 
@@ -73,7 +73,6 @@ SELECT
     a.tx_status,
     a.block_id,
     a.block_timestamp,
-    date_trunc('day', a.block_timestamp) as day,
     a.tx_id, 
     a.action,
     a.delegator_address,
@@ -87,6 +86,7 @@ SELECT
     validator_labels.project_name as validator_address_label,
     validator_labels.address_name as validator_address_name,
     a.amount as event_amount,
+    price_usd,
     a.amount * price_usd as event_amount_usd,
     p.symbol AS currency
 FROM (
@@ -102,7 +102,7 @@ LEFT OUTER JOIN prices p
   AND p.hour = date_trunc('hour', a.block_timestamp)
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels')}} delegator_labels
-  ON a.address = address_labels_delegator.address
+  ON a.delegator_address = delegator_labels.address
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels')}} validator_labels
-  ON a.address = address_labels_validator.address
+  ON a.validator_address = validator_labels.address

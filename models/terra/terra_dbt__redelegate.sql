@@ -25,15 +25,15 @@ WITH staking_events AS (
     event_attributes:"2_sender"::string AS "2_sender",
     event_attributes:action::string AS action,
     event_attributes:module::string AS module,
-    event_attributes:"0_amount":amount AS event_transfer_0_amount,
-    event_attributes:"0_amount":denom::string AS event_transfer_0_currency,
+    event_attributes:"0_amount"[0]:amount / POW(10,6) AS event_transfer_0_amount,
+    event_attributes:"0_amount"[0]:denom::string AS event_transfer_0_currency,
     event_attributes:"0_recipient"::string AS event_transfer_0_recipient,
     event_attributes:"0_sender"::string AS event_transfer_0_sender,
-    event_attributes:"1_amount":amount AS event_transfer_1_amount,
-    event_attributes:"1_amount":denom::string AS event_transfer_1_currency,
+    event_attributes:"1_amount"[0]:amount / POW(10,6) AS event_transfer_1_amount,
+    event_attributes:"1_amount"[0]:denom::string AS event_transfer_1_currency,
     event_attributes:"1_recipient"::string AS event_transfer_1_recipient,
     event_attributes:"1_sender"::string AS event_transfer_1_sender,
-    event_attributes:amount AS event_redelegate_amount,
+    event_attributes:amount / POW(10,6) AS event_redelegate_amount,
     event_attributes:completion_time::string AS completion_time,
     event_attributes:destination_validator::string AS destination_validator,
     event_attributes:source_validator::string AS source_validator  
@@ -46,6 +46,7 @@ AND block_timestamp >= getdate() - interval '1 days'
 AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 ),
+
 staking AS (
     SELECT 
   blockchain,
