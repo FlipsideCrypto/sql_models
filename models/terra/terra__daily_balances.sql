@@ -40,8 +40,7 @@ ON
   AND p.day = b.date
 LEFT OUTER JOIN
   {{source('shared','udm_address_labels')}} as address_labels
-ON
-  b.address = address_labels.address
+ON b.address = address_labels.address
 WHERE
   {% if is_incremental() %}
     date >= getdate() - interval '3 days'
