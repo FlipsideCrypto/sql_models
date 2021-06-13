@@ -1,6 +1,10 @@
 {{ 
   config(
     materialized='incremental', 
+    sort=['date', 'currency'], 
+    unique_key='date || address', 
+    incremental_strategy='delete+insert',
+    cluster_by=['date', 'address'],
     tags=['snowflake', 'terra', 'balances']
   )
 }}
