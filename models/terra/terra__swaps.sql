@@ -17,6 +17,7 @@ SELECT
   block_timestamp, 
   tx_status,
   tx_id, 
+  msg_index,
   msg_type,
   REGEXP_REPLACE(msg_value:trader,'\"','') as trader,
   REGEXP_REPLACE(msg_value:ask_denom,'\"','') as ask_currency,
@@ -37,6 +38,7 @@ events_transfer as(
 SELECT tx_id,
        event_type,
        event_attributes,
+       msg_index,
        REGEXP_REPLACE(event_attributes:"0_sender",'\"','') as "0_sender",
        REGEXP_REPLACE(event_attributes:"0_recipient",'\"','') as "0_recipient",
        REGEXP_REPLACE(event_attributes:"0_amount"[0]:amount,'\"','') as "0_amount",
@@ -59,6 +61,7 @@ fees as(
 SELECT 
   tx_id,
   event_type,
+  msg_index,
   event_attributes:swap_fee[0]:amount as swap_fee_amount,
   REGEXP_REPLACE(event_attributes:swap_fee[0]:denom,'\"','') as swap_fee_currency
 FROM {{source('terra', 'terra_msg_events')}}
@@ -76,6 +79,7 @@ select
   tx_id,
   event_type,
   event_attributes,
+  msg_index,
   REGEXP_REPLACE(event_attributes:contract_address,'\"','') as contract_address,
   event_attributes as contract_attr
 FROM {{source('terra', 'terra_msg_events')}}
@@ -151,12 +155,15 @@ FROM msgs m
 
 LEFT OUTER JOIN events_transfer et 
  ON m.tx_id = et.tx_id 
+ AND m.msg_index = et.msg_index
 
 LEFT OUTER JOIN fees f 
  ON m.tx_id = f.tx_id 
+ AND m.msg_index = f.msg_index
  
 LEFT OUTER JOIN contract c
  ON m.tx_id = c.tx_id 
+ AND m.msg_index = c.msg_index
 
 LEFT OUTER JOIN prices z
  ON date_trunc('hour', m.block_timestamp) = z.hour
