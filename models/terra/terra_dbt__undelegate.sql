@@ -25,7 +25,7 @@ WITH staking_events AS (
     event_attributes,
     event_attributes:validator::string AS validator,
     event_attributes:completion_time::string AS completion_time,
-    event_attributes:amount / POW(10,6) AS unbond_amount,
+    -- event_attributes:amount / POW(10,6) AS unbond_amount,
     event_attributes:"0_sender"::string AS "0_sender",
     event_attributes:"1_sender"::string AS "1_sender",
     event_attributes:"2_sender"::string AS "2_sender",
@@ -113,7 +113,7 @@ transfer AS (
 unbond AS (
   SELECT
     tx_id,
-    unbond_amount,
+    -- unbond_amount,
     validator,
     completion_time
   FROM staking_events 
@@ -144,7 +144,7 @@ SELECT
   event_transfer_1_sender,
   staking.event_amount,
   staking.event_currency,
-  unbond_amount,
+  -- unbond_amount,
   validator,
   completion_time,
   staking.delegator_address,

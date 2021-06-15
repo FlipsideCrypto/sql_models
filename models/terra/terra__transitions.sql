@@ -12,7 +12,7 @@ SELECT
   chain_id,
   transition_type,
   index,
-  event,
+  event
 FROM {{source('terra', 'terra_transitions')}}
 WHERE
 {% if is_incremental() %}
