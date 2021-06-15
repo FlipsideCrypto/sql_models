@@ -11,15 +11,15 @@
 
 WITH prices as (
 SELECT 
-  date_trunc('hour', recorded_at) as hour,
-  symbol,
+  date_trunc('hour', recorded_at) as block_timestamp,
+  symbol as currency,
   avg(price) as price   
-FROM {{ source('shared', 'prices')}}
+FROM {{ source('shared', 'prices_v2')}}
 WHERE asset_id = '4172'
 {% if is_incremental() %}
- AND recorded_at >= getdate() - interval '1 days'
+ AND block_timestamp >= getdate() - interval '1 days'
 {% else %}
- AND recorded_at >= getdate() - interval '9 months'
+ AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 GROUP BY 1,2
 ),
@@ -42,42 +42,42 @@ WHERE event = 'exchange_rate_update'
 
 SELECT 
   blockchain,
-  block_timestamp,
-  currency,
+  l.block_timestamp,
+  l.currency,
   CASE 
-   WHEN currency = 'usgd' THEN 'SGT'
-   WHEN currency = 'uusd' THEN 'UST'
-   WHEN currency = 'ukrw' THEN 'KRT'
-   WHEN currency = 'unok' THEN 'NOT'
-   WHEN currency = 'ucny' THEN 'CNT'
-   WHEN currency = 'uinr' THEN 'INT'
-   WHEN currency = 'ueur' THEN 'EUT'
-   WHEN currency = 'udkk' THEN 'DKT'
-   WHEN currency = 'uhkd' THEN 'HKT'
-   WHEN currency = 'usek' THEN 'SET'
-   WHEN currency = 'uthb' THEN 'THT'
-   WHEN currency = 'umnt' THEN 'MNT'
-   WHEN currency = 'ucad' THEN 'CAT'
-   WHEN currency = 'ugbp' THEN 'GBT'
-   WHEN currency = 'ujpy' THEN 'JPT'
-   WHEN currency = 'usdr' THEN 'SDT'
-   WHEN currency = 'uchf' THEN 'CHT'
-   WHEN currency = 'uaud' THEN 'AUT'
-   ELSE currency
+   WHEN l.currency = 'usgd' THEN 'SGT'
+   WHEN l.currency = 'uusd' THEN 'UST'
+   WHEN l.currency = 'ukrw' THEN 'KRT'
+   WHEN l.currency = 'unok' THEN 'NOT'
+   WHEN l.currency = 'ucny' THEN 'CNT'
+   WHEN l.currency = 'uinr' THEN 'INT'
+   WHEN l.currency = 'ueur' THEN 'EUT'
+   WHEN l.currency = 'udkk' THEN 'DKT'
+   WHEN l.currency = 'uhkd' THEN 'HKT'
+   WHEN l.currency = 'usek' THEN 'SET'
+   WHEN l.currency = 'uthb' THEN 'THT'
+   WHEN l.currency = 'umnt' THEN 'MNT'
+   WHEN l.currency = 'ucad' THEN 'CAT'
+   WHEN l.currency = 'ugbp' THEN 'GBT'
+   WHEN l.currency = 'ujpy' THEN 'JPT'
+   WHEN l.currency = 'usdr' THEN 'SDT'
+   WHEN l.currency = 'uchf' THEN 'CHT'
+   WHEN l.currency = 'uaud' THEN 'AUT'
+   ELSE l.currency
   END as symbol,
   exchange_rate as luna_exchange_rate,
   price / exchange_rate as price_usd,
   price as luna_usd_price
-FROM luna_rate
+FROM luna_rate l
 
-LEFT OUTER JOIN prices 
-  ON date_trunc('hour', block_timestamp) = hour
+LEFT OUTER JOIN prices p
+  ON date_trunc('hour', l.block_timestamp) = p.block_timestamp
 
 UNION 
 
 SELECT 
   'terra' as blockchain,
-   hour as block_timestamp,
+   block_timestamp,
   'uluna' as currency,
   'LUNA' as symbol,
   1 as luna_exchange_rate,
