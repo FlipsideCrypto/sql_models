@@ -49,10 +49,11 @@ prices AS (
       avg(price_usd) as price_usd,
       avg(luna_usd_price) as luna_usd_price
     FROM {{ ref('terra__oracle_prices')}} 
+    WHERE
     {% if is_incremental() %}
-       AND block_timestamp >= getdate() - interval '1 days'
+      block_timestamp >= getdate() - interval '1 days'
     {% else %}
-       AND block_timestamp >= getdate() - interval '9 months'
+      block_timestamp >= getdate() - interval '9 months'
     {% endif %} 
     GROUP BY 1,2,3
 )
@@ -70,7 +71,7 @@ SELECT
     recipient_labels.l2_label as recipient_label_subtype,
     recipient_labels.project_name as recipient_address_label,
     recipient_labels.address_name as recipient_address_name,
-    a.validator_address AS validator
+    a.validator AS validator,
     validator_labels.l1_label as validator_label_type,
     validator_labels.l2_label as validator_label_subtype,
     validator_labels.project_name as validator_address_label,
@@ -92,4 +93,4 @@ LEFT OUTER JOIN {{source('shared','udm_address_labels')}} recipient_labels
   ON a.recipient = recipient_labels.address
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels')}} validator_labels
-  ON a.validator_address = validator_labels.address
+  ON a.validator = validator_labels.address

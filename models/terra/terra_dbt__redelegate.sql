@@ -163,10 +163,3 @@ LEFT JOIN redelegate
 ON event_base.tx_id = redelegate.tx_id
 LEFT JOIN staking
 ON event_base.tx_id = staking.tx_id
-
-WHERE TRUE
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}

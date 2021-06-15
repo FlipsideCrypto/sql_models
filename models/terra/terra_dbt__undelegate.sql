@@ -134,17 +134,17 @@ SELECT
   "0_sender",
   "1_sender",
   "2_sender",
-  event_transfer_0_amount / POW(10,6),
+  event_transfer_0_amount,
   event_transfer_0_currency,
   event_transfer_0_recipient,
   event_transfer_0_sender,
-  event_transfer_1_amount / POW(10,6),
+  event_transfer_1_amount,
   event_transfer_1_currency,
   event_transfer_1_recipient,
   event_transfer_1_sender,
-  staking.event_amount / POW(10,6),
+  staking.event_amount,
   staking.event_currency,
-  unbond_amount / POW(10,6),
+  unbond_amount,
   validator,
   completion_time,
   staking.delegator_address,
@@ -158,10 +158,3 @@ LEFT JOIN unbond
 ON event_base.tx_id = unbond.tx_id
 LEFT JOIN staking
 ON event_base.tx_id = staking.tx_id
-
-WHERE TRUE
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}

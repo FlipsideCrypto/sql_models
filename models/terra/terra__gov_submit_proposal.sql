@@ -16,22 +16,23 @@ WITH prices as (
       symbol,
       avg(price_usd) as price_usd
     FROM {{ ref('terra__oracle_prices')}} 
+    WHERE
     {% if is_incremental() %}
-       AND block_timestamp >= getdate() - interval '1 days'
+      block_timestamp >= getdate() - interval '1 days'
     {% else %}
-       AND block_timestamp >= getdate() - interval '9 months'
+      block_timestamp >= getdate() - interval '9 months'
     {% endif %} 
     GROUP BY 1,2,3
 )
 
 SELECT 
-  blockchain,
-  chain_id,
-  tx_status,
-  block_id,
-  block_timestamp, 
-  tx_id, 
-  msg_type, 
+  t.blockchain,
+  t.chain_id,
+  t.tx_status,
+  t.block_id,
+  t.block_timestamp, 
+  t.tx_id, 
+  t.msg_type, 
   REGEXP_REPLACE(msg_value:proposer,'\"','') as proposer,
   proposer_labels.l1_label as proposer_label_type,
   proposer_labels.l2_label as proposer_label_subtype,
@@ -42,16 +43,16 @@ SELECT
   REGEXP_REPLACE(msg_value:content:value:title,'\"','') as title,
   -- REGEXP_REPLACE(msg_value:initial_deposit[0]:amount,'\"','') as deposit_amount,
   msg_value:initial_deposit[0]:amount as deposit_amount,
-  deposit_amount * price as deposit_amount_usd,
+  deposit_amount * o.price_usd as deposit_amount_usd,
   REGEXP_REPLACE(msg_value:initial_deposit[0]:denom,'\"','') as deposit_currency
-FROM {{source('terra', 'terra_msgs')}}  t
+FROM {{source('terra', 'terra_msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.deposit_currency = o.currency 
+ AND REGEXP_REPLACE(t.msg_value:initial_deposit[0]:denom,'\"','') = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as proposer_labels
-ON proposer = proposer_labels.address
+ON REGEXP_REPLACE(t.msg_value:proposer,'\"','') = proposer_labels.address
 
 WHERE msg_module = 'gov' 
   AND msg_type = 'gov/MsgSubmitProposal'

@@ -14,8 +14,9 @@ SELECT
   index,
   event,
 FROM {{source('terra', 'terra_transitions')}}
+WHERE
 {% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
+  block_timestamp >= getdate() - interval '1 days'
 {% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+  block_timestamp >= getdate() - interval '9 months'
 {% endif %}
