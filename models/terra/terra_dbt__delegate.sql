@@ -24,7 +24,7 @@ WITH staking_events AS (
     event_type,
     event_attributes,
     event_attributes:validator::string AS validator,
-    CASE WHEN event_type = 'delegate' THEN event_attributes:amount / POW(10,6) ELSE NULL END AS delegated_amount,
+    -- CASE WHEN event_type = 'delegate' THEN event_attributes:amount / POW(10,6) ELSE NULL END AS delegated_amount,
     event_attributes:"0_sender"::string AS "0_sender",
     event_attributes:"1_sender"::string AS "1_sender",
     event_attributes:action::string AS action,
@@ -104,8 +104,8 @@ transfer AS (
 delegate AS (
   SELECT
     tx_id,
-    validator,
-    delegated_amount
+    validator
+    -- delegated_amount
   FROM staking_events 
   WHERE event_type = 'delegate' 
 )
@@ -126,7 +126,7 @@ SELECT
   CASE WHEN event_transfer_currency IS NOT NULL THEN event_transfer_currency ELSE staking.event_currency END AS event_transfer_currency,
   sender,
   recipient,
-  delegated_amount / POW(10,6),
+  -- delegated_amount / POW(10,6),
   staking.delegator_address,
   staking.validator_address AS validator
 FROM event_base
@@ -138,10 +138,3 @@ LEFT JOIN delegate
 ON event_base.tx_id = delegate.tx_id
 LEFT JOIN staking
 ON event_base.tx_id = staking.tx_id
-
-WHERE TRUE
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}

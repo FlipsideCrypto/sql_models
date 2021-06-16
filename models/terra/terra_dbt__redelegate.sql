@@ -37,7 +37,7 @@ WITH staking_events AS (
     event_attributes:"1_amount"[0]:denom::string AS event_transfer_1_currency,
     event_attributes:"1_recipient"::string AS event_transfer_1_recipient,
     event_attributes:"1_sender"::string AS event_transfer_1_sender,
-    event_attributes:amount / POW(10,6) AS event_redelegate_amount,
+    -- event_attributes:amount / POW(10,6) AS event_redelegate_amount,
     event_attributes:completion_time::string AS completion_time,
     event_attributes:destination_validator::string AS destination_validator,
     event_attributes:source_validator::string AS source_validator  
@@ -117,7 +117,7 @@ transfer AS (
 redelegate AS (
   SELECT
     tx_id,
-    event_redelegate_amount,
+    -- event_redelegate_amount,
     completion_time,
     destination_validator,
     source_validator
@@ -149,7 +149,7 @@ SELECT
   event_transfer_1_currency,
   event_transfer_1_recipient,
   event_transfer_1_sender,
-  event_redelegate_amount,
+  -- event_redelegate_amount,
   completion_time,
   staking.delegator_address,
   staking.validator_src_address,
@@ -163,10 +163,3 @@ LEFT JOIN redelegate
 ON event_base.tx_id = redelegate.tx_id
 LEFT JOIN staking
 ON event_base.tx_id = staking.tx_id
-
-WHERE TRUE
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}

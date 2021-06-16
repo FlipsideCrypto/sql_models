@@ -25,7 +25,7 @@ WITH staking_events AS (
     event_attributes,
     event_attributes:validator::string AS validator,
     event_attributes:completion_time::string AS completion_time,
-    event_attributes:amount / POW(10,6) AS unbond_amount,
+    -- event_attributes:amount / POW(10,6) AS unbond_amount,
     event_attributes:"0_sender"::string AS "0_sender",
     event_attributes:"1_sender"::string AS "1_sender",
     event_attributes:"2_sender"::string AS "2_sender",
@@ -113,7 +113,7 @@ transfer AS (
 unbond AS (
   SELECT
     tx_id,
-    unbond_amount,
+    -- unbond_amount,
     validator,
     completion_time
   FROM staking_events 
@@ -134,17 +134,17 @@ SELECT
   "0_sender",
   "1_sender",
   "2_sender",
-  event_transfer_0_amount / POW(10,6),
+  event_transfer_0_amount,
   event_transfer_0_currency,
   event_transfer_0_recipient,
   event_transfer_0_sender,
-  event_transfer_1_amount / POW(10,6),
+  event_transfer_1_amount,
   event_transfer_1_currency,
   event_transfer_1_recipient,
   event_transfer_1_sender,
-  staking.event_amount / POW(10,6),
+  staking.event_amount,
   staking.event_currency,
-  unbond_amount / POW(10,6),
+  -- unbond_amount,
   validator,
   completion_time,
   staking.delegator_address,
@@ -158,10 +158,3 @@ LEFT JOIN unbond
 ON event_base.tx_id = unbond.tx_id
 LEFT JOIN staking
 ON event_base.tx_id = staking.tx_id
-
-WHERE TRUE
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}

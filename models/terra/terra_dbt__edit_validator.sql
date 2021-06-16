@@ -43,30 +43,31 @@ WHERE msg_module = 'staking'
 ),
 
 staking AS (
-    SELECT 
-  blockchain,
-  chain_id,
-  tx_status,
-  block_id,
-  block_timestamp, 
-  tx_id, 
-  msg_type, 
-  REGEXP_REPLACE(msg_value:address,'\"','') as validator,
-  REGEXP_REPLACE(msg_value:commission_rate,'\"','') as commission_rate,
-  REGEXP_REPLACE(msg_value:Description:details,'\"','') as details,
-  REGEXP_REPLACE(msg_value:Description:identity,'\"','') as identity,
-  REGEXP_REPLACE(msg_value:Description:moniker,'\"','') as moniker,
-  REGEXP_REPLACE(msg_value:Description:security_contact,'\"','') as security_contact,
-  REGEXP_REPLACE(msg_value:Description:website,'\"','') as website
-FROM {{source('terra', 'terra_msgs')}}
-WHERE msg_module = 'staking' 
-  AND msg_type = 'staking/MsgEditValidator'
-  AND chain_id = 'columbus-3'
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}
+  SELECT 
+    blockchain,
+    chain_id,
+    tx_status,
+    block_id,
+    block_timestamp, 
+    tx_id, 
+    msg_type, 
+    REGEXP_REPLACE(msg_value:address,'\"','') as validator,
+    REGEXP_REPLACE(msg_value:commission_rate,'\"','') as commission_rate,
+    REGEXP_REPLACE(msg_value:Description:details,'\"','') as details,
+    REGEXP_REPLACE(msg_value:Description:identity,'\"','') as identity,
+    REGEXP_REPLACE(msg_value:Description:moniker,'\"','') as moniker,
+    REGEXP_REPLACE(msg_value:Description:security_contact,'\"','') as security_contact,
+    REGEXP_REPLACE(msg_value:Description:website,'\"','') as website,
+    NULL AS msg_value
+  FROM {{source('terra', 'terra_msgs')}}
+  WHERE msg_module = 'staking' 
+    AND msg_type = 'staking/MsgEditValidator'
+    AND chain_id = 'columbus-3'
+  {% if is_incremental() %}
+  AND block_timestamp >= getdate() - interval '1 days'
+  {% else %}
+  AND block_timestamp >= getdate() - interval '9 months'
+  {% endif %}
 
 UNION 
 
@@ -141,7 +142,7 @@ SELECT
   action,
   module,
   sender,
-  edit_validator.commission_rate,
+  -- edit_validator.commission_rate,
   commission_maxRate,
   commission_maxChangeRate,
   commission_updateTime,

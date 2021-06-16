@@ -2,21 +2,22 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key='block_id', 
+    unique_key='block_number', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
     tags=['snowflake', 'terra', 'tax_rate']
   )
 }}
 
-SELECT 
+SELECT
   blockchain,
   block_timestamp,
-  block_id,
+  block_number,
   tax_rate
 FROM {{source('terra', 'udm_custom_fields_terra_tax_rate')}}
+WHERE
 {% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
+  block_timestamp >= getdate() - interval '1 days'
 {% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+  block_timestamp >= getdate() - interval '9 months'
 {% endif %}
