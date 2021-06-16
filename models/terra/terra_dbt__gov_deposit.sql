@@ -20,7 +20,7 @@ SELECT
   REGEXP_REPLACE(msg_value:proposal_id,'\"','') as proposal_id,
   REGEXP_REPLACE(msg_value:amount[0]:amount/ POW(10,6),'\"','') as amount,
   REGEXP_REPLACE(msg_value:amount[0]:denom,'\"','') as currency
-FROM {{source('terra', 'terra_msgs')}} 
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_module = 'gov' 
   AND msg_type = 'gov/MsgDeposit'
 {% if is_incremental() %}

@@ -45,7 +45,7 @@ SELECT
   msg_value:initial_deposit[0]:amount as deposit_amount,
   deposit_amount * o.price_usd as deposit_amount_usd,
   REGEXP_REPLACE(msg_value:initial_deposit[0]:denom,'\"','') as deposit_currency
-FROM {{source('terra', 'terra_msgs')}} t
+FROM {{source('silver_terra', 'msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour

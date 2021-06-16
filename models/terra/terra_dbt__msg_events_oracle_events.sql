@@ -24,7 +24,7 @@ SELECT
   event_attributes:denom::string AS currency,
   event_attributes:feeder::string AS feeder,
   event_attributes:voter::string AS voter
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}} 
 WHERE msg_module = 'oracle'
 AND event_type = 'vote'
 {% if is_incremental() %}

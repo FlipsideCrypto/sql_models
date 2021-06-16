@@ -24,7 +24,7 @@ SELECT
   voter_labels.address_name as voter_address_name,
   REGEXP_REPLACE(msg_value:proposal_id,'\"','') as proposal_id,
   REGEXP_REPLACE(msg_value:option,'\"','') as "option"
-FROM {{source('terra', 'terra_msgs')}} a
+FROM {{source('silver_terra', 'msgs')}} a
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as voter_labels
 ON msg_value:voter = voter_labels.address

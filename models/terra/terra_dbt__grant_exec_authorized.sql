@@ -24,7 +24,7 @@ SELECT
   REGEXP_REPLACE(msg_value:msgs[0]:value:from_address,'\"','') as event_from,
   REGEXP_REPLACE(msg_value:msgs[0]:value:to_address,'\"','') as event_to
   
-FROM {{source('terra', 'terra_msgs')}}  
+FROM {{source('silver_terra', 'msgs')}} 
 WHERE msg_module = 'msgauth'
   AND msg_type = 'msgauth/MsgExecAuthorized'
 {% if is_incremental() %}

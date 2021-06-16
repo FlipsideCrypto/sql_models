@@ -24,7 +24,7 @@ SELECT
   event_attributes:option::string AS option,
   event_attributes:proposal_id AS proposal_id,
   event_attributes:validator::string AS validator
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}} 
 WHERE msg_module = 'gov'
 AND event_type = 'proposal_vote'
 {% if is_incremental() %}

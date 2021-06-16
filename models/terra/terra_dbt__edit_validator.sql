@@ -32,7 +32,7 @@ SELECT
   SPLIT(SPLIT(event_attributes:commission_rate::string, ',')[2], ': ')[1]::float AS commission_maxChangeRate,
   SPLIT(SPLIT(event_attributes:commission_rate::string, ',')[3], ': ')[1]::string AS commission_updateTime,
   event_attributes:min_self_delegation AS min_self_delegation
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgEditValidator'
 {% if is_incremental() %}
@@ -59,7 +59,7 @@ staking AS (
     REGEXP_REPLACE(msg_value:Description:security_contact,'\"','') as security_contact,
     REGEXP_REPLACE(msg_value:Description:website,'\"','') as website,
     NULL AS msg_value
-  FROM {{source('terra', 'terra_msgs')}}
+  FROM {{source('silver_terra', 'msgs')}}
   WHERE msg_module = 'staking' 
     AND msg_type = 'staking/MsgEditValidator'
     AND chain_id = 'columbus-3'
@@ -87,7 +87,7 @@ SELECT
   REGEXP_REPLACE(msg_value:description:security_contact,'\"','') as security_contact,
   REGEXP_REPLACE(msg_value:description:website,'\"','') as website,
   msg_value
-FROM {{source('terra', 'terra_msgs')}}
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgEditValidator'
   AND chain_id = 'columbus-4'

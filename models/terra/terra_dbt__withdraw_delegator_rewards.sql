@@ -31,7 +31,7 @@ WITH rewards_event AS (
     event_attributes:sender::string AS sender,
     event_attributes:recipient::string AS recipient,
     event_attributes:action::string AS action
-  FROM {{source('terra', 'terra_msg_events')}}
+  FROM {{source('silver_terra', 'msg_events')}} 
   WHERE msg_module = 'distribution'
   AND msg_type = 'distribution/MsgWithdrawDelegationReward'
 ),
@@ -49,7 +49,7 @@ rewards AS (
     REGEXP_REPLACE(msg_value:validator_address,'\"','') as validator_address,
     REGEXP_REPLACE(msg_value:amount:amount / POW(10,6),'\"','') as event_amount,
     REGEXP_REPLACE(msg_value:amount:denom,'\"','') as event_currency
-  FROM {{source('terra', 'terra_msgs')}}
+  FROM {{source('silver_terra', 'msgs')}} 
   WHERE msg_module = 'distribution' 
     AND msg_type = 'distribution/MsgWithdrawDelegationReward'
 ), 

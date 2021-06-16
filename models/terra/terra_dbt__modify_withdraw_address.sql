@@ -27,7 +27,7 @@ WITH rewards_event AS (
     event_attributes:module::string AS module,
     event_attributes:sender::string AS sender,
     event_attributes:withdraw_address::string AS withdraw_address
-FROM {{source('terra', 'terra_msg_events')}} 
+FROM {{source('silver_terra', 'msg_events')}} 
 WHERE msg_module = 'distribution' 
 AND msg_type = 'distribution/MsgModifyWithdrawAddress' 
 {% if is_incremental() %}
@@ -48,7 +48,7 @@ rewards AS (
   msg_type, 
   REGEXP_REPLACE(msg_value:delegator_address,'\"','') as delegator_address,
   REGEXP_REPLACE(msg_value:withdraw_address,'\"','') as withdraw_address
-FROM {{source('terra', 'terra_msgs')}} 
+FROM {{source('silver_terra', 'msgs')}} 
 WHERE msg_module = 'distribution' 
   AND msg_type = 'distribution/MsgModifyWithdrawAddress' 
 {% if is_incremental() %}

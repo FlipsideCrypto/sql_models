@@ -11,7 +11,7 @@ SELECT
   blockchain,
   chain_id,
   proposer_address
-FROM {{source('terra', 'terra_blocks')}}
+FROM {{source('silver_terra', 'blocks')}}
 WHERE
 {% if is_incremental() %}
   block_timestamp >= getdate() - interval '1 days'

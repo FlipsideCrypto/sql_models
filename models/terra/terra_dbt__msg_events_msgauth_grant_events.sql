@@ -24,7 +24,7 @@ SELECT
   event_attributes:grant_type::string AS grant_type,
   event_attributes:grantee::string AS grantee,
   event_attributes:granter::string AS granter
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}} 
 WHERE msg_module = 'msgauth'
 AND event_type = 'grant_authorization'
 {% if is_incremental() %}

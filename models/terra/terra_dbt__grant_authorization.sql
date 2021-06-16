@@ -23,7 +23,7 @@ SELECT
   REGEXP_REPLACE(msg_value:grantee,'\"','') as grantee,
   REGEXP_REPLACE(msg_value:granter,'\"','') as granter,
   REGEXP_REPLACE(msg_value:period,'\"','') as period
-FROM {{source('terra', 'terra_msgs')}} 
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_module = 'msgauth'
   AND msg_type = 'msgauth/MsgGrantAuthorization'
 {% if is_incremental() %}

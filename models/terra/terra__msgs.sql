@@ -18,7 +18,7 @@ SELECT
   msg_module,
   msg_type,
   msg_value
-FROM {{source('terra', 'terra_msgs')}}
+FROM {{source('silver_terra', 'msgs')}}
 WHERE
 {% if is_incremental() %}
   block_timestamp >= getdate() - interval '1 days'

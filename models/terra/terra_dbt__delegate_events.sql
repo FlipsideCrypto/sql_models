@@ -32,7 +32,7 @@ SELECT
   CASE WHEN event_type = 'transfer' THEN event_attributes:amount:denom::string ELSE NULL END AS event_transfer_currency,
   event_attributes:sender::string AS sender,
   event_attributes:recipient::string AS recipient
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgDelegate'
 

@@ -13,7 +13,7 @@ SELECT
   transition_type,
   index,
   event
-FROM {{source('terra', 'terra_transitions')}}
+FROM {{source('silver_terra', 'transitions')}}
 WHERE
 {% if is_incremental() %}
   block_timestamp >= getdate() - interval '1 days'

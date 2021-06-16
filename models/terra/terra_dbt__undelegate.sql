@@ -39,7 +39,7 @@ WITH staking_events AS (
     event_attributes:"1_amount"[0]:denom::string AS event_transfer_1_currency,
     event_attributes:"1_recipient"::string AS event_transfer_1_recipient,
     event_attributes:"1_sender"::string AS event_transfer_1_sender
-  FROM {{source('terra', 'terra_msg_events')}}
+  FROM {{source('silver_terra', 'msg_events')}} 
   WHERE msg_module = 'staking' 
     AND msg_type = 'staking/MsgUndelegate'
     {% if is_incremental() %}
@@ -61,7 +61,7 @@ staking AS (
     REGEXP_REPLACE(msg_value:validator_address,'\"','') as validator_address,
     REGEXP_REPLACE(msg_value:amount:amount,'\"','') as event_amount,
     REGEXP_REPLACE(msg_value:amount:denom,'\"','') as event_currency
-  FROM {{source('terra', 'terra_msgs')}} 
+  FROM {{source('silver_terra', 'msgs')}}  
   WHERE msg_module = 'staking' 
     AND msg_type = 'staking/MsgUndelegate'
     {% if is_incremental() %}

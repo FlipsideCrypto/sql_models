@@ -22,7 +22,7 @@ SELECT
   REGEXP_REPLACE(msg_value:feeder,'\"','') as feeder,
   REGEXP_REPLACE(msg_value:salt,'\"','') as salt,
   REGEXP_REPLACE(msg_value:validator,'\"','') as validator
-FROM {{source('terra', 'terra_msgs')}} 
+FROM {{source('silver_terra', 'msgs')}} 
 , lateral flatten(input => msg_value:exchange_rates) vm
 
 WHERE msg_module = 'oracle' 
@@ -48,7 +48,7 @@ SELECT
   REGEXP_REPLACE(msg_value:feeder,'\"','') as feeder,
   REGEXP_REPLACE(msg_value:salt,'\"','') as salt,
   REGEXP_REPLACE(msg_value:validator,'\"','') as validator
-FROM {{source('terra', 'terra_msgs')}}  
+FROM {{source('silver_terra', 'msgs')}}  
 WHERE msg_module = 'oracle' 
   AND msg_type = 'oracle/MsgExchangeRateVote'
   {% if is_incremental() %}

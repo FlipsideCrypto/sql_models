@@ -20,7 +20,7 @@ SELECT
   REGEXP_REPLACE(msg_value:delegate,'\"','') as delegator,
   REGEXP_REPLACE(msg_value:operator,'\"','') as validator,
   msg_value
-FROM {{source('terra', 'terra_msgs')}} 
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_module = 'oracle' 
   AND msg_type = 'oracle/MsgDelegateFeedConsent'
 {% if is_incremental() %}

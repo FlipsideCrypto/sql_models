@@ -18,7 +18,7 @@ SELECT
   tx_id, 
   msg_type, 
   REGEXP_REPLACE(msg_value:address,'\"','') as address
-FROM {{source('terra', 'terra_msgs')}}  
+FROM {{source('silver_terra', 'msgs')}} 
 WHERE msg_module = 'cosmos' 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'

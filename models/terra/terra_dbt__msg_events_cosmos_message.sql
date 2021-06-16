@@ -24,7 +24,7 @@ SELECT
   event_attributes:action::string AS amount,
   event_attributes:module::string AS module,
   event_attributes:sender::string AS sender
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}} 
 WHERE msg_module = 'cosmos'
 AND event_type = 'message'
 {% if is_incremental() %}

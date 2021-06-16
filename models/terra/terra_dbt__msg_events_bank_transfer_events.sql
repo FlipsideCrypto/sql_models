@@ -26,7 +26,7 @@ WITH input AS (
     SPLIT(key, '_')[0]::string AS message_id,
     SPLIT(key, '_')[1]::string AS message_attribute,
     value
-  FROM {{source('terra', 'terra_msg_events')}}
+  FROM {{source('silver_terra', 'msg_events')}} 
   , lateral flatten(input => event_attributes) vm
   WHERE msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'

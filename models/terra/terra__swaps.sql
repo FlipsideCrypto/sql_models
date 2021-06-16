@@ -24,7 +24,7 @@ SELECT
   REGEXP_REPLACE(msg_value:offer_coin:amount,'\"','') as offer_amount,
   REGEXP_REPLACE(msg_value:offer_coin:denom,'\"','') as offer_currency,
   msg_value
-FROM {{source('terra', 'terra_msgs')}}
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_module = 'market' 
   AND msg_type = 'market/MsgSwap' 
 {% if is_incremental() %}
@@ -47,7 +47,7 @@ SELECT tx_id,
        REGEXP_REPLACE(event_attributes:"1_recipient",'\"','') as "1_recipient",
        REGEXP_REPLACE(event_attributes:"1_amount"[0]:amount,'\"','') as "1_amount",
        REGEXP_REPLACE(event_attributes:"1_amount"[0]:denom,'\"','') as "1_amount_currency"
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE event_type = 'transfer'
   AND msg_type = 'market/MsgSwap'
 {% if is_incremental() %}
@@ -64,7 +64,7 @@ SELECT
   msg_index,
   event_attributes:swap_fee[0]:amount as swap_fee_amount,
   REGEXP_REPLACE(event_attributes:swap_fee[0]:denom,'\"','') as swap_fee_currency
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE event_type = 'swap'
   AND msg_type = 'market/MsgSwap'
 {% if is_incremental() %}
@@ -82,7 +82,7 @@ select
   msg_index,
   REGEXP_REPLACE(event_attributes:contract_address,'\"','') as contract_address,
   event_attributes as contract_attr
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE event_type = 'execute_contract'
   AND msg_type = 'wasm/MsgExecuteContract'
 {% if is_incremental() %}

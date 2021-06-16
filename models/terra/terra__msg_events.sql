@@ -20,7 +20,7 @@ SELECT
   event_index,
   event_type,
   event_attributes
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE
 {% if is_incremental() %}
   block_timestamp >= getdate() - interval '1 days'

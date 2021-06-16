@@ -31,7 +31,7 @@ SELECT
   block_id,
   REGEXP_REPLACE(attributes:denom::string,'\"','') as currency,
   attributes:exchange_rate as exchange_rate
-FROM {{source('terra', 'terra_transitions')}}
+FROM {{source('silver_terra', 'transitions')}}
 WHERE event = 'exchange_rate_update' 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'

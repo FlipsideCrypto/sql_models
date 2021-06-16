@@ -19,7 +19,7 @@ SELECT
   codespace,
   gas_used,
   gas_wanted
-FROM {{source('terra', 'terra_transactions')}}
+FROM {{source('silver_terra', 'transactions')}}
 WHERE
 {% if is_incremental() %}
   block_timestamp >= getdate() - interval '1 days'

@@ -24,7 +24,7 @@ SELECT
   event_attributes:swap_coin::string AS swap_coin,
   event_attributes:swap_fee::string AS swap_fee,
   event_attributes:trader::string AS trader
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}} 
 WHERE msg_module = 'market'
 AND event_type = 'swap'
 {% if is_incremental() %}

@@ -29,7 +29,7 @@ WITH commissions_event AS (
     event_attributes:"1_sender"::string AS "1_sender",
     event_attributes:action::string AS action,
     event_attributes:module::string AS module
-  FROM {{source('terra', 'terra_msg_events')}}
+  FROM {{source('silver_terra', 'msg_events')}} 
   WHERE msg_module = 'distribution' 
   AND msg_type = 'distribution/MsgWithdrawValidatorCommission' 
   {% if is_incremental() %}
@@ -49,7 +49,7 @@ commissions AS (
     tx_id, 
     msg_type, 
     REGEXP_REPLACE(msg_value:validator_address,'\"','') as validator_address
-  FROM {{source('terra', 'terra_msgs')}} 
+  FROM {{source('silver_terra', 'msgs')}} 
   WHERE msg_module = 'distribution' 
     AND msg_type = 'distribution/MsgWithdrawValidatorCommission' 
     {% if is_incremental() %}

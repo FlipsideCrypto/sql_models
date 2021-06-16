@@ -41,7 +41,7 @@ WITH staking_events AS (
     event_attributes:completion_time::string AS completion_time,
     event_attributes:destination_validator::string AS destination_validator,
     event_attributes:source_validator::string AS source_validator  
-FROM {{source('terra', 'terra_msg_events')}} 
+FROM {{source('silver_terra', 'msg_events')}} 
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgBeginRedelegate'
   {% if is_incremental() %}
@@ -65,7 +65,7 @@ staking AS (
   REGEXP_REPLACE(msg_value:validator_dst_address,'\"','') as validator_dst_address,
   REGEXP_REPLACE(msg_value:amount:amount / POW(10,6),'\"','') as event_amount,
   REGEXP_REPLACE(msg_value:amount:denom,'\"','') as event_currency
-FROM {{source('terra', 'terra_msgs')}} 
+FROM {{source('silver_terra', 'msgs')}} 
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgBeginRedelegate'
   {% if is_incremental() %}

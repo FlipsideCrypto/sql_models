@@ -5,7 +5,7 @@
     unique_key='chain_id || tx_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra_silver', 'transactions']
+    tags=['snowflake', 'terra_silver', 'msgs']
   )
 }}
 

@@ -29,7 +29,7 @@ WITH staking_events AS (
     event_attributes:module::string AS module,
     event_attributes:amount AS create_validator_amount,
     event_attributes:validator::string AS validator
-FROM {{source('terra', 'terra_msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE msg_module = 'staking' 
 AND msg_type = 'staking/MsgCreateValidator'
 {% if is_incremental() %}
@@ -61,7 +61,7 @@ staking AS (
   REGEXP_REPLACE(msg_value:min_self_delegation,'\"','') as min_self_delegation,
   msg_value:value:amount as amount,
   REGEXP_REPLACE(msg_value:value:denom,'\"','') as denom
-FROM {{source('terra', 'terra_msgs')}}
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgCreateValidator'
 {% if is_incremental() %}

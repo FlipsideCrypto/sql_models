@@ -33,7 +33,7 @@ WITH staking_events AS (
     CASE WHEN event_type = 'transfer' THEN event_attributes:amount:denom::string ELSE NULL END AS event_transfer_currency,
     event_attributes:sender::string AS sender,
     event_attributes:recipient::string AS recipient
-  FROM {{source('terra', 'terra_msg_events')}}
+  FROM {{source('silver_terra', 'msg_events')}}
   WHERE msg_module = 'staking' 
     AND msg_type = 'staking/MsgDelegate'
 
@@ -57,7 +57,7 @@ staking AS (
     REGEXP_REPLACE(msg_value:validator_address,'\"','') as validator_address,
     REGEXP_REPLACE(msg_value:amount:amount,'\"','') as event_amount,
     REGEXP_REPLACE(msg_value:amount:denom,'\"','') as event_currency
-  FROM {{source('terra', 'terra_msgs')}} 
+  FROM {{source('silver_terra', 'msgs')}}
   WHERE msg_module = 'staking' 
     AND msg_type = 'staking/MsgDelegate'
   {% if is_incremental() %}
