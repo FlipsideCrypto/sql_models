@@ -11,6 +11,7 @@ sources:
       - name: coingecko_prices
       - name: hours
       - name: udm_address_labels
+      - name: udm_address_labels_new
       - name: udm_address_tags
       - name: udm_balances
       - name: udm_decimal_adjustments
