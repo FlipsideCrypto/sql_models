@@ -23,14 +23,28 @@ WHERE asset_id = '4172'
 {% endif %}
 GROUP BY 1,2
 ),
+other_prices as (
+SELECT 
+  date_trunc('hour', recorded_at) as block_timestamp,
+  symbol as currency,
+  avg(price) as price   
+FROM {{ source('shared', 'prices_v2')}}
+WHERE asset_id IN('7857', '8857')
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+{% else %}
+ AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
+GROUP BY 1,2
+),
 luna_rate as (
 SELECT 
   blockchain,
   chain_id,
   block_timestamp,
   block_id,
-  REGEXP_REPLACE(attributes:denom::string,'\"','') as currency,
-  attributes:exchange_rate as exchange_rate
+  REGEXP_REPLACE(event_attributes:denom::string,'\"','') as currency,
+  event_attributes:exchange_rate as exchange_rate
 FROM {{source('silver_terra', 'transitions')}}
 WHERE event = 'exchange_rate_update' 
 {% if is_incremental() %}
@@ -67,7 +81,7 @@ SELECT
   END as symbol,
   exchange_rate as luna_exchange_rate,
   price / exchange_rate as price_usd,
-  price as luna_usd_price
+  'oracle' as source
 FROM luna_rate l
 
 LEFT OUTER JOIN prices p
@@ -81,7 +95,21 @@ SELECT
   'uluna' as currency,
   'LUNA' as symbol,
   1 as luna_exchange_rate,
-  price as price_usd,
-  price as luna_usd_price
+  price as price_usd
+  'coinmarketcap' as source
 FROM prices
+
+UNION 
+
+SELECT 
+  'terra' as blockchain,
+   o.block_timestamp,
+  o.currency as currency,
+  o.currency as symbol,
+  x.price / o.price as luna_exchange_rate,
+  o.price as price_usd,
+  'coinmarketcap' as source
+FROM other_prices o
   
+LEFT OUTER JOIN prices x
+  ON date_trunc('hour', o.block_timestamp) = x.block_timestamp

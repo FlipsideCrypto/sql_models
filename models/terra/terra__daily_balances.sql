@@ -43,7 +43,7 @@ ON
   p.symbol = b.currency
   AND p.day = b.date
 LEFT OUTER JOIN
-  {{source('shared','udm_address_labels')}} as address_labels
+  {{source('shared','udm_address_labels_new')}} as address_labels
 ON b.address = address_labels.address
 WHERE
   {% if is_incremental() %}

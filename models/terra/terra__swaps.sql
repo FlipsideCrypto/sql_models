@@ -74,24 +74,6 @@ WHERE event_type = 'swap'
 {% endif %}
 ),
 
-contract as (
-select 
-  tx_id,
-  event_type,
-  event_attributes,
-  msg_index,
-  REGEXP_REPLACE(event_attributes:contract_address,'\"','') as contract_address,
-  event_attributes as contract_attr
-FROM {{source('silver_terra', 'msg_events')}}
-WHERE event_type = 'execute_contract'
-  AND msg_type = 'wasm/MsgExecuteContract'
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}
-),
-
 prices as (
     SELECT 
       date_trunc('hour', block_timestamp) as hour,
@@ -149,8 +131,7 @@ SELECT
   o.symbol as token_1_currency,
   z.price_usd as price0_usd,
   o.price_usd as price1_usd,
-  token_0_currency || ' to ' || token_1_currency as swap_pair,
-  c.contract_address
+  token_0_currency || ' to ' || token_1_currency as swap_pair
 FROM msgs m
 
 LEFT OUTER JOIN events_transfer et 
@@ -160,10 +141,6 @@ LEFT OUTER JOIN events_transfer et
 LEFT OUTER JOIN fees f 
  ON m.tx_id = f.tx_id 
  AND m.msg_index = f.msg_index
- 
-LEFT OUTER JOIN contract c
- ON m.tx_id = c.tx_id 
- AND m.msg_index = c.msg_index
 
 LEFT OUTER JOIN prices z
  ON date_trunc('hour', m.block_timestamp) = z.hour

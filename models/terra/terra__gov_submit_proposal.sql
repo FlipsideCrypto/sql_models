@@ -51,7 +51,7 @@ LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
  AND REGEXP_REPLACE(t.msg_value:initial_deposit[0]:denom,'\"','') = o.currency 
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as proposer_labels
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as proposer_labels
 ON REGEXP_REPLACE(t.msg_value:proposer,'\"','') = proposer_labels.address
 
 WHERE msg_module = 'gov' 

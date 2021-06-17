@@ -26,7 +26,7 @@ SELECT
   REGEXP_REPLACE(msg_value:option,'\"','') as "option"
 FROM {{source('silver_terra', 'msgs')}} a
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as voter_labels
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as voter_labels
 ON msg_value:voter = voter_labels.address
 
 WHERE msg_module = 'gov' 

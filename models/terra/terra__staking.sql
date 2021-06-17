@@ -106,8 +106,8 @@ LEFT OUTER JOIN prices p
   ON p.currency = a.currency
   AND p.hour = date_trunc('hour', a.block_timestamp)
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels')}} delegator_labels
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} delegator_labels
   ON a.delegator_address = delegator_labels.address
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels')}} validator_labels
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} validator_labels
   ON a.validator_address = validator_labels.address

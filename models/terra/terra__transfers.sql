@@ -143,9 +143,9 @@ LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
  AND t.event_currency = o.currency 
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as from_labels
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as from_labels
 ON event_from = from_labels.address
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as to_labels
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as to_labels
 ON event_to = to_labels.address
 
