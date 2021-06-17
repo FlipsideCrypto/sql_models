@@ -95,7 +95,7 @@ SELECT
   'uluna' as currency,
   'LUNA' as symbol,
   1 as luna_exchange_rate,
-  price as price_usd
+  price as price_usd,
   'coinmarketcap' as source
 FROM prices
 
