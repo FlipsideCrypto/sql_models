@@ -12,7 +12,8 @@ SELECT
   chain_id,
   transition_type,
   index,
-  event
+  event,
+  event_attributes
 FROM {{source('silver_terra', 'transitions')}}
 WHERE
 {% if is_incremental() %}
