@@ -22,7 +22,7 @@
 
         {% if is_incremental() %}
         WHERE 
-        record_metadata:CreateTime >= DATE_PART('EPOCH_MILLISECOND', GETDATE() - interval {{kafka_incremental_window}})
+        record_metadata:CreateTime >= DATE_PART('EPOCH_MILLISECOND', GETDATE() - interval '{{kafka_incremental_window}}')
         {% endif %}
 
     {% endfor %}
@@ -39,7 +39,7 @@
     ) sq
     WHERE system_row_number = 1
     {% if is_incremental() %}
-    AND {{timestamp_col}} >= getdate() - interval {{table_incremental_window}}
+    AND {{timestamp_col}} >= getdate() - interval '{{table_incremental_window}}'
     {% endif %}
 
 {%- endmacro %}
