@@ -4,7 +4,7 @@
     sort='block_hour', 
     unique_key='block_hour', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'compound']
+    tags=['snowflake', 'ethereum', 'compound', 'compound_market_stats']
   )
 }}
 
