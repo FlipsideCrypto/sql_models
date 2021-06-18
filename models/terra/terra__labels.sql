@@ -8,9 +8,9 @@
 SELECT
   blockchain, 
   address,
-  l1_label,
-  l2_label,
-  project_name,
+  l1_label as label_type,
+  l2_label as label_subtype,
+  project_name as label,
   address_name
 FROM {{source('shared', 'udm_address_labels_new')}}
 WHERE blockchain = 'terra'
