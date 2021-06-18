@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort=['block_timestamp', 'block_id'], 
-    unique_key='chain_id || index || transition_type || event', 
+    unique_key='chain_id || block_id || index || transition_type || event', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp', 'block_id'],
     tags=['snowflake', 'terra_silver', 'transitions']
@@ -25,6 +25,6 @@
       t.value:transition_type::string as transition_type,
       t.value:attributes::object as event_attributes
     ",
-    "chain_id, event, index, transition_type"
+    "chain_id, block_id, event, index, transition_type"
   )
 }}
