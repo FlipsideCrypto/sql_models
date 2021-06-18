@@ -45,8 +45,7 @@ prices AS (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(price_usd) as price_usd,
-      avg(luna_usd_price) as luna_usd_price
+      avg(price_usd) as price_usd
     FROM {{ ref('terra__oracle_prices')}} 
     WHERE
     {% if is_incremental() %}
