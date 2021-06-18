@@ -1,7 +1,6 @@
 {{ config(
-      materialized='table',
-      sort='address',
-      tags=['snowflake', 'terra', 'labels']  
+      materialized='view',
+      tags=['snowflake', 'terra_views', 'labels']  
     ) 
 }}
 
