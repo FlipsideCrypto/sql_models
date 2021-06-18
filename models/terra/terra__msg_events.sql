@@ -21,9 +21,9 @@ SELECT
   event_type,
   event_attributes
 FROM {{source('silver_terra', 'msg_events')}}
-WHERE
-{% if is_incremental() %}
-  block_timestamp >= getdate() - interval '1 days'
-{% else %}
-  block_timestamp >= getdate() - interval '9 months'
-{% endif %}
+-- WHERE
+-- {% if is_incremental() %}
+--   block_timestamp >= getdate() - interval '1 days'
+-- {% else %}
+--   block_timestamp >= getdate() - interval '9 months'
+-- {% endif %}
