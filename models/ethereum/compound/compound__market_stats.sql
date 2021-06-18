@@ -185,7 +185,7 @@ supply AS (
   SELECT 
     DATE_TRUNC('hour',block_timestamp) AS blockhour,
     contract_address AS ctoken_address,
-    (((POWER(AVG(value_numeric) / 1e18 * (4 * 60 * 24) + 1,365))) - 1) AS apy
+    (((POWER(AVG(value_numeric) / 1e18 * ((60/13.15) * 60 * 24) + 1,365))) - 1) AS apy
   FROM {{ref('ethereum__reads')}}
   WHERE function_name = 'supplyRatePerBlock' 
     AND project_name = 'compound'
@@ -203,7 +203,7 @@ borrow AS (
   SELECT 
     DATE_TRUNC('hour',block_timestamp) AS blockhour,
     contract_address AS ctoken_address,
-    (((POWER(AVG(value_numeric) / 1e18 * (4 * 60 * 24) + 1,365))) - 1) AS apy
+    (((POWER(AVG(value_numeric) / 1e18 * ((60/13.15) * 60 * 24) + 1,365))) - 1) AS apy
   FROM {{ref('ethereum__reads')}}
   WHERE function_name = 'borrowRatePerBlock' 
     AND project_name = 'compound'
