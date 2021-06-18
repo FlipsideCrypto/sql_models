@@ -59,7 +59,6 @@ prices AS (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(luna_exchange_rate) as luna_exchange_rate,
       avg(price_usd) as price_usd,
       avg(luna_usd_price) as luna_usd_price
     FROM {{ ref('terra__oracle_prices')}} 
