@@ -17,6 +17,7 @@ SELECT
   tx_code,
   tx_module,
   codespace,
+  fee,
   gas_used,
   gas_wanted
 FROM {{source('silver_terra', 'transactions')}}
