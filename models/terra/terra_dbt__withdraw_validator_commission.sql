@@ -32,6 +32,7 @@ WITH commissions_event AS (
   FROM {{source('silver_terra', 'msg_events')}} 
   WHERE msg_module = 'distribution' 
   AND msg_type = 'distribution/MsgWithdrawValidatorCommission' 
+  AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
   AND block_timestamp >= getdate() - interval '1 days'
   {% else %}
@@ -52,6 +53,7 @@ commissions AS (
   FROM {{source('silver_terra', 'msgs')}} 
   WHERE msg_module = 'distribution' 
     AND msg_type = 'distribution/MsgWithdrawValidatorCommission' 
+    AND tx_status = 'SUCCEEDED'
     {% if is_incremental() %}
   AND block_timestamp >= getdate() - interval '1 days'
   {% else %}
