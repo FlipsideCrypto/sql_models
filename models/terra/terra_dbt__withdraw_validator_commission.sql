@@ -5,7 +5,7 @@
     unique_key='block_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'terra', 'reward_2']
+    tags=['snowflake', 'terra', 'reward']
   )
 }}
 
