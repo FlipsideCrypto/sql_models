@@ -17,9 +17,10 @@ WITH withdraw_delegator_rewards AS (
     block_id,
     block_timestamp,
     tx_id, 
+    msg_index,
     'withdraw_delegator_rewards' AS action,
-    event_transfer_amount AS amount,
-    event_transfer_currency AS currency,
+    event_rewards_amount AS amount,
+    event_rewards_currency AS currency,
     recipient,
     validator
   FROM {{ ref('terra_dbt__withdraw_delegator_rewards') }}
@@ -33,6 +34,7 @@ withdraw_validator_commission AS (
     block_id,
     block_timestamp,
     tx_id, 
+    msg_index,
     'withdraw_validator_commission' AS action,
     amount,
     currency,
@@ -45,7 +47,9 @@ prices AS (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(price_usd) as price_usd
+      avg(luna_exchange_rate) as luna_exchange_rate,
+      avg(price_usd) as price_usd,
+      avg(luna_usd_price) as luna_usd_price
     FROM {{ ref('terra__oracle_prices')}} 
     WHERE
     {% if is_incremental() %}
@@ -63,6 +67,7 @@ SELECT
     a.block_id,
     a.block_timestamp,
     a.tx_id, 
+    a.msg_index,
     a.action,
     a.recipient,
     recipient_labels.l1_label as recipient_label_type,
