@@ -1,0 +1,7 @@
+﻿Document for auditing purposes
+
+
+Aave future schemas can be found here: https://docs.google.com/document/d/1Hb2DvXYqZYC6WoKfwmOHV4KL62gfgEY0VqACS5-vwMw/edit
+
+
+A Flipside data audit has been summarised here: https://docs.google.com/document/d/16POCfrIqL7cxNAKmYAp8QhIMzj8hYmpwlTnawGVITl4/edit
