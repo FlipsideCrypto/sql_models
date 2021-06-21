@@ -23,19 +23,22 @@ WITH rewards_event AS (
     msg_index,
     event_type,
     event_attributes,
-    event_attributes:amount[0]:amount / POW(10,6) AS event_rewards_amount,
-    event_attributes:amount[0]:denom::string AS event_rewards_currency,
-    event_attributes:validator::string AS validator,
-    event_attributes:amount[0]:amount / POW(10,6) AS event_transfer_amount,
-    event_attributes:amount[0]:denom::string AS event_transfer_currency,
-    event_attributes:sender::string AS sender,
-    event_attributes:recipient::string AS recipient,
-    event_attributes:action::string AS action
+    VALUE:amount / POW(10,6) AS event_rewards_amount,
+    VALUE:denom::string AS event_rewards_currency,
+    event_attributes:validator::string AS validator_address
   FROM {{source('silver_terra', 'msg_events')}} 
+    , lateral flatten( input => event_attributes:amount )
   WHERE msg_module = 'distribution'
-  AND msg_type = 'distribution/MsgWithdrawDelegationReward'
-  AND tx_status = 'SUCCEEDED'
+    AND msg_type = 'distribution/MsgWithdrawDelegationReward'
+    AND event_type = 'withdraw_rewards'
+    AND tx_status = 'SUCCEEDED'
+    {% if is_incremental() %}
+    AND block_timestamp >= getdate() - interval '1 days'
+    {% else %}
+    AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
 ),
+
 rewards AS (
   SELECT 
     blockchain,
@@ -54,7 +57,12 @@ rewards AS (
   WHERE msg_module = 'distribution' 
     AND msg_type = 'distribution/MsgWithdrawDelegationReward'
     AND tx_status = 'SUCCEEDED'
-), 
+    {% if is_incremental() %}
+    AND block_timestamp >= getdate() - interval '1 days'
+    {% else %}
+    AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
+),
 
 rewards_event_base AS (
   SELECT DISTINCT
@@ -64,41 +72,15 @@ rewards_event_base AS (
     block_id,
     block_timestamp, 
     tx_id, 
-    msg_type, 
-    msg_index
-  FROM rewards 
-), 
-
-transfer AS (
-  SELECT
-      tx_id, 
-      event_transfer_amount,
-      event_transfer_currency,
-      sender,
-      recipient
-  FROM rewards_event 
-  WHERE event_type = 'transfer' AND msg_index = 0
-),
-message AS (
-  SELECT
-    tx_id,
-    action
-  FROM rewards_event 
-  WHERE event_type = 'message' AND msg_index = 0
-),
-withdraw_rewards AS (
-  SELECT
-    tx_id,
+    msg_type,
     msg_index,
     event_rewards_amount,
     event_rewards_currency,
-    validator
+    validator_address
   FROM rewards_event 
-  WHERE event_type = 'withdraw_rewards' 
 )
 
-
-SELECT
+SELECT DISTINCT
   rewards_event_base.blockchain,
   rewards_event_base.chain_id,
   rewards_event_base.tx_status,
@@ -107,21 +89,13 @@ SELECT
   rewards_event_base.tx_id, 
   rewards_event_base.msg_type, 
   rewards_event_base.msg_index,
-  event_transfer_amount,
-  event_transfer_currency,
-  sender,
-  recipient,
-  action,
-  event_rewards_amount,
-  event_rewards_currency,
-  validator,
-  rewards.delegator_address AS delegator
+  rewards_event_base.event_rewards_amount AS event_transfer_amount,
+  rewards_event_base.event_rewards_currency AS event_transfer_currency,
+  rewards_event_base.event_rewards_amount,
+  rewards_event_base.event_rewards_currency,
+  'withdraw_delegator_rewards' AS action,
+  rewards_event_base.validator_address,
+  rewards.delegator_address AS delegator_address
 FROM rewards_event_base
-LEFT JOIN transfer
-ON rewards_event_base.tx_id = transfer.tx_id
-LEFT JOIN message
-ON rewards_event_base.tx_id = message.tx_id
-LEFT JOIN withdraw_rewards
-ON rewards_event_base.tx_id = withdraw_rewards.tx_id AND rewards_event_base.msg_index = withdraw_rewards.msg_index
 LEFT JOIN rewards
-ON rewards_event_base.tx_id = rewards.tx_id AND rewards_event_base.msg_index = rewards.msg_index
+ON rewards_event_base.tx_id = rewards.tx_id AND rewards_event_base.validator_address = rewards.validator_address

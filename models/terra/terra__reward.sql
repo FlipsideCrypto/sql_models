@@ -17,11 +17,12 @@ WITH withdraw_delegator_rewards AS (
     block_id,
     block_timestamp,
     tx_id, 
+    msg_index,
     'withdraw_delegator_rewards' AS action,
-    event_transfer_amount AS amount,
-    event_transfer_currency AS currency,
-    recipient,
-    validator
+    event_rewards_amount AS amount,
+    event_rewards_currency AS currency,
+    validator_address AS validator,
+    delegator_address AS delegator
   FROM {{ ref('terra_dbt__withdraw_delegator_rewards') }}
 ),
 
@@ -33,11 +34,12 @@ withdraw_validator_commission AS (
     block_id,
     block_timestamp,
     tx_id, 
+    msg_index,
     'withdraw_validator_commission' AS action,
     amount,
     currency,
-    recipient,
-    validator_address AS validator
+    validator_address AS validator,
+    delegator_address AS delegator
   FROM {{ ref('terra_dbt__withdraw_validator_commission') }}
 ),
 prices AS (
@@ -63,17 +65,18 @@ SELECT
     a.block_id,
     a.block_timestamp,
     a.tx_id, 
+    a.msg_index,
     a.action,
-    a.recipient,
-    recipient_labels.l1_label as recipient_label_type,
-    recipient_labels.l2_label as recipient_label_subtype,
-    recipient_labels.project_name as recipient_address_label,
-    recipient_labels.address_name as recipient_address_name,
     a.validator AS validator,
     validator_labels.l1_label as validator_label_type,
     validator_labels.l2_label as validator_label_subtype,
     validator_labels.project_name as validator_address_label,
     validator_labels.address_name as validator_address_name,
+    a.delegator,
+    delegator_labels.l1_label as delegator_label_type,
+    delegator_labels.l2_label as delegator_label_subtype,
+    delegator_labels.project_name as delegator_address_label,
+    delegator_labels.address_name as delegator_address_name,
     a.amount as event_amount,
     price_usd,
     a.amount * price_usd as event_amount_usd,
@@ -87,8 +90,8 @@ LEFT OUTER JOIN prices p
   ON p.currency = a.currency
   AND p.hour = date_trunc('hour', a.block_timestamp)
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} recipient_labels
-  ON a.recipient = recipient_labels.address
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} delegator_labels
+  ON a.delegator = delegator_labels.address
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} validator_labels
   ON a.validator = validator_labels.address
