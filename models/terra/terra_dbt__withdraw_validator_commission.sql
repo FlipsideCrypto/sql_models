@@ -31,6 +31,12 @@ WITH rewards_event AS (
   WHERE msg_module = 'distribution' 
     AND msg_type = 'distribution/MsgWithdrawValidatorCommission' 
     AND event_type = 'withdraw_commission'
+    AND tx_status = 'SUCCEEDED'
+    {% if is_incremental() %}
+    AND block_timestamp >= getdate() - interval '1 days'
+    {% else %}
+    AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
 ),
 
 rewards AS (
@@ -49,7 +55,13 @@ rewards AS (
     REGEXP_REPLACE(msg_value:amount:denom,'\"','') as event_currency
   FROM {{source('silver_terra', 'msgs')}} 
   WHERE msg_module = 'distribution' 
-    AND msg_type = 'distribution/MsgWithdrawValidatorCommission'
+    AND msg_type = 'distribution/MsgWithdrawValidatorCommission' 
+    AND tx_status = 'SUCCEEDED'
+    {% if is_incremental() %}
+    AND block_timestamp >= getdate() - interval '1 days'
+    {% else %}
+    AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
 ),
 
 rewards_event_base AS (

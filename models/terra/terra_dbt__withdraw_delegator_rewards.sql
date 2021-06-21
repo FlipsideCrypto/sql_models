@@ -31,6 +31,7 @@ WITH rewards_event AS (
   WHERE msg_module = 'distribution'
     AND msg_type = 'distribution/MsgWithdrawDelegationReward'
     AND event_type = 'withdraw_rewards'
+    AND tx_status = 'SUCCEEDED'
     {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '1 days'
     {% else %}
@@ -55,6 +56,7 @@ rewards AS (
   FROM {{source('silver_terra', 'msgs')}} 
   WHERE msg_module = 'distribution' 
     AND msg_type = 'distribution/MsgWithdrawDelegationReward'
+    AND tx_status = 'SUCCEEDED'
     {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '1 days'
     {% else %}

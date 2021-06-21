@@ -31,6 +31,7 @@ ON msg_value:voter = voter_labels.address
 
 WHERE msg_module = 'gov' 
   AND msg_type = 'gov/MsgVote'
+  AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'

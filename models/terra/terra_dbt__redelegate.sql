@@ -26,6 +26,7 @@ WITH staking AS (
 FROM {{source('silver_terra', 'msgs')}} 
 WHERE msg_module = 'staking' 
   AND msg_type = 'staking/MsgBeginRedelegate'
+  AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
 {% else %}
