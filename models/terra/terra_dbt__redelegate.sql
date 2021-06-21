@@ -47,4 +47,4 @@ SELECT
   validator_dst_address,
   event_amount,
   event_currency
-FROM event_base
+FROM staking
