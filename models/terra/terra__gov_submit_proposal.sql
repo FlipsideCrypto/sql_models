@@ -56,6 +56,7 @@ ON REGEXP_REPLACE(t.msg_value:proposer,'\"','') = proposer_labels.address
 
 WHERE msg_module = 'gov' 
   AND msg_type = 'gov/MsgSubmitProposal'
+  AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'

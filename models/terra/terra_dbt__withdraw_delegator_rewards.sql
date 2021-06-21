@@ -34,6 +34,7 @@ WITH rewards_event AS (
   FROM {{source('silver_terra', 'msg_events')}} 
   WHERE msg_module = 'distribution'
   AND msg_type = 'distribution/MsgWithdrawDelegationReward'
+  AND tx_status = 'SUCCEEDED'
 ),
 rewards AS (
   SELECT 
@@ -52,6 +53,7 @@ rewards AS (
   FROM {{source('silver_terra', 'msgs')}} 
   WHERE msg_module = 'distribution' 
     AND msg_type = 'distribution/MsgWithdrawDelegationReward'
+    AND tx_status = 'SUCCEEDED'
 ), 
 
 rewards_event_base AS (

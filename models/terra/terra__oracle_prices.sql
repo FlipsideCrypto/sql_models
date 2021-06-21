@@ -16,11 +16,6 @@ SELECT
   avg(price) as price   
 FROM {{ source('shared', 'prices_v2')}}
 WHERE asset_id = '4172'
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}
 GROUP BY 1,2
 ),
 other_prices as (
@@ -30,11 +25,6 @@ SELECT
   avg(price) as price   
 FROM {{ source('shared', 'prices_v2')}}
 WHERE asset_id IN('7857', '8857')
-{% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}
 GROUP BY 1,2
 ),
 luna_rate as (
