@@ -19,9 +19,9 @@ WITH delegate AS (
     tx_id, 
     'delegate' AS action,
     delegator_address,
-    validator AS validator_address,
-    event_transfer_amount AS amount,
-    event_transfer_currency AS currency
+    validator_address,
+    event_amount AS amount,
+    event_currency AS currency
   FROM {{ ref('terra_dbt__delegate') }}
 ),
 undelegate AS (
@@ -34,9 +34,9 @@ undelegate AS (
     tx_id, 
     'undelegate' AS action,
     delegator_address,
-    validator_address AS validator_address,
-    CASE WHEN event_transfer_1_amount IS NOT NULL THEN event_transfer_1_amount ELSE event_amount END AS amount,
-    CASE WHEN event_transfer_1_currency IS NOT NULL THEN event_transfer_1_currency ELSE event_currency END AS currency
+    validator_address,
+    event_amount AS amount,
+    event_currency AS currency
   FROM {{ ref('terra_dbt__undelegate') }}
 ),
 redelegate AS (
