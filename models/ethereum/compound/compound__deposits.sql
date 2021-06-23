@@ -24,7 +24,10 @@ WITH ctoks as (
           WHEN contract_address = '0xf650c3d88d12db855b8bf7d11be6c55a4e07dcc9' THEN 'cUSDT'
           WHEN contract_address = '0xc11b1268c1a384e55c48c2391d8d480264a3a7f4' THEN 'cWBTC'
           WHEN contract_address = '0xccf4429db6322d5c611ee964527d42e5d685dd6a' THEN 'cWBTC2'
-          WHEN contract_address = '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407' THEN 'cZRX' end project_name
+          WHEN contract_address = '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407' THEN 'cZRX' 
+          WHEN contract_address = '0xface851a4921ce59e912d19329929ce6da6eb0c7' THEN 'cLINK'
+          WHEN contract_address = '0x12392f67bdf24fae0af363c24ac620a2f67dad86' THEN 'cTUSD' 
+          end project_name
       FROM {{ref('ethereum__events_emitted')}}
       WHERE contract_address in (
       '0x6c8c6b02e7b2be14d4fa6022dfd6d75921d90e4e', -- cbat
@@ -38,7 +41,9 @@ WITH ctoks as (
       '0xf650c3d88d12db855b8bf7d11be6c55a4e07dcc9', -- cusdt
       '0xc11b1268c1a384e55c48c2391d8d480264a3a7f4', -- cwbtc
       '0xccf4429db6322d5c611ee964527d42e5d685dd6a', -- cwbtc2
-      '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407' -- czrx
+      '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407', -- czrx
+      '0xface851a4921ce59e912d19329929ce6da6eb0c7', -- clink
+      '0x12392f67bdf24fae0af363c24ac620a2f67dad86'  -- cTUSD
       )
       AND block_timestamp > getdate() - interval '31 days'
 ),
