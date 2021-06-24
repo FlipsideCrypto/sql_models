@@ -7,16 +7,6 @@
     tags=['snowflake', 'terra', 'oracle']
   )
 }}
--- {{ 
---   config(
---     materialized='incremental', 
---     sort='block_timestamp', 
---     unique_key='currency', 
---     incremental_strategy='delete+insert',
---     cluster_by=['block_timestamp'],
---     tags=['snowflake', 'terra', 'oracle']
---   )
--- }}
 
 WITH prices as (
 SELECT 
