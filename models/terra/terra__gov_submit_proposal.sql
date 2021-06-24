@@ -42,7 +42,7 @@ SELECT
   REGEXP_REPLACE(msg_value:content:value:description,'\"','') as description,
   REGEXP_REPLACE(msg_value:content:value:title,'\"','') as title,
   -- REGEXP_REPLACE(msg_value:initial_deposit[0]:amount,'\"','') as deposit_amount,
-  msg_value:initial_deposit[0]:amount as deposit_amount,
+  msg_value:initial_deposit[0]:amount / POW(10,6) as deposit_amount,
   deposit_amount * o.price_usd as deposit_amount_usd,
   REGEXP_REPLACE(msg_value:initial_deposit[0]:denom,'\"','') as deposit_currency
 FROM {{source('silver_terra', 'msgs')}} t
