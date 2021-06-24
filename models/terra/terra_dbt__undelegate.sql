@@ -20,7 +20,7 @@ WITH staking AS (
     msg_type, 
     REGEXP_REPLACE(msg_value:delegator_address,'\"','') as delegator_address,
     REGEXP_REPLACE(msg_value:validator_address,'\"','') as validator_address,
-    REGEXP_REPLACE(msg_value:amount:amount,'\"','') as event_amount,
+    REGEXP_REPLACE(msg_value:amount:amount / POW(10,6),'\"','') as event_amount,
     REGEXP_REPLACE(msg_value:amount:denom,'\"','') as event_currency
   FROM {{source('silver_terra', 'msgs')}}  
   WHERE msg_module = 'staking' 
