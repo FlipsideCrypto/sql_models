@@ -81,12 +81,6 @@ prices as (
       symbol,
       avg(price_usd) as price_usd
     FROM {{ ref('terra__oracle_prices')}} 
-    WHERE
-  {% if is_incremental() %}
-    block_timestamp >= getdate() - interval '3 days'
-  {% else %}
-    block_timestamp >= getdate() - interval '12 months'
-  {% endif %}
     GROUP BY 1,2,3
 )
 
