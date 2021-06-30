@@ -13,5 +13,4 @@ SELECT
   address_name
 FROM {{source('shared', 'udm_address_labels_new')}}
 WHERE blockchain = 'terra'
-  AND project_name IN('terraswap', 'chai', 
-                      'mirror', 'anchor')
+  AND l1_label != 'cex'
