@@ -137,12 +137,61 @@ stake_amount AS (
     SUM(stake_units) AS units
   FROM {{source('thorchain', 'stake_events')}}
   GROUP BY pool_name
+),
+
+unstake_umc AS (
+  SELECT
+      from_address AS address,
+      pool_name,
+      SUM(stake_units) AS unstake_liquidity_units
+  FROM {{source('thorchain', 'unstake_events')}}
+  GROUP BY from_address, pool_name
+),
+
+stake_umc AS (
+  SELECT
+      rune_address AS address,
+      pool_name,
+      SUM(stake_units) as liquidity_units
+  FROM {{source('thorchain', 'stake_events')}}
+  WHERE rune_address IS NOT NULL
+  GROUP BY rune_address, pool_name
+
+  UNION ALL 
+
+  SELECT
+      asset_address AS address,
+      pool_name,
+      SUM(stake_units) as liquidity_units
+  FROM {{source('thorchain', 'stake_events')}}
+  WHERE asset_address IS NOT NULL AND rune_address IS NULL 
+  GROUP BY asset_address, pool_name
+),
+
+unique_member_count AS (
+  SELECT 
+    pool_name,
+    COUNT(DISTINCT address) AS unique_member_count
+  FROM (
+    SELECT  
+        stake_umc.pool_name,
+        stake_umc.address,
+        stake_umc.liquidity_units,
+        CASE WHEN unstake_umc.unstake_liquidity_units IS NOT NULL THEN unstake_umc.unstake_liquidity_units ELSE 0 END AS unstake_liquidity_units
+    FROM stake_umc
+    LEFT JOIN unstake_umc
+    ON stake_umc.address = unstake_umc.address AND stake_umc.pool_name = unstake_umc.pool_name
+  )
+  WHERE liquidity_units-unstake_liquidity_units > 0
+  GROUP BY pool_name
+
 )
+
 
 SELECT 
   add_asset_liquidity_volume,
   add_liquidity_count,
--- //  addLiquidityVolume,
+  (add_asset_liquidity_volume + add_rune_liquidity_volume) AS addLiquidityVolume,
   add_rune_liquidity_volume,
   pool_depth.pool_name AS asset,
   asset_depth,
@@ -163,14 +212,14 @@ SELECT
   to_rune_count,
   to_rune_fees,
   to_rune_volume,
--- //  totalFees,
--- //  uniqueMemberCount,
+  (to_rune_fees + to_asset_fees) AS totalFees,
+  unique_member_count,
   unique_swapper_count,
   units,
   withdraw_asset_volume,
   withdraw_count,
-  withdraw_rune_volume
--- //  withdraw_volume
+  withdraw_rune_volume,
+  (withdraw_rune_volume + withdraw_asset_volume) AS withdraw_volume
 FROM pool_depth
 
 LEFT JOIN pool_status
@@ -200,3 +249,5 @@ ON pool_depth.pool_name = stake_amount.pool_name
 LEFT JOIN average_slip_tbl
 ON pool_depth.pool_name = average_slip_tbl.pool_name
 
+LEFT JOIN unique_member_count
+ON pool_depth.pool_name = unique_member_count.pool_name
