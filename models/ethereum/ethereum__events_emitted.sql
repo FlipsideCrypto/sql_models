@@ -10,6 +10,7 @@
 }}
 
 SELECT 
+  DISTINCT
   BLOCK_ID AS block_id,
   BLOCK_TIMESTAMP AS block_timestamp,
   TX_ID AS tx_id,
