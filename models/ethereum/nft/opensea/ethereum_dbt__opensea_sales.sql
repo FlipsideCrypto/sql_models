@@ -58,6 +58,23 @@ WITH token_transfers AS (
                  WHERE input_method = '0xab834bab')
    
    AND token_id IS NOT NULL
+
+  UNION
+
+  SELECT 
+    tx_id, 
+    contract_addr AS contract_address, 
+    event_inputs:from AS seller, 
+    event_inputs:to AS buyer, 
+    event_inputs:id AS token_id
+  FROM {{ source('ethereum', 'ethereum_events_emitted') }}
+  WHERE event_name = 'TransferSingle'
+
+  AND tx_id IN (SELECT tx_hash 
+                FROM silver.ethereum_events 
+                WHERE input_method = '0xab834bab')
+
+  AND token_id IS NOT NULL
 ),
 
 nfts_per_tx AS (
