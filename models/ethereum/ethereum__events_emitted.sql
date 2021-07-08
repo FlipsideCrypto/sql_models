@@ -46,5 +46,5 @@ WHERE
 {% if is_incremental() %}
   b.block_timestamp >= getdate() - interval '18 hours'
 {% else %}
-  b.block_timestamp >= getdate() - interval '9 months'
+  b.block_timestamp >= '2020-11-22'
 {% endif %}
