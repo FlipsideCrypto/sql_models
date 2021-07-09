@@ -1,10 +1,6 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort='label', 
     unique_key='label', 
-    incremental_strategy='delete+insert',
-    cluster_by=['label'],
     tags=['snowflake', 'terra', 'labels']
   )
 }}
