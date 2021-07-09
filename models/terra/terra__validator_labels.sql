@@ -1,5 +1,6 @@
 {{ 
   config(
+    materialized='table', 
     unique_key='label', 
     tags=['snowflake', 'terra', 'labels']
   )
