@@ -9,73 +9,86 @@
   )
 }}
 
-WITH transfers as (
-WITH inputs as(
+
+WITH prices as (
   SELECT 
-    blockchain,
-    chain_id,
-    tx_status,
-    block_id,
-    block_timestamp,  
-    tx_id,
-    tx_type,
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(price_usd) as price_usd
+    FROM {{ ref('terra__oracle_prices')}} 
+    GROUP BY 1,2,3
+),
+
+symbol as (
+  SELECT 
+      currency,
+      symbol
+    FROM {{ ref('terra__oracle_prices')}}
+    WHERE block_timestamp >= CURRENT_DATE - 2
+    GROUP BY 1,2
+),
+
+inputs as(
+  SELECT 
+    blockchain, 
+    chain_id, 
+    tx_status, 
+    block_id, 
+    block_timestamp, 
+    tx_id, 
     msg_type, 
-    vm.value:index as event_index,
-    REGEXP_REPLACE(vm.value:address,'\"','') as event_from,
-    ve.value:amount/ pow(10,6) as event_amount,
-    REGEXP_REPLACE(ve.value:denom,'\"','') as event_currency,
-    msg_value
+    a.value:address::string as event_from, 
+    a.value:coins[0]:amount / POW(10,6) as event_amount, 
+    a.value:coins[0]:denom::string as event_currency, 
+    a.index as input_index
   FROM {{source('silver_terra', 'msgs')}}
-  , lateral flatten(input => tendermintBankMsgMultiSendAddIndex(msg_value):inputs) vm
-  , lateral flatten(input => vm.value:coins) ve
+  , lateral flatten(input => msg_value:inputs) a
   WHERE msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+    
     {% if is_incremental() %}
       AND block_timestamp >= getdate() - interval '1 days'
     {% else %}
       AND block_timestamp >= getdate() - interval '9 months'
     {% endif %}
 ),
+
 outputs as(
   SELECT 
-    blockchain,
-    chain_id,
-    block_id,
-    block_timestamp,  
-    tx_id,
-    msg_type,
-    vm.value:index as event_index,
-    REGEXP_REPLACE(vm.value:address,'\"','') as event_to,
-    ve.value:amount/ pow(10,6) as event_amount,
-    REGEXP_REPLACE(ve.value:denom,'\"','') as event_currency
+    tx_id, 
+    a.value:address::string as event_to, 
+    a.index as output_index
   FROM {{source('silver_terra', 'msgs')}}
-  , lateral flatten(input => tendermintBankMsgMultiSendAddIndex(msg_value):outputs) vm
-  , lateral flatten(input => vm.value:coins) ve
+  , lateral flatten(input => msg_value:outputs) a
   WHERE msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+   
     {% if is_incremental() %}
       AND block_timestamp >= getdate() - interval '1 days'
     {% else %}
       AND block_timestamp >= getdate() - interval '9 months'
     {% endif %}
-)
+),
+
+transfers as(
 SELECT 
-  i.blockchain,
-  i.chain_id,
-  i.tx_status,
-  i.block_id,
-  i.block_timestamp,  
-  i.tx_id,
-  i.msg_type,
-  i.event_from,
-  o.event_to,
-  i.event_amount,
-  i.event_currency
+  blockchain,
+  chain_id, 
+  tx_status, 
+  block_id, 
+  block_timestamp, 
+  i.tx_id, 
+  msg_type, 
+  event_from, 
+  event_to, 
+  event_amount, 
+  event_currency
 FROM inputs i
 
 JOIN outputs o 
   ON i.tx_id = o.tx_id
-  AND i.event_index = o.event_index
+  AND i.input_index = o.output_index
   
 UNION
 
@@ -87,28 +100,21 @@ SELECT
   block_timestamp,
   tx_id,
   msg_type, 
-  REGEXP_REPLACE(msg_value:from_address,'\"','') as event_from,
-  REGEXP_REPLACE(msg_value:to_address,'\"','') as event_to,
+  msg_value:from_address::string as event_from,
+  msg_value:to_address::string as event_to,
   msg_value:amount[0]:amount / pow(10,6) as event_amount,
-  REGEXP_REPLACE(msg_value:amount[0]:denom,'\"','') as event_currency
+  msg_value:amount[0]:denom::string as event_currency
 FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_module = 'bank'
   AND msg_type = 'bank/MsgSend'
+
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
 {% else %}
  AND block_timestamp >= getdate() - interval '9 months'
-{% endif %}),
-
-prices as (
-  SELECT 
-      date_trunc('hour', block_timestamp) as hour,
-      currency,
-      symbol,
-      avg(price_usd) as price_usd
-    FROM {{ ref('terra__oracle_prices')}} 
-    GROUP BY 1,2,3
+{% endif %}
 )
+
 
 SELECT
   t.blockchain,
@@ -130,16 +136,18 @@ SELECT
   to_labels.address_name as event_to_address_name,
   t.event_amount,
   t.event_amount * price_usd as event_amount_usd,
-  o.symbol as event_currency
+  s.symbol as event_currency
 FROM transfers t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
  AND t.event_currency = o.currency 
 
+LEFT OUTER JOIN symbol s
+ ON t.event_currency = s.currency 
+
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as from_labels
 ON event_from = from_labels.address
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as to_labels
 ON event_to = to_labels.address
-
