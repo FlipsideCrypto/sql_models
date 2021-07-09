@@ -56,9 +56,9 @@ SELECT
   m.msg_value:execute_msg:feed_price:prices[0][0]::string as currency,
   p.address_name as symbol,
   m.msg_value:execute_msg:feed_price:prices[0][1] as price
-FROM terra.msgs m
+FROM {{source('silver_terra', 'msgs')}} m
 
-LEFT OUTER JOIN terra.labels p 
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} p 
   ON msg_value:execute_msg:feed_price:prices[0][0]::string = p.address 
 
 WHERE msg_value:contract = 'terra1t6xe0txzywdg85n6k8c960cuwgh6l8esw6lau9' --Mirror Oracle Feeder
