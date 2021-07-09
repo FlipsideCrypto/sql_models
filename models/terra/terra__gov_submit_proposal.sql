@@ -17,6 +17,16 @@ WITH prices as (
       avg(price_usd) as price_usd
     FROM {{ ref('terra__oracle_prices')}} 
     GROUP BY 1,2,3
+),
+proposal_id as (
+  SELECT 
+  tx_id,
+  event_attributes:proposal_id as proposal_id
+  FROM {{source('silver_terra', 'msg_events')}}
+  WHERE msg_module = 'gov' 
+    AND msg_type = 'gov/MsgSubmitProposal'
+    AND tx_status = 'SUCCEEDED'
+    AND event_type = 'proposal_deposit'
 )
 
 SELECT 
@@ -32,10 +42,10 @@ SELECT
   proposer_labels.l2_label as proposer_label_subtype,
   proposer_labels.project_name as proposer_address_label,
   proposer_labels.address_name as proposer_address_name,
-  REGEXP_REPLACE(msg_value:content:value:type,'\"','') as proposal_type,
+  p.proposal_id,
+  REGEXP_REPLACE(msg_value:content:type,'\"','') as proposal_type,
   REGEXP_REPLACE(msg_value:content:value:description,'\"','') as description,
   REGEXP_REPLACE(msg_value:content:value:title,'\"','') as title,
-  -- REGEXP_REPLACE(msg_value:initial_deposit[0]:amount,'\"','') as deposit_amount,
   msg_value:initial_deposit[0]:amount / POW(10,6) as deposit_amount,
   deposit_amount * o.price_usd as deposit_amount_usd,
   REGEXP_REPLACE(msg_value:initial_deposit[0]:denom,'\"','') as deposit_currency
@@ -46,7 +56,10 @@ LEFT OUTER JOIN prices o
  AND REGEXP_REPLACE(t.msg_value:initial_deposit[0]:denom,'\"','') = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as proposer_labels
-ON REGEXP_REPLACE(t.msg_value:proposer,'\"','') = proposer_labels.address
+ ON REGEXP_REPLACE(t.msg_value:proposer,'\"','') = proposer_labels.address
+
+LEFT OUTER JOIN proposal_id p 
+ ON t.tx_id =  p.tx_id
 
 WHERE msg_module = 'gov' 
   AND msg_type = 'gov/MsgSubmitProposal'

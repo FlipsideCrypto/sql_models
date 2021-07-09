@@ -20,6 +20,15 @@ WITH prices as (
     GROUP BY 1,2,3
 ),
 
+symbol as (
+  SELECT 
+      currency,
+      symbol
+    FROM {{ ref('terra__oracle_prices')}}
+    WHERE block_timestamp >= CURRENT_DATE - 2
+    GROUP BY 1,2
+),
+
 inputs as(
   SELECT 
     blockchain, 
@@ -127,12 +136,15 @@ SELECT
   to_labels.address_name as event_to_address_name,
   t.event_amount,
   t.event_amount * price_usd as event_amount_usd,
-  o.symbol as event_currency
+  s.symbol as event_currency
 FROM transfers t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
  AND t.event_currency = o.currency 
+
+LEFT OUTER JOIN symbol s
+ ON t.event_currency = s.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as from_labels
 ON event_from = from_labels.address
