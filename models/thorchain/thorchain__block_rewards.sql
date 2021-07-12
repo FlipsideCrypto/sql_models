@@ -78,12 +78,12 @@ total_pool_rewards_tbl AS (
 )
 SELECT
     all_block_with_nodes_date.day,
-    liquidity_fee_tbl.liquidity_fee,
-    (total_pool_rewards_tbl.total_pool_rewards + bond_earnings_tbl.bond_earnings) AS blockRewards,
-    (total_pool_rewards_tbl.total_pool_rewards + liquidity_fee_tbl.liquidity_fee + bond_earnings_tbl.bond_earnings) AS earnings,
-    bond_earnings_tbl.bond_earnings AS bonding_earnings,
-    (total_pool_rewards_tbl.total_pool_rewards + liquidity_fee_tbl.liquidity_fee) AS liquidityEarnings,
-    all_block_with_nodes_date.avg_nodes + 2 AS avg_node_count // Please note that here adding 2 is because the number of the first line cannot be found
+    (liquidity_fee_tbl.liquidity_fee / POWER(10, 8)) AS liquidity_fee,
+    ((total_pool_rewards_tbl.total_pool_rewards + bond_earnings_tbl.bond_earnings)) / POWER(10, 8) AS blockRewards,
+    ((total_pool_rewards_tbl.total_pool_rewards + liquidity_fee_tbl.liquidity_fee + bond_earnings_tbl.bond_earnings)) / POWER(10, 8) AS earnings,
+    (bond_earnings_tbl.bond_earnings / POWER(10, 8)) AS bonding_earnings,
+    ((total_pool_rewards_tbl.total_pool_rewards + liquidity_fee_tbl.liquidity_fee)) / POWER(10, 8) AS liquidityEarnings,
+    all_block_with_nodes_date.avg_nodes + 2 AS avg_node_count 
 FROM all_block_with_nodes_date
 LEFT JOIN liquidity_fee_tbl
 ON all_block_with_nodes_date.day = liquidity_fee_tbl.day

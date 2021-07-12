@@ -184,19 +184,32 @@ unique_member_count AS (
   )
   WHERE liquidity_units-unstake_liquidity_units > 0
   GROUP BY pool_name
+),
 
+asset_price_usd_tbl AS (
+  SELECT 
+      pool_name,
+      asset_usd AS asset_price_usd
+  FROM (
+    SELECT
+      block_id,
+      MAX(block_id) OVER (PARTITION BY pool_name) AS max_block_id,
+      pool_name,
+      asset_usd
+    FROM {{ ref('thorchain__prices') }}
+  )
+  WHERE block_id = max_block_id
 )
-
 
 SELECT 
   add_asset_liquidity_volume,
   add_liquidity_count,
-  (add_asset_liquidity_volume + add_rune_liquidity_volume) AS addLiquidityVolume,
+  (add_asset_liquidity_volume + add_rune_liquidity_volume) AS add_liquidity_volume,
   add_rune_liquidity_volume,
   pool_depth.pool_name AS asset,
   asset_depth,
   asset_price,
--- //  assetPriceUSD,
+  asset_price_usd,
   average_slip,
   impermanent_loss_protection_paid,
 -- //  poolAPY,
@@ -251,3 +264,6 @@ ON pool_depth.pool_name = average_slip_tbl.pool_name
 
 LEFT JOIN unique_member_count
 ON pool_depth.pool_name = unique_member_count.pool_name
+
+LEFT JOIN asset_price_usd_tbl
+ON pool_depth.pool_name = asset_price_usd_tbl.pool_name
