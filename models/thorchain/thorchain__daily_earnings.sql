@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["block_timestamp", "pool_name"], 
+    unique_key=["day"], 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'daily_earnings']
   )
@@ -26,16 +26,17 @@ daily_rune_price AS (
 )
 SELECT
   br.day,
-  liquidity_fee / POW(10, 8) AS liquidity_fees,
-  liquidity_fee / POW(10, 8) * rune_usd AS liquidity_fees_usd,
-  blockrewards / POW(10, 8) AS block_rewards,
-  blockrewards / POW(10, 8) * rune_usd AS block_rewards_usd,
-  earnings / POW(10, 8) AS total_earnings,
-  earnings / POW(10, 8) * rune_usd AS total_earnings_usd,
-  bonding_earnings / POW(10, 8) AS earnings_to_nodes,
-  bonding_earnings / POW(10, 8) * rune_usd AS earnings_to_nodes_usd,
-  liquidityearnings / POW(10, 8) AS earnins_to_pools,
-  liquidityearnings / POW(10, 8) * rune_usd AS earnins_to_pools_usd,
+  liquidity_fee AS liquidity_fees,
+  liquidity_fee * rune_usd AS liquidity_fees_usd,
+  blockrewards AS block_rewards,
+  blockrewards * rune_usd AS block_rewards_usd,
+  earnings AS total_earnings,
+  earnings * rune_usd AS total_earnings_usd,
+  bonding_earnings AS earnings_to_nodes,
+  bonding_earnings * rune_usd AS earnings_to_nodes_usd,
+  liquidityearnings AS earnins_to_pools,
+  liquidityearnings * rune_usd AS earnins_to_pools_usd,
   avg_node_count
 FROM {{ ref('thorchain__block_rewards') }} br
 JOIN daily_rune_price drp ON br.day = drp.day
+

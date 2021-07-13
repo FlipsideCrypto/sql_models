@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["block_timestamp", "pool_name"], 
+    unique_key=["block_id", "block_timestamp"], 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'total_block_rewards']
   )
