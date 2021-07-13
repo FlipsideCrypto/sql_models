@@ -18,14 +18,14 @@ WITH decimals_raw as (
 
   SELECT address AS token_address,
   meta:decimals AS decimals
-  FROM silver.ethereum_contracts
+  FROM {{source('ethereum', 'ethereum_contracts')}}
   WHERE meta:decimals IS NOT NULL
 
   UNION
 
   SELECT DISTINCT token_address,
   decimals
-  FROM ethereum.token_prices_hourly
+  FROM {{ref('ethereum__token_prices_hourly')}} 
   WHERE hour > current_date - interval '31 days'
   AND decimals IS NOT NULL
 
