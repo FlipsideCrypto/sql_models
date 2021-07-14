@@ -15,6 +15,7 @@ WITH max_daily_block AS (
   FROM {{ ref('thorchain__prices') }}
   GROUP BY day
 ),
+
 daily_rune_price AS (
   SELECT
     p.block_id,
@@ -24,6 +25,7 @@ daily_rune_price AS (
   JOIN max_daily_block mdb WHERE p.block_id = mdb.block_id
   GROUP BY day, p.block_id
 )
+
 SELECT
   br.day,
   total_value_pooled AS total_value_pooled,
@@ -33,5 +35,7 @@ SELECT
   total_value_locked AS total_value_locked,
   total_value_locked * rune_usd AS total_value_locked_usd
 FROM {{ ref('thorchain__total_value_locked') }} br
-JOIN daily_rune_price drp ON br.day = drp.day
+
+JOIN daily_rune_price drp 
+ON br.day = drp.day
 

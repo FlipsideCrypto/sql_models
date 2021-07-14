@@ -2,11 +2,30 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["block_id", "block_timestamp", "pool_name"], 
+    unique_key=["tx_id"], 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'liquidity_actions']
   )
 }}
+
+WITH stakes AS (
+  SELECT * FROM {{ ref('thorchain__stake_events') }}
+  WHERE TRUE
+    {% if is_incremental() %}
+    AND block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+    AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
+),
+unstakes AS (
+  SELECT * FROM {{ ref('thorchain__unstake_events') }}
+  WHERE TRUE
+    {% if is_incremental() %}
+    AND block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+    AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
+)
 
 SELECT 
   se.block_timestamp, 
@@ -28,8 +47,10 @@ SELECT
   NULL AS il_protection_usd,
   NULl AS unstake_asymmetry,
   NULL AS unstake_basis_points
-FROM {{ ref('thorchain__stake_events') }} se
-JOIN {{ ref('thorchain__prices') }} p ON se.block_id = p.block_id AND se.pool_name = p.pool_name
+FROM stakes se
+
+JOIN {{ ref('thorchain__prices') }} p 
+ON se.block_id = p.block_id AND se.pool_name = p.pool_name
 
 UNION
 
@@ -53,5 +74,7 @@ SELECT
   imp_loss_protection_e8 / POW(10, 8) * rune_usd AS il_protection_usd,
   asymmetry AS unstake_asymmetry, 
   basis_points AS unstake_basis_points
-FROM {{ ref('thorchain__unstake_events') }} ue
-JOIN {{ ref('thorchain__prices') }} p ON ue.block_id = p.block_id AND ue.pool_name = p.pool_name
+FROM unstakes ue
+
+JOIN {{ ref('thorchain__prices') }} p 
+ON ue.block_id = p.block_id AND ue.pool_name = p.pool_name

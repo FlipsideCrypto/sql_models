@@ -15,6 +15,7 @@ WITH max_daily_block AS (
   FROM {{ ref('thorchain__prices') }}
   GROUP BY day
 ),
+
 daily_rune_price AS (
   SELECT
     p.block_id,
@@ -24,6 +25,7 @@ daily_rune_price AS (
   JOIN max_daily_block mdb WHERE p.block_id = mdb.block_id
   GROUP BY day, p.block_id
 )
+
 SELECT
   br.day,
   liquidity_fee AS liquidity_fees,
@@ -38,5 +40,7 @@ SELECT
   liquidityearnings * rune_usd AS earnins_to_pools_usd,
   avg_node_count
 FROM {{ ref('thorchain__block_rewards') }} br
-JOIN daily_rune_price drp ON br.day = drp.day
+
+JOIN daily_rune_price drp 
+ON br.day = drp.day
 

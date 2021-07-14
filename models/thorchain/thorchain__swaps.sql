@@ -2,12 +2,21 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["block_id", "block_timestamp", "pool_name"], 
+    unique_key=["tx_id"], 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'swaps']
+    tags=['snowflake', 'thorchain', 'thorchain_swaps']
   )
 }}
 
+WITH swaps AS (
+  SELECT * FROM {{ ref('thorchain__swap_events') }} 
+  WHERE TRUE
+    {% if is_incremental() %}
+    AND block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+    AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}
+)
 
 SELECT
   se.block_timestamp,
@@ -41,5 +50,5 @@ SELECT
     WHEN to_asset = 'THOR.RUNE' THEN liq_fee_e8 * rune_usd / POW(10, 8)
     ELSE liq_fee_e8 * asset_usd / POW(10, 8)
   END AS liq_fee_asset
-FROM {{ ref('thorchain__swap_events') }} se
+FROM swaps se
 JOIN {{ ref('thorchain__prices') }} p ON se.block_id = p.block_id AND se.pool_name = p.pool_name

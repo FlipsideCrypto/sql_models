@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["block_id", "block_timestamp"], 
+    unique_key=["block_id"], 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'total_block_rewards']
   )
@@ -16,6 +16,7 @@ WITH block_prices AS (
   FROM {{ ref("thorchain__prices") }}
   GROUP BY block_id
 )
+
 SELECT 
   ree.block_timestamp,
   ree.block_id,
@@ -35,5 +36,6 @@ SELECT
   bond_e8 / POW(10, 8) AS rune_amount,
   bond_e8 / POW(10, 8) * rune_usd AS rune_amount_usd
 FROM {{ ref("thorchain__rewards_events") }} re
-JOIN 
-block_prices p ON re.block_id = p.block_id
+
+JOIN block_prices p 
+ON re.block_id = p.block_id
