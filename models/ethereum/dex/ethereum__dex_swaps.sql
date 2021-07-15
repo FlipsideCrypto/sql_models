@@ -14,7 +14,7 @@
 -- this will depend on having the liquidity pool table set
 -- makes a table of swaps in a long format, i.e. swap_date, pool, token_address, swapped amount
 -- this is currently built for uniswap/sushiswap style swaps but that format would also work for pools that allow 2+ tokens (i.e. Curve's 3Pool, Balancer, etc.)
-WITH decimals_raw as (
+WITH decimals as (
 
   SELECT address AS token_address,
   meta:decimals AS decimals
@@ -26,14 +26,13 @@ WITH decimals_raw as (
   SELECT DISTINCT token_address,
   decimals
   FROM {{ref('ethereum__token_prices_hourly')}} 
-  WHERE hour > current_date - interval '31 days'
+  WHERE 
+  {% if is_incremental() %}
+    hour >= getdate() - interval '31 days'
+  {% else %}
+    --hour >= getdate() - interval '12 months'
+  {% endif %}
   AND decimals IS NOT NULL
-
-), decimals AS (
-
-  SELECT 
-    DISTINCT * 
-  FROM decimals_raw
 
 ),
  usd_swaps AS (
