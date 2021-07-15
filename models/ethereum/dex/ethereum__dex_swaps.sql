@@ -17,14 +17,16 @@
 WITH decimals_raw as (
 
   SELECT address AS token_address,
-  meta:decimals AS decimals
+  meta:decimals AS decimals,
+  2 as weight
   FROM {{source('ethereum', 'ethereum_contracts')}}
   WHERE meta:decimals IS NOT NULL
 
   UNION
 
   SELECT DISTINCT token_address,
-  decimals
+  decimals,
+  1 AS weight
   FROM {{ref('ethereum__token_prices_hourly')}} 
   WHERE 
   {% if is_incremental() %}
@@ -37,7 +39,7 @@ WITH decimals_raw as (
 ), decimals AS (
   SELECT token_address,decimals
   FROM decimals_raw
-  QUALIFY (row_number() OVER (partition by token_address order by token_address desc)) = 1
+  QUALIFY (row_number() OVER (partition by token_address order by weight desc)) = 1
 ),
  usd_swaps AS (
   SELECT DISTINCT
