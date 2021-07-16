@@ -14,19 +14,46 @@
 -- this will depend on having the liquidity pool table set
 -- makes a table of swaps in a long format, i.e. swap_date, pool, token_address, swapped amount
 -- this is currently built for uniswap/sushiswap style swaps but that format would also work for pools that allow 2+ tokens (i.e. Curve's 3Pool, Balancer, etc.)
-WITH usd_swaps AS (
+WITH decimals_raw as (
+
+  SELECT address AS token_address,
+  meta:decimals AS decimals,
+  2 as weight
+  FROM {{source('ethereum', 'ethereum_contracts')}}
+  WHERE meta:decimals IS NOT NULL
+
+  UNION
+
+  SELECT DISTINCT token_address,
+  decimals,
+  1 AS weight
+  FROM {{ref('ethereum__token_prices_hourly')}} 
+  WHERE 
+  {% if is_incremental() %}
+    hour >= getdate() - interval '31 days' AND
+  {% else %}
+    -- hour >= getdate() - interval '12 months'
+  {% endif %}
+   decimals IS NOT NULL
+
+), decimals AS (
+  SELECT token_address,decimals
+  FROM decimals_raw
+  QUALIFY (row_number() OVER (partition by token_address order by weight desc)) = 1
+),
+ usd_swaps AS (
   SELECT DISTINCT
     block_timestamp, 
     p.pool_address,
     p.pool_name,
     p.token0 AS token_address,
     tx_id, 
-    event_inputs:amount0In / POWER(10, price0.decimals) AS amount_in,
-    event_inputs:amount0Out / POWER(10, price0.decimals) AS amount_out, 
+    event_inputs:amount0In / POWER(10, d.decimals) AS amount_in,
+    event_inputs:amount0Out / POWER(10, d.decimals) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * price0.price / POWER(10, price0.decimals) 
-         ELSE event_inputs:amount0Out * price0.price / POWER(10, price0.decimals) END
+    CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * price0.price / POWER(10, d.decimals) 
+         ELSE event_inputs:amount0Out * price0.price / POWER(10, d.decimals) END
     AS amount_usd,
     CASE WHEN p.factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform,
     event_index,
@@ -39,6 +66,9 @@ WITH usd_swaps AS (
 
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price0 
     ON p.token0 = price0.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price0.hour
+
+  LEFT JOIN decimals d
+    ON p.token0 = d.token_address
 
   WHERE event_name = 'Swap' AND platform <> 'uniswap-v3' 
 
@@ -56,12 +86,12 @@ WITH usd_swaps AS (
     p.pool_name,
     p.token1 AS token_address,
     tx_id, 
-    event_inputs:amount1In / POWER(10, price1.decimals) AS amount_in,
-    event_inputs:amount1Out / POWER(10, price1.decimals) AS amount_out, 
+    event_inputs:amount1In / POWER(10, d.decimals) AS amount_in,
+    event_inputs:amount1Out / POWER(10, d.decimals) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, price1.decimals) 
-         ELSE event_inputs:amount1Out * price1.price / POWER(10, price1.decimals) END
+    CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d.decimals) 
+         ELSE event_inputs:amount1Out * price1.price / POWER(10, d.decimals) END
     AS amount_usd,
     CASE WHEN p.factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform,
     event_index,
@@ -75,6 +105,10 @@ WITH usd_swaps AS (
 
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price1 
     ON p.token1 = price1.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price1.hour
+
+  LEFT JOIN decimals d
+    ON p.token0 = d.token_address
+    
 
   WHERE 
       event_name = 'Swap' AND platform <> 'uniswap-v3' 
