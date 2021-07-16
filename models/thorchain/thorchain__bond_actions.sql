@@ -4,7 +4,7 @@
     sort='block_timestamp', 
     unique_key=["tx_id"], 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'bond_actions']
+    tags=['snowflake', 'thorchain', 'thorchain_bond_actions']
   )
 }}
 
@@ -31,7 +31,7 @@ SELECT
   be.block_id,
   tx_id,
   from_address,
-  to_addres,
+  to_addres AS to_address,
   asset,
   blockchain,
   bond_type,

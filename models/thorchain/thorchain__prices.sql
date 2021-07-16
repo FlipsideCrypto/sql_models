@@ -4,7 +4,7 @@
     sort='block_timestamp', 
     unique_key=["block_id", "pool_name"], 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'prices']
+    tags=['snowflake', 'thorchain', 'thorchain_prices']
   )
 }}
 

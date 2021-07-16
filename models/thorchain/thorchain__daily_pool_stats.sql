@@ -1,10 +1,8 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort='block_timestamp', 
+    materialized='table', 
     unique_key=["day", "pool_name"], 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'daily_pool_stats']
+    tags=['snowflake', 'thorchain', 'thorchain_daily_pool_stats']
   )
 }}
 
@@ -12,7 +10,7 @@ WITH max_daily_block AS (
   SELECT 
     max(block_id) AS block_id,
     date_trunc('day', block_timestamp) AS day
-  FROM {{ ref("thorchain__prices") }}
+  FROM {{ ref('thorchain__prices') }}
   GROUP BY day
 ),
 
@@ -23,7 +21,7 @@ daily_rune_price AS (
     day,
     rune_usd,
     asset_usd
-  FROM {{ ref("thorchain__prices") }} p
+  FROM {{ ref('thorchain__prices') }} p
   JOIN max_daily_block mdb 
   WHERE p.block_id = mdb.block_id
 ),
@@ -38,7 +36,7 @@ pool_fees AS (
     asset_liquidity_fees * asset_usd AS asset_liqudity_fees_usd,
     rune_liquidity_fees,
     rune_liquidity_fees * rune_usd AS rune_liquidity_fees_usd
-  FROM {{ ref("thorchain__pool_block_fees") }} pbf
+  FROM {{ ref('thorchain__pool_block_fees') }} pbf
   JOIN daily_rune_price drp ON pbf.day = drp.day AND pbf.pool_name = drp.pool_name
 )
 
@@ -48,10 +46,10 @@ SELECT
   pf.pool_name,
   system_rewards,
   system_rewards_usd,
-  asset_liquidity_fees,
-  asset_liqudity_fees_usd,
-  rune_liquidity_fees,
-  rune_liquidity_fees_usd,
+  -- asset_liquidity_fees,
+  -- asset_liqudity_fees_usd,
+  -- rune_liquidity_fees,
+  -- rune_liquidity_fees_usd,
   asset_depth / POW(10, 8) AS asset_liquidity,
   asset_price,
   asset_price_usd,
@@ -80,14 +78,14 @@ SELECT
   swap_volume / POW(10, 8) * rune_usd AS swap_volume_rune_usd,
   to_asset_volume / POW(10, 8) AS to_asset_swap_volume,
   to_rune_volume / POW(10, 8) AS to_rune_swap_volume,
-  totalfees AS total_swap_fees_rune,
-  totalfees * rune_usd AS total_swap_fees_usd,
-  to_asset_fees AS total_asset_swap_fees,
-  to_rune_fees AS total_asset_rune_fees,
+  totalfees / POW(10, 8) AS total_swap_fees_rune,
+  totalfees / POW(10, 8) * rune_usd AS total_swap_fees_usd,
+  to_asset_fees / POW(10, 8) AS total_asset_swap_fees,
+  to_rune_fees / POW(10, 8) AS total_asset_rune_fees,
   unique_member_count,
   unique_swapper_count,
   units AS liquidity_units
-FROM {{ ref("thorchain__pool_block_statistics") }} pbs
+FROM {{ ref('thorchain__pool_block_statistics') }} pbs
 
 JOIN daily_rune_price drp 
 ON pbs.day = drp.day AND pbs.asset = drp.pool_name

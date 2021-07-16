@@ -44,11 +44,15 @@ SELECT
     ELSE to_e8_min * asset_usd / POW(10, 8)
   END AS to_amount_min_usd,
   swap_slip_bp,
-  liq_fee_in_rune_e8 AS liq_fee_rune,
-  liq_fee_in_rune_e8 * rune_usd AS liq_fee_usd,
+  liq_fee_in_rune_e8  / POW(10, 8) AS liq_fee_rune,
+  liq_fee_in_rune_e8  / POW(10, 8) * rune_usd AS liq_fee_rune_usd,
+  CASE
+    WHEN to_asset = 'THOR.RUNE' THEN liq_fee_e8 / POW(10, 8)
+    ELSE liq_fee_e8 / POW(10, 8)
+  END AS liq_fee_asset,
   CASE
     WHEN to_asset = 'THOR.RUNE' THEN liq_fee_e8 * rune_usd / POW(10, 8)
     ELSE liq_fee_e8 * asset_usd / POW(10, 8)
-  END AS liq_fee_asset
+  END AS liq_fee_asset_usd
 FROM swaps se
 JOIN {{ ref('thorchain__prices') }} p ON se.block_id = p.block_id AND se.pool_name = p.pool_name

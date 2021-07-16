@@ -1,10 +1,8 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort='block_timestamp', 
+    materialized='table', 
     unique_key=["day", "pool_name"], 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'pool_block_fees']
+    tags=['snowflake', 'thorchain', 'thorchain_pool_block_fees']
   )
 }}
 

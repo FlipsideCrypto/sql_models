@@ -1,10 +1,8 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort='block_timestamp', 
+    materialized='table', 
     unique_key=["day"], 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'daily_tvl']
+    tags=['snowflake', 'thorchain', 'thorchain_daily_tvl']
   )
 }}
 

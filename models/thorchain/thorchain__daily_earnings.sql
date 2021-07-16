@@ -1,10 +1,8 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort='block_timestamp', 
+    materialized='table', 
     unique_key=["day"], 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'daily_earnings']
+    tags=['snowflake', 'thorchain', 'thorchain_daily_earnings']
   )
 }}
 
@@ -36,8 +34,8 @@ SELECT
   earnings * rune_usd AS total_earnings_usd,
   bonding_earnings AS earnings_to_nodes,
   bonding_earnings * rune_usd AS earnings_to_nodes_usd,
-  liquidityearnings AS earnins_to_pools,
-  liquidityearnings * rune_usd AS earnins_to_pools_usd,
+  liquidityearnings AS earnings_to_pools,
+  liquidityearnings * rune_usd AS earnings_to_pools_usd,
   avg_node_count
 FROM {{ ref('thorchain__block_rewards') }} br
 

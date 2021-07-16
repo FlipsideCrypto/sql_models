@@ -4,7 +4,7 @@
     sort='block_timestamp', 
     unique_key=["tx_id"], 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'thorchain', 'liquidity_actions']
+    tags=['snowflake', 'thorchain', 'thorchain_liquidity_actions']
   )
 }}
 
