@@ -29,6 +29,7 @@ bond_events AS (
 SELECT
   be.block_timestamp,
   be.block_id,
+  event_id,
   tx_id,
   from_address,
   to_addres AS to_address,

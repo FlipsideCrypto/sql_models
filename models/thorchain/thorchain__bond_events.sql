@@ -8,6 +8,7 @@
 SELECT
   to_timestamp(e.BLOCK_TIMESTAMP/1000000000) as block_timestamp,
   bl.height as block_id,
+  e._FIVETRAN_ID AS event_id,
   e.TX as tx_id,
   e.TO_ADDR as to_addres,
   e.FROM_ADDR as from_address,
