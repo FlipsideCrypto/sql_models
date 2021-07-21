@@ -28,14 +28,14 @@ SELECT
   br.day,
   liquidity_fee AS liquidity_fees,
   liquidity_fee * rune_usd AS liquidity_fees_usd,
-  blockrewards AS block_rewards,
-  blockrewards * rune_usd AS block_rewards_usd,
+  block_rewards AS block_rewards,
+  block_rewards * rune_usd AS block_rewards_usd,
   earnings AS total_earnings,
   earnings * rune_usd AS total_earnings_usd,
   bonding_earnings AS earnings_to_nodes,
   bonding_earnings * rune_usd AS earnings_to_nodes_usd,
-  liquidityearnings AS earnings_to_pools,
-  liquidityearnings * rune_usd AS earnings_to_pools_usd,
+  liquidity_earnings AS earnings_to_pools,
+  liquidity_earnings * rune_usd AS earnings_to_pools_usd,
   avg_node_count
 FROM {{ ref('thorchain__block_rewards') }} br
 
