@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["tx_id"], 
+    unique_key=["event_id"], 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'thorchain_liquidity_actions']
   )
@@ -30,6 +30,7 @@ unstakes AS (
 SELECT 
   se.block_timestamp, 
   se.block_id, 
+  se.event_id, 
   rune_tx_id AS tx_id, 
   'add_liquidity' AS lp_action, 
   se.pool_name, 
@@ -57,6 +58,7 @@ UNION
 SELECT
   ue.block_timestamp, 
   ue.block_id, 
+  ue.event_id,
   tx_id, 
   'remove_liquidity' AS lp_action, 
   ue.pool_name, 

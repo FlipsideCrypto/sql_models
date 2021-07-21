@@ -8,6 +8,7 @@
 SELECT
   to_timestamp(e.BLOCK_TIMESTAMP/1000000000) as block_timestamp,
   bl.height as block_id,
+  e._FIVETRAN_ID AS event_id,
   e.RUNE_TX as rune_tx_id,
   e.POOL as pool_name,
   e.RUNE_E8,

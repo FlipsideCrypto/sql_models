@@ -18,7 +18,7 @@ WITH swaps AS (
     {% endif %}
 )
 
-SELECT
+SELECT DISTINCT
   se.block_timestamp,
   se.block_id,
   tx_id,
