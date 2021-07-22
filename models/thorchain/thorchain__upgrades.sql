@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["block_id", "from_address", "to_address", "burn_asset"], 
+    unique_key='block_id || from_address || to_address || burn_asset', 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'thorchain_upgrades']
   )
