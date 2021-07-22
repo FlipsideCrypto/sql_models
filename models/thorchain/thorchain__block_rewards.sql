@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='table', 
-    unique_key=["day"], 
+    unique_key='day', 
     tags=['snowflake', 'thorchain', 'thorchain_block_rewards']
   )
 }}

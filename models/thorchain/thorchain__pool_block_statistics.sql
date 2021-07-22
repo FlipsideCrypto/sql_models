@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='table', 
-    unique_key=["day", "asset"], 
+    unique_key='day || asset', 
     tags=['snowflake', 'thorchain', 'thorchain_pool_block_statistics']
   )
 }}

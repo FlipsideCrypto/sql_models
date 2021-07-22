@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key=["event_id"], 
+    unique_key='event_id', 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'thorchain_bond_actions']
   )
