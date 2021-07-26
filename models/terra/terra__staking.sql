@@ -82,7 +82,7 @@ SELECT
     validator_labels.l2_label as validator_label_subtype,
     validator_labels.project_name as validator_address_label,
     validator_labels.address_name as validator_address_name,
-    a.amount as event_amount,
+    a.amount::float as event_amount,
     price_usd,
     a.amount * price_usd as event_amount_usd,
     p.symbol AS currency
