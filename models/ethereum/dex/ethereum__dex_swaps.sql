@@ -171,12 +171,20 @@ WITH decimals_raw as (
   LEFT JOIN {{ref('ethereum__events_emitted')}} ind
     ON s.pool_address = ind.contract_address AND s.tx_id = ind.tx_id
     WHERE (amount1_adjusted > 0 OR amount0_adjusted > 0) AND platform = 'uniswap-v3' 
+), swaps AS (
+  SELECT *
+  FROM usd_swaps
+
+  UNION
+
+  SELECT * 
+  FROM v3_swaps
 )
 
-SELECT *
-FROM usd_swaps
 
-UNION
-
-SELECT * 
-FROM v3_swaps
+SELECT s.*, CASE WHEN s.from_address <> s.to_address THEN l.project_name ELSE NULL END AS router
+FROM 
+swaps s
+LEFT JOIN
+silver.ethereum_address_labels l
+ON s.from_address = l.address
