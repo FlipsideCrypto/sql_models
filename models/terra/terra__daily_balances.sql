@@ -39,9 +39,9 @@ ON
 LEFT OUTER JOIN
   {{source('shared','udm_address_labels_new')}} as address_labels
 ON b.address = address_labels.address
-WHERE
+WHERE 1=1
   {% if is_incremental() %}
-    date >= getdate() - interval '3 days'
+    AND date >= getdate() - interval '3 days'
   -- {% else %}
   --   date >= getdate() - interval '12 months'
   {% endif %}
