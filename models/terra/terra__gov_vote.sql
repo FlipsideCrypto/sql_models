@@ -26,15 +26,15 @@ WITH balances as (
 
                     {% if is_incremental() %}
                       AND block_timestamp >= getdate() - interval '1 days'
-                    {% else %}
-                      AND block_timestamp >= getdate() - interval '9 months'
+                    -- {% else %}
+                    --   AND block_timestamp >= getdate() - interval '9 months'
                     {% endif %}
                     )
 
 {% if is_incremental() %}
  AND date >= getdate() - interval '1 days'
-{% else %}
- AND date >= getdate() - interval '9 months'
+-- {% else %}
+--  AND date >= getdate() - interval '9 months'
 {% endif %}
 )
 
@@ -69,6 +69,6 @@ WHERE msg_module = 'gov'
 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
