@@ -38,6 +38,6 @@ WHERE msg_module = 'staking'
 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}

@@ -15,9 +15,9 @@ SELECT
   block_number,
   tax_rate
 FROM {{source('terra', 'udm_custom_fields_terra_tax_rate')}}
-WHERE
+WHERE 1=1 
 {% if is_incremental() %}
-  block_timestamp >= getdate() - interval '1 days'
-{% else %}
-  block_timestamp >= getdate() - interval '9 months'
+  AND block_timestamp >= getdate() - interval '1 days'
+-- {% else %}
+--   block_timestamp >= getdate() - interval '9 months'
 {% endif %}

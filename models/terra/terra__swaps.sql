@@ -29,8 +29,8 @@ WHERE msg_module = 'market'
   AND msg_type = 'market/MsgSwap' 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 ),
 
@@ -52,8 +52,8 @@ WHERE event_type = 'transfer'
   AND msg_type = 'market/MsgSwap'
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 ),
 
@@ -69,8 +69,8 @@ WHERE event_type = 'swap'
   AND msg_type = 'market/MsgSwap'
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 ),
 
