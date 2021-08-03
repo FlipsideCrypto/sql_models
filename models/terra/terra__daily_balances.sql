@@ -42,6 +42,6 @@ ON b.address = address_labels.address
 WHERE
   {% if is_incremental() %}
     date >= getdate() - interval '3 days'
-  {% else %}
-    date >= getdate() - interval '12 months'
+  -- {% else %}
+  --   date >= getdate() - interval '12 months'
   {% endif %}

@@ -66,8 +66,8 @@ WHERE msg_value:contract = 'terra1t6xe0txzywdg85n6k8c960cuwgh6l8esw6lau9' --Mirr
     
   {% if is_incremental() %}
     AND m.block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-    AND m.block_timestamp >= getdate() - interval '9 months'
+  -- {% else %}
+  --   AND m.block_timestamp >= getdate() - interval '9 months'
   {% endif %}
 
 )

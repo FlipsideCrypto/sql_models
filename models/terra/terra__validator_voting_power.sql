@@ -16,9 +16,9 @@ SELECT
   address,
   voting_power
 FROM {{source('terra', 'terra_validator_voting_power')}}
-WHERE
+WHERE 1=1
 {% if is_incremental() %}
-  block_timestamp >= getdate() - interval '1 days'
-{% else %}
-  block_timestamp >= getdate() - interval '9 months'
+  AND block_timestamp >= getdate() - interval '1 days'
+-- {% else %}
+--   block_timestamp >= getdate() - interval '9 months'
 {% endif %}
