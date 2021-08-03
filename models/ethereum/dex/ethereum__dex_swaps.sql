@@ -107,7 +107,7 @@ WITH decimals_raw as (
     ON p.token1 = price1.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price1.hour
 
   LEFT JOIN decimals d
-    ON p.token0 = d.token_address
+    ON p.token1 = d.token_address
     
 
   WHERE 
