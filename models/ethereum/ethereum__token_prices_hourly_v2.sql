@@ -33,4 +33,4 @@ WHERE
      AND recorded_at >= '2020-05-05'::timestamp
    {% endif %}
 
-GROUP BY p.symbol, hour, token_address, d.decimals
+GROUP BY 1,2,3,4
