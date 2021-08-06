@@ -148,3 +148,20 @@ sources:
       - name: msg_events
       - name: transactions
       - name: transitions
+  - name: silver_polygon
+    schema: silver_polygon
+    tables:
+      - name: udm_events
+      - name: events_emitted
+      - name: transactions
+  - name: polygon_dbt
+    schema: polygon_dbt
+    tables:
+      - name: udm_events
+      - name: events_emitted
+      - name: transactions
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: prod_matic_sink_510901820
+      - name: prod_terra_sink_645110886
