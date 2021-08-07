@@ -1,27 +1,17 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort=['block_timestamp', 'block_id'], 
-    unique_key='chain_id || block_id || proposer_address', 
+    materialized='incremental',
+    unique_key='chain_id || block_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra_silver', 'blocks']
+    tags=['snowflake', 'terra_silver_2', 'terra_blocks']
   )
 }}
 
-{% set BRONZE_BACKFILL_TABLE = '"FLIPSIDE_PROD_DB"."BRONZE"."DS_BF_TERRA_BLOCK_MODEL_V2021_06_15_0_PROD_1027559933"' %}
-{% set BRONZE_TABLES = [BRONZE_BACKFILL_TABLE] %}
-
-{{ 
-  bronze_kafka_extract(
-    BRONZE_TABLES,
-    "
-      t.value:blockchain::string as blockchain,
-      t.value:block_id::bigint as block_id,
-      t.value:block_timestamp::timestamp as block_timestamp,
-      t.value:chain_id::string as chain_id,
-      t.value:proposer_address::string as proposer_address
-    ",
-    "chain_id, block_id, proposer_address"
-  )
-}}
+select *
+from {{ ref('terra_dbt__blocks')}}
+WHERE 1=1
+{% if is_incremental() %}
+        AND system_created_at >= (select max(system_created_at) from {{source('silver_terra', 'blocks')}})
+{% endif %}
+QUALIFY(row_number() over(partition by chain_id, block_id order by system_created_at desc)) = 1
