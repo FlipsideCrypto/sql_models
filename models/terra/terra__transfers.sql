@@ -109,66 +109,69 @@ transfers_multisend_1_1_txs AS (
 ),
 
 transfers AS (
-  SELECT
-    blockchain,
-    chain_id, 
-    tx_status, 
-    block_id, 
-    block_timestamp, 
-    transfers_multisend_1_1_txs.tx_id, 
-    msg_type, 
-    event_from, 
-    event_to, 
-    event_from_amount AS event_amount, 
-    event_from_currency AS event_currency
-  FROM transfers_multisend_1_1_txs
+  (
+    SELECT
+      blockchain,
+      chain_id, 
+      tx_status, 
+      block_id, 
+      block_timestamp, 
+      transfers_multisend_1_1_txs.tx_id, 
+      msg_type, 
+      event_from, 
+      event_to, 
+      event_from_amount AS event_amount, 
+      event_from_currency AS event_currency
+    FROM transfers_multisend_1_1_txs
+    JOIN transfers_multisend
+    ON transfers_multisend_1_1_txs.tx_id = transfers_multisend.tx_id
+    WHERE transfers_multisend.input_index = transfers_multisend.output_index
+  )
   
-  LEFT JOIN transfers_multisend
-  ON transfers_multisend_1_1_txs.tx_id = transfers_multisend.tx_id
-  
-  WHERE transfers_multisend.input_index = transfers_multisend.output_index
-  
-  UNION 
-  
-  SELECT
-    blockchain,
-    chain_id, 
-    tx_status, 
-    block_id, 
-    block_timestamp, 
-    transfers_multisend_1_m_txs.tx_id, 
-    msg_type, 
-    event_from, 
-    event_to, 
-    event_to_amount AS event_amount, 
-    event_to_currency AS event_currency
-  FROM transfers_multisend_1_m_txs
-  
-  LEFT JOIN transfers_multisend
-  ON transfers_multisend_1_m_txs.tx_id = transfers_multisend.tx_id
-  
-  UNION
+  UNION ALL 
 
-  SELECT 
-    blockchain,
-    chain_id,
-    tx_status,
-    block_id,
-    block_timestamp,
-    tx_id,
-    msg_type, 
-    msg_value:from_address::string as event_from,
-    msg_value:to_address::string as event_to,
-    msg_value:amount[0]:amount / pow(10,6) as event_amount,
-    msg_value:amount[0]:denom::string as event_currency
-  FROM {{source('silver_terra', 'msgs')}}
-  WHERE msg_module = 'bank'
-    AND msg_type = 'bank/MsgSend'
-    {% if is_incremental() %}
-    AND block_timestamp >= getdate() - interval '1 days'
-    {% else %}
-    AND block_timestamp >= getdate() - interval '9 months'
-    {% endif %}
+  (
+    SELECT
+      blockchain,
+      chain_id, 
+      tx_status, 
+      block_id, 
+      block_timestamp, 
+      transfers_multisend_1_m_txs.tx_id, 
+      msg_type, 
+      event_from, 
+      event_to, 
+      event_to_amount AS event_amount, 
+      event_to_currency AS event_currency
+    FROM transfers_multisend_1_m_txs
+    JOIN transfers_multisend
+    ON transfers_multisend_1_m_txs.tx_id = transfers_multisend.tx_id
+  )
+  
+  UNION ALL
+
+  (
+    SELECT 
+      blockchain,
+      chain_id,
+      tx_status,
+      block_id,
+      block_timestamp,
+      tx_id,
+      msg_type, 
+      msg_value:from_address::string as event_from,
+      msg_value:to_address::string as event_to,
+      msg_value:amount[0]:amount / pow(10,6) as event_amount,
+      msg_value:amount[0]:denom::string as event_currency
+    FROM {{source('silver_terra', 'msgs')}}
+    WHERE msg_module = 'bank'
+      AND msg_type = 'bank/MsgSend'
+      {% if is_incremental() %}
+      AND block_timestamp >= getdate() - interval '1 days'
+      {% else %}
+      AND block_timestamp >= getdate() - interval '9 months'
+      {% endif %}
+  )
 )
 
 SELECT
