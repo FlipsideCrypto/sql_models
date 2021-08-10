@@ -29,6 +29,7 @@ WITH ctoks as (
           WHEN contract_address = '0x95b4ef2869ebd94beb4eee400a99824bf5dc325b' THEN 'cMKR'
           WHEN contract_address = '0x4b0181102a0112a2ef11abee5563bb4a3176c9d7' THEN 'cSUSHI'
           WHEN contract_address = '0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946' THEN 'cYFI'
+          WHEN contract_address = '0x12392f67bdf24fae0af363c24ac620a2f67dad86' THEN 'cTUSD'
           WHEN contract_address = '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407' THEN 'cZRX' end project_name
       FROM {{ref('ethereum__events_emitted')}}
       WHERE contract_address in (
@@ -48,7 +49,8 @@ WITH ctoks as (
       '0xface851a4921ce59e912d19329929ce6da6eb0c7', -- clink
       '0x95b4ef2869ebd94beb4eee400a99824bf5dc325b', -- cmkr
       '0x4b0181102a0112a2ef11abee5563bb4a3176c9d7', -- csushi
-      '0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946' -- cyfi
+      '0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946', -- cyfi
+      '0x12392f67bdf24fae0af363c24ac620a2f67dad86' -- ctusd
       )
       AND block_timestamp > getdate() - interval '31 days'
 ),
