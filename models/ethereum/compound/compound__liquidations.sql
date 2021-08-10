@@ -11,7 +11,7 @@
 
 -- pull all ctoken addresses and corresponding name
 WITH ctoks as (
-    SELECT
+  SELECT
       DISTINCT contract_address as address,
       CASE WHEN contract_address = '0x6c8c6b02e7b2be14d4fa6022dfd6d75921d90e4e' THEN 'cBAT'
           WHEN contract_address = '0x70e36f6bf80a52b3b46b3af8e106cc0ed743e8e4' THEN 'cCOMP'
@@ -24,6 +24,11 @@ WITH ctoks as (
           WHEN contract_address = '0xf650c3d88d12db855b8bf7d11be6c55a4e07dcc9' THEN 'cUSDT'
           WHEN contract_address = '0xc11b1268c1a384e55c48c2391d8d480264a3a7f4' THEN 'cWBTC'
           WHEN contract_address = '0xccf4429db6322d5c611ee964527d42e5d685dd6a' THEN 'cWBTC2'
+          WHEN contract_address = '0xe65cdb6479bac1e22340e4e755fae7e509ecd06c' THEN 'cAAVE'
+          WHEN contract_address = '0xface851a4921ce59e912d19329929ce6da6eb0c7' THEN 'cLINK'
+          WHEN contract_address = '0x95b4ef2869ebd94beb4eee400a99824bf5dc325b' THEN 'cMKR'
+          WHEN contract_address = '0x4b0181102a0112a2ef11abee5563bb4a3176c9d7' THEN 'cSUSHI'
+          WHEN contract_address = '0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946' THEN 'cYFI'
           WHEN contract_address = '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407' THEN 'cZRX' end project_name
       FROM {{ref('ethereum__events_emitted')}}
       WHERE contract_address in (
@@ -38,7 +43,12 @@ WITH ctoks as (
       '0xf650c3d88d12db855b8bf7d11be6c55a4e07dcc9', -- cusdt
       '0xc11b1268c1a384e55c48c2391d8d480264a3a7f4', -- cwbtc
       '0xccf4429db6322d5c611ee964527d42e5d685dd6a', -- cwbtc2
-      '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407' -- czrx
+      '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407', -- czrx
+      '0xe65cdb6479bac1e22340e4e755fae7e509ecd06c', -- caave
+      '0xface851a4921ce59e912d19329929ce6da6eb0c7', -- clink
+      '0x95b4ef2869ebd94beb4eee400a99824bf5dc325b', -- cmkr
+      '0x4b0181102a0112a2ef11abee5563bb4a3176c9d7', -- csushi
+      '0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946' -- cyfi
       )
       AND block_timestamp > getdate() - interval '31 days'
 ),
