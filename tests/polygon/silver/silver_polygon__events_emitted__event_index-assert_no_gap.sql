@@ -1,12 +1,16 @@
 WITH source AS (
     SELECT
+        chain_id,
         block_id,
+        tx_id,
         event_index,
         LAG(
             event_index,
             1
-        ) over(
-            PARTITION BY block_id
+        ) over (
+            PARTITION BY chain_id,
+            block_id,
+            tx_id
             ORDER BY
                 event_index ASC
         ) AS prev_event_index
@@ -15,7 +19,9 @@ WITH source AS (
 ),
 tmp AS (
     SELECT
+        chain_id,
         block_id,
+        tx_id,
         prev_event_index,
         event_index,
         event_index - prev_event_index AS gap

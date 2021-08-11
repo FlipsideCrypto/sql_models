@@ -1,13 +1,15 @@
 WITH source AS (
     SELECT
+        chain_id,
         block_id,
         tx_id,
         log_index,
         LAG(
             log_index,
             1
-        ) over(
-            PARTITION BY block_id,
+        ) over (
+            PARTITION BY chain_id,
+            block_id,
             tx_id
             ORDER BY
                 log_index ASC
@@ -17,6 +19,7 @@ WITH source AS (
 ),
 tmp AS (
     SELECT
+        chain_id,
         block_id,
         tx_id,
         prev_log_index,
