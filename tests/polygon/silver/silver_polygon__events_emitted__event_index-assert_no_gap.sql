@@ -16,9 +16,9 @@ WITH source AS (
 tmp AS (
     SELECT
         block_id,
+        prev_event_index,
         event_index,
-        event_index - prev_event_index AS gap,
-        prev_event_index
+        event_index - prev_event_index AS gap
     FROM
         source
     WHERE

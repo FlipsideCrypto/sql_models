@@ -16,9 +16,9 @@ WITH source AS (
 tmp AS (
     SELECT
         block_id,
+        prev_tx_position,
         tx_position,
-        tx_position - prev_tx_position AS gap,
-        prev_tx_position
+        tx_position - prev_tx_position AS gap
     FROM
         source
     WHERE
