@@ -11,7 +11,7 @@ WITH source AS (
             tx_id
             ORDER BY
                 log_index ASC
-        ) AS prev_event_index
+        ) AS prev_log_index
     FROM
         {{ ref('silver_polygon__udm_events') }}
 ),
@@ -19,13 +19,13 @@ tmp AS (
     SELECT
         block_id,
         tx_id,
-        prev_event_index,
+        prev_log_index,
         log_index,
-        log_index - prev_event_index AS gap,,
+        log_index - prev_log_index AS gap
     FROM
         source
     WHERE
-        log_index - prev_event_index <> 1
+        log_index - prev_log_index <> 1
 )
 SELECT
     *
