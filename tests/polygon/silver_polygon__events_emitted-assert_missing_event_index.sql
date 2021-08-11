@@ -9,24 +9,24 @@ WITH source AS (
             PARTITION BY block_id
             ORDER BY
                 event_index ASC
-        ) AS prev_event
+        ) AS prev_event_index
     FROM
         {{ ref('silver_polygon__events_emitted') }}
 ),
 tmp AS (
     SELECT
         block_id,
-        prev_event,
-        event_index - prev_event AS gap,
-        event_index - prev_event - 1 AS missing_events
+        event_index,
+        event_index - prev_event_index AS gap,
+        prev_event_index
     FROM
         source
     WHERE
-        event_index - prev_event <> 1
+        event_index - prev_event_index <> 1
 )
 SELECT
     *
 FROM
     tmp
 ORDER BY
-    3 DESC
+    gap DESC
