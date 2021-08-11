@@ -1,15 +1,32 @@
 WITH source AS (
     SELECT
-        A.value :block_id :: INT AS block_id,
-        A.value :event_index :: INT AS event_index
+        block_id,
+        event_index,
+        LAG(
+            event_index,
+            1
+        ) over(
+            PARTITION BY block_id
+            ORDER BY
+                event_index ASC
+        ) AS prev_event_index
     FROM
-        {{ ref('polygon_dbt__events_emitted') }},
-        LATERAL FLATTEN(
-            input => record_content :results
-        ) A
+        {{ ref('silver_polygon__events_emitted') }}
+),
+tmp AS (
+    SELECT
+        block_id,
+        event_index,
+        event_index - prev_event_index AS gap,
+        prev_event_index
+    FROM
+        source
+    WHERE
+        event_index - prev_event_index <> 1
 )
 SELECT
-    block_id,
-    event_index
+    *
 FROM
-    {{ ref('silver_polygon__events_emitted') }}
+    tmp
+ORDER BY
+    gap DESC
