@@ -14,7 +14,7 @@ WITH events AS (
         {{ source('silver_polygon','udm_events') }}
     where 1=1
     {% if is_incremental() %}
-    block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
+    and block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
     {% endif %}
     group by 1
 ),
