@@ -13,8 +13,6 @@ with base_tables as (
   where record_content:model:name::string = 'polygon_udm_events_model'
   {% if is_incremental() %}
         AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('polygon_dbt', 'udm_events')}})
-  {% else %}
-    AND (record_metadata:CreateTime::int/1000)::timestamp >= '2021-08-10 10:27:18.676'
   {% endif %}
   )
 
