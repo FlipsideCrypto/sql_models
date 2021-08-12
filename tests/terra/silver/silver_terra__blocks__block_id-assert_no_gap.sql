@@ -1,25 +1,27 @@
 WITH source AS (
     SELECT
-        chain_id, block_id,
+        chain_id,
+        block_id,
         LAG(
-            chain_id, block_id,
+            block_id,
             1
-        ) over (
+        ) over(
             ORDER BY
-                chain_id, block_id ASC
-        ) AS prev_chain_id, block_id
+                block_id ASC
+        ) AS prev_block_id
     FROM
         {{ ref('silver_terra__blocks') }}
 ),
 tmp AS (
     SELECT
-        prev_chain_id, block_id,
-        chain_id, block_id,
-        chain_id, block_id - prev_chain_id, block_id AS gap
+        chain_id,
+        prev_block_id,
+        block_id,
+        block_id - prev_block_id AS gap
     FROM
         source
     WHERE
-        chain_id, block_id - prev_chain_id, block_id <> 1
+        block_id - prev_block_id <> 1
 )
 SELECT
     *

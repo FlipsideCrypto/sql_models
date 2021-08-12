@@ -15,7 +15,7 @@ WITH source AS (
                 "INDEX" ASC
         ) AS prev_msg_index
     FROM
-        {{ ref('silver_terra__msgs') }}
+        {{ ref('silver_terra__transitions') }}
 ),
 tmp AS (
     SELECT
