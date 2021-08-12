@@ -4,7 +4,7 @@
     unique_key='chain_id || block_id || index || transition_type || event', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra_silver_2', 'terra_transitions']
+    tags=['snowflake', 'terra_silver', 'terra_transitions']
   )
 }}
 

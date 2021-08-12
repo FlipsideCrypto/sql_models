@@ -3,7 +3,7 @@
     materialized='incremental',
     unique_key='chain_id || block_id || tx_id || msg_index || event_index', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'terra_silver_2', 'terra_msg_events']
+    tags=['snowflake', 'terra_silver', 'terra_msg_events']
   )
 }}
 
