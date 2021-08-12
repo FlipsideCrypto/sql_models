@@ -20,7 +20,7 @@ WITH token_prices AS (
     WHERE
         A.platform in ('polygon','polygon-pos')
     {% if is_incremental() %}
-    AND recorded_at::date >= (select max(block_timestamp::date) from from {{source('polygon', 'udm_events')}})
+    AND recorded_at::date >= (select max(block_timestamp::date) from {{source('polygon', 'udm_events')}})
     {% endif %}
 GROUP BY
     p.symbol,
@@ -36,7 +36,7 @@ poly_prices AS (
   WHERE 
     p.asset_id = '3890'
   {% if is_incremental() %}
-    AND recorded_at >= (select max(block_timestamp::date) from from {{source('polygon', 'udm_events')}})
+    AND recorded_at >= (select max(block_timestamp::date) from {{source('polygon', 'udm_events')}})
   {% endif %}
   group by 1,2
   ),
@@ -60,7 +60,7 @@ base_udm_events AS (
     where 1=1
 
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from from {{source('polygon', 'udm_events')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'udm_events')}})
     {% endif %}
 ),
 base_tx AS (
@@ -71,7 +71,7 @@ base_tx AS (
     WHERE 1=1
 
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from from {{source('polygon', 'udm_events')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'udm_events')}})
     {% endif %}
 ),
 events AS (
