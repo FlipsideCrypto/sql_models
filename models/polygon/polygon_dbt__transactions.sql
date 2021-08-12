@@ -3,7 +3,7 @@
     materialized='incremental',
     unique_key='chain_id || block_id || tx_id', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'polygon_silver', 'polygon_dbt_transactions']
+    tags=['snowflake', 'polygon_silver', 'polygon_dbt_transactions','polygon']
   )
 }}
 
@@ -12,7 +12,7 @@ with base_tables as (
   from {{source('bronze', 'prod_matic_sink_510901820')}}
   where record_content:model:name::string = 'polygon_txs_model'
   {% if is_incremental() %}
-        AND (record_metadata:CreateTime::int/1000)::timestamp >= (select max(system_created_at) from {{source('polygon_dbt', 'transactions')}})
+        AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('polygon_dbt', 'transactions')}})
   {% endif %}
   )
 
