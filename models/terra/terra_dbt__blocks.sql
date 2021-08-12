@@ -12,7 +12,7 @@ with base_tables as (
   from {{source('bronze', 'prod_terra_sink_645110886')}}
   where record_content:model:name::string = 'terra_block_model'
   {% if is_incremental() %}
-        AND (record_metadata:CreateTime::int/1000)::timestamp >= (select max(system_created_at) from {{source('terra_dbt', 'blocks')}})
+        AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('terra_dbt', 'blocks')}})
   {% endif %}
   )
 
