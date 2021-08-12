@@ -14,7 +14,7 @@ WITH events AS (
         {{ source('silver_polygon','udm_events') }}
     where 1=1
     {% if is_incremental() %}
-    block_timestamp::date >= (select max(block_timestamp::date) from from {{source('polygon', 'transactions')}})
+    block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
     {% endif %}
     group by 1
 ),
@@ -25,7 +25,7 @@ txn AS (
   {{source('silver_polygon', 'transactions')}}
   WHERE 1=1
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from from {{source('polygon', 'transactions')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
     {% endif %}
 ),
 poly_labels AS (
@@ -49,7 +49,7 @@ poly_prices AS (
   WHERE 
     p.asset_id = '3890'
   {% if is_incremental() %}
-  AND  p.recorded_at::date >= (select max(block_timestamp::date) from from {{source('polygon', 'transactions')}})
+  AND  p.recorded_at::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
   {% endif %}
   group by 1,2
   )
