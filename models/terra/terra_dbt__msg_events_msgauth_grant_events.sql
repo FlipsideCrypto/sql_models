@@ -29,6 +29,6 @@ WHERE msg_module = 'msgauth'
 AND event_type = 'grant_authorization'
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}

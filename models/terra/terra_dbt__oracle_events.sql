@@ -29,8 +29,8 @@ WHERE msg_module = 'oracle'
   AND msg_type = 'oracle/MsgAggregateExchangeRateVote'
   {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 
 UNION
@@ -53,6 +53,6 @@ WHERE msg_module = 'oracle'
   AND msg_type = 'oracle/MsgExchangeRateVote'
   {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
