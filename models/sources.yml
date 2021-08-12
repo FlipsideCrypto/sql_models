@@ -160,6 +160,12 @@ sources:
       - name: udm_events
       - name: events_emitted
       - name: transactions
+  - name: polygon
+    schema: polygon
+    tables:
+      - name: udm_events
+      - name: events_emitted
+      - name: transactions
   - name: bronze
     schema: bronze
     tables:
