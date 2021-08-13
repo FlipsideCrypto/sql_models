@@ -47,7 +47,7 @@ oracle AS(
         LOWER(inputs:address::string) AS token_address,
         value_numeric AS value_ethereum -- values are given in wei and need to be converted to ethereum
     FROM
-        ethereum.reads
+        {{ref('ethereum__reads')}}
     WHERE 1=1
         AND contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
         AND block_timestamp::date >= '2021-05-01'
