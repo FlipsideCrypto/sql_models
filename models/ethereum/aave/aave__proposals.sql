@@ -2,7 +2,7 @@
   config(
     materialized='incremental',
     sort='block_id',
-    unique_key='tx_id || proposal_id',
+    unique_key='proposal_tx || proposal_id',
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'aave', 'aave_proposals']
   )
@@ -35,8 +35,7 @@ WITH
     
     SELECT DISTINCT
       COALESCE(event_inputs:id::STRING,event_inputs:proposalId::STRING) AS id,
-      'Executed' AS status,
-      tx_id
+      'Executed' AS status
     FROM {{ ref('ethereum__events_emitted') }}
     WHERE 
     event_name = 'ProposalExecuted' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'
@@ -61,7 +60,8 @@ SELECT
         AS status,
     p.targets,
     p.proposer,
-    p.tx_id AS proposal_tx  
+    p.tx_id AS proposal_tx,
+    'ethereum' AS blockchain  
  FROM 
  p
  LEFT OUTER JOIN

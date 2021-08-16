@@ -22,9 +22,9 @@ WITH aave_reads AS (
           lending_pool_type,
           function_name,
           CASE 
-            WHEN contract_address IN (LOWER('0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9'),LOWER('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d')) THEN 'V2'
-            WHEN contract_address IN (LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'),LOWER('0xc443AD9DDE3cecfB9dfC5736578f447aFE3590ba')) THEN 'AMM'
-            ELSE 'V1'
+            WHEN contract_address IN (LOWER('0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9'),LOWER('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d')) THEN 'Aave V2'
+            WHEN contract_address IN (LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'),LOWER('0xc443AD9DDE3cecfB9dfC5736578f447aFE3590ba')) THEN 'Aave AMM'
+            ELSE 'Aave V1'
     END AS aave_version, 
     inputs,
                 (SPLIT(LOWER(VALUE_STR),'^')) AS coins
@@ -214,7 +214,7 @@ aave_data AS (
           a.blockhour,
           a.reserve_token,
           --l.address_name AS reserve_name,
-          d.name AS reserve_name,
+          COALESCE(p.symbol,REGEXP_REPLACE(l.address_name,'AAVE.*: a','')) AS reserve_name,
           a.aave_version,
           a.lending_pool_add,
           COALESCE(p.price,ap.price) AS reserve_price,
@@ -237,6 +237,8 @@ aave_data AS (
   --silver.ethereum_address_labels l ON a.reserve_token = l.address
   LEFT OUTER JOIN
   decimals d ON a.reserve_token = d.token_address
+  LEFT OUTER JOIN
+  {{source('ethereum', 'ethereum_address_labels')}} l ON a.atoken_address = l.address
   LEFT OUTER JOIN
   aave_prices ap ON a.reserve_token = ap.token_address AND a.blockhour = ap.hour
   LEFT OUTER JOIN
