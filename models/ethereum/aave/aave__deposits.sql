@@ -12,7 +12,7 @@
 WITH
 atokens AS(
     SELECT
-        LOWER(inputs:_reserve::string) AS reserve_token,
+        inputs:_reserve::string AS reserve_token,
         a.value::string AS balances,
         CASE
             WHEN contract_address IN(
@@ -27,7 +27,7 @@ atokens AS(
         {{ref('ethereum__reads')}}
        ,lateral flatten(input => SPLIT(value_string,'^')) a
     WHERE 1=1
-        AND block_timestamp::date >= '2021-05-01'
+        AND block_timestamp::date >= '2021-06-01'
         AND contract_address  IN (
             LOWER('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d'), -- AAVE V2 Data Provider (per docs)
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'), -- AAVE AMM Lending Pool (per docs)
@@ -60,13 +60,13 @@ oracle AS(
     SELECT
         --block_timestamp,
         date_trunc('hour',block_timestamp) AS block_hour,
-        LOWER(inputs:address::string) AS token_address,
+        inputs:address::string AS token_address,
         AVG(value_numeric) AS value_ethereum -- values are given in wei and need to be converted to ethereum
     FROM
         {{ref('ethereum__reads')}}
     WHERE 1=1
         AND contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
-        AND block_timestamp::date >= '2021-05-01'
+        AND block_timestamp::date >= '2021-01-01'
     GROUP BY 1,2
 ),
 
@@ -81,7 +81,7 @@ backup_prices AS(
     FROM
         {{ref('ethereum__token_prices_hourly')}}
     WHERE 1=1
-        AND hour::date >= '2021-05-01'
+        AND hour::date >= '2021-01-01'
     GROUP BY 1,2,3,4
 ),
 
@@ -91,41 +91,67 @@ prices_hourly AS(
         underlying.aave_token,
         underlying.token_contract,
         underlying.aave_version,
-        (oracle.value_ethereum / POW(10,(18 - COALESCE(backup_prices.decimals,18)))) * eth_prices.price AS oracle_price,
+        (oracle.value_ethereum / POW(10,(18 - backup_prices.decimals))) * eth_prices.price AS oracle_price,
         backup_prices.price AS backup_price,
         oracle.block_hour AS oracle_hour,
         backup_prices.hour AS backup_prices_hour,
         eth_prices.price AS eth_price,
-        COALESCE(backup_prices.decimals,18) AS decimals,
+        backup_prices.decimals AS decimals,
         backup_prices.symbol
     FROM
         underlying
         LEFT JOIN oracle
-            ON underlying.token_contract = oracle.token_address
+            ON LOWER(underlying.token_contract) = LOWER(oracle.token_address)
         LEFT JOIN backup_prices
-            ON underlying.token_contract = backup_prices.token_address
+            ON LOWER(underlying.token_contract) = LOWER(backup_prices.token_address)
             AND oracle.block_hour = backup_prices.hour
         LEFT JOIN {{ref('ethereum__token_prices_hourly')}} eth_prices
             ON oracle.block_hour = eth_prices.hour
-            AND eth_prices.hour::date >= '2021-05-01'
+            AND eth_prices.hour::date >= '2021-01-01'
             AND eth_prices.symbol = 'ETH'
 ),
 
 
 coalesced_prices AS(
     SELECT
-        COALESCE(prices_hourly.decimals,18) AS decimals,
-        COALESCE(prices_hourly.symbol,'-') AS symbol,
-        COALESCE(prices_hourly.aave_token,'-') AS aave_token,
-        COALESCE(prices_hourly.token_contract,'-') AS token_contract,
-        COALESCE(prices_hourly.aave_version,'-') AS aave_version,
+        prices_hourly.decimals AS decimals,
+        prices_hourly.symbol AS symbol,
+        prices_hourly.aave_token AS aave_token,
+        prices_hourly.token_contract AS token_contract,
+        prices_hourly.aave_version AS aave_version,
         COALESCE(prices_hourly.oracle_price,prices_hourly.backup_price) AS coalesced_price,
         COALESCE(prices_hourly.oracle_hour,prices_hourly.backup_prices_hour) AS coalesced_hour
     FROM
         prices_hourly
 ),
 
+-- daily avg price used when hourly price is missing (it happens a lot)
+prices_daily_backup AS(
+    SELECT
+        token_address,
+        CASE WHEN symbol = 'KNCL' THEN 'KNC' ELSE symbol END AS symbol,
+        date_trunc('day',hour) AS block_date,
+        AVG(price) AS avg_daily_price,
+        MAX(decimals) AS decimals
+    FROM
+        backup_prices
+    WHERE 1=1
+    GROUP BY 1,2,3
+),
 
+-- decimals backup
+decimals_backup AS(
+    SELECT
+        address AS token_address,
+        meta:decimals AS decimals,
+        name
+    FROM
+        {{source('ethereum', 'ethereum_contracts')}}
+    WHERE 1=1
+        AND meta:decimals IS NOT NULL
+),
+
+--deposits from Aave LendingPool contract
 deposits AS(
     SELECT
         DISTINCT block_id,
@@ -147,27 +173,13 @@ deposits AS(
     FROM
         {{ref('ethereum__events_emitted')}} deposit
     WHERE 1=1
-        AND block_timestamp::date >= '2021-05-01'
+        AND block_timestamp::date >= '2021-01-01'
         AND contract_address IN(--Aave V2 LendingPool contract address
             LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'),--V2
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119'),--V1
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'))--AMM
         AND event_name = 'Deposit' --this is a deposit
         AND tx_succeeded = TRUE --excludes failed txs
-),
-
--- daily avg price used when hourly price is missing (it happens a lot)
-prices_daily_backup AS(
-    SELECT
-        token_address,
-        CASE WHEN symbol = 'KNCL' THEN 'KNC' ELSE symbol END AS symbol,
-        date_trunc('day',hour) AS block_date,
-        AVG(price) AS avg_daily_price,
-        MAX(decimals) AS decimals
-    FROM
-        backup_prices
-    WHERE 1=1
-    GROUP BY 1,2,3
 )
 
 
@@ -175,29 +187,31 @@ SELECT
     deposits.tx_id,
     deposits.block_id,
     deposits.block_timestamp,
-    deposits.aave_market,
-    underlying.aave_token,
+    LOWER(deposits.aave_market) AS aave_market,
+    LOWER(underlying.aave_token) AS aave_token,
     deposits.deposit_quantity /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,18)) AS issued_atokens,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS issued_atokens,
     deposits.deposit_quantity * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,18)) AS supplied_usd,
-    deposits.depositor_address,
-    deposits.lending_pool_contract,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS supplied_usd,
+    LOWER(deposits.depositor_address) AS depositor_address,
+    LOWER(deposits.lending_pool_contract) AS lending_pool_contract,
     deposits.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
     COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol
 FROM
     deposits
     LEFT JOIN coalesced_prices
-        ON deposits.aave_market = coalesced_prices.token_contract
+        ON LOWER(deposits.aave_market) = LOWER(coalesced_prices.token_contract)
         AND deposits.aave_version = coalesced_prices.aave_version
         AND date_trunc('hour',deposits.block_timestamp) = coalesced_prices.coalesced_hour
     LEFT JOIN backup_prices
-        ON deposits.aave_market = backup_prices.token_address
+        ON LOWER(deposits.aave_market) = LOWER(backup_prices.token_address)
         AND date_trunc('hour',deposits.block_timestamp) = backup_prices.hour
     LEFT JOIN prices_daily_backup
-        ON deposits.aave_market = prices_daily_backup.token_address
+        ON LOWER(deposits.aave_market) = LOWER(prices_daily_backup.token_address)
         AND date_trunc('day',deposits.block_timestamp) = prices_daily_backup.block_date
     LEFT JOIN underlying
-        ON deposits.aave_market = underlying.token_contract
+        ON LOWER(deposits.aave_market) = LOWER(underlying.token_contract)
         AND deposits.aave_version = underlying.aave_version
+    LEFT JOIN decimals_backup
+        ON LOWER(deposits.aave_market) = LOWER(decimals_backup.token_address)

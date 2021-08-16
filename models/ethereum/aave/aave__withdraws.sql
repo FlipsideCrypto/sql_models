@@ -12,24 +12,38 @@
 WITH
 atokens AS(
     SELECT
-        LOWER(inputs:_reserve::string) AS reserve_token,
-        a.value::string AS balances
+        inputs:_reserve::string AS reserve_token,
+        a.value::string AS balances,
+        CASE
+            WHEN contract_address IN(
+                LOWER('0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9'),
+                LOWER('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d')) THEN 'Aave V2'
+            WHEN contract_address IN(
+                LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'),
+                LOWER('0xc443AD9DDE3cecfB9dfC5736578f447aFE3590ba')) THEN 'Aave AMM'
+            ELSE 'Aave V1'
+          END AS aave_version
     FROM
         {{ref('ethereum__reads')}}
        ,lateral flatten(input => SPLIT(value_string,'^')) a
     WHERE 1=1
-        AND block_timestamp::date >= '2021-05-01'
+        AND block_timestamp::date >= '2021-06-01'
         AND contract_address  IN (
-                LOWER('0xB53C1a33016B2DC2fF3653530bfF1848a515c8c5'),
-                LOWER('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d'), -- AAVE V2
-                LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'),
-                LOWER('0xc443AD9DDE3cecfB9dfC5736578f447aFE3590ba'),  -- AAVE AMM
-                LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119')) -- AAVE V1
+            LOWER('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d'), -- AAVE V2 Data Provider (per docs)
+            LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'), -- AAVE AMM Lending Pool (per docs)
+            LOWER('0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9'), -- AAVE V2 Lending Pool (per docs)
+            LOWER('0xc443AD9DDE3cecfB9dfC5736578f447aFE3590ba'),  -- AAVE AMM Data Provider (per docs)
+            LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119')) -- AAVE V1
 ),
+
 
 underlying AS(
     SELECT
-        reserve_token AS token_contract,
+        CASE
+            WHEN reserve_token = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+                THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+              ELSE reserve_token END AS token_contract,
+        aave_version,
         MAX(
           CASE
             WHEN SPLIT(balances,':')[0]::string = 'aTokenAddress' THEN SPLIT(balances,':')[1]
@@ -37,68 +51,118 @@ underlying AS(
     FROM
         atokens
     WHERE 1=1
-    GROUP BY 1
+    GROUP BY 1,2
 ),
+
 
 -- implementing aave oracle prices denominated in wei
 oracle AS(
     SELECT
-        block_timestamp,
-        LOWER(inputs:address::string) AS token_address,
-        value_numeric AS value_ethereum -- values are given in wei and need to be converted to ethereum
+        --block_timestamp,
+        date_trunc('hour',block_timestamp) AS block_hour,
+        inputs:address::string AS token_address,
+        AVG(value_numeric) AS value_ethereum -- values are given in wei and need to be converted to ethereum
     FROM
-        ethereum.reads
+        {{ref('ethereum__reads')}}
     WHERE 1=1
         AND contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
-        AND block_timestamp::date >= '2021-05-01'
+        AND block_timestamp::date >= '2021-01-01'
+    GROUP BY 1,2
 ),
 
-eth_prices AS(
+-- wen we don't have oracle pricces we use ethereum__token_prices_hourly as a backup
+backup_prices AS(
     SELECT
-        oracle.block_timestamp,
-        oracle.token_address,
-        oracle.value_ethereum,
+        token_address,
+        hour,
+        decimals,
+        CASE WHEN symbol = 'KNCL' THEN 'KNC' ELSE symbol END AS symbol,
+        AVG(price) AS price -- table has duplicated rows for KNC / KNCL so we need to do a trick
+    FROM
+        {{ref('ethereum__token_prices_hourly')}}
+    WHERE 1=1
+        AND hour::date >= '2021-01-01'
+    GROUP BY 1,2,3,4
+),
+
+
+prices_hourly AS(
+    SELECT
         underlying.aave_token,
-        symbols.symbol,
-        symbols.decimals
+        underlying.token_contract,
+        underlying.aave_version,
+        (oracle.value_ethereum / POW(10,(18 - backup_prices.decimals))) * eth_prices.price AS oracle_price,
+        backup_prices.price AS backup_price,
+        oracle.block_hour AS oracle_hour,
+        backup_prices.hour AS backup_prices_hour,
+        eth_prices.price AS eth_price,
+        backup_prices.decimals AS decimals,
+        backup_prices.symbol
     FROM
-        oracle
-        LEFT JOIN underlying
-          ON oracle.token_address = underlying.token_contract
-        LEFT JOIN {{ref('ethereum__token_prices_hourly')}} symbols
-          ON oracle.token_address = symbols.token_address
-          AND date_trunc('hour',oracle.block_timestamp) = symbols.hour
-    WHERE 1=1
+        underlying
+        LEFT JOIN oracle
+            ON LOWER(underlying.token_contract) = LOWER(oracle.token_address)
+        LEFT JOIN backup_prices
+            ON LOWER(underlying.token_contract) = LOWER(backup_prices.token_address)
+            AND oracle.block_hour = backup_prices.hour
+        LEFT JOIN {{ref('ethereum__token_prices_hourly')}} eth_prices
+            ON oracle.block_hour = eth_prices.hour
+            AND eth_prices.hour::date >= '2021-01-01'
+            AND eth_prices.symbol = 'ETH'
 ),
 
 
-
---pull hourly prices for each undelrying
-prices AS (
+coalesced_prices AS(
     SELECT
-        eth_prices.block_timestamp,
-        (eth_prices.value_ethereum / POW(10,(CASE WHEN eth_prices.decimals IS NULL THEN 0 ELSE (18 -eth_prices.decimals) END))) * prices_hourly.price AS token_price,
-        CASE WHEN eth_prices.decimals IS NULL THEN 18 ELSE eth_prices.decimals END AS decimals,
-        eth_prices.symbol,
-        eth_prices.token_address
+        prices_hourly.decimals AS decimals,
+        prices_hourly.symbol AS symbol,
+        prices_hourly.aave_token AS aave_token,
+        prices_hourly.token_contract AS token_contract,
+        prices_hourly.aave_version AS aave_version,
+        COALESCE(prices_hourly.oracle_price,prices_hourly.backup_price) AS coalesced_price,
+        COALESCE(prices_hourly.oracle_hour,prices_hourly.backup_prices_hour) AS coalesced_hour
     FROM
-        eth_prices
-        INNER JOIN ethereum.token_prices_hourly prices_hourly
-          ON date_trunc('hour',eth_prices.block_timestamp) = prices_hourly.hour
-          AND prices_hourly.hour::date >= '2021-05-01'
-          AND prices_hourly.symbol = 'ETH'
-    WHERE 1=1
+        prices_hourly
 ),
 
+-- daily avg price used when hourly price is missing (it happens a lot)
+prices_daily_backup AS(
+    SELECT
+        token_address,
+        CASE WHEN symbol = 'KNCL' THEN 'KNC' ELSE symbol END AS symbol,
+        date_trunc('day',hour) AS block_date,
+        AVG(price) AS avg_daily_price,
+        MAX(decimals) AS decimals
+    FROM
+        backup_prices
+    WHERE 1=1
+    GROUP BY 1,2,3
+),
+
+-- decimals backup
+decimals_backup AS(
+    SELECT
+        address AS token_address,
+        meta:decimals AS decimals,
+        name
+    FROM
+        {{source('ethereum', 'ethereum_contracts')}}
+    WHERE 1=1
+        AND meta:decimals IS NOT NULL
+),
 
 --withdraws to Aave LendingPool contract
 withdraw AS(--does not retrieve Aave V1
     SELECT
         DISTINCT block_id,
         block_timestamp,
-        event_inputs:token::string AS aave_market,
-        event_inputs:amount AS withdraw_amount, --not adjusted for decimals
-        event_inputs:to::string AS depositor,
+        CASE
+            WHEN COALESCE(event_inputs:token::string,event_inputs:_reserve::string) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+                THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+                ELSE COALESCE(event_inputs:token::string,event_inputs:_reserve::string)
+              END AS aave_market,
+        COALESCE(event_inputs:amount,event_inputs:_amount) AS withdraw_amount, --not adjusted for decimals
+        COALESCE(event_inputs:to::string,event_inputs:_user::string) AS depositor,
         tx_to_address AS lending_pool_contract,
         tx_id,
         CASE
@@ -107,35 +171,46 @@ withdraw AS(--does not retrieve Aave V1
             WHEN contract_address = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
           ELSE 'ERROR' END AS aave_version
     FROM
-        ethereum.events_emitted
+        {{ref('ethereum__events_emitted')}}
     WHERE 1=1
-        AND block_timestamp > GETDATE() - INTERVAL '31 days'
+        AND block_timestamp::date >= '2021-01-01'
         AND contract_address IN(--Aave V2 LendingPool contract address
             LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'),--V2
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119'),--V1
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'))--AMM
-        AND event_name = 'Withdraw' --this is a withdraw
+        AND event_name IN('Withdraw','RedeemUnderlying') --this is a withdraw
         AND tx_succeeded = TRUE --excludes failed txs
-        --AND TX_ID = '' --random tx
-    --LIMIT 100
 )
 
+
 SELECT
-    DISTINCT withdraw.block_id,
-    withdraw.block_timestamp,
-    withdraw.aave_market AS token,
-    underlying.aave_token AS atoken,
-    --atokens.project_name AS atoken_symbol,
-    withdraw.withdraw_amount / POW(10,prices.decimals) AS withdraw_amount,
-    withdraw.withdraw_amount * prices.token_price / POW(10,prices.decimals) AS withdraw_amount_usd,
-    withdraw.depositor AS depositor,
     withdraw.tx_id,
-    withdraw.aave_version
+    withdraw.block_id,
+    withdraw.block_timestamp,
+    LOWER(withdraw.aave_market) AS aave_market,
+    LOWER(underlying.aave_token) AS aave_token,
+    withdraw.withdraw_amount /
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS withdrawn_atokens,
+    withdraw.withdraw_amount * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS withdrawn_usd,
+    LOWER(withdraw.depositor) AS depositor_address,
+    withdraw.aave_version,
+    COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol
 FROM
     withdraw
-    LEFT JOIN prices
-        ON withdraw.block_timestamp = prices.block_timestamp
-        AND withdraw.aave_market = prices.token_address
+    LEFT JOIN coalesced_prices
+        ON LOWER(withdraw.aave_market) = LOWER(coalesced_prices.token_contract)
+        AND withdraw.aave_version = coalesced_prices.aave_version
+        AND date_trunc('hour',withdraw.block_timestamp) = coalesced_prices.coalesced_hour
+    LEFT JOIN backup_prices
+        ON LOWER(withdraw.aave_market) = LOWER(backup_prices.token_address)
+        AND date_trunc('hour',withdraw.block_timestamp) = backup_prices.hour
+    LEFT JOIN prices_daily_backup
+        ON LOWER(withdraw.aave_market) = LOWER(prices_daily_backup.token_address)
+        AND date_trunc('day',withdraw.block_timestamp) = prices_daily_backup.block_date
     LEFT JOIN underlying
-        ON prices.token_address = underlying.token_contract
-WHERE 1=1
+        ON LOWER(withdraw.aave_market) = LOWER(underlying.token_contract)
+        AND withdraw.aave_version = underlying.aave_version
+    LEFT JOIN decimals_backup
+        ON LOWER(withdraw.aave_market) = LOWER(decimals_backup.token_address)
