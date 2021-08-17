@@ -249,13 +249,13 @@ aave_data AS (
 --finally format to spec/with some adjustments
 SELECT
     a.blockhour as block_hour,
+    a.reserve_token AS aave_market,
     a.lending_pool_add, -- use these two for debugging reads, input the underlying token
     a.data_provider, --
     a.reserve_name,
     a.atoken_address,
     a.stable_debt_token_address,
     a.variable_debt_token_address,
-    a.reserve_token AS underlying_contract,
     a.reserve_price,
     atok.price AS atoken_price,
     a.total_liquidity_token,
