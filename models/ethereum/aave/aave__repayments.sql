@@ -194,7 +194,7 @@ SELECT
     repay.repayed_amount /
         POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_tokens,
     repay.repayed_amount * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_amount_usd,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_usd,
     repay.repayer_address AS payer,
     repay.borrower_address AS borrower,
     LOWER(repay.lending_pool_contract) AS lending_pool_contract,
