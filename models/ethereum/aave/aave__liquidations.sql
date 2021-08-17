@@ -213,7 +213,8 @@ SELECT
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS collateral_token_price,
     COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS collateral_token_symbol,
     COALESCE(coalesced_prices_debt.coalesced_price,backup_prices_debt.price,prices_daily_backup_debt.avg_daily_price) AS debt_token_price,
-    COALESCE(coalesced_prices_debt.symbol,backup_prices_debt.symbol,prices_daily_backup_debt.symbol) AS debt_token_symbol
+    COALESCE(coalesced_prices_debt.symbol,backup_prices_debt.symbol,prices_daily_backup_debt.symbol) AS debt_token_symbol,
+    'ethereum' AS blockchain
 FROM
     liquidation
     LEFT JOIN coalesced_prices

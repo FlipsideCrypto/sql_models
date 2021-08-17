@@ -205,7 +205,8 @@ SELECT
     LOWER(target_address) AS target_address,
     flashloan.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
-    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol,
+    'ethereum' AS blockchain
 FROM
     flashloan
     LEFT JOIN coalesced_prices

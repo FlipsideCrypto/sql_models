@@ -197,7 +197,8 @@ SELECT
     LOWER(withdraw.depositor) AS depositor_address,
     withdraw.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
-    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol,
+    'ethereum' AS blockchain
 FROM
     withdraw
     LEFT JOIN coalesced_prices
