@@ -200,7 +200,7 @@ SELECT
     LOWER(borrow.lending_pool_contract) AS lending_pool_contract,
     borrow.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
-    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol,
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol,REGEXP_REPLACE(l.address_name,'AAVE.*: a','')) AS symbol,
     'ethereum' AS blockchain
 FROM
     borrow
@@ -219,3 +219,5 @@ FROM
         AND borrow.aave_version = underlying.aave_version
     LEFT JOIN decimals_backup
         ON LOWER(borrow.aave_market) = LOWER(decimals_backup.token_address)
+    LEFT OUTER JOIN
+    {{source('ethereum', 'ethereum_address_labels')}} l ON LOWER(underlying.aave_token) = l.address
