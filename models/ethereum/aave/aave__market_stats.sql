@@ -206,10 +206,28 @@ aave_prices AS (
        AND p.hour::date >= '2021-05-01'
        AND p.token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
     
-), 
+), deduped_cmc_prices AS (
+    SELECT
+        token_address,
+        hour,
+        decimals,
+        CASE 
+            WHEN symbol = 'KNCL' THEN 'KNC' 
+            WHEN symbol = 'AENJ' THEN 'aENJ' 
+            WHEN symbol = 'AETH' THEN 'aETH'
+        ELSE symbol 
+        END AS symbol,
+        AVG(price) AS price -- table has duplicated rows for KNC / KNCL so we need to do a trick
+    FROM
+        {{ref('ethereum__token_prices_hourly')}}
+    WHERE 1=1
+        AND hour::date >= '2021-01-01'
+    GROUP BY 1,2,3,4
+),
 -- calculate what we can
 aave_data AS (
   SELECT 
+    DISTINCT
           a.blockhour,
           a.reserve_token,
           --l.address_name AS reserve_name,
@@ -241,41 +259,42 @@ aave_data AS (
   LEFT OUTER JOIN
   aave_prices ap ON a.reserve_token = ap.token_address AND a.blockhour = ap.hour
   LEFT OUTER JOIN
-  {{ref('ethereum__token_prices_hourly')}} p ON a.reserve_token = p.token_address AND a.blockhour = p.hour
+  deduped_cmc_prices p ON a.reserve_token = p.token_address AND a.blockhour = p.hour
   ORDER BY reserve_token, blockhour DESC
   
 )
 
 --finally format to spec/with some adjustments
 SELECT
-    a.blockhour as block_hour,
-    a.lending_pool_add, -- use these two for debugging reads, input the underlying token
-    a.data_provider, --
-    a.reserve_name,
-    a.atoken_address,
-    a.stable_debt_token_address,
-    a.variable_debt_token_address,
-    a.reserve_token AS underlying_contract,
-    a.reserve_price,
-    atok.price AS atoken_price,
-    a.total_liquidity_token,
-    a.total_liquidity_usd,
-    a.total_stable_debt_token,
-    a.total_stable_debt_usd,
-    a.total_variable_debt_token,
-    a.total_variable_debt_usd,
-    a.liquidity_rate AS supply_rate,
-    a.stbl_borrow_rate AS borrow_rate_stable,
-    a.variable_borrow_rate AS borrow_rate_variable,
-    aave.price AS aave_price,
-    a.aave_version,
-    'ethereum' AS blockchain
+    DISTINCT
+        a.blockhour as block_hour,
+        a.reserve_token AS aave_market,
+        a.lending_pool_add, -- use these two for debugging reads, input the underlying token
+        a.data_provider, --
+        a.reserve_name,
+        a.atoken_address,
+        a.stable_debt_token_address,
+        a.variable_debt_token_address,
+        a.reserve_price,
+        atok.price AS atoken_price,
+        a.total_liquidity_token,
+        a.total_liquidity_usd,
+        a.total_stable_debt_token,
+        a.total_stable_debt_usd,
+        a.total_variable_debt_token,
+        a.total_variable_debt_usd,
+        a.liquidity_rate AS supply_rate,
+        a.stbl_borrow_rate AS borrow_rate_stable,
+        a.variable_borrow_rate AS borrow_rate_variable,
+        aave.price AS aave_price,
+        a.aave_version,
+        'ethereum' AS blockchain
 FROM 
 aave_data a
 LEFT OUTER JOIN
-{{ref('ethereum__token_prices_hourly')}} atok
+deduped_cmc_prices atok
 ON a.atoken_address = atok.token_address AND a.blockhour = atok.hour
 LEFT OUTER JOIN
-{{ref('ethereum__token_prices_hourly')}} aave
+deduped_cmc_prices aave
 ON aave.token_address = LOWER('0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9') AND a.blockhour = aave.hour
-ORDER BY underlying_contract, blockhour DESC
+ORDER BY aave_market, blockhour DESC

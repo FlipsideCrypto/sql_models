@@ -157,9 +157,9 @@ flashloan AS(
         block_timestamp,
         event_index,
         CASE
-            WHEN COALESCE(event_inputs:reserve::string,event_inputs:_reserve::string) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+            WHEN COALESCE(event_inputs:asset::string,event_inputs:_reserve::string) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
                 THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-                ELSE COALESCE(event_inputs:reserve::string,event_inputs:_reserve::string)
+                ELSE COALESCE(event_inputs:asset::string,event_inputs:_reserve::string)
               END AS aave_market,
         COALESCE(event_inputs:amount,event_inputs:_amount) AS flashloan_quantity, --not adjusted for decimals
         COALESCE(event_inputs:initiator::string,tx_from_address) AS initiator_address,
@@ -205,7 +205,8 @@ SELECT
     LOWER(target_address) AS target_address,
     flashloan.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
-    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol,
+    'ethereum' AS blockchain
 FROM
     flashloan
     LEFT JOIN coalesced_prices

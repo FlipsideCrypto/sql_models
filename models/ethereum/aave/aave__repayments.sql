@@ -157,9 +157,9 @@ repay AS(
         block_timestamp,
         event_index,
         CASE
-            WHEN COALESCE(event_inputs:reserve::string,event_inputs:_reserve::string) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+            WHEN COALESCE(event_inputs:vault::string,event_inputs:_reserve::string) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
                 THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
-                ELSE COALESCE(event_inputs:reserve::string,event_inputs:_reserve::string)
+                ELSE COALESCE(event_inputs:vault::string,event_inputs:_reserve::string)
               END AS aave_market,
         COALESCE(event_inputs:amount,event_inputs:_amountMinusFees) AS repayed_amount, --not adjusted for decimals
         tx_from_address AS repayer_address,
@@ -192,7 +192,7 @@ SELECT
     LOWER(repay.aave_market) AS aave_market,
     LOWER(underlying.aave_token) AS aave_token,
     repay.repayed_amount /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_atokens,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_tokens,
     repay.repayed_amount * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
         POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_amount_usd,
     repay.repayer_address AS payer,
@@ -200,7 +200,8 @@ SELECT
     LOWER(repay.lending_pool_contract) AS lending_pool_contract,
     repay.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
-    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol,
+    'ethereum' AS blockchain
 FROM
     repay
     LEFT JOIN coalesced_prices
