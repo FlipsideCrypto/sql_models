@@ -192,7 +192,7 @@ SELECT
     LOWER(repay.aave_market) AS aave_market,
     LOWER(underlying.aave_token) AS aave_token,
     repay.repayed_amount /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_atokens,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_tokens,
     repay.repayed_amount * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
         POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS repayed_amount_usd,
     repay.repayer_address AS payer,

@@ -191,7 +191,7 @@ SELECT
     LOWER(deposits.aave_market) AS aave_market,
     LOWER(underlying.aave_token) AS aave_token,
     deposits.deposit_quantity /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS issued_atokens,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS issued_tokens,
     deposits.deposit_quantity * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
         POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS supplied_usd,
     LOWER(deposits.depositor_address) AS depositor_address,

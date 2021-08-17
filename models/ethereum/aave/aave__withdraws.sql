@@ -191,7 +191,7 @@ SELECT
     LOWER(withdraw.aave_market) AS aave_market,
     LOWER(underlying.aave_token) AS aave_token,
     withdraw.withdraw_amount /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS withdrawn_atokens,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS withdrawn_tokens,
     withdraw.withdraw_amount * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
         POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS withdrawn_usd,
     LOWER(withdraw.depositor) AS depositor_address,

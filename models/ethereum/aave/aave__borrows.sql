@@ -192,7 +192,7 @@ SELECT
     LOWER(borrow.aave_market) AS aave_market,
     LOWER(underlying.aave_token) AS aave_token,
     borrow.borrow_quantity /
-        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS borrowed_atokens,
+        POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS borrowed_tokens,
     borrow.borrow_quantity * COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) /
         POW(10,COALESCE(coalesced_prices.decimals,backup_prices.decimals,prices_daily_backup.decimals,decimals_backup.decimals,18)) AS borrowed_usd,
     LOWER(borrow.borrower_address) AS borrower_address,
