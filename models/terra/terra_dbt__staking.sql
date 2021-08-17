@@ -30,8 +30,8 @@ WITH staking_msg_events AS (
   AND event_type = 'delegate'
   {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 ),
 staking_msg AS (
@@ -52,8 +52,8 @@ staking_msg AS (
     AND msg_type = 'staking/MsgDelegate'
     {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
-{% else %}
- AND block_timestamp >= getdate() - interval '9 months'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 )
 

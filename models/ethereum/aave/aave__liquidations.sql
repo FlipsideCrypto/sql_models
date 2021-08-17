@@ -1,8 +1,7 @@
 {{
   config(
-    materialized='incremental',
-    sort='block_id',
-    unique_key='tx_id || liquidated_amount || debt_to_cover_amount',
+    materialized='table',
+    unique_key='tx_id || event_index',
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'aave', 'aave_liquidations']
   )
@@ -156,6 +155,7 @@ liquidation AS(--need to fix aave v1
     SELECT
         DISTINCT block_id,
         block_timestamp,
+        event_index,
         CASE
             WHEN COALESCE(event_inputs:collateralAsset::string,event_inputs:_collateral::string) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
                 THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
@@ -194,6 +194,7 @@ SELECT
     liquidation.tx_id,
     liquidation.block_id,
     liquidation.block_timestamp,
+    liquidation.event_index,
     LOWER(liquidation.collateral_asset) AS collateral_asset,
     LOWER(underlying.aave_token) AS collateral_aave_token,
     liquidation.liquidated_amount /

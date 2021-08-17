@@ -1,8 +1,7 @@
 {{
   config(
-    materialized='incremental',
-    sort='block_id',
-    unique_key='blockhour || aave_version || UNDERLYING_CONTRACT',
+    materialized='table',
+    unique_key='block_hour || aave_version || underlying_contract || atoken_price || aave_price || reserve_price',
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'aave', 'aave_market_stats']
   )
@@ -249,7 +248,7 @@ aave_data AS (
 
 --finally format to spec/with some adjustments
 SELECT
-    a.blockhour,
+    a.blockhour as block_hour,
     a.lending_pool_add, -- use these two for debugging reads, input the underlying token
     a.data_provider, --
     a.reserve_name,

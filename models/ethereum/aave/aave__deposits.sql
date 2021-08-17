@@ -1,8 +1,7 @@
 {{
   config(
-    materialized='incremental',
-    sort='block_id',
-    unique_key='tx_id || issued_atokens',
+    materialized='table',
+    unique_key='tx_id || event_index',
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'aave', 'aave_deposits']
   )
@@ -156,6 +155,7 @@ deposits AS(
     SELECT
         DISTINCT block_id,
         block_timestamp,
+        event_index,
         CASE
             WHEN COALESCE(event_inputs:reserve::string,event_inputs:_reserve::string) = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
                 THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
@@ -187,6 +187,7 @@ SELECT
     deposits.tx_id,
     deposits.block_id,
     deposits.block_timestamp,
+    deposits.event_index,
     LOWER(deposits.aave_market) AS aave_market,
     LOWER(underlying.aave_token) AS aave_token,
     deposits.deposit_quantity /
