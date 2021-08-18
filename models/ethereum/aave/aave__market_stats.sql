@@ -195,9 +195,10 @@ oracle AS(
 ),
 --pull hourly prices for each underlying
 aave_prices AS (
+
     SELECT
         o.hour,
-        (o.value_ethereum * POWER(10,18)) * p.price AS price, -- this is all to get price in wei to price in USD
+        (o.value_ethereum / POW(10,(18 - dc.decimals))) * p.price AS price, -- this is all to get price in wei to price in USD
         o.token_address
     FROM
     oracle o
@@ -205,6 +206,8 @@ aave_prices AS (
       ON o.hour = p.hour
        AND p.hour::date >= '2021-05-01'
        AND p.token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+  LEFT JOIN decimals_raw dc 
+      ON o.token_address = dc.token_address
     
 ), deduped_cmc_prices AS (
     SELECT

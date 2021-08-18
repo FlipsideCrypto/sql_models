@@ -83,31 +83,43 @@ backup_prices AS(
         AND hour::date >= '2021-01-01'
     GROUP BY 1,2,3,4
 ),
-
+-- decimals backup
+decimals_backup AS(
+    SELECT
+        address AS token_address,
+        meta:decimals AS decimals,
+        name
+    FROM
+        {{source('ethereum', 'ethereum_contracts')}}
+    WHERE 1=1
+        AND meta:decimals IS NOT NULL
+),
 
 prices_hourly AS(
     SELECT
         underlying.aave_token,
-        underlying.token_contract,
+        LOWER(underlying.token_contract) as token_contract,
         underlying.aave_version,
-        (oracle.value_ethereum / POW(10,(18 - backup_prices.decimals))) * eth_prices.price AS oracle_price,
+        (oracle.value_ethereum / POW(10,(18 - dc.decimals))) * eth_prices.price AS oracle_price,
         backup_prices.price AS backup_price,
         oracle.block_hour AS oracle_hour,
         backup_prices.hour AS backup_prices_hour,
         eth_prices.price AS eth_price,
-        backup_prices.decimals AS decimals,
-        backup_prices.symbol
+        dc.decimals AS decimals,
+        backup_prices.symbol,
+        value_ethereum
     FROM
         underlying
         LEFT JOIN oracle
             ON LOWER(underlying.token_contract) = LOWER(oracle.token_address)
         LEFT JOIN backup_prices
-            ON underlying.token_contract = backup_prices.token_address
+            ON LOWER(underlying.token_contract) = LOWER(backup_prices.token_address)
             AND oracle.block_hour = backup_prices.hour
         LEFT JOIN {{ref('ethereum__token_prices_hourly')}} eth_prices
-            ON oracle.block_hour = eth_prices.hour
-            AND eth_prices.hour::date >= '2021-01-01'
-            AND eth_prices.symbol = 'ETH'
+            ON oracle.block_hour = eth_prices.hour AND eth_prices.token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+        LEFT JOIN decimals_backup dc
+            ON oracle.token_address = dc.token_address
+
 ),
 
 
@@ -136,18 +148,6 @@ prices_daily_backup AS(
         backup_prices
     WHERE 1=1
     GROUP BY 1,2,3
-),
-
--- decimals backup
-decimals_backup AS(
-    SELECT
-        address AS token_address,
-        meta:decimals AS decimals,
-        name
-    FROM
-        {{source('ethereum', 'ethereum_contracts')}}
-    WHERE 1=1
-        AND meta:decimals IS NOT NULL
 ),
 
 --borrows from Aave LendingPool contract
@@ -200,7 +200,7 @@ SELECT
     LOWER(borrow.lending_pool_contract) AS lending_pool_contract,
     borrow.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
-    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol) AS symbol,
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol,REGEXP_REPLACE(l.address_name,'AAVE.*: a','')) AS symbol,
     'ethereum' AS blockchain
 FROM
     borrow
@@ -219,3 +219,5 @@ FROM
         AND borrow.aave_version = underlying.aave_version
     LEFT JOIN decimals_backup
         ON LOWER(borrow.aave_market) = LOWER(decimals_backup.token_address)
+    LEFT OUTER JOIN
+    {{source('ethereum', 'ethereum_address_labels')}} l ON LOWER(underlying.aave_token) = l.address
