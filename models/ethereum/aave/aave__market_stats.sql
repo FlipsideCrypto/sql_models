@@ -96,11 +96,11 @@ reads_parsed AS (
 ),
 -- splitting these up for organization
 lending_pools_v2 AS (
-    SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version <> 'V1'
+    SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version <> 'Aave V1'
 ), data_providers_v2 AS (
-    SELECT * FROM reads_parsed WHERE lending_pool_type = 'DataProvider' AND aave_version <> 'V1'
+    SELECT * FROM reads_parsed WHERE lending_pool_type = 'DataProvider' AND aave_version <> 'Aave V1'
 ), lending_pools_v1 AS (
-  SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version = 'V1'
+  SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version = 'Aave V1'
 ), 
 -- format v2/amm data. Need to combine reads from the lending pool and data provider
 aave_v2 AS (
