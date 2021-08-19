@@ -1,7 +1,6 @@
 {{
   config(
     materialized='incremental',
-    sort='block_id',
     unique_key='tx_id || voter',
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'aave', 'aave_votes']
