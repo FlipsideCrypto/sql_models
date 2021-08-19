@@ -38,7 +38,11 @@ WITH aave_reads AS (
             LOWER('0xc443AD9DDE3cecfB9dfC5736578f447aFE3590ba'),  -- AAVE AMM Data Provider (per docs)
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') -- AAVE V1
 ) 
-    AND block_timestamp >= CURRENT_DATE - 720
+    {% if is_incremental() %}
+        AND block_timestamp::date >= CURRENT_DATE - 2
+        {% else %}
+        AND block_timestamp::date >= CURRENT_DATE - 720
+        {% endif %}
     
     -- first split them into a log format where we have one row per field per read
 ), long_format AS (
