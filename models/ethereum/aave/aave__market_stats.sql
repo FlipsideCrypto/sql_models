@@ -224,20 +224,34 @@ aave_prices AS (
   LEFT JOIN decimals_raw dc 
       ON o.token_address = dc.token_address
     
-), deduped_cmc_prices AS (
+), sym_matches AS (
+
+    SELECT token_address,symbol, MIN(hour) AS first_appears
+    FROM 
+    ethereum.token_prices_hourly
+    WHERE hour >= CURRENT_DATE - 720
+    GROUP BY 1,2
+    QUALIFY (row_number() OVER (partition by token_address order by first_appears desc)) = 1
+
+),
+deduped_cmc_prices AS (
     SELECT
-        token_address,
-        hour,
+        p.token_address,
+        p.hour,
         decimals,
         CASE 
-            WHEN symbol = 'KNCL' THEN 'KNC' 
-            WHEN symbol = 'AENJ' THEN 'aENJ' 
-            WHEN symbol = 'AETH' THEN 'aETH'
-        ELSE symbol 
+            WHEN p.symbol = 'KNCL' THEN 'KNC' 
+            WHEN p.symbol = 'AENJ' THEN 'aENJ' 
+            WHEN p.symbol = 'AETH' THEN 'aETH'
+            WHEN p.symbol = 'REPv2' THEN 'REP'
+        ELSE p.symbol 
         END AS symbol,
         AVG(price) AS price -- table has duplicated rows for KNC / KNCL so we need to do a trick
     FROM
-        {{ref('ethereum__token_prices_hourly')}}
+        {{ref('ethereum__token_prices_hourly')}} p
+        INNER JOIN
+        sym_matches s
+            ON p.token_address = s.token_address AND p.symbol = s.symbol
     WHERE 1=1
         {% if is_incremental() %}
         AND hour >= CURRENT_DATE - 2
