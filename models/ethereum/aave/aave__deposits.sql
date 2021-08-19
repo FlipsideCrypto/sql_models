@@ -26,7 +26,11 @@ atokens AS(
         {{ref('ethereum__reads')}}
        ,lateral flatten(input => SPLIT(value_string,'^')) a
     WHERE 1=1
+        {% if is_incremental() %}
+        AND block_timestamp::date >= CURRENT_DATE - 2
+        {% else %}
         AND block_timestamp::date >= CURRENT_DATE - 720
+        {% endif %}
         AND contract_address  IN (
             LOWER('0x057835Ad21a177dbdd3090bB1CAE03EaCF78Fc6d'), -- AAVE V2 Data Provider (per docs)
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'), -- AAVE AMM Lending Pool (per docs)
@@ -65,7 +69,11 @@ oracle AS(
         {{ref('ethereum__reads')}}
     WHERE 1=1
         AND contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
+        {% if is_incremental() %}
+        AND block_timestamp::date >= CURRENT_DATE - 2
+        {% else %}
         AND block_timestamp::date >= CURRENT_DATE - 720
+        {% endif %}
     GROUP BY 1,2
 ),
 
@@ -80,7 +88,11 @@ backup_prices AS(
     FROM
         {{ref('ethereum__token_prices_hourly')}}
     WHERE 1=1
+        {% if is_incremental() %}
+        AND hour::date >= CURRENT_DATE - 2
+        {% else %}
         AND hour::date >= CURRENT_DATE - 720
+        {% endif %}
     GROUP BY 1,2,3,4
 ),
 -- decimals backup
@@ -184,7 +196,11 @@ deposits AS(
     FROM
         {{ref('ethereum__events_emitted')}} deposit
     WHERE 1=1
+        {% if is_incremental() %}
+        AND block_timestamp::date >= CURRENT_DATE - 2
+        {% else %}
         AND block_timestamp::date >= CURRENT_DATE - 720
+        {% endif %}
         AND contract_address IN(--Aave V2 LendingPool contract address
             LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'),--V2
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119'),--V1
