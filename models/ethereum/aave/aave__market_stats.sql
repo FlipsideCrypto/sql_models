@@ -1,7 +1,7 @@
 {{
   config(
     materialized='incremental',
-    unique_key='block_hour || aave_version || underlying_contract || atoken_price || aave_price || reserve_price',
+    unique_key='block_hour || aave_version || aave_market || atoken_price || aave_price || reserve_price',
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'aave', 'aave_market_stats']
   )
