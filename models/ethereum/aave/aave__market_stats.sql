@@ -309,6 +309,7 @@ SELECT
         a.stbl_borrow_rate AS borrow_rate_stable,
         a.variable_borrow_rate AS borrow_rate_variable,
         aave.price AS aave_price,
+        a.utilization_rate,
         a.aave_version,
         'ethereum' AS blockchain
 FROM 
