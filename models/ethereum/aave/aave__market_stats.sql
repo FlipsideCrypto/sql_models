@@ -194,7 +194,13 @@ oracle AS(
         {{ref('ethereum__reads')}}
     WHERE 
         contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
-        AND block_timestamp::date >= '2021-05-01'
+        {% if is_incremental() %}
+        AND block_timestamp::date >= CURRENT_DATE - 2
+        {% else %}
+        AND block_timestamp::date >= CURRENT_DATE - 720
+        {% endif %}
+    
+        
   GROUP BY 1,2
 ),
 --pull hourly prices for each underlying
@@ -208,7 +214,12 @@ aave_prices AS (
     oracle o
     INNER JOIN {{ref('ethereum__token_prices_hourly')}} p
       ON o.hour = p.hour
-       AND p.hour::date >= '2021-05-01'
+        {% if is_incremental() %}
+        AND block_timestamp::date >= CURRENT_DATE - 2
+        {% else %}
+        AND block_timestamp::date >= CURRENT_DATE - 720
+        {% endif %}
+    
        AND p.token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
   LEFT JOIN decimals_raw dc 
       ON o.token_address = dc.token_address
