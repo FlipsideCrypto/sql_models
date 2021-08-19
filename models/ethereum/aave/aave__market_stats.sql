@@ -215,9 +215,9 @@ aave_prices AS (
     INNER JOIN {{ref('ethereum__token_prices_hourly')}} p
       ON o.hour = p.hour
         {% if is_incremental() %}
-        AND block_timestamp::date >= CURRENT_DATE - 2
+        AND o.hour >= CURRENT_DATE - 2
         {% else %}
-        AND block_timestamp::date >= CURRENT_DATE - 720
+        AND o.hour >= CURRENT_DATE - 720
         {% endif %}
     
        AND p.token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
@@ -239,7 +239,11 @@ aave_prices AS (
     FROM
         {{ref('ethereum__token_prices_hourly')}}
     WHERE 1=1
-        AND hour::date >= '2021-01-01'
+        {% if is_incremental() %}
+        AND hour >= CURRENT_DATE - 2
+        {% else %}
+        AND hour >= CURRENT_DATE - 720
+        {% endif %}
     GROUP BY 1,2,3,4
 ),
 -- calculate what we can
