@@ -96,11 +96,11 @@ reads_parsed AS (
 ),
 -- splitting these up for organization
 lending_pools_v2 AS (
-    SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version <> 'V1'
+    SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version <> 'Aave V1'
 ), data_providers_v2 AS (
-    SELECT * FROM reads_parsed WHERE lending_pool_type = 'DataProvider' AND aave_version <> 'V1'
+    SELECT * FROM reads_parsed WHERE lending_pool_type = 'DataProvider' AND aave_version <> 'Aave V1'
 ), lending_pools_v1 AS (
-  SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version = 'V1'
+  SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version = 'Aave V1'
 ), 
 -- format v2/amm data. Need to combine reads from the lending pool and data provider
 aave_v2 AS (
@@ -194,7 +194,13 @@ oracle AS(
         {{ref('ethereum__reads')}}
     WHERE 
         contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
-        AND block_timestamp::date >= '2021-05-01'
+        {% if is_incremental() %}
+        AND block_timestamp::date >= CURRENT_DATE - 2
+        {% else %}
+        AND block_timestamp::date >= CURRENT_DATE - 720
+        {% endif %}
+    
+        
   GROUP BY 1,2
 ),
 --pull hourly prices for each underlying
@@ -208,27 +214,50 @@ aave_prices AS (
     oracle o
     INNER JOIN {{ref('ethereum__token_prices_hourly')}} p
       ON o.hour = p.hour
-       AND p.hour::date >= '2021-05-01'
+        {% if is_incremental() %}
+        AND o.hour >= CURRENT_DATE - 2
+        {% else %}
+        AND o.hour >= CURRENT_DATE - 720
+        {% endif %}
+    
        AND p.token_address = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
   LEFT JOIN decimals_raw dc 
       ON o.token_address = dc.token_address
     
-), deduped_cmc_prices AS (
+), sym_matches AS (
+
+    SELECT token_address,symbol, MIN(hour) AS first_appears
+    FROM 
+    ethereum.token_prices_hourly
+    WHERE hour >= CURRENT_DATE - 720
+    GROUP BY 1,2
+    QUALIFY (row_number() OVER (partition by token_address order by first_appears desc)) = 1
+
+),
+deduped_cmc_prices AS (
     SELECT
-        token_address,
-        hour,
+        p.token_address,
+        p.hour,
         decimals,
         CASE 
-            WHEN symbol = 'KNCL' THEN 'KNC' 
-            WHEN symbol = 'AENJ' THEN 'aENJ' 
-            WHEN symbol = 'AETH' THEN 'aETH'
-        ELSE symbol 
+            WHEN p.symbol = 'KNCL' THEN 'KNC' 
+            WHEN p.symbol = 'AENJ' THEN 'aENJ' 
+            WHEN p.symbol = 'AETH' THEN 'aETH'
+            WHEN p.symbol = 'REPv2' THEN 'REP'
+        ELSE p.symbol 
         END AS symbol,
         AVG(price) AS price -- table has duplicated rows for KNC / KNCL so we need to do a trick
     FROM
-        {{ref('ethereum__token_prices_hourly')}}
+        {{ref('ethereum__token_prices_hourly')}} p
+        INNER JOIN
+        sym_matches s
+            ON p.token_address = s.token_address AND p.symbol = s.symbol
     WHERE 1=1
-        AND hour::date >= '2021-01-01'
+        {% if is_incremental() %}
+        AND hour >= CURRENT_DATE - 2
+        {% else %}
+        AND hour >= CURRENT_DATE - 720
+        {% endif %}
     GROUP BY 1,2,3,4
 ),
 -- calculate what we can
@@ -275,7 +304,7 @@ aave_data AS (
 SELECT
     DISTINCT
         a.blockhour as block_hour,
-        a.reserve_token AS aave_market,
+        UPPER(a.reserve_token) AS aave_market, --uses labels as a fallback, some of which have mixed case
         a.lending_pool_add, -- use these two for debugging reads, input the underlying token
         a.data_provider, --
         a.reserve_name,
@@ -294,6 +323,7 @@ SELECT
         a.stbl_borrow_rate AS borrow_rate_stable,
         a.variable_borrow_rate AS borrow_rate_variable,
         aave.price AS aave_price,
+        a.utilization_rate,
         a.aave_version,
         'ethereum' AS blockchain
 FROM 
