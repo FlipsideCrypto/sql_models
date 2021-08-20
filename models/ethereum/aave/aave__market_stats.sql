@@ -304,7 +304,7 @@ aave_data AS (
 SELECT
     DISTINCT
         a.blockhour as block_hour,
-        a.reserve_token AS aave_market,
+        UPPER(a.reserve_token) AS aave_market, --uses labels as a fallback, some of which have mixed case
         a.lending_pool_add, -- use these two for debugging reads, input the underlying token
         a.data_provider, --
         a.reserve_name,
