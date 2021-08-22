@@ -9,35 +9,182 @@
   )
 }}
 
-with msgs as (
-SELECT 
-  m.block_id,
-  m.block_timestamp,
-  m.tx_id,
-  msg_value:sender::string as sender,
-  'provide_liquidity' as action,
-  msg_value:execute_msg:provide_liquidity:assets[0]:amount / POW(10,6) as token_0_amount,
-  coalesce(msg_value:execute_msg:provide_liquidity:assets[0]:info:token:contract_addr::string,
-            msg_value:execute_msg:provide_liquidity:assets[0]:info:native_token:denom::string) as token_0_address,
-  msg_value:execute_msg:provide_liquidity:assets[1]:amount / POW(10,6) as token_1_amount,
-  coalesce(msg_value:execute_msg:provide_liquidity:assets[1]:info:token:contract_addr::string,
-            msg_value:execute_msg:provide_liquidity:assets[1]:info:native_token:denom::string) as token_1_address,
-  msg_value:contract::string as pool_address
-FROM {{source('silver_terra', 'msgs')}} m
+WITH prices as (
 
-WHERE msg_value:execute_msg:provide_liquidity IS NOT NULL --Ensures we only look for adding liquidity events
+  SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(price_usd) as price_usd
+    FROM {{ ref('terra__oracle_prices')}} 
+    GROUP BY 1,2,3
+
 ),
 
-events as (
-SELECT 
+provide_msgs AS (
+
+SELECT
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
   tx_id,
-  event_attributes:share/POW(10,6) as lp_share_amount
-  event_attributes:"2_contract_address"::string as lp_pool_address
+  'provide_liquidity' as event_type,
+  msg_value:sender::string as sender,
+  msg_value:contract::string as pool_address,
+  l.address_name AS pool_name
 FROM {{source('silver_terra', 'msgs')}}
 
-WHERE tx_id IN(SELECT DISTINCT tx_id 
-                FROM msgs)
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+ON pool_address = l.address
+
+WHERE msg_value:execute_msg:provide_liquidity IS NOT NULL 
+  AND tx_status = 'SUCCEEDED'
+
+),
+
+provide_events AS (
+SELECT
+  tx_id,
+  
+  event_attributes:assets[0]:amount / POW(10,6) AS token_0_amount,
+  token_0_amount * o.price AS token_0_amount_usd,
+  event_attributes:assets[0]:denom::string AS token_0_currency,
+  
+  event_attributes:assets[1]:amount / POW(10,6) AS token_1_amount,
+  token_1_amount * i.price AS token_1_amount_usd,
+  event_attributes:assets[1]:denom::string AS token_1_currency,
+  
+  event_attributes:share / POW(10,6) AS lp_share_amount,
+  CASE 
+    WHEN event_attributes:"2_contract_address"::string = 'terra17yap3mhph35pcwvhza38c2lkj7gzywzy05h7l0' THEN event_attributes:"4_contract_address"::string 
+    ELSE event_attributes:"2_contract_address"::string 
+  END AS lp_pool_address,
+  l.address_name AS lp_pool_name
+FROM {{source('silver_terra', 'msg_events')}} t
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+ON lp_pool_address = l.address
+
+LEFT OUTER JOIN prices o
+ ON date_trunc('hour', t.block_timestamp) = o.hour
+ AND t.token_0_currency = o.currency 
+
+LEFT OUTER JOIN prices i
+ ON date_trunc('hour', t.block_timestamp) = i.hour
+ AND t.token_1_currency = i.currency  
+
+WHERE msg_index = 1
+  AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
   AND event_type = 'from_contract'
-  AND event_attributes:"0_action"::string = 'provide_liquidity'
+
+),
+
+withdraw_msgs AS (
+  
+SELECT
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  tx_id,
+  'withdraw_liquidity' as event_type,
+  msg_value:sender::string as sender,
+  msg_value:contract::string as lp_pool_address,
+  l.address_name AS lp_pool_name,
+  msg_value:execute_msg:send:contract::string as pool_address,
+  p.address_name AS pool_name
+FROM {{source('silver_terra', 'msgs')}}
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as p
+ON pool_address = p.address
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+ON lp_pool_address = l.address
+
+WHERE msg_value:execute_msg:send:msg:withdraw_liquidity IS NOT NULL
+  AND tx_status = 'SUCCEEDED'
+  
+),
+
+withdraw_events AS (
+
+SELECT 
+  tx_id,
+  
+  event_attributes:refund_assets[0]:amount / POW(10,6) AS token_0_amount,
+  token_0_amount * o.price AS token_0_amount_usd,
+  event_attributes:refund_assets[0]:denom::string AS token_0_currency,
+  
+  event_attributes:refund_assets[1]:amount / POW(10,6) AS token_1_amount,
+  token_1_amount * i.price AS token_1_amount_usd,
+  event_attributes:refund_assets[1]:denom::string AS token_1_currency,
+  
+  event_attributes:withdrawn_share / POW(10,6) as lp_share_amount
+FROM {{source('silver_terra', 'msg_events')}} t
+
+LEFT OUTER JOIN prices o
+ ON date_trunc('hour', t.block_timestamp) = o.hour
+ AND t.token_0_currency = o.currency 
+
+LEFT OUTER JOIN prices i
+ ON date_trunc('hour', t.block_timestamp) = i.hour
+ AND t.token_1_currency = i.currency  
+
+WHERE tx_id IN(SELECT tx_id FROM msgs)
+  AND event_type = 'from_contract'
+  AND event_attributes:refund_assets IS NOT NULL 
 
 )
+
+-- Provide Liquidity 
+SELECT 
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  m.tx_id,
+  event_type,
+  sender,
+  token_0_amount,
+  token_0_amount_usd,
+  token_0_currency,
+  token_1_amount,
+  token_1_amount_usd,
+  token_1_currency,
+  pool_address,
+  pool_name,
+  lp_share_amount,
+  lp_pool_address,
+  lp_pool_name
+FROM provide_msgs m 
+
+JOIN provide_events e 
+  ON m.tx_id = e.tx_id
+
+UNION 
+
+-- Remove Liquidity 
+SELECT 
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  m.tx_id,
+  event_type,
+  sender,
+  token_0_amount,
+  token_0_amount_usd,
+  token_0_currency,
+  token_1_amount,
+  token_1_amount_usd,
+  token_1_currency,
+  pool_address,
+  pool_name,
+  lp_share_amount,
+  lp_pool_address,
+  lp_pool_name
+FROM withdraw_msgs m 
+
+JOIN withdraw_events e 
+  ON m.tx_id = e.tx_id

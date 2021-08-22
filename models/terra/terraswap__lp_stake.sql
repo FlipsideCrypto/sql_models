@@ -10,7 +10,8 @@
 }}
 
 -- LP Un-staking
-WITH msgs AS(
+WITH msgs AS (
+
 SELECT 
   chain_id,  
   block_id,
@@ -21,21 +22,23 @@ SELECT
   msg_value:execute_msg:unbond:amount / POW(10,6) as amount
 FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:unbond IS NOT NULL 
-  AND block_timestamp >= current_date - 3
-order by block_timestamp desc 
-limit 100
+  AND tx_status = 'SUCCEEDED'
+
 ),
 
 events AS (
+
 SELECT 
   tx_id,
   event_attributes:"0_contract_address"::string as contract_address
 FROM {{source('silver_terra', 'msg_events')}}
 where tx_id IN(SELECT distinct tx_id from msgs)
-  and event_type = 'execute_contract'
-  and msg_index = 0
+  AND event_type = 'execute_contract'
+  AND msg_index = 0
+
 )
 
+-- unstake
 SELECT 
   chain_id,  
   block_id,
@@ -56,7 +59,7 @@ LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}}
 
 UNION
 
--- LP Staking 
+-- stake 
 SELECT 
   chain_id,  
   block_id,
@@ -73,3 +76,4 @@ LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}}
   ON msg_value:contract::string = address
 
 WHERE msg_value:execute_msg:send:msg:bond IS NOT NULL 
+  AND tx_status = 'SUCCEEDED'

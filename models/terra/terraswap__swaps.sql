@@ -66,11 +66,21 @@ SELECT
   tax_amount,
   commission_amount,
   offer_amount,
+  offer_amount * o.price AS offer_amount_usd,
   offer_currency,
   return_amount,
+  return_amount * r.price AS return_amount_usd,
   return_currency,
   pool_address
 FROM msgs m 
 
 JOIN events e 
   ON m.tx_id = e.tx_id
+
+LEFT OUTER JOIN prices o
+ ON date_trunc('hour', t.block_timestamp) = o.hour
+ AND m.offer_currency = o.currency 
+
+LEFT OUTER JOIN prices r
+ ON date_trunc('hour', t.block_timestamp) = r.hour
+ AND m.return_currency = r.currency  
