@@ -1,8 +1,7 @@
 {{ 
   config(
     materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id || event_from || event_to', 
+    unique_key='block_id || tx_id || event_from || event_to || event_index', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
     tags=['snowflake', 'terra', 'transfers']
@@ -117,7 +116,8 @@ transfers AS (
       event_from, 
       event_to, 
       event_from_amount AS event_amount, 
-      event_from_currency AS event_currency
+      event_from_currency AS event_currency,
+      transfers_multisend.output_index AS event_index
     FROM transfers_multisend_1_1_txs
     JOIN transfers_multisend
     ON transfers_multisend_1_1_txs.tx_id = transfers_multisend.tx_id
@@ -138,7 +138,8 @@ transfers AS (
       event_from, 
       event_to, 
       event_to_amount AS event_amount, 
-      event_to_currency AS event_currency
+      event_to_currency AS event_currency,
+      transfers_multisend.output_index AS event_index
     FROM transfers_multisend_1_m_txs
     JOIN transfers_multisend
     ON transfers_multisend_1_m_txs.tx_id = transfers_multisend.tx_id
@@ -158,7 +159,8 @@ transfers AS (
       msg_value:from_address::string as event_from,
       msg_value:to_address::string as event_to,
       msg_value:amount[0]:amount / pow(10,6) as event_amount,
-      msg_value:amount[0]:denom::string as event_currency
+      msg_value:amount[0]:denom::string as event_currency,
+      msg_index AS event_index
     FROM {{source('silver_terra', 'msgs')}}
     WHERE msg_module = 'bank'
       AND msg_type = 'bank/MsgSend'
@@ -188,7 +190,8 @@ SELECT
   to_labels.address_name as event_to_address_name,
   t.event_amount,
   t.event_amount * price_usd as event_amount_usd,
-  s.symbol as event_currency
+  s.symbol as event_currency,
+  t.event_index
 FROM transfers t
 
 LEFT OUTER JOIN prices o
