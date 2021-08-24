@@ -23,6 +23,7 @@
 SELECT
     {{ partition_sql }},
     {{ previous_column }},
+    {{ column }},
     {{ column }} - {{ previous_column }} AS gap
 FROM
     source
