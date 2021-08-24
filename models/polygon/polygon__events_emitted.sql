@@ -41,7 +41,7 @@ SELECT
   CONTRACT_ADDRESS AS contract_address,
   COALESCE(contract_labels.address_name,CONTRACT_NAME) AS contract_name,
   TX_SUCCEEDED AS tx_succeeded
-FROM {{ source('silver_polygon', 'events_emitted') }} b
+FROM {{ ref('silver_polygon__events_emitted')}} b
 
 LEFT OUTER JOIN poly_labels as from_labels
  ON b.TX_FROM = from_labels.address

@@ -11,7 +11,7 @@ WITH events AS (
         tx_id
         , sum(case when log_index is not null then 1 else 0 end) as event_count
     FROM
-        {{ source('silver_polygon','udm_events') }}
+        {{ ref('silver_polygon__udm_events')}}
     where 1=1
     {% if is_incremental() %}
     and block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
@@ -22,7 +22,7 @@ txn AS (
   SELECT
   *
   FROM
-  {{source('silver_polygon', 'transactions')}}
+  {{ ref('silver_polygon__transactions')}}
   WHERE 1=1
     {% if is_incremental() %}
     AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
