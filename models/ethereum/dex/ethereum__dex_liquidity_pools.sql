@@ -2,9 +2,9 @@
   config(
     materialized='incremental', 
     sort='creation_time', 
-    unique_key='creation_tx', 
+    unique_key='creation_tx || pool_address', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex']
+    tags=['snowflake', 'ethereum', 'dex','dex_pools']
   )
 }}
 WITH v3_pools AS ( -- uni v3
@@ -63,6 +63,9 @@ WITH v3_pools AS ( -- uni v3
       ON REGEXP_REPLACE(p.event_inputs:token1,'\"','') = bbb.address
 
     WHERE p.event_name    = 'PairCreated'
+    AND p.event_inputs:pair IS NOT NULL
+    AND p.event_inputs:token0 IS NOT NULL
+    AND p.event_inputs:token1 IS NOT NULL
     {% if is_incremental() %}
       AND creation_time >= getdate() - interval '2 days'
     {% else %}
@@ -209,4 +212,5 @@ stack AS (
 
 SELECT DISTINCT * FROM 
 stack
+WHERE creation_tx IS NOT NULL AND pool_address IS NOT NULL
 
