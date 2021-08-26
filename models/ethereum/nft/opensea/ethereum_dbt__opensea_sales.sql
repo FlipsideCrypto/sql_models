@@ -19,8 +19,8 @@ WITH token_transfers AS (
   tx_id IN (SELECT tx_hash FROM {{ source('ethereum', 'ethereum_events') }} WHERE input_method = '0xab834bab')
   AND
   token_id IS NOT NULL
-  AND
   {% if is_incremental() %}
+    AND
     block_timestamp >= getdate() - interval '1 days'
   {% endif %}
   
@@ -35,8 +35,8 @@ WITH token_transfers AS (
   tx_id IN (SELECT tx_hash FROM {{ source('ethereum', 'ethereum_events') }} WHERE input_method = '0xab834bab')
   AND
   token_id IS NOT NULL
-  AND
   {% if is_incremental() %}
+    AND
     block_timestamp >= getdate() - interval '1 days'
   {% endif %}
   
@@ -51,8 +51,8 @@ WITH token_transfers AS (
   tx_id IN (SELECT tx_hash FROM {{ source('ethereum', 'ethereum_events') }} WHERE input_method = '0xab834bab')
   AND
   token_id IS NOT NULL
-  AND
   {% if is_incremental() %}
+    AND
     block_timestamp >= getdate() - interval '1 days'
   {% endif %}
   
@@ -67,8 +67,8 @@ WITH token_transfers AS (
   tx_id IN (SELECT tx_hash FROM {{ source('ethereum', 'ethereum_events') }} WHERE input_method = '0xab834bab')
   AND
   token_id IS NOT NULL
-  AND
   {% if is_incremental() %}
+    AND
     block_timestamp >= getdate() - interval '1 days'
   {% endif %}
   
@@ -100,8 +100,8 @@ token_transfer_events AS (
   WHERE ee.tx_id IN (SELECT tx_id FROM token_transfers WHERE token_id IS NOT NULL)
   AND amount > 0
   AND block_timestamp > (SELECT min(block_timestamp) FROM {{ source('ethereum', 'ethereum_events_emitted') }})
-  AND
   {% if is_incremental() %}
+    AND
     block_timestamp >= getdate() - interval '1 days'
   {% endif %}
 ),
