@@ -12,7 +12,7 @@ WITH v3_pools AS ( -- uni v3
           block_timestamp AS creation_time,
           tx_id AS creation_tx,
           factory_address,
-          REGEXP_REPLACE(pool_name,'$',' UNI-V3 LP') AS pool_name,
+          CASE WHEN pool_name IS NULL THEN token0 ||'-' || token1 ||' UNI-V3 LP' ELSE REGEXP_REPLACE(pool_name,'$',' UNI-V3 LP') END AS pool_name,
           pool_address,
           token0,
           token1,
