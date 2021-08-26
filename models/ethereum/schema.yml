@@ -109,15 +109,28 @@ models:
         description: Native amount of transfer (decimal adjusted)
       - name: amount_usd
         description: USD amount of transfer
-  - name: erc20_balances
+  - name: ethereum__erc20_balances
     description: Daily ERC20 Balances
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BALANCE_DATE
+            - CONTRACT_ADDRESS
+            - USER_ADDRESS
     columns:
-      - name: blockchain
-        description: Blockchain originating the transfer
       - name: balance_date
         description: Day the balance was recorded on
+        tests:
+          - not_null
+      - name: contract_address
+        description: Token contract address
+        tests:
+          - not_null
       - name: user_address
         description: Address that the balance is for
+        tests:
+          - not_null
+
       - name: label
         description: "The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
       - name: address_name
@@ -126,8 +139,6 @@ models:
         description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
       - name: label_subtype
         description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
-      - name: contract_address
-        description: Token contract address
       - name: contract_label
         description: Name of the contract address if we have one.
       - name: symbol
