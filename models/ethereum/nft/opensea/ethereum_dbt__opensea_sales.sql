@@ -94,7 +94,7 @@ tx_buyer_seller AS (
 
 -- now find the fungible token transfers
 token_transfer_events AS (
-  SELECT ee.tx_id, block_timestamp, from_address, buyer, seller, to_address, symbol, amount
+  SELECT ee.tx_id, block_timestamp, contract_address, from_address, buyer, seller, to_address, symbol, amount
   FROM {{ ref('ethereum__udm_events') }} ee
   JOIN tx_buyer_seller tbs ON ee.tx_id = tbs.tx_id
   WHERE ee.tx_id IN (SELECT tx_id FROM token_transfers WHERE token_id IS NOT NULL)
@@ -110,7 +110,7 @@ token_transfer_events AS (
 tx_paid AS (
   SELECT tx_id, amount AS price, 
   symbol AS tx_currency,
-  contract_address AS tx_currency_contract,
+  contract_address AS tx_currency_contract
   FROM token_transfer_events
   WHERE from_address = buyer
 ),
