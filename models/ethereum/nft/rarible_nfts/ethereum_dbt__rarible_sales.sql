@@ -82,8 +82,6 @@ token_transfer_events AS (
   (symbol != 'ETH' OR (symbol = 'ETH' AND from_address IN ('0xcd4ec7b66fbc029c116ba9ffb3e59351c20b5b06', '0x9757f2d2b135150bbeb65308d4a91804107cd8d6')))
   {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '5 days'
-  {% else %}
-    AND block_timestamp >= getdate() - interval '9 months'
   {% endif %}
 ),
 fee_tracking AS (
@@ -103,8 +101,6 @@ fee_tracking AS (
   WHERE 1=1
   {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '5 days'
-  {% else %}
-    AND block_timestamp >= getdate() - interval '9 months'
   {% endif %}
 ),
 platform_fee AS (
@@ -122,8 +118,6 @@ FROM fee_tracking
 WHERE rank_amount = 1
 {% if is_incremental() %}
   AND block_timestamp >= getdate() - interval '5 days'
-{% else %}
-  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 ),
 
@@ -142,8 +136,6 @@ FROM fee_tracking
 WHERE rank_amount = 2 AND n_transfers = 3
 {% if is_incremental() %}
   AND block_timestamp >= getdate() - interval '5 days'
-{% else %}
-  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 ),
 
@@ -158,8 +150,6 @@ FROM token_transfer_events
 WHERE buyer = origin_address
 {% if is_incremental() %}
   AND block_timestamp >= getdate() - interval '5 days'
-{% else %}
-  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
 GROUP BY 
 tx_id, 
