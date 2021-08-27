@@ -15,7 +15,7 @@ WITH prices AS (
         ) AS DAY,
         AVG(price) AS price
     FROM
-        {{ ref('terra_prices') }}
+        {{ ref('gold_terra__prices') }}
         p
     WHERE
 
@@ -46,7 +46,7 @@ FROM
     LEFT OUTER JOIN prices p
     ON p.symbol = b.currency
     AND p.day = b.date
-    LEFT OUTER JOIN {{ ref('terra_address_labels') }} AS address_labels
+    LEFT OUTER JOIN {{ ref('gold_terra__address_labels') }} AS address_labels
     ON b.address = address_labels.address
 WHERE
 

@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key='blockchain || block_number',
   incremental_strategy = 'delete+insert',
-  cluster_by = ['blockchain, 'block_number'],
+  cluster_by = ['blockchain', 'block_number'],
   tags = ['snowflake', 'terra_gold', 'terra_tax_rate']
 ) }}
 

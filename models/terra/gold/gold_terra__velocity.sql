@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key='start_Date',
   incremental_strategy = 'delete+insert',
-  cluster_by = ['start_date],
+  cluster_by = ['start_date'],
   tags = ['snowflake', 'terra_gold', 'terra_velocity']
 ) }}
 

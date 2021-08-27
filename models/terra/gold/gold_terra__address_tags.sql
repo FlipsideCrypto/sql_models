@@ -2,8 +2,8 @@
   materialized = 'incremental',
   unique_key = 'blockchain || address',
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_id, 'block_timestamp'],
-  tags = ['snowflake', 'terra_gold', 'terra_address_labels']
+  cluster_by = ['blockchain'],
+  tags = ['snowflake', 'terra_gold', 'terra_address_tags']
 ) }}
 
 SELECT

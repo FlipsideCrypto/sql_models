@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'symbol || hour',
   incremental_strategy = 'delete+insert',
-  cluster_by = ['hour, 'symbol'],
+  cluster_by = ['hour'],
   tags = ['snowflake', 'terra_gold', 'terra_prices']
 ) }}
 

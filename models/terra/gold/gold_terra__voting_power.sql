@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'blockchain || address',
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_id, 'block_timestamp'],
+  cluster_by = ['block_id', 'block_timestamp'],
   tags = ['snowflake', 'terra_gold', 'terra_voting_power']
 ) }}
 

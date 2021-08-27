@@ -39,19 +39,19 @@ SELECT
     event_currency
 FROM
     {{ source(
-        'terra',
+        'shared',
         'udm_events_terra'
     ) }}
     e
-    LEFT OUTER JOIN {{ ref('terra_address_labels') }} AS tx_from_labels
+    LEFT OUTER JOIN {{ ref('gold_terra__address_labels') }} AS tx_from_labels
     ON e.tx_from = tx_from_labels.address
-    LEFT OUTER JOIN {{ ref('terra_address_labels') }} AS tx_to_labels
+    LEFT OUTER JOIN {{ ref('gold_terra__address_labels') }} AS tx_to_labels
     ON e.tx_to = tx_to_labels.address
-    LEFT OUTER JOIN {{ ref('terra_address_labels') }} AS event_from_labels
+    LEFT OUTER JOIN {{ ref('gold_terra__address_labels') }} AS event_from_labels
     ON e.event_from = event_from_labels.address
-    LEFT OUTER JOIN {{ ref('terra_address_labels') }} AS event_to_labels
+    LEFT OUTER JOIN {{ ref('gold_terra__address_labels') }} AS event_to_labels
     ON e.event_to = event_to_labels.address
-    LEFT OUTER JOIN {{ ref('terra_prices') }}
+    LEFT OUTER JOIN {{ ref('gold_terra__prices') }}
     fee_price
     ON fee_price.hour = DATE_TRUNC(
         'hour',
@@ -61,7 +61,7 @@ FROM
         e.event_currency,
         'LUNA'
     )
-    LEFT OUTER JOIN {{ ref('terra_prices') }}
+    LEFT OUTER JOIN {{ ref('gold_terra__prices') }}
     event_price
     ON event_price.hour = DATE_TRUNC(
         'hour',
