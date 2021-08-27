@@ -2,7 +2,7 @@
     materialized = 'incremental',
     sort = ['date', 'currency'],
     unique_key = 'date',
-    tags = ['balances']
+    tags=['snowflake', 'terra_gold', 'terra_daily_balances']
 ) }}
 
 WITH prices AS (

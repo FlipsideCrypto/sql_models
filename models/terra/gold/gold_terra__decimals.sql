@@ -1,5 +1,8 @@
 {{ config(
-    materialized = 'table'
+    materialized = 'incremental',
+    sort = ['date', 'currency'],
+    unique_key = 'date',
+    tags=['snowflake', 'terra_gold', 'terra_daily_balances']
 ) }}
 
 SELECT
