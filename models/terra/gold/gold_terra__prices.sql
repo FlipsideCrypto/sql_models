@@ -1,8 +1,10 @@
 {{ config(
-  materialized='incremental',
-  sort='hour',
-  unique_key='symbol || hour')
-}}
+  materialized = 'incremental',
+  unique_key = 'symbol || hour',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['hour, 'symbol'],
+  tags = ['snowflake', 'terra_gold', 'terra_prices']
+) }}
 
 WITH hours AS (
   select hour
@@ -11,8 +13,6 @@ WITH hours AS (
   where
   {% if is_incremental() %}
     hour >= getdate() - interval '3 days'  and hour < getdate() + interval '1 day'
-  {% else %}
-    hour >= getdate() - interval '12 months' and hour < getdate() + interval '1 day'
   {% endif %}
 ),
 raw_prices AS (
@@ -23,8 +23,6 @@ raw_prices AS (
   )
   {% if is_incremental() %}
     AND recorded_at >= getdate() - interval '3 days'
-  {% else %}
-    AND recorded_at >= getdate() - interval '12 months'
   {% endif %}
   AND recorded_at < getdate() + interval '1 day'
   GROUP BY symbol, hour
@@ -35,8 +33,6 @@ raw_prices AS (
   FROM {{source('shared','coingecko_prices')}} WHERE asset_id IN ('terrausd')
   {% if is_incremental() %}
     AND recorded_at >= getdate() - interval '3 days'
-  {% else %}
-    AND recorded_at >= getdate() - interval '12 months'
   {% endif %}
   AND recorded_at < getdate() + interval '1 day'
   GROUP BY symbol, hour

@@ -1,9 +1,10 @@
 {{ config(
-  materialized='incremental',
-  sort='block_timestamp',
+  materialized = 'incremental',
   unique_key='blockchain || block_number',
-  tags=['custom'])
-}}
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['blockchain, 'block_number'],
+  tags = ['snowflake', 'terra_gold', 'terra_tax_rate']
+) }}
 
 SELECT
   blockchain,
@@ -15,6 +16,4 @@ FROM
 WHERE
 {% if is_incremental() %}
   block_timestamp >= getdate() - interval '3 days'
-{% else %}
-  block_timestamp >= getdate() - interval '12 months'
 {% endif %}
