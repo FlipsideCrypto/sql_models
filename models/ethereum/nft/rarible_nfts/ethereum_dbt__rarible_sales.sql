@@ -14,6 +14,10 @@ WITH rarible_txns AS (
   FROM
   {{ source('ethereum', 'ethereum_transactions') }} WHERE to_address IN ('0x9757f2d2b135150bbeb65308d4a91804107cd8d6',
                               '0xcd4ec7b66fbc029c116ba9ffb3e59351c20b5b06')
+  {% if is_incremental() %}
+    AND
+    block_timestamp >= getdate() - interval '1 days'
+  {% endif %}
   GROUP BY tx_id
 ),
 token_transfers AS (
@@ -28,6 +32,10 @@ token_transfers AS (
   WHERE event_name = 'Transfer' AND
     tx_id IN (SELECT tx_id FROM rarible_txns) AND
     token_id IS NOT NULL
+  {% if is_incremental() %}
+    AND
+    block_timestamp >= getdate() - interval '1 days'
+  {% endif %}
   UNION
   SELECT 
     tx_id, 
@@ -40,6 +48,10 @@ token_transfers AS (
   WHERE event_name = 'TransferSingle' AND
     tx_id IN (SELECT tx_id FROM rarible_txns) AND
     token_id IS NOT NULL
+  {% if is_incremental() %}
+    AND
+    block_timestamp >= getdate() - interval '1 days'
+  {% endif %}
   UNION
   SELECT 
     tx_id, 
@@ -52,6 +64,10 @@ token_transfers AS (
   WHERE event_name = 'Transfer' AND
     tx_id IN (SELECT tx_id FROM rarible_txns) AND
     token_id IS NOT NULL
+  {% if is_incremental() %}
+    AND
+    block_timestamp >= getdate() - interval '1 days'
+  {% endif %}
 ),
 nfts_per_tx AS (
   SELECT tx_id, count(token_id) as n_tokens
@@ -82,6 +98,10 @@ token_transfer_events AS (
   amount > 0 
   AND 
   (symbol != 'ETH' OR (symbol = 'ETH' AND from_address IN ('0xcd4ec7b66fbc029c116ba9ffb3e59351c20b5b06', '0x9757f2d2b135150bbeb65308d4a91804107cd8d6')))
+  {% if is_incremental() %}
+    AND
+    block_timestamp >= getdate() - interval '1 days'
+  {% endif %}
 ),
 fee_tracking AS (
   SELECT
