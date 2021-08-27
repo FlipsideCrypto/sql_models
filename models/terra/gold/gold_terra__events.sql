@@ -2,7 +2,7 @@
     materialized = 'incremental',
     sort = 'block_timestamp',
     unique_key = 'block_timestamp',
-    tags = ['events']
+    tags = ['snowflake', 'terra_gold', 'terra_events']
 ) }}
 
 SELECT
@@ -72,6 +72,4 @@ WHERE
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '3 days'
-{% else %}
-    block_timestamp >= getdate() - INTERVAL '12 months'
 {% endif %}

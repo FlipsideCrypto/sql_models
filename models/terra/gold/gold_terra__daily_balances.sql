@@ -2,7 +2,7 @@
     materialized = 'incremental',
     sort = ['date', 'currency'],
     unique_key = 'date',
-    tags=['snowflake', 'terra_gold', 'terra_daily_balances']
+    tags = ['snowflake', 'terra_gold', 'terra_daily_balances']
 ) }}
 
 WITH prices AS (
@@ -21,8 +21,6 @@ WITH prices AS (
 
 {% if is_incremental() %}
 HOUR >= getdate() - INTERVAL '3 days'
-{% else %}
-    HOUR >= getdate() - INTERVAL '12 months'
 {% endif %}
 GROUP BY
     p.symbol,
@@ -54,6 +52,4 @@ WHERE
 
 {% if is_incremental() %}
 DATE >= getdate() - INTERVAL '3 days'
-{% else %}
-    DATE >= getdate() - INTERVAL '12 months'
 {% endif %}

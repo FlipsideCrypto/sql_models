@@ -1,8 +1,9 @@
 {{ config(
     materialized = 'incremental',
-    sort = ['date', 'currency'],
-    unique_key = 'date',
-    tags=['snowflake', 'terra_gold', 'terra_daily_balances']
+    unique_key = 'blockchain || asset_id',
+    incremental_strategy = 'delete+insert',
+    cluster_by = ['blockchain, 'asset_id'],
+    tags = ['snowflake', 'terra_gold', 'terra_decimals']
 ) }}
 
 SELECT
