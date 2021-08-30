@@ -1,0 +1,186 @@
+version: 2
+models:
+- name: silver_terra__blocks
+  columns:
+  - name: BLOCKCHAIN
+    tests:
+    - not_null
+  - name: BLOCK_ID
+    tests:
+    - not_null
+  - name: BLOCK_TIMESTAMP
+    tests:
+    - not_null
+  - name: CHAIN_ID
+    tests:
+    - not_null
+  - name: PROPOSER_ADDRESS
+    tests:
+    - not_null
+  - name: SYSTEM_CREATED_AT
+    tests:
+    - not_null
+- name: silver_terra__msg_events
+  columns:
+  - name: BLOCKCHAIN
+    tests:
+    - not_null
+  - name: BLOCK_ID
+    tests:
+    - not_null
+  - name: BLOCK_TIMESTAMP
+    tests:
+    - not_null
+  - name: CHAIN_ID
+    tests:
+    - not_null
+  - name: EVENT_ATTRIBUTES
+    tests:
+    - not_null
+  - name: EVENT_INDEX
+    tests:
+    - not_null
+  - name: EVENT_TYPE
+    tests:
+    - not_null
+  - name: MSG_INDEX
+    tests:
+    - not_null
+  - name: MSG_MODULE
+    tests:
+    - not_null
+  - name: MSG_TYPE
+    tests:
+    - not_null
+  - name: SYSTEM_CREATED_AT
+    tests:
+    - not_null
+  - name: TX_ID
+    tests:
+    - not_null
+  - name: TX_MODULE
+    tests:
+    - not_null
+  - name: TX_STATUS
+    tests:
+    - not_null
+  - name: TX_TYPE
+    tests:
+    - not_null
+- name: silver_terra__msgs
+  columns:
+  - name: BLOCKCHAIN
+    tests:
+    - not_null
+  - name: BLOCK_ID
+    tests:
+    - not_null
+  - name: BLOCK_TIMESTAMP
+    tests:
+    - not_null
+  - name: CHAIN_ID
+    tests:
+    - not_null
+  - name: MSG_INDEX
+    tests:
+    - not_null
+  - name: MSG_MODULE
+    tests:
+    - not_null
+  - name: MSG_TYPE
+    tests:
+    - not_null
+  - name: MSG_VALUE
+    tests:
+    - not_null
+  - name: SYSTEM_CREATED_AT
+    tests:
+    - not_null
+  - name: TX_ID
+    tests:
+    - not_null
+  - name: TX_MODULE
+    tests:
+    - not_null
+  - name: TX_STATUS
+    tests:
+    - not_null
+  - name: TX_TYPE
+    tests:
+    - not_null
+- name: silver_terra__transactions
+  columns:
+  - name: BLOCKCHAIN
+    tests:
+    - not_null
+  - name: BLOCK_ID
+    tests:
+    - not_null
+  - name: BLOCK_TIMESTAMP
+    tests:
+    - not_null
+  - name: CHAIN_ID
+    tests:
+    - not_null
+  - name: CODESPACE
+    tests:
+    - not_null
+  - name: FEE
+    tests:
+    - not_null
+  - name: GAS_USED
+    tests:
+    - not_null
+  - name: GAS_WANTED
+    tests:
+    - not_null
+  - name: SYSTEM_CREATED_AT
+    tests:
+    - not_null
+  - name: TX_CODE
+    tests:
+    - not_null
+  - name: TX_ID
+    tests:
+    - not_null
+  - name: TX_MODULE
+    tests:
+    - not_null
+  - name: TX_STATUS
+    tests:
+    - not_null
+  - name: TX_STATUS_MSG
+    tests:
+    - not_null
+  - name: TX_TYPE
+    tests:
+    - not_null
+- name: silver_terra__transitions
+  columns:
+  - name: BLOCKCHAIN
+    tests:
+    - not_null
+  - name: BLOCK_ID
+    tests:
+    - not_null
+  - name: BLOCK_TIMESTAMP
+    tests:
+    - not_null
+  - name: CHAIN_ID
+    tests:
+    - not_null
+  - name: EVENT
+    tests:
+    - not_null
+  - name: EVENT_ATTRIBUTES
+    tests:
+    - not_null
+  - name: INDEX
+    tests:
+    - not_null
+  - name: SYSTEM_CREATED_AT
+    tests:
+    - not_null
+  - name: TRANSITION_TYPE
+    tests:
+    - not_null

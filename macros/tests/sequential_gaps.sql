@@ -24,7 +24,8 @@ SELECT
     {{ partition_sql }},
     {{ previous_column }},
     {{ column }},
-    {{ column }} - {{ previous_column }} AS gap
+    {{ column }} - {{ previous_column }}
+    - 1 AS gap
 FROM
     source
 WHERE

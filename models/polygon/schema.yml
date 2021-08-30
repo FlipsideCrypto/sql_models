@@ -1,0 +1,243 @@
+version: 2
+
+models:
+  - name: polygon__events_emitted
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+            - EVENT_INDEX
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: CONTRACT_NAME
+        tests:
+          # TODO: null_where
+      - name: EVENT_INDEX
+        tests:
+          - not_null
+      - name: EVENT_INPUTS
+        tests:
+          # TODO: null_where
+      - name: EVENT_NAME
+        tests:
+          - not_null
+      - name: EVENT_REMOVED
+        tests:
+          - not_null
+      - name: TX_FROM_ADDRESS
+        tests:
+          - not_null
+      - name: TX_FROM_ADDRESS_NAME
+        tests:
+          # TODO: null_where
+      - name: TX_FROM_LABEL
+        tests:
+          # TODO: null_where
+      - name: TX_FROM_LABEL_SUBTYPE
+        tests:
+          # TODO: null_where
+      - name: TX_FROM_LABEL_TYPE
+        tests:
+          # TODO: null_where
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_SUCCEEDED
+        tests:
+          - not_null
+      - name: TX_TO_ADDRESS
+        tests:
+          # TODO: null_where
+      - name: TX_TO_ADDRESS_NAME
+        tests:
+          # TODO: null_where
+      - name: TX_TO_LABEL
+        tests:
+          # TODO: null_where
+      - name: TX_TO_LABEL_SUBTYPE
+        tests:
+          # TODO: null_where
+      - name: TX_TO_LABEL_TYPE
+        tests:
+          # TODO: null_where
+
+  - name: polygon__transactions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: EVENT_COUNT
+        tests:
+          - not_null
+      - name: FEE
+        tests:
+          - not_null
+      - name: FEE_USD
+        tests:
+          - not_null
+      - name: FROM_ADDRESS
+        tests:
+          - not_null
+      - name: FROM_ADDRESS_NAME
+        tests:
+          # TODO: null_where
+      - name: FROM_LABEL
+        tests:
+          # TODO: null_where
+      - name: FROM_LABEL_SUBTYPE
+        tests:
+          # TODO: null_where
+      - name: FROM_LABEL_TYPE
+        tests:
+          # TODO: null_where
+      - name: FUNCTION_NAME
+        tests:
+          - not_null
+      - name: FUNCTION_SIGNATURE
+        tests:
+          - not_null
+      - name: GAS_LIMIT
+        tests:
+          - not_null
+      - name: GAS_PRICE
+        tests:
+          - not_null
+      - name: GAS_USED
+        tests:
+          - not_null
+      - name: NONCE
+        tests:
+          - not_null
+      - name: SUCCESS
+        tests:
+          - not_null
+      - name: SYMBOL
+        tests:
+          # TODO: null_where
+      - name: TO_ADDRESS
+        tests:
+          # TODO: null_where
+      - name: TO_ADDRESS_NAME
+        tests:
+          # TODO: null_where
+      - name: TO_LABEL
+        tests:
+          # TODO: null_where
+      - name: TO_LABEL_SUBTYPE
+        tests:
+          # TODO: null_where
+      - name: TO_LABEL_TYPE
+        tests:
+          # TODO: null_where
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_POSITION
+        tests:
+          - not_null
+
+  - name: polygon__udm_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - EVENT_ID
+            - TX_ID
+    columns:
+      - name: AMOUNT
+        tests:
+          # TODO null_where
+      - name: AMOUNT_USD
+        tests:
+          # TODO null_where
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          # TODO null_where
+      - name: EVENT_ID
+        tests:
+          - not_null
+      - name: EVENT_NAME
+        tests:
+          # TODO null_where
+      - name: EVENT_TYPE
+        tests:
+          - not_null
+      - name: FROM_ADDRESS
+        tests:
+          - not_null
+      - name: FROM_ADDRESS_NAME
+        tests:
+          # TODO: null_where
+      - name: FROM_LABEL
+        tests:
+          # TODO: null_where
+      - name: FROM_LABEL_SUBTYPE
+        tests:
+          # TODO: null_where
+      - name: FROM_LABEL_TYPE
+        tests:
+          # TODO: null_where
+      - name: ORIGIN_ADDRESS
+        tests:
+          # TODO: null_where
+      - name: ORIGIN_ADDRESS_NAME
+        tests:
+          # TODO: null_where
+      - name: ORIGIN_FUNCTION_NAME
+        tests:
+          # TODO: null_where
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        tests:
+          - not_null
+      - name: ORIGIN_LABEL
+        tests:
+          # TODO: null_where
+      - name: ORIGIN_LABEL_SUBTYPE
+        tests:
+          # TODO: null_where
+      - name: ORIGIN_LABEL_TYPE
+        tests:
+          # TODO: null_where
+      - name: SYMBOL
+        tests:
+          # TODO: null_where
+      - name: TO_ADDRESS
+        tests:
+          # TODO: null_where
+      - name: TO_ADDRESS_NAME
+        tests:
+          # TODO: null_where
+      - name: TO_LABEL
+        tests:
+          # TODO: null_where
+      - name: TO_LABEL_SUBTYPE
+        tests:
+          # TODO: null_where
+      - name: TO_LABEL_TYPE
+        tests:
+          # TODO: null_where
+      - name: TX_ID
+        tests:
+          - not_null

@@ -31,6 +31,7 @@ models:
           - not_null
       - name: CONTRACT_NAME
         tests:
+        # TODO: null_where
       - name: EVENT_INPUTS
         tests:
         # TODO: null_where
