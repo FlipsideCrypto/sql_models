@@ -69,7 +69,8 @@ FROM
     )
     AND event_price.symbol = e.event_currency
 WHERE
+    TRUE
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '3 days'
+AND block_timestamp >= getdate() - INTERVAL '3 days'
 {% endif %}

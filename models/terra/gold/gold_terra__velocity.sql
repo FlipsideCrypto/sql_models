@@ -1,24 +1,27 @@
 {{ config(
   materialized = 'incremental',
-  unique_key='start_Date',
+  unique_key = 'start_Date',
   incremental_strategy = 'delete+insert',
   cluster_by = ['start_date'],
   tags = ['snowflake', 'terra_gold', 'terra_velocity']
 ) }}
-
 {{ config(
-  materialized='table',
-  sort='start_date',
-  tags=['custom'])
-}}
+  materialized = 'table',
+  sort = 'start_date',
+  tags = ['custom']
+) }}
+
 SELECT
-    blockchain,
-    start_date,
-    end_date,
-    currency,
-    metric,
-    value
+  blockchain,
+  start_date,
+  end_date,
+  currency,
+  metric,
+  VALUE
 FROM
-    {{ source('shared', 'udm_velocity')}}
+  {{ source(
+    'shared',
+    'udm_velocity'
+  ) }}
 WHERE
-    blockchain = 'terra'
+  blockchain = 'terra'

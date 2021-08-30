@@ -18,9 +18,10 @@ WITH prices AS (
         {{ ref('gold_terra__prices') }}
         p
     WHERE
+        TRUE
 
 {% if is_incremental() %}
-HOUR >= getdate() - INTERVAL '3 days'
+AND HOUR >= getdate() - INTERVAL '3 days'
 {% endif %}
 GROUP BY
     p.symbol,
@@ -46,10 +47,12 @@ FROM
     LEFT OUTER JOIN prices p
     ON p.symbol = b.currency
     AND p.day = b.date
-    LEFT OUTER JOIN {{ ref('gold_terra__address_labels') }} AS address_labels
+    LEFT OUTER JOIN {{ ref('gold_terra__address_labels') }}
+    address_labels
     ON b.address = address_labels.address
 WHERE
+    TRUE
 
 {% if is_incremental() %}
-DATE >= getdate() - INTERVAL '3 days'
+AND DATE >= getdate() - INTERVAL '3 days'
 {% endif %}
