@@ -4,3 +4,7 @@ dbt_modules/
 logs/
 
 .venv/
+.python-version
+
+*/.vscode
+**/.DS_Store
