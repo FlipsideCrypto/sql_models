@@ -13,6 +13,7 @@ from (
 select *
 from {{ ref('polygon_dbt__udm_events')}}
 WHERE 1=1
+and log_index is not null
 {% if is_incremental() %}
         AND system_created_at >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('silver_polygon', 'udm_events')}})
 {% endif %}

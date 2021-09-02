@@ -52,7 +52,14 @@ poly_prices AS (
   AND  p.recorded_at::date >= (select max(block_timestamp::date) from {{source('polygon', 'transactions')}})
   {% endif %}
   group by 1,2
-  )
+  ),
+ma_metadata as (
+  select lower(token_address) token_address,
+  symbol
+from {{ source('shared','market_asset_metadata') }} 
+QUALIFY(row_number() over(partition by lower(token_address) order by provider asc)) = 1
+)
+
 SELECT
    t.block_timestamp,
    t.block_id as block_id,
@@ -83,7 +90,7 @@ SELECT
   LEFT JOIN events e ON e.tx_id = t.tx_id
   LEFT JOIN {{source('ethereum', 'sha256_function_signatures')}} f ON t.input_method = f.hex_signature
                                                                         AND f.importance = 1
-  LEFT JOIN {{ source('shared','market_asset_metadata') }}  c ON lower(t.to_address) = lower(c.token_address)
+  LEFT JOIN ma_metadata c ON lower(t.to_address) = lower(c.token_address)
   LEFT JOIN poly_prices p ON date_trunc('hour', t.block_timestamp) = p.hour
   LEFT JOIN poly_labels as from_labels ON from_address = from_labels.address
   LEFT JOIN poly_labels as to_labels ON to_address = to_labels.address

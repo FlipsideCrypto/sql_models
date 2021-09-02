@@ -6,7 +6,7 @@
   )
 }}
 
-select token_id
+select lower(token_id) as token_id
 , decimal::int as decimal
 from (
 select '0x95bbe8fbd32088bc13e67b05c7e783ad6ca854d8' as  token_id, '18' as decimal union
@@ -715,3 +715,4 @@ select '0x08158a6b5d4018340387d1a302f882e98a8bc5b4' as  token_id, '18' as decima
 select '0x874e178a2f3f3f9d34db862453cd756e7eab0381' as  token_id, '18' as decimal union
 select '0x87f654c4b347230c60cad8d7ea9cf0d7238bcc79' as  token_id, '18' as decimal) a
 where a.decimal <> 'NA'
+group by 1,2

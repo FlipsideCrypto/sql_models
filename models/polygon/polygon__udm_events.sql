@@ -6,7 +6,16 @@
     tags = ['snowflake', 'polygon', 'polygon_udm_events_gold']
 ) }}
 
-WITH token_prices AS (
+WITH ma_metadata as (
+  select lower(token_address) token_address,
+  symbol,
+  asset_id
+from {{ source('shared','market_asset_metadata') }}
+WHERE platform in ('polygon','polygon-pos')
+QUALIFY(row_number() over(partition by lower(token_address) order by provider asc)) = 1
+)
+
+,token_prices AS (
 
     SELECT
         p.symbol,
@@ -15,10 +24,9 @@ WITH token_prices AS (
         AVG(price) AS price
     FROM
         {{ source('shared','prices_v2') }} p
-        JOIN {{ source('shared','market_asset_metadata') }} A
+        JOIN ma_metadata A
         ON p.asset_id :: STRING = A.asset_id :: STRING
-    WHERE
-        A.platform in ('polygon','polygon-pos')
+    WHERE 1=1
     {% if is_incremental() %}
     AND recorded_at::date >= (select max(block_timestamp::date) from {{source('polygon', 'udm_events')}})
     {% endif %}
