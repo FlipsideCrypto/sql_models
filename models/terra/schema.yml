@@ -1,663 +1,721 @@
 version: 2
 models:
-- name: terra__blocks
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: PROPOSER_ADDRESS
-    tests:
-    - not_null
-- name: terra__daily_balances
-  columns:
-  - name: ADDRESS
-    tests:
-    - not_null
-  - name: ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: ADDRESS_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: ADDRESS_LABEL_TYPE
-    tests:
-    - not_null
-  - name: ADDRESS_NAME
-    tests:
-    - not_null
-  - name: BALANCE
-    tests:
-    - not_null
-  - name: BALANCE_TYPE
-    tests:
-    - not_null
-  - name: BALANCE_USD
-    tests:
-    - not_null
-  - name: CURRENCY
-    tests:
-    - not_null
-  - name: DATE
-    tests:
-    - not_null
-- name: terra__gov_submit_proposal
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: DEPOSIT_AMOUNT
-    tests:
-    - not_null
-  - name: DEPOSIT_AMOUNT_USD
-    tests:
-    - not_null
-  - name: DEPOSIT_CURRENCY
-    tests:
-    - not_null
-  - name: DESCRIPTION
-    tests:
-    - not_null
-  - name: MSG_TYPE
-    tests:
-    - not_null
-  - name: PROPOSAL_ID
-    tests:
-    - not_null
-  - name: PROPOSAL_TYPE
-    tests:
-    - not_null
-  - name: PROPOSER
-    tests:
-    - not_null
-  - name: PROPOSER_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: PROPOSER_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: PROPOSER_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: PROPOSER_LABEL_TYPE
-    tests:
-    - not_null
-  - name: TITLE
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-- name: terra__gov_vote
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: MSG_TYPE
-    tests:
-    - not_null
-  - name: PROPOSAL_ID
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-  - name: VOTER
-    tests:
-    - not_null
-  - name: VOTER_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: VOTER_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: VOTER_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: VOTER_LABEL_TYPE
-    tests:
-    - not_null
-  - name: VOTING_POWER
-    tests:
-    - not_null
-  - name: option
-    tests:
-    - not_null
-- name: terra__labels
-  columns:
-  - name: ADDRESS
-    tests:
-    - not_null
-  - name: ADDRESS_NAME
-    tests:
-    - not_null
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: LABEL
-    tests:
-    - not_null
-  - name: LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: LABEL_TYPE
-    tests:
-    - not_null
-- name: terra__msg_events
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: EVENT_ATTRIBUTES
-    tests:
-    - not_null
-  - name: EVENT_INDEX
-    tests:
-    - not_null
-  - name: EVENT_TYPE
-    tests:
-    - not_null
-  - name: MSG_INDEX
-    tests:
-    - not_null
-  - name: MSG_MODULE
-    tests:
-    - not_null
-  - name: MSG_TYPE
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_MODULE
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-  - name: TX_TYPE
-    tests:
-    - not_null
-- name: terra__msgs
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: MSG_INDEX
-    tests:
-    - not_null
-  - name: MSG_MODULE
-    tests:
-    - not_null
-  - name: MSG_TYPE
-    tests:
-    - not_null
-  - name: MSG_VALUE
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_MODULE
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-  - name: TX_TYPE
-    tests:
-    - not_null
-- name: terra__oracle_prices
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CURRENCY
-    tests:
-    - not_null
-  - name: LUNA_EXCHANGE_RATE
-    tests:
-    - not_null
-  - name: PRICE_USD
-    tests:
-    - not_null
-  - name: SOURCE
-    tests:
-    - not_null
-  - name: SYMBOL
-    tests:
-    - not_null
-- name: terra__reward
-  columns:
-  - name: ACTION
-    tests:
-    - not_null
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: CURRENCY
-    tests:
-    - not_null
-  - name: DELEGATOR
-    tests:
-    - not_null
-  - name: DELEGATOR_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: DELEGATOR_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: DELEGATOR_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: DELEGATOR_LABEL_TYPE
-    tests:
-    - not_null
-  - name: EVENT_AMOUNT
-    tests:
-    - not_null
-  - name: EVENT_AMOUNT_USD
-    tests:
-    - not_null
-  - name: MSG_INDEX
-    tests:
-    - not_null
-  - name: PRICE_USD
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-  - name: VALIDATOR
-    tests:
-    - not_null
-  - name: VALIDATOR_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: VALIDATOR_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: VALIDATOR_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: VALIDATOR_LABEL_TYPE
-    tests:
-    - not_null
-- name: terra__staking
-  columns:
-  - name: ACTION
-    tests:
-    - not_null
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: CURRENCY
-    tests:
-    - not_null
-  - name: DELEGATOR_ADDRESS
-    tests:
-    - not_null
-  - name: DELEGATOR_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: DELEGATOR_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: DELEGATOR_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: DELEGATOR_LABEL_TYPE
-    tests:
-    - not_null
-  - name: EVENT_AMOUNT
-    tests:
-    - not_null
-  - name: EVENT_AMOUNT_USD
-    tests:
-    - not_null
-  - name: PRICE_USD
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-  - name: VALIDATOR_ADDRESS
-    tests:
-    - not_null
-  - name: VALIDATOR_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: VALIDATOR_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: VALIDATOR_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: VALIDATOR_LABEL_TYPE
-    tests:
-    - not_null
-- name: terra__swaps
-  columns:
-  - name: ASK_CURRENCY
-    tests:
-    - not_null
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: OFFER_AMOUNT
-    tests:
-    - not_null
-  - name: OFFER_AMOUNT_USD
-    tests:
-    - not_null
-  - name: OFFER_CURRENCY
-    tests:
-    - not_null
-  - name: PRICE0_USD
-    tests:
-    - not_null
-  - name: PRICE1_USD
-    tests:
-    - not_null
-  - name: SWAP_FEE_AMOUNT
-    tests:
-    - not_null
-  - name: SWAP_FEE_AMOUNT_USD
-    tests:
-    - not_null
-  - name: SWAP_FEE_CURRENCY
-    tests:
-    - not_null
-  - name: SWAP_PAIR
-    tests:
-    - not_null
-  - name: TOKEN_0_AMOUNT
-    tests:
-    - not_null
-  - name: TOKEN_0_AMOUNT_USD
-    tests:
-    - not_null
-  - name: TOKEN_0_CURRENCY
-    tests:
-    - not_null
-  - name: TOKEN_1_AMOUNT
-    tests:
-    - not_null
-  - name: TOKEN_1_AMOUNT_USD
-    tests:
-    - not_null
-  - name: TOKEN_1_CURRENCY
-    tests:
-    - not_null
-  - name: TRADER
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-- name: terra__tax_rate
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_NUMBER
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: TAX_RATE
-    tests:
-    - not_null
-- name: terra__transactions
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: CODESPACE
-    tests:
-    - not_null
-  - name: FEE
-    tests:
-    - not_null
-  - name: GAS_USED
-    tests:
-    - not_null
-  - name: GAS_WANTED
-    tests:
-    - not_null
-  - name: TX_CODE
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_MODULE
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-  - name: TX_STATUS_MSG
-    tests:
-    - not_null
-  - name: TX_TYPE
-    tests:
-    - not_null
-- name: terra__transfers
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: EVENT_AMOUNT
-    tests:
-    - not_null
-  - name: EVENT_AMOUNT_USD
-    tests:
-    - not_null
-  - name: EVENT_CURRENCY
-    tests:
-    - not_null
-  - name: EVENT_FROM
-    tests:
-    - not_null
-  - name: EVENT_FROM_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: EVENT_FROM_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: EVENT_FROM_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: EVENT_FROM_LABEL_TYPE
-    tests:
-    - not_null
-  - name: EVENT_TO
-    tests:
-    - not_null
-  - name: EVENT_TO_ADDRESS_LABEL
-    tests:
-    - not_null
-  - name: EVENT_TO_ADDRESS_NAME
-    tests:
-    - not_null
-  - name: EVENT_TO_LABEL_SUBTYPE
-    tests:
-    - not_null
-  - name: EVENT_TO_LABEL_TYPE
-    tests:
-    - not_null
-  - name: MSG_TYPE
-    tests:
-    - not_null
-  - name: TX_ID
-    tests:
-    - not_null
-  - name: TX_STATUS
-    tests:
-    - not_null
-- name: terra__transitions
-  columns:
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: CHAIN_ID
-    tests:
-    - not_null
-  - name: EVENT
-    tests:
-    - not_null
-  - name: EVENT_ATTRIBUTES
-    tests:
-    - not_null
-  - name: INDEX
-    tests:
-    - not_null
-  - name: TRANSITION_TYPE
-    tests:
-    - not_null
-- name: terra__validator_labels
-  columns:
-  - name: DELEGATOR_ADDRESS
-    tests:
-    - not_null
-  - name: LABEL
-    tests:
-    - not_null
-  - name: OPERATOR_ADDRESS
-    tests:
-    - not_null
-  - name: VP_ADDRESS
-    tests:
-    - not_null
-- name: terra__validator_voting_power
-  columns:
-  - name: ADDRESS
-    tests:
-    - not_null
-  - name: BLOCKCHAIN
-    tests:
-    - not_null
-  - name: BLOCK_ID
-    tests:
-    - not_null
-  - name: BLOCK_TIMESTAMP
-    tests:
-    - not_null
-  - name: VOTING_POWER
-    tests:
-    - not_null
+  - name: terra__blocks
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: PROPOSER_ADDRESS
+        tests:
+          - not_null
+
+  - name: terra__daily_balances
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+            - DATE
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: ADDRESS_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: ADDRESS_LABEL_TYPE
+        tests:
+          - not_null
+      - name: ADDRESS_NAME
+        tests:
+          - not_null
+      - name: BALANCE
+        tests:
+          - not_null
+      - name: BALANCE_TYPE
+        tests:
+          - not_null
+      - name: BALANCE_USD
+        tests:
+          - not_null
+      - name: CURRENCY
+        tests:
+          - not_null
+      - name: DATE
+        tests:
+          - not_null
+
+  - name: terra__gov_submit_proposal
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: DEPOSIT_AMOUNT
+        tests:
+          - not_null
+      - name: DEPOSIT_AMOUNT_USD
+        tests:
+          - not_null
+      - name: DEPOSIT_CURRENCY
+        tests:
+          - not_null
+      - name: DESCRIPTION
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: PROPOSAL_ID
+        tests:
+          - not_null
+      - name: PROPOSAL_TYPE
+        tests:
+          - not_null
+      - name: PROPOSER
+        tests:
+          - not_null
+      - name: PROPOSER_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: PROPOSER_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: PROPOSER_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: PROPOSER_LABEL_TYPE
+        tests:
+          - not_null
+      - name: TITLE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+
+  - name: terra__gov_vote
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: PROPOSAL_ID
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: VOTER
+        tests:
+          - not_null
+      - name: VOTER_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: VOTER_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: VOTER_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: VOTER_LABEL_TYPE
+        tests:
+          - not_null
+      - name: VOTING_POWER
+        tests:
+          - not_null
+      - name: '"OPTION"'
+        tests:
+          - not_null
+
+  - name: terra__labels
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: ADDRESS_NAME
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: LABEL
+        tests:
+          - not_null
+      - name: LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: LABEL_TYPE
+        tests:
+          - not_null
+
+  - name: terra__msg_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - EVENT_INDEX
+            - EVENT_TYPE
+            - MSG_INDEX
+            - TX_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: EVENT_ATTRIBUTES
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        tests:
+          - not_null
+      - name: EVENT_TYPE
+        tests:
+          - not_null
+      - name: MSG_INDEX
+        tests:
+          - not_null
+      - name: MSG_MODULE
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_MODULE
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: TX_TYPE
+        tests:
+          - not_null
+
+  - name: terra__msgs
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - MSG_INDEX
+            - TX_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: MSG_INDEX
+        tests:
+          - not_null
+      - name: MSG_MODULE
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: MSG_VALUE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_MODULE
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: TX_TYPE
+        tests:
+          - not_null
+  - name: terra__oracle_prices
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CURRENCY
+        tests:
+          - not_null
+      - name: LUNA_EXCHANGE_RATE
+        tests:
+          - not_null
+      - name: PRICE_USD
+        tests:
+          - not_null
+      - name: SOURCE
+        tests:
+          - not_null
+      - name: SYMBOL
+        tests:
+          - not_null
+  - name: terra__reward
+    columns:
+      - name: ACTION
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: CURRENCY
+        tests:
+          - not_null
+      - name: DELEGATOR
+        tests:
+          - not_null
+      - name: DELEGATOR_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: DELEGATOR_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: DELEGATOR_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: DELEGATOR_LABEL_TYPE
+        tests:
+          - not_null
+      - name: EVENT_AMOUNT
+        tests:
+          - not_null
+      - name: EVENT_AMOUNT_USD
+        tests:
+          - not_null
+      - name: MSG_INDEX
+        tests:
+          - not_null
+      - name: PRICE_USD
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: VALIDATOR
+        tests:
+          - not_null
+      - name: VALIDATOR_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: VALIDATOR_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: VALIDATOR_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: VALIDATOR_LABEL_TYPE
+        tests:
+          - not_null
+  - name: terra__staking
+    columns:
+      - name: ACTION
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: CURRENCY
+        tests:
+          - not_null
+      - name: DELEGATOR_ADDRESS
+        tests:
+          - not_null
+      - name: DELEGATOR_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: DELEGATOR_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: DELEGATOR_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: DELEGATOR_LABEL_TYPE
+        tests:
+          - not_null
+      - name: EVENT_AMOUNT
+        tests:
+          - not_null
+      - name: EVENT_AMOUNT_USD
+        tests:
+          - not_null
+      - name: PRICE_USD
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: VALIDATOR_ADDRESS
+        tests:
+          - not_null
+      - name: VALIDATOR_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: VALIDATOR_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: VALIDATOR_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: VALIDATOR_LABEL_TYPE
+        tests:
+          - not_null
+  - name: terra__swaps
+    columns:
+      - name: ASK_CURRENCY
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: OFFER_AMOUNT
+        tests:
+          - not_null
+      - name: OFFER_AMOUNT_USD
+        tests:
+          - not_null
+      - name: OFFER_CURRENCY
+        tests:
+          - not_null
+      - name: PRICE0_USD
+        tests:
+          - not_null
+      - name: PRICE1_USD
+        tests:
+          - not_null
+      - name: SWAP_FEE_AMOUNT
+        tests:
+          - not_null
+      - name: SWAP_FEE_AMOUNT_USD
+        tests:
+          - not_null
+      - name: SWAP_FEE_CURRENCY
+        tests:
+          - not_null
+      - name: SWAP_PAIR
+        tests:
+          - not_null
+      - name: TOKEN_0_AMOUNT
+        tests:
+          - not_null
+      - name: TOKEN_0_AMOUNT_USD
+        tests:
+          - not_null
+      - name: TOKEN_0_CURRENCY
+        tests:
+          - not_null
+      - name: TOKEN_1_AMOUNT
+        tests:
+          - not_null
+      - name: TOKEN_1_AMOUNT_USD
+        tests:
+          - not_null
+      - name: TOKEN_1_CURRENCY
+        tests:
+          - not_null
+      - name: TRADER
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+  - name: terra__tax_rate
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: TAX_RATE
+        tests:
+          - not_null
+
+  - name: terra__transactions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - TX_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: CODESPACE
+        tests:
+          - not_null
+      - name: FEE
+        tests:
+          - not_null
+      - name: GAS_USED
+        tests:
+          - not_null
+      - name: GAS_WANTED
+        tests:
+          - not_null
+      - name: TX_CODE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_MODULE
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: TX_STATUS_MSG
+        tests:
+          - not_null
+      - name: TX_TYPE
+        tests:
+          - not_null
+  - name: terra__transfers
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: EVENT_AMOUNT
+        tests:
+          - not_null
+      - name: EVENT_AMOUNT_USD
+        tests:
+          - not_null
+      - name: EVENT_CURRENCY
+        tests:
+          - not_null
+      - name: EVENT_FROM
+        tests:
+          - not_null
+      - name: EVENT_FROM_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: EVENT_FROM_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: EVENT_FROM_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: EVENT_FROM_LABEL_TYPE
+        tests:
+          - not_null
+      - name: EVENT_TO
+        tests:
+          - not_null
+      - name: EVENT_TO_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: EVENT_TO_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: EVENT_TO_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: EVENT_TO_LABEL_TYPE
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+
+  - name: terra__transitions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - EVENT
+            - INDEX
+            - TRANSITION_TYPE
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: EVENT
+        tests:
+          - not_null
+      - name: EVENT_ATTRIBUTES
+        tests:
+          - not_null
+      - name: INDEX
+        tests:
+          - not_null
+      - name: TRANSITION_TYPE
+        tests:
+          - not_null
+  - name: terra__validator_labels
+    columns:
+      - name: DELEGATOR_ADDRESS
+        tests:
+          - not_null
+      - name: LABEL
+        tests:
+          - not_null
+      - name: OPERATOR_ADDRESS
+        tests:
+          - not_null
+      - name: VP_ADDRESS
+        tests:
+          - not_null
+  - name: terra__validator_voting_power
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: VOTING_POWER
+        tests:
+          - not_null
