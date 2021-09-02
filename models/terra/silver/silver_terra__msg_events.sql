@@ -1,17 +1,37 @@
-{{ 
-  config(
-    materialized='incremental',
-    unique_key='chain_id || block_id || tx_id || msg_index || event_index || event_type', 
-    incremental_strategy='delete+insert',
-    cluster_by=['block_timestamp', 'block_id', 'tx_id'],
-    tags=['snowflake', 'terra_silver', 'terra_msg_events']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = 'chain_id || block_id || tx_id || msg_index || event_index || event_type',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['block_timestamp', 'block_id', 'tx_id'],
+  tags = ['snowflake', 'terra_silver', 'terra_msg_events']
+) }}
 
-select *
-from {{ ref('terra_dbt__msg_events')}}
-WHERE 1=1
+SELECT
+  *
+FROM
+  (
+    SELECT
+      *
+    FROM
+      {{ ref('terra_dbt__msg_events') }}
+    WHERE
+      1 = 1
+
 {% if is_incremental() %}
-        AND system_created_at::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('silver_terra', 'msg_events')}})
+AND system_created_at :: DATE >= (
+  SELECT
+    DATEADD('day', -1, MAX(system_created_at :: DATE))
+  FROM
+    {{ source(
+      'silver_terra',
+      'msg_events'
+    ) }}
+)
 {% endif %}
-QUALIFY(row_number() over(partition by chain_id, block_id, tx_id, msg_index, event_index, event_type order by system_created_at desc)) = 1
+
+qualify(RANK() over(PARTITION BY tx_id
+ORDER BY
+  block_id DESC)) = 1
+) qualify(ROW_NUMBER() over(PARTITION BY chain_id, block_id, tx_id, msg_index, event_index, event_type
+ORDER BY
+  system_created_at DESC)) = 1
