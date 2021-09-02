@@ -21,7 +21,7 @@ WITH rarible_txns AS (
     )
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 GROUP BY
   tx_id
@@ -50,7 +50,7 @@ token_transfers AS (
     AND token_id IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 UNION
 SELECT
@@ -76,7 +76,7 @@ WHERE
   AND token_id IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 UNION
 SELECT
@@ -102,7 +102,7 @@ WHERE
   AND token_id IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
 nfts_per_tx AS (
@@ -166,7 +166,7 @@ token_transfer_events AS (
     )
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
 fee_tracking AS (

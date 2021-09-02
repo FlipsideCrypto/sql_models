@@ -33,7 +33,7 @@ WITH token_transfers AS (
     AND token_id IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 UNION
 SELECT
@@ -61,7 +61,7 @@ WHERE
   AND token_id IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 UNION
 SELECT
@@ -89,7 +89,7 @@ WHERE
   AND token_id IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 UNION
 SELECT
@@ -117,7 +117,7 @@ WHERE
   AND token_id IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
 -- count how many tokens are in the txn
@@ -181,7 +181,7 @@ token_transfer_events AS (
     )
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
 -- find the amount paid
