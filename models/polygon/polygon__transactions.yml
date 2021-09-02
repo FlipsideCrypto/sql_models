@@ -22,7 +22,8 @@ models:
           - not_null
       - name: FEE_USD
         tests:
-          - not_null
+          - not_null:
+              severity: warn
       - name: FROM_ADDRESS
         tests:
           - not_null
@@ -40,7 +41,7 @@ models:
           # TODO: null_where
       - name: FUNCTION_NAME
         tests:
-          - not_null
+          # TODO: null_where
       - name: FUNCTION_SIGNATURE
         tests:
           - not_null

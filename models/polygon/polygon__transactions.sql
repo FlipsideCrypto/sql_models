@@ -10,31 +10,30 @@ WITH events AS (
 
   SELECT
     tx_id,
-    sum(
-      case
-        when log_index is not null then 1
-        else 0
-      end
-    ) as event_count
+    SUM(
+      CASE
+        WHEN log_index IS NOT NULL THEN 1
+        ELSE 0
+      END
+    ) AS event_count
   FROM
     {{ ref('silver_polygon__udm_events') }}
-  where
-    1 = 1
 
-{% if is_incremental() %}
-and block_timestamp :: date >= (
-  select
-    max(
-      block_timestamp :: date
-    )
-  from
-    {{ source(
-      'polygon',
-      'transactions'
-    ) }}
-)
+{% if is_incremental() -%}
+WHERE
+  block_timestamp :: DATE >= (
+    SELECT
+      MAX(
+        block_timestamp :: DATE
+      )
+    FROM
+      {{ source(
+        'polygon',
+        'transactions'
+      ) }}
+  )
 {% endif %}
-group by
+GROUP BY
   tx_id
 ),
 txn AS (
@@ -42,21 +41,20 @@ txn AS (
     *
   FROM
     {{ ref('silver_polygon__transactions') }}
-  WHERE
-    1 = 1
 
-{% if is_incremental() %}
-AND block_timestamp :: date >= (
-  select
-    max(
-      block_timestamp :: date
-    )
-  from
-    {{ source(
-      'polygon',
-      'transactions'
-    ) }}
-)
+{% if is_incremental() -%}
+WHERE
+  block_timestamp :: DATE >= (
+    SELECT
+      MAX(
+        block_timestamp :: DATE
+      )
+    FROM
+      {{ source(
+        'polygon',
+        'transactions'
+      ) }}
+  )
 {% endif %}
 ),
 poly_labels AS (
@@ -77,11 +75,11 @@ poly_labels AS (
 poly_prices AS (
   SELECT
     p.symbol,
-    date_trunc(
+    DATE_TRUNC(
       'hour',
       recorded_at
-    ) as hour,
-    avg(price) as price
+    ) AS HOUR,
+    AVG(price) AS price
   FROM
     {{ source(
       'shared',
@@ -91,69 +89,72 @@ poly_prices AS (
   WHERE
     p.asset_id = '3890'
 
-{% if is_incremental() %}
-AND p.recorded_at :: date >= (
-  select
-    max(
-      block_timestamp :: date
+{% if is_incremental() -%}
+AND p.recorded_at :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
     )
-  from
+  FROM
     {{ source(
       'polygon',
       'transactions'
     ) }}
 )
 {% endif %}
-group by
+GROUP BY
   p.symbol,
-  date_trunc(
+  DATE_TRUNC(
     'hour',
     recorded_at
   )
 ),
-symbol as (
-  select
+symbol AS (
+  SELECT
     symbol,
-    lower(token_address) as token_address
-  from
+    LOWER(token_address) AS token_address
+  FROM
     {{ source(
       'shared',
       'market_asset_metadata'
     ) }}
   WHERE
-    lower(token_address) = '0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0'
-  limit
+    LOWER(token_address) = '0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0'
+  LIMIT
     1
 )
 SELECT
   t.block_timestamp,
-  t.block_id as block_id,
+  t.block_id AS block_id,
   t.tx_id,
   tx_position,
   nonce,
   from_address,
-  from_labels.l1_label as from_label_type,
-  from_labels.l2_label as from_label_subtype,
-  from_labels.project_name as from_label,
-  from_labels.address_name as from_address_name,
+  from_labels.l1_label AS from_label_type,
+  from_labels.l2_label AS from_label_subtype,
+  from_labels.project_name AS from_label,
+  from_labels.address_name AS from_address_name,
   to_address,
-  to_labels.l1_label as to_label_type,
-  to_labels.l2_label as to_label_subtype,
-  to_labels.project_name as to_label,
-  to_labels.address_name as to_address_name,
-  c.symbol,
-  t.input_method as function_signature,
-  f.text_signature as function_name,
+  to_labels.l1_label AS to_label_type,
+  to_labels.l2_label AS to_label_subtype,
+  to_labels.project_name AS to_label,
+  to_labels.address_name AS to_address_name,
+  C.symbol,
+  t.input_method AS function_signature,
+  f.text_signature AS function_name,
   gas_price,
   gas_limit,
   gas_used,
   fee,
-  fee * p.price as fee_usd,
-  case
-    when success = 1 then true
-    else false
-  end as success,
-  event_count
+  fee * p.price AS fee_usd,
+  CASE
+    WHEN success = 1 THEN TRUE
+    ELSE FALSE
+  END AS success,
+  COALESCE(
+    event_count,
+    0
+  ) AS event_count
 FROM
   txn t
   LEFT JOIN events e
@@ -165,16 +166,16 @@ FROM
   f
   ON t.input_method = f.hex_signature
   AND f.importance = 1
-  LEFT JOIN symbol c
-  ON lower(
+  LEFT JOIN symbol C
+  ON LOWER(
     t.to_address
-  ) = c.token_address
+  ) = C.token_address
   LEFT JOIN poly_prices p
-  ON date_trunc(
+  ON DATE_TRUNC(
     'hour',
     t.block_timestamp
   ) = p.hour
-  LEFT JOIN poly_labels as from_labels
+  LEFT JOIN poly_labels AS from_labels
   ON from_address = from_labels.address
-  LEFT JOIN poly_labels as to_labels
+  LEFT JOIN poly_labels AS to_labels
   ON to_address = to_labels.address
