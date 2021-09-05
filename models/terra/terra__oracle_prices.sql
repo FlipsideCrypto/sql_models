@@ -150,3 +150,24 @@ FROM massets ma
 
 LEFT OUTER JOIN prices pp
   ON date_trunc('hour', ma.block_timestamp) = pp.block_timestamp
+
+UNION 
+
+SELECT 
+  blockchain, 
+  block_timestamp,
+  event_attributes:asset::string as currency,
+  l.address_name as symbol,
+  event_attributes:price AS price_usd,
+  'oracle' as source
+FROM terra.msg_events 
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+ON currency = l.address
+
+WHERE event_type = 'from_contract'
+  AND tx_id IN(SELECT tx_id 
+               FROM terra.msgs 
+               WHERE msg_value:contract::string = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t' 
+                 AND msg_value:execute_msg:feed_price IS NOT NULL
+              )
