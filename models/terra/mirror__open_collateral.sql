@@ -34,7 +34,7 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM terra.msgs
+FROM {{source('silver_terra', 'msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON contract_address = l.address
@@ -56,7 +56,7 @@ SELECT
   event_attributes:mint_amount[0]:amount/ POW(10,6) as mint_amount,
   mint_amount * i.price AS mint_amount_usd,
   event_attributes:mint_amount[0]:denom::string as mint_currency
-FROM terra.msg_events t
+FROM t{{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour

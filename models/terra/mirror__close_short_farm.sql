@@ -30,7 +30,7 @@ SELECT
   block_timestamp,
   tx_id,
   msg_value
-FROM terra.msgs
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:send:msg:burn IS NOT NULL
   AND msg_value:execute_msg:send:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj'
   AND tx_status = = 'SUCCEEDED'
@@ -43,7 +43,7 @@ SELECT
   block_timestamp,
   tx_id,
   event_attributes
-FROM terra.msg_events 
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE tx_id IN(select tx_id from tx)
   AND event_type = 'from_contract'
 

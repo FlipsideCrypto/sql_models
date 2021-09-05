@@ -32,7 +32,7 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:contract::string as contract_address,
   l.address_name AS contract_label
-FROM terra.msgs 
+FROM {{source('silver_terra', 'msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON contract_address = l.address
@@ -52,7 +52,7 @@ SELECT
   event_attributes:burn_amount[0]:amount / POW(10,6) AS burn_amount,
   burn_amount * i.price AS burn_amount_usd,
   event_attributes:burn_amount[0]:denom::string AS burn_currency
-FROM terra.msg_events t
+FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -79,7 +79,7 @@ SELECT
   event_attributes:withdraw_amount[0]:amount /POW(10,6) AS withdraw_amount,
   withdraw_amount * i.price AS withdraw_amount_usd,
   event_attributes:withdraw_amount[0]:denom::string AS withdraw_currency
-FROM terra.msg_events t
+FROM {{source('silver_terra', 'msg)_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour

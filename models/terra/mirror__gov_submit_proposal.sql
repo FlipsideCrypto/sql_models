@@ -23,7 +23,7 @@ SELECT
   msg_value:execute_msg:send:msg:create_poll:description::string as description,
   msg_value:execute_msg:send:msg:create_poll:execute_msg:msg as msg,
   msg_value:execute_msg:send:contract::string as contract_address
-FROM terra.msgs 
+FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:send:msg:create_poll IS NOT NULL 
   AND msg_value:execute_msg:send:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x' -- MIR Governance 
   AND tx_status = = 'SUCCEEDED'
@@ -34,7 +34,7 @@ SELECT
   tx_id,
   to_timestamp(event_attributes:end_time) as end_time,
   event_attributes:poll_id as poll_id
-FROM terra.msg_events 
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE tx_id IN(select tx_id from msgs)
   AND event_type = 'from_contract'
 )

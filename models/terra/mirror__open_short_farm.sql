@@ -21,7 +21,7 @@ SELECT
   msg_value:execute_msg:open_position:collateral_ratio AS collateral_ratio,
   msg_value:contract::string AS contract_address,
   l.address_name AS contract_label
-FROM terra.msgs 
+FROM {{source('silver_terra', 'msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON contract_address = l.address
@@ -59,7 +59,7 @@ SELECT
   event_attributes:spread_amount / POW(10,6) AS spread,
   
   to_timestamp(event_attributes:unlock_time) AS unlock_time
-FROM terra.msg_events t
+FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour

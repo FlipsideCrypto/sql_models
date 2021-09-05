@@ -1,0 +1,94 @@
+{{ 
+  config(
+    materialized='incremental', 
+    sort='block_timestamp', 
+    unique_key='block_id', 
+    incremental_strategy='delete+insert',
+    cluster_by=['block_timestamp'],
+    tags=['snowflake', 'terra', 'anchor', 'liquidations']
+  )
+}}
+
+WITH prices AS (
+
+  SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(price_usd) as price
+    FROM {{ ref('terra__oracle_prices')}} 
+    GROUP BY 1,2,3
+
+),
+
+msgs AS (
+
+SELECT 
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  tx_id,
+  msg_value:execute_msg:liquidate_collateral:borrower::string AS borrower,
+  msg_value:contract::string as contract_address,
+  l.address_name as contract_label
+FROM {{source('silver_terra', 'msgs')}}
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+ON contract_address = l.address
+
+WHERE msg_value:contract::string = 'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8'
+  AND msg_value:execute_msg:liquidate_collateral IS NOT NULL 
+  AND tx_status = 'SUCCEEDED'
+
+), 
+
+events AS (
+
+SELECT 
+  tx_id,
+  event_attributes:liquidator::string AS liquidator,
+  event_attributes:collateral_amount / POW(10,6) AS liquidated_amount,
+  liquidated_amount * l.price AS liquidated_amount_usd,
+  event_attributes:collateral_token::string as liquidated_currency,
+  event_attributes:"1_repay_amount" as repay_amount,
+  repay_amount * r.price as repay_amount_usd,
+  event_attributes:stable_denom::string as repay_currency,
+  event_attributes:bid_fee / POW(10,6) AS bid_fee
+FROM {{source('silver_terra', 'msg_events')}}
+
+LEFT OUTER JOIN prices l
+ ON date_trunc('hour', block_timestamp) = hour
+ AND liquidated_currency = currency 
+
+LEFT OUTER JOIN prices r
+ ON date_trunc('hour', block_timestamp) = hour
+ AND repay_currency = currency 
+
+WHERE event_type = 'from_contract'
+  AND tx_id IN(SELECT tx_id FROM msgs)
+  AND tx_status = 'SUCCEEDED'
+
+)
+
+SELECT 
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  m.tx_id,
+  bid_fee,
+  borrower,
+  liquidator,
+  liquidated_amount,
+  liquidated_amount_usd,
+  liquidated_currency,
+  repay_amount,
+  repay_amount_usd,
+  repay_currency,
+  contract_address,
+  contract_label
+FROM msgs m 
+
+JOIN events e 
+  ON m.tx_id = e.tx_id

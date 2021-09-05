@@ -35,7 +35,7 @@ SELECT
   msg_value:contract::string as event_currency,
   msg_value:execute_msg:send:contract::string as contract_address,
   l.address_name AS contract_label 
-FROM terra.msgs t
+FROM {{source('silver_terra', 'msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -54,7 +54,7 @@ stake_events AS (
 SELECT 
   tx_id,
   event_attributes:share as shares
-FROM terra.msg_events 
+FROM {{source('silver_terra', 'msg_events')}}
 WHERE tx_id IN(SELECT DISTINCT tx_id FROM stake_msgs)
   AND event_type = 'from_contract'
 )
@@ -96,7 +96,7 @@ SELECT
   'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' as event_currency,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM terra.msgs t
+FROM {{source('silver_terra', 'msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
