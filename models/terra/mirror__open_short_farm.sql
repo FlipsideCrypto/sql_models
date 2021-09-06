@@ -28,7 +28,7 @@ ON contract_address = l.address
 
 WHERE msg_value:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj' --Mirror Mint
   AND msg_value:execute_msg:open_position IS NOT NULL 
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
 
 ),
 
