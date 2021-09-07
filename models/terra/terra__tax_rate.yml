@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: terra__tax_rate
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_NUMBER
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_NUMBER
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: TAX_RATE
+        tests:
+          - not_null

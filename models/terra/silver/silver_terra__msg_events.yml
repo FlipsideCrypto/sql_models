@@ -1,0 +1,58 @@
+version: 2
+models:
+  - name: silver_terra__msg_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - EVENT_INDEX
+            - EVENT_TYPE
+            - MSG_INDEX
+            - TX_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: EVENT_ATTRIBUTES
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        tests:
+          - not_null
+      - name: EVENT_TYPE
+        tests:
+          - not_null
+      - name: MSG_INDEX
+        tests:
+          - not_null
+      - name: MSG_MODULE
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: SYSTEM_CREATED_AT
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_MODULE
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: TX_TYPE
+        tests:
+          - not_null

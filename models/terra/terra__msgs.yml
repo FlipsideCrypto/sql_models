@@ -1,0 +1,44 @@
+version: 2
+models:
+  - name: terra__msgs
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: MSG_INDEX
+        tests:
+          - not_null
+      - name: MSG_MODULE
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: MSG_VALUE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_MODULE
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: TX_TYPE
+        tests:
+          - not_null

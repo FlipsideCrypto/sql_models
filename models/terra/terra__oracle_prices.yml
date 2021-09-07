@@ -1,0 +1,29 @@
+version: 2
+models:
+  - name: terra__oracle_prices
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_TIMESTAMP
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CURRENCY
+        tests:
+          - not_null
+      - name: LUNA_EXCHANGE_RATE
+        tests:
+          - not_null
+      - name: PRICE_USD
+        tests:
+          - not_null
+      - name: SOURCE
+        tests:
+          - not_null
+      - name: SYMBOL
+        tests:
+          - not_null

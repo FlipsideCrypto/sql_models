@@ -1,0 +1,53 @@
+version: 2
+models:
+  - name: terra__gov_vote
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: PROPOSAL_ID
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: VOTER
+        tests:
+          - not_null
+      - name: VOTER_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: VOTER_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: VOTER_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: VOTER_LABEL_TYPE
+        tests:
+          - not_null
+      - name: VOTING_POWER
+        tests:
+          - not_null
+      - name: option
+        tests:
+          - not_null

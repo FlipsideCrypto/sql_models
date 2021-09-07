@@ -1,0 +1,23 @@
+version: 2
+models:
+  - name: terra__validator_voting_power
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: VOTING_POWER
+        tests:
+          - not_null

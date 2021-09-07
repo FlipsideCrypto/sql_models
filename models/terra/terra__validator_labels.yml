@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: terra__validator_labels
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - LABEL
+    columns:
+      - name: DELEGATOR_ADDRESS
+        tests:
+          - not_null
+      - name: LABEL
+        tests:
+          - not_null
+      - name: OPERATOR_ADDRESS
+        tests:
+          - not_null
+      - name: VP_ADDRESS
+        tests:
+          - not_null
