@@ -26,7 +26,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:send:msg:create_poll IS NOT NULL 
   AND msg_value:execute_msg:send:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x' -- MIR Governance 
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
 ),
 
 events AS (

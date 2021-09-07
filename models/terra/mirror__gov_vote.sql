@@ -28,4 +28,4 @@ ON contract_address = l.address
 
 WHERE msg_value:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x' -- MIR Governance
   AND msg_value:execute_msg:cast_vote IS NOT NULL 
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'

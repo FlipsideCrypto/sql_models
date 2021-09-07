@@ -79,7 +79,7 @@ SELECT
   event_attributes:withdraw_amount[0]:amount /POW(10,6) AS withdraw_amount,
   withdraw_amount * i.price AS withdraw_amount_usd,
   event_attributes:withdraw_amount[0]:denom::string AS withdraw_currency
-FROM {{source('silver_terra', 'msg)_events')}} t
+FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
