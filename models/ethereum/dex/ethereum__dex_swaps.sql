@@ -37,7 +37,7 @@ WITH decimals_raw as (
    decimals IS NOT NULL
 
 ), decimals AS (
-  SELECT token_address,decimals
+  SELECT token_address,decimals,weight
   FROM decimals_raw
   QUALIFY (row_number() OVER (partition by token_address order by weight desc)) = 1
 ),
@@ -48,13 +48,16 @@ WITH decimals_raw as (
     p.pool_name,
     p.token0 AS token_address,
     tx_id, 
-    event_inputs:amount0In / POWER(10, d.decimals) AS amount_in,
-    event_inputs:amount0Out / POWER(10, d.decimals) AS amount_out, 
+    event_inputs:amount0In / POWER(10, d0.decimals) AS amount_in,
+    event_inputs:amount0Out / POWER(10, d0.decimals) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * price0.price / POWER(10, d.decimals) 
-         ELSE event_inputs:amount0Out * price0.price / POWER(10, d.decimals) END
+    CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * price0.price / POWER(10, d0.decimals) 
+         ELSE event_inputs:amount0Out * price0.price / POWER(10, d0.decimals) END
     AS amount_usd,
+    --CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d1.decimals) 
+    --     ELSE event_inputs:amount1Out * price1.price / POWER(10, d1.decimals) END
+    --AS other_amount_usd,
     CASE WHEN p.factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform,
     event_index,
     CASE WHEN event_inputs:amount0In > 0 THEN 'IN' 
@@ -67,8 +70,14 @@ WITH decimals_raw as (
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price0 
     ON p.token0 = price0.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price0.hour
 
-  LEFT JOIN decimals d
-    ON p.token0 = d.token_address
+  LEFT JOIN decimals d0
+    ON p.token0 = d0.token_address
+
+  --LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price1
+  --  ON p.token1 = price1.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price0.hour
+
+  --LEFT JOIN decimals d1
+  --  ON p.token1 = d1.token_address
 
   WHERE event_name = 'Swap' AND platform <> 'uniswap-v3' 
 
@@ -86,13 +95,16 @@ WITH decimals_raw as (
     p.pool_name,
     p.token1 AS token_address,
     tx_id, 
-    event_inputs:amount1In / POWER(10, d.decimals) AS amount_in,
-    event_inputs:amount1Out / POWER(10, d.decimals) AS amount_out, 
+    event_inputs:amount1In / POWER(10, d1.decimals) AS amount_in,
+    event_inputs:amount1Out / POWER(10, d1.decimals) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d.decimals) 
-         ELSE event_inputs:amount1Out * price1.price / POWER(10, d.decimals) END
+    CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d1.decimals) 
+         ELSE event_inputs:amount1Out * price1.price / POWER(10, d1.decimals) END
     AS amount_usd,
+    -- CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d1.decimals) 
+    --     ELSE event_inputs:amount1Out * price1.price / POWER(10, d1.decimals) END
+    --AS other_amount_usd,
     CASE WHEN p.factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform,
     event_index,
     CASE WHEN event_inputs:amount1In > 0 THEN 'IN' 
@@ -103,12 +115,18 @@ WITH decimals_raw as (
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} p 
     ON s0.contract_address = p.pool_address
 
-  LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price1 
+  --LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price0 
+  --  ON p.token0 = price0.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price0.hour
+
+  --LEFT JOIN decimals d0
+  --  ON p.token0 = d0.token_address
+
+  LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price1
     ON p.token1 = price1.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price1.hour
 
-  LEFT JOIN decimals d
-    ON p.token0 = d.token_address
-    
+  LEFT JOIN decimals d1
+    ON p.token1 = d1.token_address
+  
 
   WHERE 
       event_name = 'Swap' AND platform <> 'uniswap-v3' 
@@ -177,6 +195,7 @@ WITH decimals_raw as (
 
   UNION
 
+
   SELECT * 
   FROM v3_swaps
 )
@@ -188,3 +207,4 @@ swaps s
 LEFT JOIN
 silver.ethereum_address_labels l
 ON s.from_address = l.address
+WHERE s.pool_address NOT IN ('0xdc6a5faf34affccc6a00d580ecb3308fc1848f22')
