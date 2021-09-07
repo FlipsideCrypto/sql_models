@@ -39,4 +39,5 @@ models:
       materialized: incremental
       +schema: flow
       +tags: flow
-
+vars:
+  "dbt_date:time_zone": America/Los_Angeles
