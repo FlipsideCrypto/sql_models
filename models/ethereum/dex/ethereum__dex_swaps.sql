@@ -189,26 +189,36 @@ WITH decimals_raw as (
   LEFT JOIN {{ref('ethereum__events_emitted')}} ind
     ON s.pool_address = ind.contract_address AND s.tx_id = ind.tx_id
     WHERE (amount1_adjusted > 0 OR amount0_adjusted > 0) AND platform = 'uniswap-v3' 
+), swaps AS (
+  SELECT 
+    block_timestamp,pool_address,
+    pool_name,
+    token_address,
+    tx_id,
+    amount_in,amount_out,
+    from_address,
+    to_address,
+    -- CASE WHEN ((amount_usd - other_amount_usd) / amount_usd) > .15 THEN other_amount_usd
+    -- ELSE amount_usd END AS amount_usd,
+    amount_usd,
+    platform,
+    event_index,
+    direction
+  FROM usd_swaps
+  WHERE pool_address NOT IN ('0xdc6a5faf34affccc6a00d580ecb3308fc1848f22') -- stop-gap for big price swings, the actual solution adds an enormous amount of runtime
+
+  UNION
+
+  SELECT * 
+  FROM v3_swaps
 )
 
-SELECT 
-  block_timestamp,pool_address,
-  pool_name,
-  token_address,
-  tx_id,
-  amount_in,amount_out,
-  from_address,
-  to_address,
-  -- CASE WHEN ((amount_usd - other_amount_usd) / amount_usd) > .15 THEN other_amount_usd
-  -- ELSE amount_usd END AS amount_usd,
-  amount_usd,
-  platform,
-  event_index,
-  direction
-FROM usd_swaps
-WHERE pool_address NOT IN ('0xdc6a5faf34affccc6a00d580ecb3308fc1848f22') -- stop-gap for big price swings, the actual solution adds an enormous amount of runtime
 
-UNION
 
-SELECT * 
-FROM v3_swaps
+SELECT s.*, CASE WHEN s.from_address <> s.to_address THEN l.project_name ELSE NULL END AS router
+FROM 
+swaps s
+LEFT JOIN
+silver.ethereum_address_labels l
+ON s.from_address = l.address
+
