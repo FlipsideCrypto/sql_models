@@ -1,12 +1,27 @@
 version: 2
 models:
-  - name: polygon__transactions
+  - name: polygon__udm_events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
+            - EVENT_ID
             - TX_ID
     columns:
+      - name: AMOUNT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: AMOUNT_USD
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: BLOCK_ID
         tests:
           - not_null
@@ -16,13 +31,18 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: EVENT_COUNT
+      - name: CONTRACT_ADDRESS
         tests:
           - not_null
-      - name: FEE
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: EVENT_ID
         tests:
           - not_null
-      - name: FEE_USD
+      - name: EVENT_NAME
+        tests:
+          - not_null
+      - name: EVENT_TYPE
         tests:
           - not_null
       - name: FROM_ADDRESS
@@ -42,29 +62,27 @@ models:
       - name: FROM_LABEL_TYPE
         tests:
           - not_null
-      - name: FUNCTION_NAME
+      - name: ORIGIN_ADDRESS
         tests:
           - not_null
-      - name: FUNCTION_SIGNATURE
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: ORIGIN_ADDRESS_NAME
         tests:
           - not_null
-      - name: GAS_LIMIT
+      - name: ORIGIN_FUNCTION_NAME
         tests:
           - not_null
-      - name: GAS_PRICE
+      - name: ORIGIN_FUNCTION_SIGNATURE
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: GAS_USED
+      - name: ORIGIN_LABEL
         tests:
           - not_null
-      - name: NONCE
+      - name: ORIGIN_LABEL_SUBTYPE
         tests:
           - not_null
-      - name: SUCCESS
+      - name: ORIGIN_LABEL_TYPE
         tests:
           - not_null
       - name: SYMBOL
@@ -88,8 +106,5 @@ models:
         tests:
           - not_null
       - name: TX_ID
-        tests:
-          - not_null
-      - name: TX_POSITION
         tests:
           - not_null
