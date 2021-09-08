@@ -30,6 +30,7 @@ clean-targets: # directories to be removed by `dbt clean`
 # as tables. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 models:
+  +copy_grants: true
   sql_models:
     ethereum:
       materialized: incremental
@@ -39,5 +40,9 @@ models:
       materialized: incremental
       +schema: flow
       +tags: flow
+
 vars:
   "dbt_date:time_zone": America/Los_Angeles
+
+tests:
+  +severity: warn # all tests
