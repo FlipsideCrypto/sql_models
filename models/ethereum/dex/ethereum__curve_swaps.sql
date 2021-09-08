@@ -54,6 +54,13 @@ WITH
   AND block_timestamp >= CURRENT_DATE - 360 
   AND event_inputs:buyer IS NOT NULL AND event_inputs:bought_id IS NOT NULL
   
+), prices AS (
+  SELECT 
+    token_address,
+    hour,
+    AVG(price) AS price
+  FROM {{ref('ethereum__token_prices_hourly')}}
+  GROUP BY 1,2
 )
 
 SELECT
@@ -83,7 +90,7 @@ LEFT OUTER JOIN
 pool_tokens_parsed p0
     ON s.index_in = p0.index AND s.pool_address = p0.pool_add
 LEFT OUTER JOIN
-{{ref('ethereum__token_prices_hourly')}} tp0
+prices tp0
     ON date_trunc('hour',s.block_timestamp) = tp0.hour AND p0.coins = tp0.token_address
 LEFT JOIN {{source('ethereum', 'ethereum_contracts')}} dc0
     ON p0.coins = dc0.address
@@ -92,10 +99,10 @@ LEFT OUTER JOIN
 pool_tokens_parsed p1
     ON s.index_out = p1.index AND s.pool_address = p1.pool_add
 LEFT OUTER JOIN
-{{ref('ethereum__token_prices_hourly')}} tp1
+prices tp1
     ON date_trunc('hour',s.block_timestamp) = tp1.hour AND p1.coins = tp1.token_address
 LEFT JOIN {{source('ethereum', 'ethereum_contracts')}} dc1
     ON p1.coins = dc1.address
-    WHERE token_in IS NOT NULL AND token_out IS NOT NULL
+    WHERE token_in IS NOT NULL AND token_out IS NOT NULL 
     ORDER BY block_timestamp DESC
     

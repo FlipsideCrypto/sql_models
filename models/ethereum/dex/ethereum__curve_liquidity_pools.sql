@@ -66,3 +66,4 @@ SELECT
 FROM names_final n
 LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} l
     ON n.pool_address = l.address
+    QUALIFY (row_number() OVER (partition by pool_name order by factory desc)) = 1
