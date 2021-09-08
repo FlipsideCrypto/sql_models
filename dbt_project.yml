@@ -41,5 +41,8 @@ models:
       +schema: flow
       +tags: flow
 
+vars:
+  "dbt_date:time_zone": America/Los_Angeles
+
 tests:
   +severity: warn # all tests
