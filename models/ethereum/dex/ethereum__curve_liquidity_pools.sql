@@ -20,13 +20,11 @@ WITH pool_tokens AS (
                           LOWER('0xfD6f33A0509ec67dEFc500755322aBd9Df1bD5B8'), 
                               '0x90e00ace148ca3b23ac1bc8c240c2a7dd9c2d7f5','0x7D86446dDb609eD0F5f8684AcF30380a356b2B4c')  
       AND function_name = 'get_underlying_coins'
-      --QUALIFY (row_number() OVER (partition by pool_add order by pool_add desc)) = 1
       AND block_timestamp >= CURRENT_DATE - 60
 
 ), parsed AS (
   SELECT 
     DISTINCT
-        --blockhour, 
         pool_add, 
         factory,
         value::STRING AS coins, 
