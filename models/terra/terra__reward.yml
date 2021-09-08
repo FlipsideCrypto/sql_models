@@ -18,6 +18,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: CHAIN_ID
         tests:
           - not_null
@@ -42,15 +45,27 @@ models:
       - name: EVENT_AMOUNT
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: EVENT_AMOUNT_USD
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: MSG_INDEX
         tests:
           - not_null
       - name: PRICE_USD
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: TX_ID
         tests:
           - not_null

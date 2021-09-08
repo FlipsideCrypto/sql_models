@@ -9,6 +9,8 @@ models:
       - name: ADDRESS
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
       - name: BLOCKCHAIN
         tests:
           - not_null
@@ -18,6 +20,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: VOTING_POWER
         tests:
           - not_null
