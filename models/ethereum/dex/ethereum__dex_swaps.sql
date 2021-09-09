@@ -215,7 +215,21 @@ WITH decimals_raw as (
 
 
 
-SELECT s.*, CASE WHEN s.from_address <> s.to_address THEN l.project_name ELSE NULL END AS router
+SELECT
+      s.block_timestamp,
+      s.pool_address,
+      s.pool_name,
+      s.token_address,
+      s.tx_id,
+      s.amount_in,
+      s.amount_out,
+      s.from_address,
+      s.to_address,
+      s.amount_usd,
+      s.platform,
+      s.event_index,
+      s.direction, 
+      CASE WHEN s.from_address <> s.to_address THEN l.project_name ELSE NULL END AS router
 FROM 
 swaps s
 LEFT JOIN
