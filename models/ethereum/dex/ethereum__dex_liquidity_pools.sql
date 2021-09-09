@@ -4,7 +4,7 @@
     sort='creation_time', 
     unique_key='creation_tx', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex']
+    tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools']
   )
 }}
 WITH v3_pools AS ( -- uni v3
@@ -227,5 +227,5 @@ stack AS (
 
 
 SELECT DISTINCT * FROM 
-stack
+curve
 
