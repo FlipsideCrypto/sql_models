@@ -211,6 +211,44 @@ WITH decimals_raw as (
 
   SELECT * 
   FROM v3_swaps
+
+  UNION
+
+  -- Curve (in)
+  SELECT
+    c.block_timestamp,
+    c.pool_address,
+    c.pool_name,
+    c.token_in AS token_address,
+    c.tx_id,
+    c.amount_in AS amount_in,
+    0 AS amount_out,
+    c.swapper AS from_address,
+    c.swapper AS to_address,
+    c.amount_in_usd AS amount_usd,
+    'curve' AS platform,
+    c.event_index,
+    'IN' AS direction
+  FROM {{ref('ethereum_dbt__curve_swaps')}} c
+
+  UNION
+
+  -- Curve (out)
+  SELECT
+    c.block_timestamp,
+    c.pool_address,
+    c.pool_name,
+    c.token_out AS token_address,
+    c.tx_id,
+    0 AS amount_in,
+    c.amount_out AS amount_out,
+    c.swapper AS from_address,
+    c.swapper AS to_address,
+    c.amount_out_usd AS amount_usd,
+    'curve' AS platform,
+    c.event_index,
+    'OUT' AS direction
+  FROM {{ref('ethereum_dbt__curve_swaps')}} c
 )
 
 
