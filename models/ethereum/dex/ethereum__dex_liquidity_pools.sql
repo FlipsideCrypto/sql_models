@@ -204,6 +204,25 @@ stack AS (
 
   SELECT * FROM
   v3_pools
+), curve AS (
+  SELECT
+     *,
+    ARRAY_CONSTRUCT(token0,token1) AS tokens
+  FROM stack
+
+  UNION
+
+  SELECT
+    NULL::STRING AS creation_time,
+    NULL::STRING AS creation_tx,
+    factory AS factory_address,
+    pool_name,
+    pool_address,
+    NULL AS token0,
+    NULL AS token1,
+    'curve' AS platform,
+    tokens
+  FROM {{ref('ethereum_dbt__curve_liquidity_pools')}}
 )
 
 

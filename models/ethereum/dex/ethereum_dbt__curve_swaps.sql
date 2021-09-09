@@ -4,7 +4,7 @@
     sort='block_timestamp', 
     unique_key= 'tx_id || event_index', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'curve']
+    tags=['snowflake', 'ethereum', 'dex']
   )
 }}
 
@@ -85,7 +85,7 @@ LEFT JOIN
 {{source('ethereum', 'ethereum_address_labels')}} l
     ON s.pool_address = l.address
 LEFT JOIN
-{{ref('ethereum__curve_liquidity_pools')}} lp
+{{ref('ethereum_dbt__curve_liquidity_pools')}} lp
     ON s.pool_address = lp.pool_address
   -- Token being used by the swapper for the swap --
 LEFT OUTER JOIN

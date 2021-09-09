@@ -4,7 +4,7 @@
     sort='pool_address', 
     unique_key='pool_address || factory', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'curve']
+    tags=['snowflake', 'ethereum', 'dex']
   )
 }}
 WITH pool_tokens AS (
