@@ -65,18 +65,19 @@ WITH
 )
 
 SELECT
-  s.block_timestamp,
-  s.pool_address,
-  COALESCE(l.address_name,lp.pool_name) AS pool_name,
-  s.tx_id,
-  s.event_index,
-  s.swapper,
-  p0.coins AS token_in,
-  s.amount_in/POWER(10,COALESCE(dc0.meta:decimals,tp0.decimals)) AS amount_in,
-  s.amount_in/POWER(10,COALESCE(dc0.meta:decimals,tp0.decimals))*tp0.price AS amount_in_usd,
-  p1.coins AS token_out,
-  s.amount_out/POWER(10,COALESCE(dc1.meta:decimals,tp1.decimals)) AS amount_out,
-  s.amount_out/POWER(10,COALESCE(dc1.meta:decimals,tp1.decimals))*tp1.price AS amount_out_usd
+  DISTINCT
+    s.block_timestamp,
+    s.pool_address,
+    COALESCE(l.address_name,lp.pool_name) AS pool_name,
+    s.tx_id,
+    s.event_index,
+    s.swapper,
+    p0.coins AS token_in,
+    s.amount_in/POWER(10,COALESCE(dc0.meta:decimals,tp0.decimals)) AS amount_in,
+    s.amount_in/POWER(10,COALESCE(dc0.meta:decimals,tp0.decimals))*tp0.price AS amount_in_usd,
+    p1.coins AS token_out,
+    s.amount_out/POWER(10,COALESCE(dc1.meta:decimals,tp1.decimals)) AS amount_out,
+    s.amount_out/POWER(10,COALESCE(dc1.meta:decimals,tp1.decimals))*tp1.price AS amount_out_usd
 FROM
 curve_swaps_raw s
   -- Info for the pool --
