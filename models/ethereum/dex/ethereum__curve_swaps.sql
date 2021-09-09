@@ -58,7 +58,8 @@ WITH
   SELECT 
     token_address,
     hour,
-    AVG(price) AS price
+    AVG(price) AS price,
+    MAX(decimals) AS decimals
   FROM {{ref('ethereum__token_prices_hourly')}}
   GROUP BY 1,2
 )
@@ -71,11 +72,11 @@ SELECT
   s.event_index,
   s.swapper,
   p0.coins AS token_in,
-  s.amount_in/POWER(10,dc0.meta:decimals) AS amount_in,
-  s.amount_in/POWER(10,dc0.meta:decimals)*tp0.price AS amount_in_usd,
+  s.amount_in/POWER(10,COALESCE(dc0.meta:decimals,tp0.decimals)) AS amount_in,
+  s.amount_in/POWER(10,COALESCE(dc0.meta:decimals,tp0.decimals))*tp0.price AS amount_in_usd,
   p1.coins AS token_out,
-  s.amount_out/POWER(10,dc1.meta:decimals) AS amount_out,
-  s.amount_out/POWER(10,dc1.meta:decimals)*tp1.price AS amount_out_usd
+  s.amount_out/POWER(10,COALESCE(dc1.meta:decimals,tp1.decimals)) AS amount_out,
+  s.amount_out/POWER(10,COALESCE(dc1.meta:decimals,tp1.decimals))*tp1.price AS amount_out_usd
 FROM
 curve_swaps_raw s
   -- Info for the pool --
