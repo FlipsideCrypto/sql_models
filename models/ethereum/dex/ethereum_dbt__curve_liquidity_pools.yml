@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__curve_liquidity_pools
+  - name: ethereum_dbt__curve_liquidity_pools
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

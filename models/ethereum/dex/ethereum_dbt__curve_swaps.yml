@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__curve_swaps
+  - name: ethereum_dbt__curve_swaps
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

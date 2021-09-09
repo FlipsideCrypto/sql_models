@@ -230,7 +230,13 @@ WITH decimals_raw as (
     c.event_index,
     'IN' AS direction
   FROM {{ref('ethereum_dbt__curve_swaps')}} c
-
+  WHERE 
+    {% if is_incremental() %}
+      block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+      block_timestamp >= getdate() - interval '12 months'
+    {% endif %}
+    
   UNION
 
   -- Curve (out)
@@ -249,6 +255,12 @@ WITH decimals_raw as (
     c.event_index,
     'OUT' AS direction
   FROM {{ref('ethereum_dbt__curve_swaps')}} c
+  WHERE 
+    {% if is_incremental() %}
+      block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+      block_timestamp >= getdate() - interval '12 months'
+    {% endif %}
 )
 
 
