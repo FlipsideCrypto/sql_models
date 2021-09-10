@@ -80,7 +80,7 @@ LEFT OUTER JOIN prices l
 WHERE event_type = 'from_contract'
   AND event_attributes:is_short::string = 'true'
   AND event_attributes:from::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj' -- Mirror Mint
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
 
 )
 
