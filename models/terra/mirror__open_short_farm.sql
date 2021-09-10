@@ -9,7 +9,19 @@
   )
 }}
 
-WITH msgs as(
+WITH prices AS (
+
+  SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(price_usd) as price_usd
+    FROM {{ ref('terra__oracle_prices')}} 
+    GROUP BY 1,2,3
+
+),
+
+msgs as(
 
 SELECT 
   blockchain,

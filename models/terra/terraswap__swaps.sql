@@ -10,7 +10,19 @@
 }}
 
 
-WITH msgs as (
+WITH prices AS (
+
+  SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(price_usd) as price_usd
+    FROM {{ ref('terra__oracle_prices')}} 
+    GROUP BY 1,2,3
+
+), 
+
+msgs as (
 -- native to non-native/native
 SELECT
   chain_id,
@@ -79,11 +91,11 @@ JOIN events e
   ON m.tx_id = e.tx_id
 
 LEFT OUTER JOIN prices o
- ON date_trunc('hour', t.block_timestamp) = o.hour
+ ON date_trunc('hour', block_timestamp) = o.hour
  AND m.offer_currency = o.currency 
 
 LEFT OUTER JOIN prices r
- ON date_trunc('hour', t.block_timestamp) = r.hour
+ ON date_trunc('hour', block_timestamp) = r.hour
  AND m.return_currency = r.currency  
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} l

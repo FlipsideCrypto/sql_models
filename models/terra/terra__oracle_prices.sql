@@ -154,16 +154,20 @@ LEFT OUTER JOIN prices pp
 UNION 
 
 SELECT 
-  blockchain, 
-  block_timestamp,
-  event_attributes:asset::string as currency,
+  me.blockchain, 
+  me.block_timestamp,
+  me.event_attributes:asset::string as currency,
   l.address_name as symbol,
-  event_attributes:price AS price_usd,
+  pp.price / me.event_attributes:price as luna_exchange_rate,
+  me.event_attributes:price AS price_usd,
   'oracle' as source
-FROM terra.msg_events 
+FROM terra.msg_events me
+
+LEFT OUTER JOIN prices pp
+  ON date_trunc('hour', me.block_timestamp) = pp.block_timestamp
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON currency = l.address
+ON me.event_attributes:asset::string = l.address
 
 WHERE event_type = 'from_contract'
   AND tx_id IN(SELECT tx_id 
