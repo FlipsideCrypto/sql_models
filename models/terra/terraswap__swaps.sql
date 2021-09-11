@@ -64,8 +64,8 @@ SELECT
 FROM {{source('silver_terra', 'msg_events')}}
 
 WHERE event_type = 'from_contract'
-  AND tx_id IN(SELECT DISTINCT tx_id 
- 	  		    FROM msgs )
+  AND tx_id IN (SELECT DISTINCT tx_id 
+ 	  		    FROM msgs)
 )
 
 
@@ -99,4 +99,4 @@ LEFT OUTER JOIN prices r
  AND m.return_currency = r.currency  
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} l
-  ON pool_address = address
+  ON pool_address = l.address
