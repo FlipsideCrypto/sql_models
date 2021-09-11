@@ -37,7 +37,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}} 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL 
   AND msg_value:contract::string = 'terra1f32xyep306hhcxxxf7mlyh0ucggc00rm2s9da5'
@@ -51,7 +51,7 @@ SELECT
   tx_id, 
   price,
   event_attributes:"0_contract_address"::string as currency
-FROM {{source('silver_terra', 'msg_events')}}
+FROM {{source('silver_terra', 'msg_events')}} m
 
 LEFT OUTER JOIN prices r
  ON date_trunc('hour', block_timestamp) = hour

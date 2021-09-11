@@ -33,7 +33,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:send:msg:burn IS NOT NULL
   AND msg_value:execute_msg:send:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj'
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
 
 ),
 

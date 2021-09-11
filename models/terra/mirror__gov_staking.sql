@@ -46,7 +46,7 @@ ON contract_address = l.address
 
 WHERE msg_value:execute_msg:send:msg:stake_voting_tokens IS NOT NULL 
   AND msg_value:execute_msg:send:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
 
 ),
 
@@ -100,11 +100,11 @@ FROM {{source('silver_terra', 'msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.event_currency = o.currency 
+ AND o.currency = 'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6'
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON contract_address = l.address
 
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL
   AND msg_value:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
