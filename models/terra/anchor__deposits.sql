@@ -38,7 +38,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:contract::string = l.address
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour

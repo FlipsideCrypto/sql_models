@@ -24,7 +24,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:contract::string = l.address
 
 WHERE msg_value:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj' --Mirror Mint
   AND msg_value:execute_msg:open_position IS NOT NULL 
@@ -63,11 +63,11 @@ FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.collateral_currency = o.currency 
+ AND t.event_attributes:collateral_amount[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.mint_currency = i.currency  
+ AND t.event_attributes:mint_amount[0]:denom::string = i.currency  
 
 LEFT OUTER JOIN prices r
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -75,7 +75,7 @@ LEFT OUTER JOIN prices r
 
 LEFT OUTER JOIN prices l
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.locked_currency = i.currency  
+ AND t.event_attributes:locked_amount[0]:denom::string = i.currency  
 
 WHERE event_type = 'from_contract'
   AND event_attributes:is_short::string = 'true'

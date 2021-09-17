@@ -112,11 +112,19 @@ SELECT
   claim_0_amount_usd,
   claim_0_currency,
   claim_0_contract,
+  l0.address_name AS claim_0_contract_label,
   claim_1_amount,
   claim_1_amount_usd,
   claim_1_currency,
-  claim_1_contract
+  claim_1_contract,
+  l1.address_name AS claim_1_contract_label
 FROM claim c 
 
 JOIN withdraw w 
   ON c.tx_id = w.tx_id
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l0
+ON claim_0_contract = l0.address
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l1
+ON claim_1_contract = l1.address

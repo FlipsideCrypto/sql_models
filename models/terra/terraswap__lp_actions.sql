@@ -36,7 +36,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON pool_address = l.address
+ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:provide_liquidity IS NOT NULL 
   AND tx_status = 'SUCCEEDED'

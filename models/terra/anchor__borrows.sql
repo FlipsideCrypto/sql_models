@@ -40,7 +40,7 @@ LEFT OUTER JOIN prices o
  AND m.currency = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:borrow_stable IS NOT NULL -- Anchor Borrow 
   AND msg_value:contract::string = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s' -- Anchor Market Contract

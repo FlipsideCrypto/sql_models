@@ -60,11 +60,11 @@ FROM t{{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.collateral_currency = o.currency 
+ AND t.event_attributes:collateral_amount[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.mint_currency = i.currency  
+ AND t.event_attributes:mint_amount[0]:denom::string = i.currency  
 
 WHERE tx_id IN(SELECT DISTINCT tx_id FROM msgs)
   AND event_type = 'from_contract'

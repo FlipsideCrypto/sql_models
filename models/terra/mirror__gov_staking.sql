@@ -103,7 +103,7 @@ LEFT OUTER JOIN prices o
  AND t.event_currency = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL
   AND msg_value:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'

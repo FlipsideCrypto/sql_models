@@ -64,7 +64,7 @@ SELECT
 FROM tx
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:execute_msg:send:contract::string = l.address
 
 ),
 
@@ -89,15 +89,15 @@ FROM event_tx t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.withdraw_currency = o.currency 
+ AND t.event_attributes:withdraw_amount[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.unlocked_currency = i.currency  
+ AND t.event_attributes:unlocked_amount[0]:amount / POW(10,6) = i.currency  
 
 LEFT OUTER JOIN prices a
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.tax_currency = i.currency  
+ AND t.event_attributes:"0_tax_amount"[0]:denom::string = i.currency  
 
 WHERE event_attributes:withdraw_amount IS NOT NULL 
 
@@ -119,11 +119,11 @@ FROM event_tx t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.burn_currency = o.currency 
+ AND t.event_attributes:burn_amount[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.protocol_fee_currency = i.currency  
+ AND t.event_attributes:protocol_fee[0]:denom::string = i.currency  
 
 WHERE event_attributes:burn_amount IS NOT NULL
   

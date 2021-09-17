@@ -36,7 +36,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:execute_msg:send:contract::string = l.address
 
 WHERE msg_value:execute_msg:withdraw_collateral IS NOT NULL 
   AND tx_status = 'SUCCEEDED'
@@ -100,7 +100,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:execute_msg:send:contract::string = l.address
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour
