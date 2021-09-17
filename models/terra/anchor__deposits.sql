@@ -24,25 +24,26 @@ WITH prices AS (
 msgs AS (
 
 SELECT
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
   tx_id,
+  msg_index,
   msg_value:sender::string as sender,
   msg_value:coins[0]:amount / POW(10,6) as deposit_amount,
   deposit_amount * price AS deposit_amount_usd,
   msg_value:coins[0]:denom::string as deposit_currency,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour
- AND deposit_currency = o.currency 
+ AND msg_value:coins[0]:denom::string = o.currency 
 
 WHERE msg_value:execute_msg:deposit_stable IS NOT NULL 
   AND msg_value:contract::string = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
@@ -54,6 +55,7 @@ events AS (
 
 SELECT 
   tx_id,
+  msg_index,
   event_attributes:mint_amount / POW(10,6) as mint_amount,
   mint_amount * price AS mint_amount_usd,
   event_attributes:"1_contract_address"::string as mint_currency
@@ -61,10 +63,11 @@ FROM {{source('silver_terra', 'msg_events')}}
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour
- AND mint_currency = o.currency 
+ AND event_attributes:"1_contract_address"::string = o.currency 
 
 WHERE event_type = 'from_contract'
   AND tx_id IN(SELECT tx_id FROM msgs)
+  AND event_attributes:"0_action"::string = 'deposit_stable'
   AND tx_status = 'SUCCEEDED'
 
 )

@@ -24,7 +24,7 @@ WITH prices AS (
 msgs AS (
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -32,7 +32,7 @@ SELECT
   msg_value:execute_msg:liquidate_collateral:borrower::string AS borrower,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -58,16 +58,17 @@ SELECT
 FROM {{source('silver_terra', 'msg_events')}}
 
 LEFT OUTER JOIN prices l
- ON date_trunc('hour', block_timestamp) = hour
- AND liquidated_currency = currency 
+ ON date_trunc('hour', block_timestamp) = l.hour
+ AND event_attributes:collateral_token::string = l.currency 
 
 LEFT OUTER JOIN prices r
- ON date_trunc('hour', block_timestamp) = hour
- AND repay_currency = currency 
+ ON date_trunc('hour', block_timestamp) = r.hour
+ AND event_attributes:stable_denom::string = r.currency 
 
 WHERE event_type = 'from_contract'
   AND tx_id IN(SELECT tx_id FROM msgs)
   AND tx_status = 'SUCCEEDED'
+  AND event_attributes:"0_action"::string = 'liquidate_collateral'
 
 )
 

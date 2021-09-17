@@ -5,7 +5,7 @@
     unique_key='block_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'terra', 'anchor', 'reward']
+    tags=['snowflake', 'terra', 'anchor', 'reward_claims']
   )
 }}
 
@@ -56,7 +56,6 @@ SELECT
   m.tx_id,
   claim_0_contract,
   event_attributes:"0_amount" / POW(10,6) as claim_0_amount,
-  claim_0_amount * price AS claim_0_amount_usd,
   event_attributes:"1_contract_address"::string as claim_0_currency
 FROM {{source('silver_terra', 'msg_events')}} e
   
@@ -64,12 +63,9 @@ JOIN withdraw_msgs m
   ON m.tx_id = e.tx_id
   AND m.msg_index = e.msg_index
 
-LEFT OUTER JOIN prices o
- ON date_trunc('hour', block_timestamp) = o.hour
- AND claim_0_currency = o.currency 
-
 WHERE event_type = 'from_contract'  
   AND tx_status = 'SUCCEEDED'
+  AND event_attributes:"0_action"::string = 'withdraw'
   
 ),
 
@@ -84,37 +80,33 @@ SELECT
   sender,
   claim_1_contract,
   event_attributes:claim_amount / POW(10,6) as claim_1_amount,
-  claim_1_amount * price AS claim_1_amount_usd,
   event_attributes:"2_contract_address"::string as claim_1_currency
 FROM {{source('silver_terra', 'msg_events')}} e
   
 JOIN claim_msgs m 
   ON m.tx_id = e.tx_id
   AND m.msg_index = e.msg_index
-
-LEFT OUTER JOIN prices o
- ON date_trunc('hour', block_timestamp) = o.hour
- AND claim_1_currency = o.currency 
   
 WHERE event_type = 'from_contract'
   AND tx_status = 'SUCCEEDED'
+  AND event_attributes:"0_action"::string = 'claim_rewards'
   
 )
 
 SELECT 
-  blockchain,
+  c.blockchain,
   chain_id,
   block_id,
   block_timestamp,
   c.tx_id,
   sender,
   claim_0_amount,
-  claim_0_amount_usd,
+  claim_0_amount * p0.price AS claim_0_amount_usd,
   claim_0_currency,
   claim_0_contract,
   l0.address_name AS claim_0_contract_label,
   claim_1_amount,
-  claim_1_amount_usd,
+  claim_1_amount * p1.price AS claim_1_amount_usd,
   claim_1_currency,
   claim_1_contract,
   l1.address_name AS claim_1_contract_label
@@ -128,3 +120,11 @@ ON claim_0_contract = l0.address
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l1
 ON claim_1_contract = l1.address
+
+LEFT OUTER JOIN prices p0
+ ON date_trunc('hour', block_timestamp) = p0.hour
+ AND claim_0_currency = p0.currency 
+
+ LEFT OUTER JOIN prices p1
+ ON date_trunc('hour', block_timestamp) = p1.hour
+ AND claim_1_currency = p1.currency 

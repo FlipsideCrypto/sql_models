@@ -56,11 +56,11 @@ FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.protocol_fee_currency = o.currency 
+ AND t.event_attributes:protocol_fee[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.burn_currency = i.currency  
+ AND t.event_attributes:burn_amount[0]:denom::string = i.currency  
 
 WHERE event_attributes:burn_amount IS NOT NULL 
   AND tx_id IN(SELECT DISTINCT tx_id 
@@ -83,11 +83,11 @@ FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.tax_currency = o.currency 
+ AND t.event_attributes:tax_amount[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.withdraw_currency = i.currency  
+ AND t.event_attributes:withdraw_amount[0]:denom::string = i.currency  
 
 WHERE event_attributes:withdraw_amount IS NOT NULL 
   AND tx_id IN(SELECT DISTINCT tx_id 

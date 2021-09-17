@@ -24,7 +24,7 @@ WITH prices AS (
 msgs AS (
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -33,7 +33,7 @@ SELECT
   msg_value:sender::string AS sender,
   msg_value:execute_msg:send:contract::string AS contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
@@ -54,7 +54,7 @@ FROM {{source('silver_terra', 'msg_events')}} m
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour
- AND m.currency = o.currency 
+ AND event_attributes:collaterals[0]:denom::string = o.currency 
 
 WHERE tx_id IN(SELECT tx_id FROM msgs)
   AND event_type = 'from_contract'
@@ -85,7 +85,7 @@ JOIN events e
 UNION 
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -104,7 +104,7 @@ ON msg_value:execute_msg:send:contract::string = l.address
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour
- AND m.currency = o.currency 
+ AND msg_value:contract::string = o.currency 
 
 WHERE msg_value:execute_msg:send:msg:deposit_collateral IS NOT NULL 
   AND tx_status = 'SUCCEEDED'

@@ -22,7 +22,7 @@ WITH prices AS (
 )
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -40,7 +40,7 @@ ON msg_value:contract::string = l.address
 
 LEFT OUTER JOIN prices r
  ON date_trunc('hour', block_timestamp) = hour
- AND m.currency = r.currency 
+ AND msg_value:coins[0]:denom::string = r.currency 
 
 WHERE msg_value:execute_msg:repay_stable IS NOT NULL 
   AND tx_status = 'SUCCEEDED'

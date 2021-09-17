@@ -5,7 +5,7 @@
     unique_key='block_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'terra', 'anchor', 'collateral']
+    tags=['snowflake', 'terra', 'anchor', 'burns']
   )
 }}
 
@@ -22,7 +22,7 @@ WITH prices AS (
 )
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -37,7 +37,7 @@ FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour
- AND m.currency = o.currency 
+ AND msg_value:contract::string = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address

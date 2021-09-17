@@ -24,7 +24,7 @@ WITH prices AS (
 msgs AS (
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -34,7 +34,7 @@ SELECT
   msg_value:execute_msg:withdraw_voting_tokens:amount / POW(10,6) as amount,
   msg_value:contract::string as contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}} 
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -55,7 +55,7 @@ FROM {{source('silver_terra', 'msg_events')}}
 
 LEFT OUTER JOIN prices r
  ON date_trunc('hour', block_timestamp) = hour
- AND m.currency = r.currency 
+ AND event_attributes:"0_contract_address"::string = r.currency 
 
 WHERE event_type = 'execute_contract'
   AND tx_id IN(SELECT tx_id FROM msgs) 
@@ -85,7 +85,7 @@ JOIN events e
 UNION
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -97,14 +97,14 @@ SELECT
   msg_value:contract::string as currency,
   msg_value:execute_msg:send:contract::string as contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
 
 LEFT OUTER JOIN prices r
  ON date_trunc('hour', block_timestamp) = hour
- AND m.currency = r.currency 
+ AND msg_value:contract::string = r.currency 
 
 WHERE msg_value:execute_msg:send:msg:stake_voting_tokens IS NOT NULL 
   AND msg_value:execute_msg:send:contract::string = 'terra1f32xyep306hhcxxxf7mlyh0ucggc00rm2s9da5'
