@@ -15,7 +15,7 @@ WITH prices AS (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(price_usd) as price_usd
+      avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
     GROUP BY 1,2,3
 
@@ -33,7 +33,7 @@ SELECT
 FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:send:msg:burn IS NOT NULL
   AND msg_value:execute_msg:send:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj'
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
 
 ),
 
@@ -52,7 +52,7 @@ WHERE tx_id IN(select tx_id from tx)
 msgs as (
 
 SELECT
-  blockchain,
+  t.blockchain,
   chain_id,
   block_id,
   block_timestamp, 
@@ -61,7 +61,7 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:execute_msg:send:contract::string as contract_address,
   l.address_name AS contract_label
-FROM tx
+FROM tx t
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
@@ -93,7 +93,7 @@ LEFT OUTER JOIN prices o
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.event_attributes:unlocked_amount[0]:amount / POW(10,6) = i.currency  
+ AND t.event_attributes:unlocked_amount[0]:denom::string = i.currency  
 
 LEFT OUTER JOIN prices a
  ON date_trunc('hour', t.block_timestamp) = i.hour

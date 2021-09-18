@@ -9,10 +9,22 @@
   )
 }}
 
-WITH msgs as(
+WITH prices AS (
+
+  SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(price_usd) as price
+    FROM {{ ref('terra__oracle_prices')}} 
+    GROUP BY 1,2,3
+
+),
+
+msgs as(
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -21,7 +33,7 @@ SELECT
   msg_value:execute_msg:open_position:collateral_ratio AS collateral_ratio,
   msg_value:contract::string AS contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -58,7 +70,7 @@ SELECT
   event_attributes:commission_amount / POW(10,6) AS commission,
   event_attributes:spread_amount / POW(10,6) AS spread,
   
-  to_timestamp(event_attributes:unlock_time) AS unlock_time
+  to_timestamp(event_attributes:unlock_time::numeric) AS unlock_time
 FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
@@ -70,12 +82,12 @@ LEFT OUTER JOIN prices i
  AND t.event_attributes:mint_amount[0]:denom::string = i.currency  
 
 LEFT OUTER JOIN prices r
- ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.return_amount = o.currency 
+ ON date_trunc('hour', t.block_timestamp) = r.hour
+ AND 'uusd' = r.currency 
 
 LEFT OUTER JOIN prices l
- ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.event_attributes:locked_amount[0]:denom::string = i.currency  
+ ON date_trunc('hour', t.block_timestamp) = l.hour
+ AND t.event_attributes:locked_amount[0]:denom::string = l.currency  
 
 WHERE event_type = 'from_contract'
   AND event_attributes:is_short::string = 'true'

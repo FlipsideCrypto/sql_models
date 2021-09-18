@@ -16,7 +16,7 @@ WITH prices AS (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(price_usd) as price_usd
+      avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
     GROUP BY 1,2,3
 
@@ -25,7 +25,7 @@ WITH prices AS (
 msgs AS(
 
 SELECT
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -34,10 +34,10 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:contract::string = l.address
 
 WHERE msg_value:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj' -- Mirror Mint Contract
   AND msg_value:execute_msg:open_position IS NOT NULL
@@ -56,7 +56,7 @@ SELECT
   event_attributes:mint_amount[0]:amount/ POW(10,6) as mint_amount,
   mint_amount * i.price AS mint_amount_usd,
   event_attributes:mint_amount[0]:denom::string as mint_currency
-FROM t{{source('silver_terra', 'msg_events')}} t
+FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour

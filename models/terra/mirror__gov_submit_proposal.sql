@@ -5,7 +5,7 @@
     unique_key='block_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'terra', 'mirror', 'gov']
+    tags=['snowflake', 'terra', 'mirror', 'mirror_gov']
   )
 }}
 
@@ -40,7 +40,7 @@ WHERE tx_id IN(select tx_id from msgs)
 )
 
 SELECT 
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,

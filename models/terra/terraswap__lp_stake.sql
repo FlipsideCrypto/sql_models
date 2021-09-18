@@ -13,6 +13,7 @@
 WITH msgs AS (
 
 SELECT 
+  blockchain,
   chain_id,  
   block_id,
   block_timestamp,
@@ -40,6 +41,7 @@ where tx_id IN(SELECT distinct tx_id from msgs)
 
 -- unstake
 SELECT 
+  m.blockchain,
   chain_id,  
   block_id,
   block_timestamp,
@@ -61,6 +63,7 @@ UNION
 
 -- stake 
 SELECT 
+  m.blockchain,
   chain_id,  
   block_id,
   block_timestamp,
@@ -70,7 +73,7 @@ SELECT
   msg_value:execute_msg:send:amount / POW(10,6) as amount,
   msg_value:contract::string as contract_address,
   address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} 
   ON msg_value:contract::string = address

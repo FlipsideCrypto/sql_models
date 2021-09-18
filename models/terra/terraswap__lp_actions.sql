@@ -15,7 +15,7 @@ WITH prices as (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(price_usd) as price_usd
+      avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
     GROUP BY 1,2,3
 
@@ -24,7 +24,7 @@ WITH prices as (
 provide_msgs AS (
 
 SELECT
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -33,7 +33,7 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:contract::string as pool_address,
   l.address_name AS pool_name
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -68,11 +68,11 @@ ON lp_pool_address = l.address
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.token_0_currency = o.currency 
+ AND t.event_attributes:assets[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.token_1_currency = i.currency  
+ AND t.event_attributes:assets[1]:denom::string = i.currency  
 
 WHERE msg_index = 1
   AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
@@ -83,7 +83,7 @@ WHERE msg_index = 1
 withdraw_msgs AS (
   
 SELECT
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -94,13 +94,13 @@ SELECT
   l.address_name AS lp_pool_name,
   msg_value:execute_msg:send:contract::string as pool_address,
   p.address_name AS pool_name
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as p
-ON pool_address = p.address
+ON msg_value:contract::string = p.address
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON lp_pool_address = l.address
+ON msg_value:execute_msg:send:contract::string = l.address
 
 WHERE msg_value:execute_msg:send:msg:withdraw_liquidity IS NOT NULL
   AND tx_status = 'SUCCEEDED'
@@ -125,11 +125,11 @@ FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.token_0_currency = o.currency 
+ AND t.event_attributes:refund_assets[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.token_1_currency = i.currency  
+ AND t.event_attributes:refund_assets[1]:denom::string = i.currency  
 
 WHERE tx_id IN(SELECT tx_id FROM msgs)
   AND event_type = 'from_contract'

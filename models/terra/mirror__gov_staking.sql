@@ -5,7 +5,7 @@
     unique_key='block_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'terra', 'mirror', 'gov']
+    tags=['snowflake', 'terra', 'mirror', 'mirror_gov']
   )
 }}
 
@@ -15,7 +15,7 @@ WITH prices AS (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(price_usd) as price_usd
+      avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
     GROUP BY 1,2,3
 
@@ -24,7 +24,7 @@ WITH prices AS (
 stake_msgs AS (
 
 SELECT
-  blockchain,
+  t.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -39,14 +39,14 @@ FROM {{source('silver_terra', 'msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.event_currency = o.currency 
+ AND msg_value:contract::string = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
+ON msg_value:execute_msg:send:contract::string = l.address
 
 WHERE msg_value:execute_msg:send:msg:stake_voting_tokens IS NOT NULL 
   AND msg_value:execute_msg:send:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'
 
 ),
 
@@ -84,7 +84,7 @@ UNION
 -- Unstaking
 
 SELECT
-  blockchain,
+  t.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -94,17 +94,18 @@ SELECT
   msg_value:execute_msg:withdraw_voting_tokens:amount / POW(10,6) as event_amount,
   event_amount * o.price AS event_amount_usd,
   'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' as event_currency,
+  NULL as shares,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
 FROM {{source('silver_terra', 'msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.event_currency = o.currency 
+ AND 'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL
   AND msg_value:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
-  AND tx_status = = 'SUCCEEDED'
+  AND tx_status = 'SUCCEEDED'

@@ -10,9 +10,22 @@
 }}
 
 
-WITH msgs as (
+WITH prices AS (
+
+  SELECT 
+      date_trunc('hour', block_timestamp) as hour,
+      currency,
+      symbol,
+      avg(price_usd) as price
+    FROM {{ ref('terra__oracle_prices')}} 
+    GROUP BY 1,2,3
+
+),
+
+msgs as (
 -- native to non-native/native
 SELECT
+  blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -28,6 +41,7 @@ WHERE msg_value:execute_msg:swap IS NOT NULL
  
 -- non-native to native
 SELECT
+  blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -43,11 +57,11 @@ WHERE msg_value:execute_msg:send:msg:swap IS NOT NULL
 events as (
 SELECT
   tx_id,
-  as_number(event_attributes:tax_amount)/POW(10,6) as tax_amount,
-  event_attributes:commission_amount::numeric/POW(10,6) as commission_amount,
-  event_attributes:offer_amount::numeric/POW(10,6) as offer_amount,
+  as_number(event_attributes:tax_amount) / POW(10,6) as tax_amount,
+  event_attributes:commission_amount::numeric / POW(10,6) as commission_amount,
+  event_attributes:offer_amount::numeric / POW(10,6) as offer_amount,
   event_attributes:offer_asset::string as offer_currency,
-  event_attributes:return_amount::numeric/POW(10,6) as return_amount,
+  event_attributes:return_amount::numeric / POW(10,6) as return_amount,
   event_attributes:ask_asset::string as return_currency
 FROM {{source('silver_terra', 'msg_events')}}
 
@@ -58,6 +72,7 @@ WHERE event_type = 'from_contract'
 
 
 SELECT 
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -79,12 +94,12 @@ JOIN events e
   ON m.tx_id = e.tx_id
 
 LEFT OUTER JOIN prices o
- ON date_trunc('hour', t.block_timestamp) = o.hour
- AND m.offer_currency = o.currency 
+ ON date_trunc('hour', m.block_timestamp) = o.hour
+ AND e.offer_currency = o.currency 
 
 LEFT OUTER JOIN prices r
- ON date_trunc('hour', t.block_timestamp) = r.hour
- AND m.return_currency = r.currency  
+ ON date_trunc('hour', m.block_timestamp) = r.hour
+ AND e.return_currency = r.currency  
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} l
   ON pool_address = address

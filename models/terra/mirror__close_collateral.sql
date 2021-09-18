@@ -15,7 +15,7 @@ WITH prices AS (
       date_trunc('hour', block_timestamp) as hour,
       currency,
       symbol,
-      avg(price_usd) as price_usd
+      avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
     GROUP BY 1,2,3
 
@@ -23,7 +23,7 @@ WITH prices AS (
 
 msgs AS (
 SELECT
-  blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -32,7 +32,7 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:contract::string as contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
