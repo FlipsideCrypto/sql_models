@@ -5,7 +5,7 @@
     unique_key='block_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'terra', 'anchor', 'stake']
+    tags=['snowflake', 'terra', 'anchor_dbt', 'stake']
   )
 }}
 
@@ -17,6 +17,13 @@ WITH prices AS (
       symbol,
       avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
+    
+    WHERE 1=1
+    
+    {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    {% endif %}
+
     GROUP BY 1,2,3
 
 ),
@@ -42,6 +49,10 @@ ON msg_value:contract::string = l.address
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL 
   AND msg_value:contract::string = 'terra1f32xyep306hhcxxxf7mlyh0ucggc00rm2s9da5'
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
   
 ),
 
@@ -61,6 +72,10 @@ WHERE event_type = 'execute_contract'
   AND tx_id IN(SELECT tx_id FROM msgs) 
   AND msg_index = 0
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 
 )
 
@@ -109,3 +124,7 @@ LEFT OUTER JOIN prices r
 WHERE msg_value:execute_msg:send:msg:stake_voting_tokens IS NOT NULL 
   AND msg_value:execute_msg:send:contract::string = 'terra1f32xyep306hhcxxxf7mlyh0ucggc00rm2s9da5'
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}

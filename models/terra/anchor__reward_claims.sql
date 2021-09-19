@@ -1,14 +1,10 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id', 
-    incremental_strategy='delete+insert',
-    cluster_by=['block_timestamp'],
+{{ config(
+    materialized = 'incremental',
+    unique_key = 'block_id || tx_id',
+    incremental_strategy = 'delete+insert',
+    cluster_by = ['block_timestamp', 'block_id'],
     tags=['snowflake', 'terra', 'anchor', 'reward_claims']
-  )
-}}
-
+) }}
 WITH prices AS (
 
   SELECT 
@@ -17,6 +13,13 @@ WITH prices AS (
       symbol,
       avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
+    
+    WHERE 1=1
+    
+    {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    {% endif %}
+
     GROUP BY 1,2,3
 
 ),
@@ -33,6 +36,10 @@ WHERE msg_value:execute_msg:withdraw IS NOT NULL
   AND msg_value:contract::string = 'terra1897an2xux840p9lrh6py3ryankc6mspw49xse3'
   AND tx_status = 'SUCCEEDED'
 
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
+
 ),
 
 claim_msgs AS (
@@ -47,6 +54,10 @@ WHERE msg_value:execute_msg:claim_rewards IS NOT NULL
   AND msg_index = 1
   AND msg_value:contract::string = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
   
 ),
 
@@ -66,6 +77,10 @@ JOIN withdraw_msgs m
 WHERE event_type = 'from_contract'  
   AND tx_status = 'SUCCEEDED'
   AND event_attributes:"0_action"::string = 'withdraw'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
   
 ),
 
@@ -90,6 +105,10 @@ JOIN claim_msgs m
 WHERE event_type = 'from_contract'
   AND tx_status = 'SUCCEEDED'
   AND event_attributes:"0_action"::string = 'claim_rewards'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
   
 )
 

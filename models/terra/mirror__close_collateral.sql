@@ -1,13 +1,10 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id', 
-    incremental_strategy='delete+insert',
-    cluster_by=['block_timestamp'],
+{{ config(
+    materialized = 'incremental',
+    unique_key = 'block_id || tx_id',
+    incremental_strategy = 'delete+insert',
+    cluster_by = ['block_timestamp', 'block_id'],
     tags=['snowflake', 'terra', 'mirror', 'collateral']
-  )
-}}
+) }}
 
 WITH prices AS (
 
@@ -17,6 +14,13 @@ WITH prices AS (
       symbol,
       avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
+    
+    WHERE 1=1
+    
+    {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    {% endif %}
+
     GROUP BY 1,2,3
 
 ),
@@ -39,6 +43,10 @@ ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:send:msg:burn IS NOT NULL 
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 ),
   
 burns AS (
@@ -66,6 +74,10 @@ WHERE event_attributes:burn_amount IS NOT NULL
   AND tx_id IN(SELECT DISTINCT tx_id 
                 FROM msgs)
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 ),
   
 withdraw as (
@@ -93,6 +105,10 @@ WHERE event_attributes:withdraw_amount IS NOT NULL
   AND tx_id IN(SELECT DISTINCT tx_id 
                 FROM msgs)
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 )
 
 SELECT

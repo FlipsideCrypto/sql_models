@@ -1,13 +1,10 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id', 
-    incremental_strategy='delete+insert',
-    cluster_by=['block_timestamp'],
+{{ config(
+    materialized = 'incremental',
+    unique_key = 'block_id || tx_id',
+    incremental_strategy = 'delete+insert',
+    cluster_by = ['block_timestamp', 'block_id'],
     tags=['snowflake', 'terra', 'terraswap', 'lp']
-  )
-}}
+) }}
 
 WITH prices as (
 
@@ -17,6 +14,13 @@ WITH prices as (
       symbol,
       avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
+    
+    WHERE 1=1
+    
+    {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    {% endif %}
+
     GROUP BY 1,2,3
 
 ),
@@ -40,6 +44,10 @@ ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:provide_liquidity IS NOT NULL 
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 
 ),
 
@@ -81,6 +89,10 @@ WHERE msg_index = 1
   AND tx_id IN(SELECT DISTINCT tx_id FROM provide_msgs)
   AND event_type = 'from_contract'
 
+  {% if is_incremental() %}
+    AND t.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
+
 ),
 
 withdraw_msgs AS (
@@ -107,6 +119,10 @@ ON msg_value:execute_msg:send:contract::string = l.address
 
 WHERE msg_value:execute_msg:send:msg:withdraw_liquidity IS NOT NULL
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND m.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
   
 ),
 
@@ -137,6 +153,10 @@ LEFT OUTER JOIN prices i
 WHERE tx_id IN(SELECT tx_id FROM provide_msgs)
   AND event_type = 'from_contract'
   AND event_attributes:refund_assets IS NOT NULL 
+
+  {% if is_incremental() %}
+    AND t.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 
 )
 

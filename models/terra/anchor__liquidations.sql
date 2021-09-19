@@ -1,13 +1,10 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id', 
-    incremental_strategy='delete+insert',
-    cluster_by=['block_timestamp'],
+{{ config(
+    materialized = 'incremental',
+    unique_key = 'block_id || tx_id',
+    incremental_strategy = 'delete+insert',
+    cluster_by = ['block_timestamp', 'block_id'],
     tags=['snowflake', 'terra', 'anchor', 'liquidations']
-  )
-}}
+) }}
 
 WITH prices AS (
 
@@ -17,6 +14,13 @@ WITH prices AS (
       symbol,
       avg(price_usd) as price
     FROM {{ ref('terra__oracle_prices')}} 
+    
+    WHERE 1=1
+    
+    {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    {% endif %}
+
     GROUP BY 1,2,3
 
 ),
@@ -40,6 +44,10 @@ ON msg_value:contract::string = l.address
 WHERE msg_value:contract::string = 'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8'
   AND msg_value:execute_msg:liquidate_collateral IS NOT NULL 
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 
 ), 
 
@@ -69,6 +77,10 @@ WHERE event_type = 'from_contract'
   AND tx_id IN(SELECT tx_id FROM msgs)
   AND tx_status = 'SUCCEEDED'
   AND event_attributes:"0_action"::string = 'liquidate_collateral'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 
 )
 

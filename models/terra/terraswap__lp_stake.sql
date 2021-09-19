@@ -1,13 +1,10 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id', 
-    incremental_strategy='delete+insert',
-    cluster_by=['block_timestamp'],
+{{ config(
+    materialized = 'incremental',
+    unique_key = 'block_id || tx_id',
+    incremental_strategy = 'delete+insert',
+    cluster_by = ['block_timestamp', 'block_id'],
     tags=['snowflake', 'terra', 'terraswap', 'lp']
-  )
-}}
+) }}
 
 -- LP Un-staking
 WITH msgs AS (
@@ -25,6 +22,10 @@ FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:unbond IS NOT NULL 
   AND tx_status = 'SUCCEEDED'
 
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
+
 ),
 
 events AS (
@@ -36,6 +37,10 @@ FROM {{source('silver_terra', 'msg_events')}}
 where tx_id IN(SELECT distinct tx_id from msgs)
   AND event_type = 'execute_contract'
   AND msg_index = 0
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
 
 )
 
@@ -80,3 +85,7 @@ LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}}
 
 WHERE msg_value:execute_msg:send:msg:bond IS NOT NULL 
   AND tx_status = 'SUCCEEDED'
+
+  {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+  {% endif %}
