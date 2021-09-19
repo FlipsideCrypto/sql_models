@@ -23,7 +23,7 @@ WHERE msg_value:execute_msg:unbond IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
   {% endif %}
 
 ),
@@ -39,7 +39,7 @@ where tx_id IN(SELECT distinct tx_id from msgs)
   AND msg_index = 0
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
   {% endif %}
 
 )
@@ -87,5 +87,5 @@ WHERE msg_value:execute_msg:send:msg:bond IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
   {% endif %}

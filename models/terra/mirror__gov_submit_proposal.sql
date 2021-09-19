@@ -26,7 +26,7 @@ WHERE msg_value:execute_msg:send:msg:create_poll IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
   {% endif %}
 ),
 
@@ -40,7 +40,7 @@ WHERE tx_id IN(select tx_id from msgs)
   AND event_type = 'from_contract'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'terra_msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
   {% endif %}
 )
 
