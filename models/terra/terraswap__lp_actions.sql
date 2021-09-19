@@ -3,7 +3,7 @@
     unique_key = 'block_id || tx_id',
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra', 'terraswap', 'lp']
+    tags=['snowflake', 'terra', 'terraswap', 'terraswap_lp_actions']
 ) }}
 
 WITH prices as (
@@ -150,7 +150,7 @@ LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
  AND t.event_attributes:refund_assets[1]:denom::string = i.currency  
 
-WHERE tx_id IN(SELECT tx_id FROM provide_msgs)
+WHERE tx_id IN(SELECT tx_id FROM withdraw_msgs)
   AND event_type = 'from_contract'
   AND event_attributes:refund_assets IS NOT NULL 
 
@@ -193,7 +193,7 @@ SELECT
   chain_id,
   block_id,
   block_timestamp,
-  m.tx_id,
+  w.tx_id,
   event_type,
   sender,
   token_0_amount,
@@ -207,7 +207,7 @@ SELECT
   lp_share_amount,
   lp_pool_address,
   lp_pool_name
-FROM withdraw_msgs m 
+FROM withdraw_msgs w
 
-JOIN withdraw_events e 
-  ON m.tx_id = e.tx_id
+JOIN withdraw_events we 
+  ON w.tx_id = we.tx_id
