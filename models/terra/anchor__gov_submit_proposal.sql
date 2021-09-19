@@ -33,7 +33,7 @@ WHERE msg_value:execute_msg:send:msg:create_poll IS NOT NULL
 events AS (
 SELECT 
   tx_id,
-  to_timestamp(event_attributes:end_time) as end_time,
+  COALESCE(to_timestamp(event_attributes:end_time),event_attributes:end_height) as end_time,
   event_attributes:poll_id as poll_id
 FROM {{source('silver_terra', 'msg_events')}}
 WHERE tx_id IN(select tx_id from msgs)
