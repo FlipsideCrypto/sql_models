@@ -3,7 +3,7 @@
     unique_key = 'block_id || tx_id',
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra', 'mirror', 'collateral']
+    tags=['snowflake', 'terra', 'mirror', 'mirror_close_collateral']
 ) }}
 
 WITH prices AS (
@@ -52,19 +52,10 @@ WHERE msg_value:execute_msg:send:msg:burn IS NOT NULL
 burns AS (
 SELECT
   tx_id,
-  
-  event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
-  event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency,
-  protocol_fee_amount * o.price AS procotol_fee_amount_usd,
-  
   event_attributes:burn_amount[0]:amount / POW(10,6) AS burn_amount,
   burn_amount * i.price AS burn_amount_usd,
   event_attributes:burn_amount[0]:denom::string AS burn_currency
 FROM {{source('silver_terra', 'msg_events')}} t
-
-LEFT OUTER JOIN prices o
- ON date_trunc('hour', t.block_timestamp) = o.hour
- AND t.event_attributes:protocol_fee[0]:denom::string = o.currency 
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
@@ -87,6 +78,10 @@ SELECT
   event_attributes:tax_amount[0]:amount /POW(10,6) AS tax_amount,
   tax_amount * o.price AS tax_amount_usd,
   event_attributes:tax_amount[0]:denom::string AS tax_currency,
+
+  event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
+  protocol_fee_amount * f.price AS procotol_fee_amount_usd,
+  event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency,
   
   event_attributes:withdraw_amount[0]:amount /POW(10,6) AS withdraw_amount,
   withdraw_amount * i.price AS withdraw_amount_usd,
@@ -100,6 +95,10 @@ LEFT OUTER JOIN prices o
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
  AND t.event_attributes:withdraw_amount[0]:denom::string = i.currency  
+
+LEFT OUTER JOIN prices f
+ ON date_trunc('hour', t.block_timestamp) = f.hour
+ AND t.event_attributes:protocol_fee[0]:denom::string = f.currency 
 
 WHERE event_attributes:withdraw_amount IS NOT NULL 
   AND tx_id IN(SELECT DISTINCT tx_id 
