@@ -59,7 +59,7 @@ SELECT
   event_attributes:collateral_amount / POW(10,6) AS liquidated_amount,
   liquidated_amount * l.price AS liquidated_amount_usd,
   event_attributes:collateral_token::string as liquidated_currency,
-  event_attributes:"1_repay_amount" as repay_amount,
+  event_attributes:"1_repay_amount" / POW(10,6) as repay_amount,
   repay_amount * r.price as repay_amount_usd,
   event_attributes:stable_denom::string as repay_currency,
   event_attributes:bid_fee / POW(10,6) AS bid_fee
