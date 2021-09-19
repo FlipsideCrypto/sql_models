@@ -104,7 +104,7 @@ SELECT
   'unstake' as event_type,
   msg_value:sender::string as sender,
   msg_value:execute_msg:withdraw_voting_tokens:amount / POW(10,6) as amount,
-  event_amount * o.price AS amount_usd,
+  amount * o.price AS amount_usd,
   'terra14z56l0fp2lsf86zy3hty2z47ezkhnthtr9yq76' as currency,
   NULL as shares,
   msg_value:contract::string as contract_address,
