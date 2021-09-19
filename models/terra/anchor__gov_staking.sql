@@ -34,9 +34,9 @@ SELECT
   block_timestamp,
   tx_id,
   msg_value:sender::string as sender,
-  msg_value:execute_msg:send:amount / POW(10,6) as event_amount,
-  event_amount * o.price AS event_amount_usd,
-  msg_value:contract::string as event_currency,
+  msg_value:execute_msg:send:amount / POW(10,6) as amount,
+  event_amount * o.price AS amount_usd,
+  msg_value:contract::string as currency,
   msg_value:execute_msg:send:contract::string as contract_address,
   l.address_name AS contract_label 
 FROM {{source('silver_terra', 'msgs')}} t
