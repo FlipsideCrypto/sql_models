@@ -71,6 +71,7 @@ SELECT
   block_id,
   block_timestamp,
   m.tx_id,
+  collateral_id,
   sender as buyer,
   owner,
   tax,
@@ -88,7 +89,6 @@ SELECT
   unlocked_amount,
   unlocked_amount * u.price as unlocked_amount_usd,
   unlocked_curency,
-  collateral_id,
   contract_address,
   g.address_name AS contract_label
 FROM msgs m
