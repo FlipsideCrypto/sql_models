@@ -54,12 +54,20 @@ SELECT
   tx_id,
   event_attributes:burn_amount[0]:amount / POW(10,6) AS burn_amount,
   burn_amount * i.price AS burn_amount_usd,
-  event_attributes:burn_amount[0]:denom::string AS burn_currency
+  event_attributes:burn_amount[0]:denom::string AS burn_currency,
+
+  event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
+  protocol_fee_amount * f.price AS procotol_fee_amount_usd,
+  event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency,
 FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
  AND t.event_attributes:burn_amount[0]:denom::string = i.currency  
+
+LEFT OUTER JOIN prices f
+ ON date_trunc('hour', t.block_timestamp) = f.hour
+ AND t.event_attributes:protocol_fee[0]:denom::string = f.currency 
 
 WHERE event_attributes:burn_amount IS NOT NULL 
   AND tx_id IN(SELECT DISTINCT tx_id 
