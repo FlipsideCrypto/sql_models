@@ -108,8 +108,8 @@ LEFT OUTER JOIN prices i
  AND t.event_attributes:unlocked_amount[0]:denom::string = i.currency  
 
 LEFT OUTER JOIN prices a
- ON date_trunc('hour', t.block_timestamp) = i.hour
- AND t.event_attributes:"0_tax_amount"[0]:denom::string = i.currency  
+ ON date_trunc('hour', t.block_timestamp) = a.hour
+ AND t.event_attributes:"0_tax_amount"[0]:denom::string = a.currency  
 
 WHERE event_attributes:withdraw_amount IS NOT NULL 
 
