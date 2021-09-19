@@ -64,7 +64,10 @@ SELECT
 FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON lp_pool_address = l.address
+ON event_attributes:"2_contract_address"::string = l.address
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as r
+ON event_attributes:"4_contract_address"::string = r.address
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -75,7 +78,7 @@ LEFT OUTER JOIN prices i
  AND t.event_attributes:assets[1]:denom::string = i.currency  
 
 WHERE msg_index = 1
-  AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
+  AND tx_id IN(SELECT DISTINCT tx_id FROM provide_msgs)
   AND event_type = 'from_contract'
 
 ),
@@ -131,7 +134,7 @@ LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
  AND t.event_attributes:refund_assets[1]:denom::string = i.currency  
 
-WHERE tx_id IN(SELECT tx_id FROM msgs)
+WHERE tx_id IN(SELECT tx_id FROM provide_msgs)
   AND event_type = 'from_contract'
   AND event_attributes:refund_assets IS NOT NULL 
 

@@ -71,13 +71,13 @@ SELECT
   block_id,
   block_timestamp,
   m.tx_id,
-  sender,
+  sender as buyer,
   owner,
   tax,
   tax * t.price as tax_usd,
   tax_currency,
   protocol_fee,
-  protocol_fee * p.price as protocol_fee_usd
+  protocol_fee * p.price as protocol_fee_usd,
   protocol_fee_currency,
   liquidated_amount,
   liquidated_amount * l.price as liquidated_amount_usd,
@@ -86,35 +86,35 @@ SELECT
   return_collateral_amount * r.price as return_collateral_amount_usd,
   return_collateral_currency,
   unlocked_amount,
-  unlocked_amount * u.price as unlocked_amount_usd
+  unlocked_amount * u.price as unlocked_amount_usd,
   unlocked_curency,
   collateral_id,
   contract_address,
-  l.address_name AS contract_label
+  g.address_name AS contract_label
 FROM msgs m
 
 JOIN events e 
   ON m.tx_id = e.tx_id
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON m.contract_address = l.address
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as g
+ON m.contract_address = g.address
 
 LEFT OUTER JOIN prices t
  ON date_trunc('hour', m.block_timestamp) = t.hour
- AND tax = t.currency 
+ AND tax_currency = t.currency 
 
 LEFT OUTER JOIN prices p
  ON date_trunc('hour', m.block_timestamp) = p.hour
- AND protocool_fee = p.currency 
+ AND protocol_fee_currency = p.currency 
 
 LEFT OUTER JOIN prices l
  ON date_trunc('hour', m.block_timestamp) = l.hour
- AND liquidated_amount = l.currency 
+ AND liquidated_currency = l.currency 
 
 LEFT OUTER JOIN prices r
  ON date_trunc('hour', m.block_timestamp) = r.hour
- AND return_collateral_amount = r.currency 
+ AND return_collateral_currency = r.currency 
 
 LEFT OUTER JOIN prices u
  ON date_trunc('hour', m.block_timestamp) = u.hour
- AND unlocked_amount = u.currency 
+ AND unlocked_curency = u.currency 
