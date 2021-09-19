@@ -78,20 +78,22 @@ WITH token_prices AS (
     {% endif %}
 ),
 originator AS (
-  SELECT DISTINCT
-    tx_id,
-    from_address as origin_address,
-    from_label_type as origin_label_type,
-    from_label_subtype as origin_label_subtype,
-    from_label as origin_label,
-    from_address_name as origin_address_name,
-    input_method as origin_function_signature,
+  SELECT
+    tx_hash as tx_id,
+    t.from_address as origin_address,
+    from_labels.l1_label as origin_label_type,
+    from_labels.l2_label as origin_label_subtype,
+    from_labels.project_name as origin_label,
+    from_labels.address_name as origin_address_name,
+    t.input_method as origin_function_signature,
     f.text_signature as origin_function_name
-  FROM events e
+  FROM {{source('ethereum', 'ethereum_transactions') }} t
   LEFT OUTER JOIN
     {{ source('ethereum', 'sha256_function_signatures') }} as f
-      ON e.input_method = f.hex_signature AND f.importance = 1
-  WHERE (e.event_id IS NULL AND e.contract_address IS NULL AND e.eth_value = 0) OR e.fee > 0
+      ON t.input_method = f.hex_signature AND f.importance = 1
+   LEFT OUTER JOIN
+    silver.ethereum_address_labels as from_labels
+      ON t.from_address = from_labels.address
 ),
 full_events AS (
   SELECT

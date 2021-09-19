@@ -28,8 +28,8 @@ WITH staking AS (
     AND tx_status = 'SUCCEEDED'
     {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '1 days'
-    {% else %}
-    AND block_timestamp >= getdate() - interval '9 months'
+    -- {% else %}
+    -- AND block_timestamp >= getdate() - interval '9 months'
     {% endif %}
 )
 

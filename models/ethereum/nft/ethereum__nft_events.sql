@@ -12,11 +12,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__art_blocks_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -24,11 +22,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__art_blocks_sales') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -36,11 +32,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__ck_bids') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -48,11 +42,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__ck_lists') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -60,11 +52,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__ck_unlists') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '5 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -72,11 +62,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__ck_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -84,11 +72,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__hashmasks_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -96,11 +82,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__hashmasks_sales') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -108,11 +92,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__known_origin_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -120,11 +102,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__makersplace_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -132,11 +112,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__makersplace_sales') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '2 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -144,11 +122,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__nifty_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -156,11 +132,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__opensea_sales') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -168,11 +142,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__opensea_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -180,11 +152,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__polkamon_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '5 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -192,11 +162,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__rarible_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -204,11 +172,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__rarible_sales') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '2 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -216,11 +182,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__sandbox_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -228,11 +192,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__superrare_buys') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -240,11 +202,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__superrare_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -252,11 +212,9 @@ with nft as (
   SELECT 
     * 
   FROM {{ ref('ethereum_dbt__superrare_accept_bids') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -264,11 +222,9 @@ with nft as (
   SELECT
     * 
   FROM {{ ref('ethereum_dbt__superrare_auction_wins') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
   UNION
@@ -276,11 +232,9 @@ with nft as (
   SELECT
     * 
   FROM {{ ref('ethereum_dbt__zora_mints') }}
-  WHERE 
+  WHERE 1=1
   {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+     and block_timestamp >= getdate() - interval '5 days'
   {% endif %}
 
 ),
@@ -295,11 +249,9 @@ price as (
       price,
       row_number() OVER(PARTITION BY symbol, hour ORDER BY hour DESC) as rn
     FROM {{ ref('ethereum__token_prices_hourly') }}
-    WHERE 
+    WHERE 1=1
     {% if is_incremental() %}
-      hour >= getdate() - interval '1 days'
-    {% else %}
-      hour >= getdate() - interval '9 months'
+     and hour >= getdate() - interval '5 days'
     {% endif %}
   )
   WHERE rn = 1 
