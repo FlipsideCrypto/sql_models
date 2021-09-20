@@ -1,0 +1,27 @@
+{{ config(
+    materialized = 'incremental',
+    unique_key = 'block_id || tx_id',
+    incremental_strategy = 'delete+insert',
+    cluster_by = ['block_timestamp', 'block_id'],
+    tags=['snowflake', 'terra', 'airdrops', 'claims']
+) }}
+
+SELECT
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  tx_id,
+  msg_value:sender::string as claimer,
+  msg_value:execute_msg:claim:amount / POW(10,6) as amount,
+  msg_value:contract::string as contract_address,
+  l.address_name as contract_label
+FROM {{source('silver_terra', 'msgs')}}
+WHERE msg_value:execute_msg:claim IS NOT NULL
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+ON msg_value:contract::string = l.address
+
+{% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+{% endif %}
