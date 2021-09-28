@@ -189,26 +189,100 @@ WITH decimals_raw as (
   LEFT JOIN {{ref('ethereum__events_emitted')}} ind
     ON s.pool_address = ind.contract_address AND s.tx_id = ind.tx_id
     WHERE (amount1_adjusted > 0 OR amount0_adjusted > 0) AND platform = 'uniswap-v3' 
+), swaps AS (
+  SELECT 
+    block_timestamp,pool_address,
+    pool_name,
+    token_address,
+    tx_id,
+    amount_in,amount_out,
+    from_address,
+    to_address,
+    -- CASE WHEN ((amount_usd - other_amount_usd) / amount_usd) > .15 THEN other_amount_usd
+    -- ELSE amount_usd END AS amount_usd,
+    amount_usd,
+    platform,
+    event_index,
+    direction
+  FROM usd_swaps
+  WHERE pool_address NOT IN ('0xdc6a5faf34affccc6a00d580ecb3308fc1848f22') -- stop-gap for big price swings, the actual solution adds an enormous amount of runtime
+
+  UNION
+
+  SELECT * 
+  FROM v3_swaps
+
+  UNION
+
+  -- Curve (in)
+  SELECT
+    c.block_timestamp,
+    c.pool_address,
+    c.pool_name,
+    c.token_in AS token_address,
+    c.tx_id,
+    c.amount_in AS amount_in,
+    0 AS amount_out,
+    c.swapper AS from_address,
+    c.swapper AS to_address,
+    c.amount_in_usd AS amount_usd,
+    'curve' AS platform,
+    c.event_index,
+    'IN' AS direction
+  FROM {{ref('ethereum_dbt__curve_swaps')}} c
+  WHERE 
+    {% if is_incremental() %}
+      block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+      block_timestamp >= getdate() - interval '12 months'
+    {% endif %}
+    
+  UNION
+
+  -- Curve (out)
+  SELECT
+    c.block_timestamp,
+    c.pool_address,
+    c.pool_name,
+    c.token_out AS token_address,
+    c.tx_id,
+    0 AS amount_in,
+    c.amount_out AS amount_out,
+    c.swapper AS from_address,
+    c.swapper AS to_address,
+    c.amount_out_usd AS amount_usd,
+    'curve' AS platform,
+    c.event_index,
+    'OUT' AS direction
+  FROM {{ref('ethereum_dbt__curve_swaps')}} c
+  WHERE 
+    {% if is_incremental() %}
+      block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+      block_timestamp >= getdate() - interval '12 months'
+    {% endif %}
 )
 
-SELECT 
-  block_timestamp,pool_address,
-  pool_name,
-  token_address,
-  tx_id,
-  amount_in,amount_out,
-  from_address,
-  to_address,
-  -- CASE WHEN ((amount_usd - other_amount_usd) / amount_usd) > .15 THEN other_amount_usd
-  -- ELSE amount_usd END AS amount_usd,
-  amount_usd,
-  platform,
-  event_index,
-  direction
-FROM usd_swaps
-WHERE pool_address NOT IN ('0xdc6a5faf34affccc6a00d580ecb3308fc1848f22') -- stop-gap for big price swings, the actual solution adds an enormous amount of runtime
 
-UNION
 
-SELECT * 
-FROM v3_swaps
+SELECT
+      s.block_timestamp,
+      s.pool_address,
+      s.pool_name,
+      s.token_address,
+      s.tx_id,
+      s.amount_in,
+      s.amount_out,
+      s.from_address,
+      s.to_address,
+      s.amount_usd,
+      s.platform,
+      s.event_index,
+      s.direction, 
+      CASE WHEN s.from_address <> s.to_address THEN l.project_name ELSE NULL END AS router
+FROM 
+swaps s
+LEFT JOIN
+silver.ethereum_address_labels l
+ON s.from_address = l.address
+

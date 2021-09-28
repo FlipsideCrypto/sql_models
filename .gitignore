@@ -12,3 +12,5 @@ logs/
 
 # Local History for Visual Studio Code
 .history/
+*/.vscode
+**/.DS_Store
