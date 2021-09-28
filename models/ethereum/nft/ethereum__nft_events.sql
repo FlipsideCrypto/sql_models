@@ -1,10 +1,12 @@
-{{ config(
-  materialized = 'incremental',
-  sort = 'block_timestamp',
-  unique_key = 'tx_id',
-  incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'ethereum', 'nft']
-) }}
+{{ 
+  config(
+    materialized='incremental', 
+    sort='block_timestamp',
+    unique_key='tx_id', 
+    incremental_strategy='delete+insert',
+    tags=['snowflake', 'ethereum', 'nft']
+  )
+}}
 
 with nft as (
   SELECT 
@@ -236,7 +238,8 @@ with nft as (
   {% endif %}
 
 ),
-price AS (
+
+price as (
   SELECT
     * 
   FROM (
@@ -252,47 +255,35 @@ price AS (
     {% endif %}
   )
   WHERE rn = 1 
+<<<<<<< HEAD
 )
 WHERE
   rn = 1
+=======
+>>>>>>> b4baf210802c19c3fddc405d2871c1aa6a1ac527
 )
-SELECT
+
+
+SELECT 
   nft.event_platform,
   nft.tx_id,
   nft.block_timestamp,
   nft.event_type,
   nft.contract_address,
-  REGEXP_REPLACE(
-    contract_labels.project_name,
-    ' ',
-    '_'
-  ) AS project_name,
+  REGEXP_REPLACE(contract_labels.project_name,' ','_') as project_name,
   nft.token_id,
-  REGEXP_REPLACE(
-    nft.event_from,
-    '\"',
-    ''
-  ) AS event_from,
-  REGEXP_REPLACE(
-    nft.event_to,
-    '\"',
-    ''
-  ) AS event_to,
+  REGEXP_REPLACE(nft.event_from,'\"','') as event_from,
+  REGEXP_REPLACE(nft.event_to,'\"','') as event_to,
   nft.price,
-  nft.price * p.price AS price_usd,
+  nft.price * p.price as price_usd,
   nft.platform_fee,
   nft.creator_fee,
   nft.tx_currency
-FROM
-  nft
-  LEFT OUTER JOIN price p
-  ON tx_currency = symbol
-  AND DATE_TRUNC(
-    'hour',
-    block_timestamp
-  ) = p.hour
-  LEFT OUTER JOIN {{ source(
-    'ethereum',
-    'ethereum_address_labels'
-  ) }} AS contract_labels
-  ON nft.contract_address = contract_labels.address
+FROM nft
+
+LEFT OUTER JOIN price p 
+  ON tx_currency = symbol 
+  AND date_trunc('hour', block_timestamp) = p.hour
+
+LEFT OUTER JOIN {{ source('ethereum', 'ethereum_address_labels') }} as contract_labels
+    ON nft.contract_address = contract_labels.address

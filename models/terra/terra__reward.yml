@@ -1,12 +1,17 @@
 version: 2
 models:
-  - name: polygon__transactions
+  - name: terra__reward
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
-            - TX_ID
     columns:
+      - name: ACTION
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null
@@ -16,80 +21,69 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: EVENT_COUNT
+      - name: CHAIN_ID
         tests:
           - not_null
-      - name: FEE
+      - name: CURRENCY
         tests:
           - not_null
-      - name: FEE_USD
+      - name: DELEGATOR
         tests:
           - not_null
-      - name: FROM_ADDRESS
+      - name: DELEGATOR_ADDRESS_LABEL
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-      - name: FROM_ADDRESS_NAME
+      - name: DELEGATOR_ADDRESS_NAME
         tests:
           - not_null
-      - name: FROM_LABEL
+      - name: DELEGATOR_LABEL_SUBTYPE
         tests:
           - not_null
-      - name: FROM_LABEL_SUBTYPE
+      - name: DELEGATOR_LABEL_TYPE
         tests:
           - not_null
-      - name: FROM_LABEL_TYPE
-        tests:
-          - not_null
-      - name: FUNCTION_NAME
-        tests:
-          - not_null
-      - name: FUNCTION_SIGNATURE
-        tests:
-          - not_null
-      - name: GAS_LIMIT
-        tests:
-          - not_null
-      - name: GAS_PRICE
+      - name: EVENT_AMOUNT
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
-      - name: GAS_USED
+      - name: EVENT_AMOUNT_USD
         tests:
           - not_null
-      - name: NONCE
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: MSG_INDEX
         tests:
           - not_null
-      - name: SUCCESS
+      - name: PRICE_USD
         tests:
           - not_null
-      - name: SYMBOL
-        tests:
-          - not_null
-      - name: TO_ADDRESS
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-      - name: TO_ADDRESS_NAME
-        tests:
-          - not_null
-      - name: TO_LABEL
-        tests:
-          - not_null
-      - name: TO_LABEL_SUBTYPE
-        tests:
-          - not_null
-      - name: TO_LABEL_TYPE
-        tests:
-          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: TX_ID
         tests:
           - not_null
-      - name: TX_POSITION
+      - name: TX_STATUS
+        tests:
+          - not_null
+      - name: VALIDATOR
+        tests:
+          - not_null
+      - name: VALIDATOR_ADDRESS_LABEL
+        tests:
+          - not_null
+      - name: VALIDATOR_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: VALIDATOR_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: VALIDATOR_LABEL_TYPE
         tests:
           - not_null

@@ -1,0 +1,42 @@
+version: 2
+models:
+  - name: silver_terra__transitions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - EVENT
+            - INDEX
+            - TRANSITION_TYPE
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: EVENT
+        tests:
+          - not_null
+      - name: EVENT_ATTRIBUTES
+        tests:
+          - not_null
+      - name: INDEX
+        tests:
+          - not_null
+      - name: SYSTEM_CREATED_AT
+        tests:
+          - not_null
+      - name: TRANSITION_TYPE
+        tests:
+          - not_null
