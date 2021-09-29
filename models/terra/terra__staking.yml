@@ -31,7 +31,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              regex: terra[0-9a-z]{39,39}
       - name: DELEGATOR_ADDRESS_LABEL
         tests:
           - not_null
@@ -75,7 +75,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              regex: terra[0-9a-z]{39,39}
       - name: VALIDATOR_ADDRESS_LABEL
         tests:
           - not_null
