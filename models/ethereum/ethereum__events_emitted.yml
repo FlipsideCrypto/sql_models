@@ -1,0 +1,79 @@
+version: 2
+models:
+  - name: ethereum__events_emitted
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - EVENT_INDEX
+            - TX_ID
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: CONTRACT_NAME
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        tests:
+          - not_null
+      - name: EVENT_INPUTS
+        tests:
+          - not_null
+      - name: EVENT_NAME
+        tests:
+          - not_null
+      - name: EVENT_REMOVED
+        tests:
+          - not_null
+      - name: TX_FROM_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: TX_FROM_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: TX_FROM_LABEL
+        tests:
+          - not_null
+      - name: TX_FROM_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: TX_FROM_LABEL_TYPE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_SUCCEEDED
+        tests:
+          - not_null
+      - name: TX_TO_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: TX_TO_ADDRESS_NAME
+        tests:
+          - not_null
+      - name: TX_TO_LABEL
+        tests:
+          - not_null
+      - name: TX_TO_LABEL_SUBTYPE
+        tests:
+          - not_null
+      - name: TX_TO_LABEL_TYPE
+        tests:
+          - not_null
