@@ -122,6 +122,7 @@ WITH v3_pools AS ( -- uni v3
       NULL AS creation_tx,
       '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
       pool_name,
+      pool_address,
       token0,
       token1,
       platform
