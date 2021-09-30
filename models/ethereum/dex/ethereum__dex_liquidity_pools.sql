@@ -162,6 +162,7 @@ stack AS (
      *,
     ARRAY_CONSTRUCT(token0,token1) AS tokens
   FROM stack
+  WHERE pool_address IS NOT NULL AND token0 IS NOT NULL AND token1 IS NOT NULL
 
   UNION
 
@@ -181,4 +182,5 @@ stack AS (
 
 SELECT DISTINCT * FROM 
 curve
+WHERE pool_address IS NOT NULL
 
