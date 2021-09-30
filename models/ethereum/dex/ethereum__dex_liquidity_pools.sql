@@ -105,15 +105,6 @@ WITH v3_pools AS ( -- uni v3
 
     LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} bbb 
       ON token1 = bbb.address
-
-    -- WHERE 
-    -- p.event_name    = 'PairCreated'
-    -- {% if is_incremental() %}
-    --  block_timestamp >= getdate() - interval '2 days'
-    -- {% else %}
-    --  AND block_timestamp >= getdate() - interval '12 months'
-    -- {% endif %}
-
 ), sushi_write_in AS (
   -- adding a few major sushi pools that were created before we have eth data (this gives us data on swaps with these pools)
   -- edit now uses a table of sushiswap tables 
