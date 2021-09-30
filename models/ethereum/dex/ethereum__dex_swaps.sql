@@ -82,7 +82,7 @@ WITH decimals_raw as (
   WHERE event_name = 'Swap' AND platform <> 'uniswap-v3' 
 
   {% if is_incremental() %}
-    AND block_timestamp >= getdate() - interval '2 days'
+    AND block_timestamp >= getdate() - interval '7 days'
   {% else %}
     AND block_timestamp >= getdate() - interval '9 months'
   {% endif %}
@@ -131,7 +131,7 @@ WITH decimals_raw as (
   WHERE 
       event_name = 'Swap' AND platform <> 'uniswap-v3' 
   {% if is_incremental() %}
-    AND block_timestamp >= getdate() - interval '2 days'
+    AND block_timestamp >= getdate() - interval '7 days'
   {% else %}
     AND block_timestamp >= getdate() - interval '9 months'
   {% endif %}
@@ -232,7 +232,7 @@ WITH decimals_raw as (
   FROM {{ref('ethereum_dbt__curve_swaps')}} c
   WHERE 
     {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '2 days'
+      block_timestamp >= getdate() - interval '7 days'
     {% else %}
       block_timestamp >= getdate() - interval '12 months'
     {% endif %}
@@ -257,7 +257,7 @@ WITH decimals_raw as (
   FROM {{ref('ethereum_dbt__curve_swaps')}} c
   WHERE 
     {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '2 days'
+      block_timestamp >= getdate() - interval '7 days'
     {% else %}
       block_timestamp >= getdate() - interval '12 months'
     {% endif %}
