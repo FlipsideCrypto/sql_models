@@ -44,5 +44,5 @@ LEFT OUTER JOIN {{ source('ethereum', 'ethereum_address_labels') }} as contract_
 
 WHERE 1=1
 {% if is_incremental() %}
-AND  b.block_timestamp >= getdate() - interval '18 hours'
+AND  b.block_timestamp >= getdate() - interval '40 hours'
 {% endif %}
