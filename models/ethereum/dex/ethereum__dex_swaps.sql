@@ -41,6 +41,19 @@ WITH decimals_raw as (
   FROM decimals_raw
   QUALIFY (row_number() OVER (partition by token_address order by weight desc)) = 1
 ),
+-- daily avg price used when hourly price is missing (it happens a lot)
+prices_daily_backup AS(
+    SELECT
+        token_address,
+        date_trunc('day',hour) AS block_date,
+        AVG(price) AS price,
+        MAX(decimals) AS decimals
+    FROM
+        {{ref('ethereum__token_prices_hourly')}}
+    WHERE 1=1
+    GROUP BY 1,2
+),
+
  usd_swaps AS (
   SELECT DISTINCT
     block_timestamp, 
@@ -48,12 +61,12 @@ WITH decimals_raw as (
     p.pool_name,
     p.token0 AS token_address,
     tx_id, 
-    event_inputs:amount0In / POWER(10, d0.decimals) AS amount_in,
-    event_inputs:amount0Out / POWER(10, d0.decimals) AS amount_out, 
+    event_inputs:amount0In / POWER(10, COALESCE(d0.decimals,backup0.decimals)) AS amount_in,
+    event_inputs:amount0Out / POWER(10, COALESCE(d0.decimals,backup0.decimals)) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * price0.price / POWER(10, d0.decimals) 
-         ELSE event_inputs:amount0Out * price0.price / POWER(10, d0.decimals) END
+    CASE WHEN event_inputs:amount0In > 0 THEN event_inputs:amount0In * COALESCE(price0.price,backup0.price) / POWER(10, COALESCE(d0.decimals,backup0.decimals)) 
+         ELSE event_inputs:amount0Out * COALESCE(price0.price,backup0.price) / POWER(10, COALESCE(d0.decimals,backup0.decimals)) END
     AS amount_usd,
     --CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d1.decimals) 
     --     ELSE event_inputs:amount1Out * price1.price / POWER(10, d1.decimals) END
@@ -69,6 +82,9 @@ WITH decimals_raw as (
 
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price0 
     ON p.token0 = price0.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price0.hour
+
+  LEFT JOIN prices_daily_backup backup0
+    ON p.token0 = backup0.token_address AND DATE_TRUNC('day',s0.block_timestamp) = backup0.block_date
 
   LEFT JOIN decimals d0
     ON p.token0 = d0.token_address
@@ -95,12 +111,12 @@ WITH decimals_raw as (
     p.pool_name,
     p.token1 AS token_address,
     tx_id, 
-    event_inputs:amount1In / POWER(10, d1.decimals) AS amount_in,
-    event_inputs:amount1Out / POWER(10, d1.decimals) AS amount_out, 
+    event_inputs:amount1In / POWER(10, COALESCE(d1.decimals,backup1.decimals)) AS amount_in,
+    event_inputs:amount1Out / POWER(10, COALESCE(d1.decimals,backup1.decimals)) AS amount_out, 
     REGEXP_REPLACE(event_inputs:sender,'\"','') AS from_address,
     REGEXP_REPLACE(event_inputs:to,'\"','') AS to_address,
-    CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d1.decimals) 
-         ELSE event_inputs:amount1Out * price1.price / POWER(10, d1.decimals) END
+    CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * COALESCE(price1.price,backup1.price) / POWER(10, COALESCE(d1.decimals,backup1.decimals))
+         ELSE event_inputs:amount1Out * COALESCE(price1.price,backup1.price) / POWER(10, COALESCE(d1.decimals,backup1.decimals)) END
     AS amount_usd,
     -- CASE WHEN event_inputs:amount1In > 0 THEN event_inputs:amount1In * price1.price / POWER(10, d1.decimals) 
     --     ELSE event_inputs:amount1Out * price1.price / POWER(10, d1.decimals) END
@@ -123,6 +139,9 @@ WITH decimals_raw as (
 
   LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price1
     ON p.token1 = price1.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price1.hour
+
+  LEFT JOIN prices_daily_backup backup1
+    ON p.token1 = backup1.token_address AND DATE_TRUNC('day',s0.block_timestamp) = backup1.block_date
 
   LEFT JOIN decimals d1
     ON p.token1 = d1.token_address
