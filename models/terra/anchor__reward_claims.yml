@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: anchor__gov_vote
-    description: Anchor GOV VOTE
+  - name: anchor__reward_claims
+    description: Anchor REWARD CLAIMS
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

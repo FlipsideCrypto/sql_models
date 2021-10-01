@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: anchor__gov_vote
-    description: Anchor GOV VOTE
+  - name: anchor__stake
+    description: Anchor STAKE
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
