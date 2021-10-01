@@ -1,0 +1,62 @@
+version: 2
+models:
+  - name: anchor__deposits
+    description: Anchor Deposits
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        description: ""
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: ""
+        tests:
+          - not_null
+      - name: TX_ID
+        description: ""
+        tests:
+          - not_null
+      - name: DEPOSIT_AMOUNT
+        description: ""
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: DEPOSIT_AMOUNT_USD
+        description: ""
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: DEPOSIT_CURRENCY
+        description: ""
+        tests:
+          - not_null
+      - name: SENDER
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+   
+      - name: CONTRACT_ADDRESS
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+   
