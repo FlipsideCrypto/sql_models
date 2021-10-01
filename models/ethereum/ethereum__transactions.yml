@@ -16,9 +16,6 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: FEE
-        tests:
-          - not_null
       - name: FEE_USD
         tests:
           - not_null

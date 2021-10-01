@@ -5,6 +5,11 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
+            - TX_ID
+            - EVENT_AMOUNT
+            - EVENT_CURRENCY
+            - EVENT_TO
+            - EVENT_FROM
     columns:
       - name: BLOCKCHAIN
         tests:
@@ -41,6 +46,8 @@ models:
       - name: EVENT_FROM
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}
       - name: EVENT_FROM_ADDRESS_LABEL
         tests:
           - not_null
@@ -56,6 +63,8 @@ models:
       - name: EVENT_TO
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}
       - name: EVENT_TO_ADDRESS_LABEL
         tests:
           - not_null
