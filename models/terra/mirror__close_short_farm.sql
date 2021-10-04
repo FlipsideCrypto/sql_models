@@ -94,7 +94,7 @@ SELECT
   event_attributes:unlocked_amount[0]:denom::string AS unlocked_currency,
   
   (event_attributes:"0_tax_amount"[0]:amount + event_attributes:"1_tax_amount"[0]:amount) / POW(10,6) AS tax_amount,
-  tax * a.price AS tax_amount_usd,
+  tax_amount * a.price AS tax_amount_usd,
   event_attributes:"0_tax_amount"[0]:denom::string AS tax_currency
   
 FROM event_tx t
