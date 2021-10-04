@@ -210,5 +210,18 @@ WHERE pool_address NOT IN ('0xdc6a5faf34affccc6a00d580ecb3308fc1848f22') -- stop
 
 UNION
 
-SELECT * 
+SELECT 
+  block_timestamp,
+  pool_address,
+  pool_name,
+  token_address,
+  tx_id,
+  amount_in,
+  amount_out,
+  from_address,
+  to_address,
+  amount_usd,
+  platform,
+  event_index,
+  direction
 FROM v3_swaps

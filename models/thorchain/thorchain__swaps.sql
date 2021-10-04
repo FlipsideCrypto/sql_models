@@ -9,7 +9,24 @@
 }}
 
 WITH swaps AS (
-  SELECT * FROM {{ ref('thorchain__swap_events') }} 
+  SELECT 
+    block_timestamp,
+    block_id,
+    tx_id,
+    blockchain,
+    to_address,
+    from_address,
+    TO_ASSET,
+    FROM_ASSET,
+    SWAP_SLIP_BP,
+    LIQ_FEE_IN_RUNE_E8,
+    LIQ_FEE_E8,    
+    TO_E8,
+    pool_name,
+    MEMO,
+    TO_E8_MIN,
+    FROM_E8
+  FROM {{ ref('thorchain__swap_events') }} 
   WHERE TRUE
     {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'

@@ -17,7 +17,20 @@ WITH block_prices AS (
 ),
 
 bond_events AS (
-  SELECT * FROM {{ ref('thorchain__bond_events') }}
+  SELECT
+    block_timestamp,
+    block_id,
+    event_id,
+    tx_id,
+    to_addres,
+    from_address,
+    MEMO,
+    ASSET,
+    blockchain,
+    BOND_TYPE,
+    E8,
+    ASSET_E8
+  FROM {{ ref('thorchain__bond_events') }}
   WHERE TRUE
     {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'

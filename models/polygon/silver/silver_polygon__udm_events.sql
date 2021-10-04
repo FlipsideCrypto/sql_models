@@ -8,9 +8,41 @@
   )
 }}
 
-select *
+select 
+  system_created_at,
+  chain_id,
+  block_id,
+  block_timestamp,
+  contract_address,
+  fee,
+  from_address,
+  input_method,
+  log_index,
+  log_method,
+  name,
+  native_value,
+  symbol,
+  to_address,
+  token_value,
+  tx_id
 from (
-select *
+select 
+  system_created_at,
+  chain_id,
+  block_id,
+  block_timestamp,
+  contract_address,
+  fee,
+  from_address,
+  input_method,
+  log_index,
+  log_method,
+  name,
+  native_value,
+  symbol,
+  to_address,
+  token_value,
+  tx_id
 from {{ ref('polygon_dbt__udm_events')}}
 WHERE 1=1
 {% if is_incremental() %}

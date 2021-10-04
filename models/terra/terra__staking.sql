@@ -87,11 +87,51 @@ SELECT
     a.amount * price_usd as event_amount_usd,
     p.symbol AS currency
 FROM (
-    SELECT * FROM delegate
+    SELECT
+      blockchain,
+      chain_id,
+      tx_status,
+      block_id,
+      block_timestamp,
+      tx_id, 
+      action,
+      delegator_address,
+      validator_address,
+      amount,
+      currency
+    FROM delegate
+
     UNION ALL 
-    SELECT * FROM undelegate
+
+    SELECT 
+      blockchain,
+      chain_id,
+      tx_status,
+      block_id,
+      block_timestamp,
+      tx_id, 
+      action,
+      delegator_address,
+      validator_address,
+      amount,
+      currency
+    FROM undelegate
+
     UNION ALL 
-    SELECT * FROM redelegate
+
+    SELECT
+      blockchain,
+      chain_id,
+      tx_status,
+      block_id,
+      block_timestamp,
+      tx_id, 
+      action,
+      delegator_address,
+      validator_address,
+      amount,
+      currency
+    FROM redelegate
 ) a
 
 LEFT OUTER JOIN prices p

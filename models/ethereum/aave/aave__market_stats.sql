@@ -62,10 +62,38 @@ WITH aave_reads AS (
   Table(Flatten(aave_reads.coins))
   WHERE value::STRING <> '0x0000000000000000000000000000000000000000'-- AND inputs:address IS NULL
 ), 
-    -- cast to a wide format next putting one column for every field in every read
+-- cast to a wide format next putting one column for every field in every read
 wide_format AS (
-    SELECT * 
-    FROM long_format 
+    SELECT 
+      blockhour, 
+      aave_version, 
+      lending_pool_add,
+      lending_pool_type,
+      reserve_token,
+      "'averagestableborrowrate'",
+      "'id'",
+      "'interestratestrategyaddress'",
+      "'stabledebttokenaddress'",
+      "'currentstableborrowrate'",
+      "'currentvariableborrowrate'",
+      "'totalliquidity'",
+      "'currentliquidityrate'",
+      "'variableborrowindex'",
+      "'variableborrowrate'",
+      "'atokenaddress'",
+      "'availableliquidity'",
+      "'version'",
+      "'liquidityrate'",
+      "'stableborrowrate'",
+      "'totalborrowsstable'",
+      "'totalborrowsvariable'",
+      "'lastupdatetimestamp'",
+      "'liquidityindex'",
+      "'utilizationrate'",
+      "'variabledebttokenaddress'",
+      "'totalstabledebt'",
+      "'totalvariabledebt'"
+    FROM long_format
     pivot(max(value) for field_name 
           IN ('averagestableborrowrate', 'id', 'interestratestrategyaddress', 'stabledebttokenaddress', 
               'currentstableborrowrate', 'currentvariableborrowrate', 'totalliquidity', 'currentliquidityrate', 
@@ -96,11 +124,65 @@ reads_parsed AS (
 ),
 -- splitting these up for organization
 lending_pools_v2 AS (
-    SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version <> 'Aave V1'
+    SELECT 
+      blockhour,
+      aave_version,
+      lending_pool_add,
+      lending_pool_type,
+      reserve_token,
+      atoken_address,
+      stable_debt_token_address,
+      variable_debt_token_address,
+      available_liquidity,
+      liquidity_rate,
+      stbl_borrow_rate,
+      variable_borrow_rate,
+      total_stable_debt,
+      total_variable_debt,
+      utilization_rate
+    FROM reads_parsed 
+    WHERE lending_pool_type = 'LendingPool' 
+      AND aave_version <> 'Aave V1'
 ), data_providers_v2 AS (
-    SELECT * FROM reads_parsed WHERE lending_pool_type = 'DataProvider' AND aave_version <> 'Aave V1'
+    SELECT 
+      blockhour,
+      aave_version,
+      lending_pool_add,
+      lending_pool_type,
+      reserve_token,
+      atoken_address,
+      stable_debt_token_address,
+      variable_debt_token_address,
+      available_liquidity,
+      liquidity_rate,
+      stbl_borrow_rate,
+      variable_borrow_rate,
+      total_stable_debt,
+      total_variable_debt,
+      utilization_rate 
+    FROM reads_parsed 
+    WHERE lending_pool_type = 'DataProvider' 
+      AND aave_version <> 'Aave V1'
 ), lending_pools_v1 AS (
-  SELECT * FROM reads_parsed WHERE lending_pool_type = 'LendingPool' AND aave_version = 'Aave V1'
+  SELECT 
+    blockhour,
+    aave_version,
+    lending_pool_add,
+    lending_pool_type,
+    reserve_token,
+    atoken_address,
+    stable_debt_token_address,
+    variable_debt_token_address,
+    available_liquidity,
+    liquidity_rate,
+    stbl_borrow_rate,
+    variable_borrow_rate,
+    total_stable_debt,
+    total_variable_debt,
+    utilization_rate 
+  FROM reads_parsed 
+  WHERE lending_pool_type = 'LendingPool' 
+    AND aave_version = 'Aave V1'
 ), 
 -- format v2/amm data. Need to combine reads from the lending pool and data provider
 aave_v2 AS (
@@ -156,9 +238,43 @@ aave_v1 AS (
 ), 
 aave AS (
   
-  SELECT * FROM aave_v2
+  SELECT 
+    blockhour,
+    reserve_token,
+    aave_version,
+    lending_pool_add,
+    data_provider,
+    atoken_address,
+    stable_debt_token_address,
+    variable_debt_token_address,
+    total_liquidity,
+    liquidity_rate,
+    stbl_borrow_rate,
+    variable_borrow_rate,
+    total_stable_debt,
+    total_variable_debt,
+    utilization_rate
+  FROM aave_v2
+
   UNION
-  SELECT * FROM aave_v1
+
+  SELECT 
+    blockhour,
+    reserve_token,
+    aave_version,
+    lending_pool_add,
+    data_provider,
+    atoken_address,
+    stable_debt_token_address,
+    variable_debt_token_address,
+    total_liquidity,
+    liquidity_rate,
+    stbl_borrow_rate,
+    variable_borrow_rate,
+    total_stable_debt,
+    total_variable_debt,
+    utilization_rate 
+  FROM aave_v1
   
 ),
 -- get decimals, preferably from contract reads but using the prices table as a fallback

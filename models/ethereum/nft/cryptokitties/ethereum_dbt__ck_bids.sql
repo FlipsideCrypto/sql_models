@@ -35,7 +35,33 @@ nf_token_transfers AS (
 
 token_transfers AS (
   SELECT 
-    *
+    block_timestamp,
+    block_id,
+    tx_id,
+    origin_address,
+    origin_label_type,
+    origin_label_subtype,
+    origin_label,
+    origin_address_name,
+    origin_function_signature,
+    origin_function_name,
+    from_address,
+    from_label_type,
+    from_label_subtype,
+    from_label,
+    from_address_name,
+    to_address,
+    to_label_type,
+    to_label_subtype,
+    to_label,
+    to_address_name,
+    event_name,
+    event_type,
+    event_id,
+    contract_address,
+    symbol,
+    amount,
+    amount_usd
   FROM {{ ref('ethereum__udm_events') }}
   WHERE 
     amount > 0 

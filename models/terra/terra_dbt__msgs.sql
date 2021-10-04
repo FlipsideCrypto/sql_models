@@ -8,7 +8,9 @@
 }}
 
 with base_tables as (
-  select *
+  select
+    record_metadata,
+    record_content
   from {{source('bronze', 'prod_terra_sink_645110886')}}
   where record_content:model:name::string = 'terra_msg_model'
   {% if is_incremental() %}

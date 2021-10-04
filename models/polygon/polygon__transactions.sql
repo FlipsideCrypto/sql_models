@@ -38,7 +38,22 @@ GROUP BY
 ),
 txn AS (
   SELECT
-    *
+    system_created_at,
+    chain_id,
+    block_id,
+    block_timestamp,
+    fee,
+    from_address,
+    gas_limit,
+    gas_price,
+    gas_used,
+    input_method,
+    native_value,
+    nonce,
+    success,
+    to_address,
+    tx_id, 
+    tx_position
   FROM
     {{ ref('silver_polygon__transactions') }}
 

@@ -54,7 +54,22 @@ poly_labels AS (
 ),
 base_udm_events AS (
     SELECT
-        *
+        system_created_at,
+        chain_id,
+        block_id,
+        block_timestamp,
+        contract_address,
+        fee,
+        from_address,
+        input_method,
+        log_index,
+        log_method,
+        name,
+        native_value,
+        symbol,
+        to_address,
+        token_value,
+        tx_id
     FROM
         {{ ref('silver_polygon__udm_events')}}
     where 1=1
@@ -65,7 +80,22 @@ base_udm_events AS (
 ),
 base_tx AS (
     SELECT
-        *
+        system_created_at,
+        chain_id,
+        block_id,
+        block_timestamp,
+        fee,
+        from_address,
+        gas_limit,
+        gas_price,
+        gas_used,
+        input_method,
+        native_value,
+        nonce,
+        success,
+        to_address,
+        tx_id, 
+        tx_position
     FROM
         {{ ref('silver_polygon__transactions')}}
     WHERE 1=1

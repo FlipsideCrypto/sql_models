@@ -72,4 +72,19 @@ balances AS (
         balance_date >= getdate() - interval '9 months'
     {% endif %}
 )
-SELECT * FROM balances ORDER BY balance_date DESC
+SELECT 
+  balance_date,
+  user_address,
+  label,
+  address_name,
+  label_type,
+  label_subtype,
+  contract_address,
+  contract_label,
+  symbol,
+  price,
+  balance,
+  -- Value of the token in USD
+  amount_usd
+FROM balances 
+ORDER BY balance_date DESC
