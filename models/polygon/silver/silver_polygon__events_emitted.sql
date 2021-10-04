@@ -8,9 +8,37 @@
   )
 }}
 
-select *
+select 
+  system_created_at,
+  chain_id,
+  block_id,
+  block_timestamp,
+  contract_address,
+  contract_name,
+  event_index,
+  event_inputs,
+  event_name,
+  event_removed,
+  tx_from,
+  tx_id,
+  tx_succeeded,
+  tx_to
 from (
-select *
+select 
+  system_created_at,
+  chain_id,
+  block_id,
+  block_timestamp,
+  contract_address,
+  contract_name,
+  event_index,
+  event_inputs,
+  event_name,
+  event_removed,
+  tx_from,
+  tx_id,
+  tx_succeeded,
+  tx_to
 from {{ ref('polygon_dbt__events_emitted')}}
 WHERE 1=1
 {% if is_incremental() %}

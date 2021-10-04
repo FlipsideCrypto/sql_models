@@ -9,7 +9,20 @@
 }}
 
 WITH stakes AS (
-  SELECT * FROM {{ ref('thorchain__stake_events') }}
+  SELECT 
+    block_timestamp,
+    block_id,
+    event_id,
+    rune_tx_id,
+    pool_name,
+    RUNE_E8,
+    rune_address,
+    STAKE_UNITS,
+    asset_tx_id,
+    ASSET_E8,
+    asset_address,
+    asset_blockchain
+  FROM {{ ref('thorchain__stake_events') }}
   WHERE TRUE
     {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'
@@ -18,7 +31,25 @@ WITH stakes AS (
     {% endif %}
 ),
 unstakes AS (
-  SELECT * FROM {{ ref('thorchain__unstake_events') }}
+  SELECT 
+    block_timestamp,
+    block_id,
+    event_id,
+    tx_id,
+    blockchain,
+    pool_name,
+    to_address,
+    from_address,
+    ASSET,
+    EMIT_RUNE_E8,
+    ASYMMETRY,
+    ASSET_E8,
+    STAKE_UNITS,
+    MEMO,
+    EMIT_ASSET_E8,
+    IMP_LOSS_PROTECTION_E8,
+    BASIS_POINTS
+  FROM {{ ref('thorchain__unstake_events') }}
   WHERE TRUE
     {% if is_incremental() %}
     AND block_timestamp >= getdate() - interval '2 days'

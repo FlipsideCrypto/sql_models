@@ -121,7 +121,15 @@ WITH v3_pools AS ( -- uni v3
   FROM flipside_dev_db.dbt.sushi_liquidity_pools
   
 ), new_sushi AS (
-  SELECT s.* -- future proofing: once the eth backfill is done these manual write-ins will be dups
+  SELECT 
+    s.creation_time,
+    s.creation_tx,
+    s.factory_address,
+    s.pool_name,
+    s.pool_address,
+    s.token0,
+    s.token1,
+    s.platform -- future proofing: once the eth backfill is done these manual write-ins will be dups
   FROM sushi_write_in s
   LEFT JOIN v2_pools v
   ON s.pool_address = v.pool_address
@@ -131,26 +139,65 @@ WITH v3_pools AS ( -- uni v3
 
 stack AS (
   -- get pool info 
-  SELECT * FROM
-  v2_pools
+  SELECT 
+    creation_time,
+    creation_tx, 
+    factory_address, 
+    pool_name,
+    pool_address, 
+    token0,
+    token1,
+    platform
+  FROM v2_pools
 
   UNION
 
-  SELECT * FROM
-  v2_redshift
+  SELECT
+    creation_time,
+    creation_tx, 
+    factory_address, 
+    pool_name,
+    pool_address, 
+    token0,
+    token1,
+    platform 
+  FROM v2_redshift
 
   UNION
   
-  SELECT * FROM
-  new_sushi
+  SELECT 
+    creation_time,
+    creation_tx, 
+    factory_address, 
+    pool_name,
+    pool_address, 
+    token0,
+    token1,
+    platform
+  FROM new_sushi
 
   UNION
 
-  SELECT * FROM
-  v3_pools
+  SELECT
+    creation_time,
+    creation_tx, 
+    factory_address, 
+    pool_name,
+    pool_address, 
+    token0,
+    token1,
+    platform
+  FROM v3_pools
 ), curve AS (
   SELECT
-     *,
+    creation_time,
+    creation_tx, 
+    factory_address, 
+    pool_name,
+    pool_address, 
+    token0,
+    token1,
+    platform,
     ARRAY_CONSTRUCT(token0,token1) AS tokens
   FROM stack
   WHERE pool_address IS NOT NULL AND token0 IS NOT NULL AND token1 IS NOT NULL
@@ -171,7 +218,18 @@ stack AS (
 )
 
 
-SELECT DISTINCT * FROM 
+SELECT 
+  DISTINCT
+    creation_time,
+    creation_tx, 
+    factory_address, 
+    pool_name,
+    pool_address, 
+    token0,
+    token1,
+    platform,
+    tokens
+FROM 
 curve
 WHERE pool_address IS NOT NULL
 

@@ -8,7 +8,16 @@
   )
 }}
 
-select *
+select 
+  system_created_at,
+  blockchain,
+  block_id,
+  block_timestamp,
+  chain_id,
+  event,
+  index,
+  transition_type,
+  event_attributes
 from {{ ref('terra_dbt__transitions')}}
 WHERE 1=1
 {% if is_incremental() %}

@@ -8,7 +8,13 @@
   )
 }}
 
-select *
+select 
+  system_created_at,
+  chain_id,
+  block_id,
+  block_timestamp,
+  blockchain,
+  proposer_address
 from {{ ref('terra_dbt__blocks')}}
 WHERE 1=1
 {% if is_incremental() %}

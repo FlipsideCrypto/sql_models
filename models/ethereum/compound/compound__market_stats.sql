@@ -179,7 +179,17 @@ comptr AS (
     p.token_price as comp_price,
     comp_price * comp_speed as comp_speed_usd
   FROM {{ref('ethereum__reads')}} erd 
-  JOIN (SELECT * FROM prices WHERE symbol = 'COMP') p
+  JOIN (
+    SELECT 
+      block_hour,
+      token_price,
+      token_decimals,
+      symbol,
+      token_contract,
+      address 
+  FROM prices 
+  WHERE symbol = 'COMP'
+  ) p
     ON date_trunc('hour',erd.block_timestamp) = p.block_hour
   WHERE 
     contract_address = '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b'

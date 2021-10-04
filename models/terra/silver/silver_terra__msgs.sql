@@ -8,7 +8,20 @@
   )
 }}
 
-select *
+select 
+  system_created_at,
+  blockchain,
+  block_id,
+  block_timestamp,
+  chain_id,
+  tx_id,
+  tx_type,
+  tx_status,
+  tx_module,
+  msg_index,
+  msg_type,
+  msg_module,
+  msg_value
 from {{ ref('terra_dbt__msgs')}}
 WHERE 1=1
 {% if is_incremental() %}

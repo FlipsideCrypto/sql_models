@@ -258,9 +258,97 @@ logs AS (
     event_name IS NOT NULL 
     AND event_name != '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 )
-SELECT * FROM token_transfers
+SELECT 
+  block_timestamp,
+  block_id,
+  tx_id,
+  origin_address,
+  origin_label_type,
+  origin_label_subtype,
+  origin_label,
+  origin_address_name,
+  origin_function_signature,
+  origin_function_name,
+  from_address,
+  from_label_type,
+  from_label_subtype,
+  from_label,
+  from_address_name,
+  to_address,
+  to_label_type,
+  to_label_subtype,
+  to_label,
+  to_address_name,
+  event_name,
+  event_type,
+  event_id,
+  contract_address,
+  symbol,
+  amount,
+  amount_usd
+FROM token_transfers
+
 UNION ALL
-SELECT * FROM eth_transfers
+
+SELECT 
+  block_timestamp,
+  block_id,
+  tx_id,
+  origin_address,
+  origin_label_type,
+  origin_label_subtype,
+  origin_label,
+  origin_address_name,
+  origin_function_signature,
+  origin_function_name,
+  from_address,
+  from_label_type,
+  from_label_subtype,
+  from_label,
+  from_address_name,
+  to_address,
+  to_label_type,
+  to_label_subtype,
+  to_label,
+  to_address_name,
+  event_name,
+  event_type,
+  event_id,
+  contract_address,
+  symbol,
+  amount,
+  amount_usd
+FROM eth_transfers
+
 UNION ALL
-SELECT * FROM logs
+
+SELECT 
+  block_timestamp,
+  block_id,
+  tx_id,
+  origin_address,
+  origin_label_type,
+  origin_label_subtype,
+  origin_label,
+  origin_address_name,
+  origin_function_signature,
+  origin_function_name,
+  from_address,
+  from_label_type,
+  from_label_subtype,
+  from_label,
+  from_address_name,
+  to_address,
+  to_label_type,
+  to_label_subtype,
+  to_label,
+  to_address_name,
+  event_name,
+  event_type,
+  event_id,
+  contract_address,
+  symbol,
+  amount,
+  amount_usd
+FROM logs
 ORDER BY block_timestamp

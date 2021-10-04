@@ -8,7 +8,9 @@
 }}
 
 with base_tables as (
-  select *
+  select 
+    record_metadata,
+    record_content
   from {{source('bronze', 'prod_matic_sink_510901820')}}
   where record_content:model:name::string = 'polygon_events_emitted_model'
   {% if is_incremental() %}
