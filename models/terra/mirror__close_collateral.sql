@@ -58,7 +58,7 @@ SELECT
 
   event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
   protocol_fee_amount * f.price AS procotol_fee_amount_usd,
-  event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency,
+  event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency
 FROM {{source('silver_terra', 'msg_events')}} t
 
 LEFT OUTER JOIN prices i
