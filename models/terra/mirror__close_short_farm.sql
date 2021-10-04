@@ -124,8 +124,8 @@ SELECT
   burn_amount * o.price AS burn_amount_usd,
   event_attributes:burn_amount[0]:denom::string AS burn_currency,  
   
-  event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee,
-  protocol_fee * i.price AS protocol_fee_amount_usd,
+  event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
+  protocol_fee_amount * i.price AS protocol_fee_amount_usd,
   event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency
 FROM event_tx t
 
@@ -152,7 +152,7 @@ SELECT
   tax_amount,
   tax_amount_usd,
   tax_currency,
-  protocol_fee,
+  protocol_fee_amount,
   protocol_fee_amount_usd,
   protocol_fee_currency,
   burn_amount,
