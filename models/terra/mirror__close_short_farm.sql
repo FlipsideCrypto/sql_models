@@ -93,8 +93,8 @@ SELECT
   unlocked_amount * i.price AS unlocked_amount_usd,
   event_attributes:unlocked_amount[0]:denom::string AS unlocked_currency,
   
-  (event_attributes:"0_tax_amount"[0]:amount + event_attributes:"1_tax_amount"[0]:amount) / POW(10,6) AS tax,
-  tax * a.price AS tax_usd,
+  (event_attributes:"0_tax_amount"[0]:amount + event_attributes:"1_tax_amount"[0]:amount) / POW(10,6) AS tax_amount,
+  tax * a.price AS tax_amount_usd,
   event_attributes:"0_tax_amount"[0]:denom::string AS tax_currency
   
 FROM event_tx t
@@ -125,7 +125,7 @@ SELECT
   event_attributes:burn_amount[0]:denom::string AS burn_currency,  
   
   event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee,
-  protocol_fee * i.price AS protocol_fee_usd,
+  protocol_fee * i.price AS protocol_fee_amount_usd,
   event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency
 FROM event_tx t
 
@@ -149,11 +149,11 @@ SELECT
   m.tx_id,
   collateral_id,
   sender,
-  tax,
-  tax_usd,
+  tax_amount,
+  tax_amount_usd,
   tax_currency,
   protocol_fee,
-  protocol_fee_usd,
+  protocol_fee_amount_usd,
   protocol_fee_currency,
   burn_amount,
   burn_amount_usd,
