@@ -174,3 +174,4 @@ stack AS (
 SELECT DISTINCT * FROM 
 curve
 WHERE pool_address IS NOT NULL
+

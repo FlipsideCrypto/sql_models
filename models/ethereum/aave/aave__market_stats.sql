@@ -111,7 +111,7 @@ reads_parsed AS (
            COALESCE("'atokenaddress'",'-')::STRING AS atoken_address,
            COALESCE("'stabledebttokenaddress'",'-')::STRING   AS stable_debt_token_address,
            COALESCE("'variabledebttokenaddress'",'-')::STRING AS variable_debt_token_address,
-           COALESCE("'availableliquidity'","'totalliquidity'",NULL)::NUMERIC AS available_liquidity,
+           COALESCE("'totalliquidity'","'availableliquidity'",NULL)::NUMERIC AS available_liquidity,
            COALESCE("'currentliquidityrate'","'liquidityrate'",NULL)::NUMERIC/POWER(10,27) AS liquidity_rate,
            COALESCE("'averagestableborrowrate'","'currentstableborrowrate'",NULL)::NUMERIC/POWER(10,27) AS stbl_borrow_rate,
            COALESCE("'currentvariableborrowrate'","'variableborrowindex'","'variableborrowrate'",NULL)::NUMERIC/POWER(10,27) AS variable_borrow_rate,
