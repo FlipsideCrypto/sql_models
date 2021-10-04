@@ -208,7 +208,20 @@ prices_daily_backup AS(
 
   UNION
 
-  SELECT * 
+  SELECT
+    block_timestamp,
+    pool_address,
+    pool_name, 
+    token_address,
+    tx_id,
+    amount_in,
+    amount_out,
+    from_address,
+    to_address,
+    amount_usd,
+    platform,
+    event_index,
+    direction
   FROM v3_swaps
 
   UNION
