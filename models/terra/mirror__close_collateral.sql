@@ -57,7 +57,7 @@ SELECT
   event_attributes:burn_amount[0]:denom::string AS burn_currency,
 
   event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
-  protocol_fee_amount * f.price AS procotol_fee_amount_usd,
+  protocol_fee_amount * f.price AS protocol_fee_amount_usd,
   event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency
 FROM {{source('silver_terra', 'msg_events')}} t
 
@@ -88,7 +88,7 @@ SELECT
   event_attributes:tax_amount[0]:denom::string AS tax_currency,
 
   event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
-  protocol_fee_amount * f.price AS procotol_fee_amount_usd,
+  protocol_fee_amount * f.price AS protocol_fee_amount_usd,
   event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency,
   
   event_attributes:withdraw_amount[0]:amount /POW(10,6) AS withdraw_amount,
@@ -130,7 +130,7 @@ SELECT
   tax_amount_usd,
   tax_currency,
   coalesce(b.protocol_fee_amount, w.protocol_fee_amount) as protocol_fee_amount,
-  coalesce(b.procotol_fee_amount_usd, w.procotol_fee_amount_usd) as procotol_fee_amount_usd,
+  coalesce(b.protocol_fee_amount_usd, w.protocol_fee_amount_usd) as protocol_fee_amount_usd,
   coalesce(b.protocol_fee_currency, w.protocol_fee_currency) as protocol_fee_currency,
   burn_amount,
   burn_amount_usd,
