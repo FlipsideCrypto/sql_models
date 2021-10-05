@@ -7,7 +7,7 @@
 ) }}
 
 SELECT
-  blockchain,
+  t.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -16,7 +16,7 @@ SELECT
   msg_value:execute_msg:claim:amount / POW(10,6) as amount,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{source('silver_terra', 'msgs')}} as t
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address

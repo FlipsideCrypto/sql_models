@@ -1,0 +1,98 @@
+version: 2
+models:
+  - name: mirror__open_collateral
+    description: Mirror OPEN COLLATERAL
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+            - COLLATERAL_ID
+    columns:
+      - name: BLOCKCHAIN
+        description: ""
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: ""
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: TX_ID
+        description: ""
+        tests:
+          - not_null
+      - name: COLLATERAL_ID
+        description: ""
+        tests:
+          - not_null
+      - name: COLLATERAL_RATIO
+        description: ""
+        tests:
+          - not_null
+      - name: SENDER
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}
+      - name: COLLATERAL_AMOUNT
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: COLLATERAL_AMOUNT_USD
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: COLLATERAL_CURRENCY
+        description: ""
+        tests:
+          - not_null
+      - name: MINT_AMOUNT
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: MINT_AMOUNT_USD
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: MINT_CURRENCY
+        description: ""
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        description: ""
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}
+      - name: CONTRACT_LABEL
+        description: ""
+        tests:
+          - not_null

@@ -49,10 +49,10 @@ events AS (
 
 SELECT 
   tx_id,
-  COALESCE((event_attributes:"0_tax_amount"[0]:amount + event_attributes:"1_tax_amount"[0]:amount), event_attributes:tax_amount[0]:amount) / POW(10,6) AS tax,
+  COALESCE((event_attributes:"0_tax_amount"[0]:amount + event_attributes:"1_tax_amount"[0]:amount), event_attributes:tax_amount[0]:amount) / POW(10,6) AS tax_amount,
   COALESCE(event_attributes:"1_tax_amount"[0]:denom::string,event_attributes:tax_amount[0]:denom::string) AS tax_currency,
   
-  event_attributes:protocol_fee[0]:amount / POW(10,6) as protocol_fee,
+  event_attributes:protocol_fee[0]:amount / POW(10,6) as protocol_fee_amount,
   event_attributes:protocol_fee[0]:denom::string as protocol_fee_currency,
   
   event_attributes:liquidated_amount[0]:amount / POW(10,6) as liquidated_amount,
@@ -62,7 +62,7 @@ SELECT
   event_attributes:return_collateral_amount[0]:denom::string as return_collateral_currency,
   
   event_attributes:unlocked_amount[0]:amount / POW(10,6) as unlocked_amount,
-  event_attributes:unlocked_amount[0]:denom::string as unlocked_curency,
+  event_attributes:unlocked_amount[0]:denom::string as unlocked_currency,
   
   event_attributes:owner::string as owner
 FROM {{source('silver_terra', 'msg_events')}}
@@ -86,11 +86,11 @@ SELECT
   collateral_id,
   sender as buyer,
   owner,
-  tax,
-  tax * t.price as tax_usd,
+  tax_amount,
+  tax_amount * t.price as tax_amount_usd,
   tax_currency,
-  protocol_fee,
-  protocol_fee * p.price as protocol_fee_usd,
+  protocol_fee_amount,
+  protocol_fee_amount * p.price as protocol_fee_amount_usd,
   protocol_fee_currency,
   liquidated_amount,
   liquidated_amount * l.price as liquidated_amount_usd,
@@ -100,7 +100,7 @@ SELECT
   return_collateral_currency,
   unlocked_amount,
   unlocked_amount * u.price as unlocked_amount_usd,
-  unlocked_curency,
+  unlocked_currency,
   contract_address,
   g.address_name AS contract_label
 FROM msgs m
@@ -129,4 +129,4 @@ LEFT OUTER JOIN prices r
 
 LEFT OUTER JOIN prices u
  ON date_trunc('hour', m.block_timestamp) = u.hour
- AND unlocked_curency = u.currency 
+ AND unlocked_currency = u.currency 
