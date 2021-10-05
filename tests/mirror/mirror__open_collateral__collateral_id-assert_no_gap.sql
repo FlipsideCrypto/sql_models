@@ -1,0 +1,1 @@
+{{ sequence_gaps(ref("mirror__open_collateral"), ["block_id", "tx_id",], "collateral_id") }}
