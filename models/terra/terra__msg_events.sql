@@ -1,9 +1,7 @@
-{{ 
-  config(
-    materialized='view', 
-    tags=['snowflake', 'terra_views', 'msg_events', 'terra']
-  )
-}}
+{{ config(
+  materialized = 'view',
+  tags = ['snowflake', 'terra_views', 'msg_events', 'terra']
+) }}
 
 SELECT
   block_id,
@@ -20,4 +18,5 @@ SELECT
   event_index,
   event_type,
   event_attributes
-FROM {{source('silver_terra', 'msg_events')}}
+FROM
+  {{ ref('silver_terra__msg_events') }}

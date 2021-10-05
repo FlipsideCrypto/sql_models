@@ -1,9 +1,7 @@
-{{ 
-  config(
-    materialized='view', 
-    tags=['snowflake', 'terra_views', 'transitions', 'terra']
-  )
-}}
+{{ config(
+  materialized = 'view',
+  tags = ['snowflake', 'terra_views', 'transitions', 'terra']
+) }}
 
 SELECT
   block_id,
@@ -11,7 +9,8 @@ SELECT
   blockchain,
   chain_id,
   transition_type,
-  index,
+  INDEX,
   event,
   event_attributes
-FROM {{source('silver_terra', 'transitions')}}
+FROM
+  {{ ref('silver_terra__transitions') }}
