@@ -15,7 +15,7 @@ WITH base_tables AS (
       'prod_terra_sink_645110886'
     ) }}
   WHERE
-    record_content :model :name :: STRING IN ('terra_msg_model', '')
+    record_content :model :name :: STRING IN ('terra_msg_model', 'terra-5_msg_model')
 
 {% if is_incremental() %}
 AND (
