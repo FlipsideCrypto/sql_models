@@ -171,6 +171,7 @@ sources:
     tables:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
+      - name: prod_ethereum_sink_407559501
   - name: terra_dbt
     schema: terra_dbt
     tables:
