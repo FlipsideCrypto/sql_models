@@ -18,7 +18,7 @@ AND system_created_at :: DATE >= (
   SELECT
     DATEADD('day', -1, MAX(system_created_at :: DATE))
   FROM
-    silver_terra.blocks
+    {{ this }} AS blocks
 )
 {% endif %}
 
