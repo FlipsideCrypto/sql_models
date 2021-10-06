@@ -25,6 +25,25 @@ GROUP BY 1,2,3
 
 ),
 
+prices_backup AS (
+
+SELECT 
+  date_trunc('day', block_timestamp) as day,
+  currency,
+  symbol,
+  avg(price_usd) as price
+FROM {{ ref('terra__oracle_prices')}} 
+    
+WHERE 1=1
+    
+{% if is_incremental() %}
+  AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+{% endif %}
+
+GROUP BY 1,2,3
+
+),
+
 msgs AS (
 
 SELECT 
@@ -71,7 +90,7 @@ SELECT
   m.tx_id,
   sender,
   claim_amount,
-  claim_amount * p.price AS claim_amount_usd,
+  claim_amount * coalesce(p.price,pb.price) AS claim_amount_usd,
   claim_currency,
   contract_address,
   l.address_name AS contract_label
@@ -86,3 +105,7 @@ ON contract_address = l.address
 LEFT OUTER JOIN prices p
  ON date_trunc('hour', m.block_timestamp) = p.hour
  AND claim_currency = p.currency 
+
+LEFT OUTER JOIN prices_backup pb
+ ON date_trunc('day', m.block_timestamp) = pb.day
+ AND claim_currency = pb.currency 
