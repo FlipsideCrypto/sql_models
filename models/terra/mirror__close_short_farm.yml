@@ -60,7 +60,7 @@ models:
         tests:
           - not_null 
             ## TO DO: ADD WHERE CONDITION FOR aUST
-            where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
+              where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -79,7 +79,7 @@ models:
         tests:
           - not_null 
           ## TO DO: ADD WHERE CONDITION FOR aUST
-            where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
+              where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -91,7 +91,7 @@ models:
         tests:
           - not_null 
           ## TO DO: ADD WHERE CONDITION FOR aUST
-            where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
+              where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
