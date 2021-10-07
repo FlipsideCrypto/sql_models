@@ -188,7 +188,7 @@ SELECT
   me.event_attributes:price / pe.price as luna_exchange_rate,
   me.event_attributes:price AS price_usd,
   'oracle' as source
-FROM {{source('silver_terra', 'msg_events')}} me
+FROM {{ref('silver_terra__msg_events')}} me
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON event_attributes:asset::string = l.address
@@ -198,7 +198,7 @@ LEFT OUTER JOIN prices pe
 
 WHERE event_type = 'from_contract'
   AND tx_id IN(SELECT tx_id 
-               FROM {{source('silver_terra', 'msgs')}}
+               FROM {{ref('silver_terra__msgs')}}
                WHERE msg_value:contract::string = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t' 
                  AND msg_value:execute_msg:feed_price IS NOT NULL
               )
