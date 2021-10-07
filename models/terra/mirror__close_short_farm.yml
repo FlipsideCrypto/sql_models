@@ -42,10 +42,8 @@ models:
           - not_null 
       - name: TAX_AMOUNT_USD
         tests:
-          - not_null 
-              ## TO DO: ADD WHERE CONDITION FOR aUST
-              where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
-
+          - not_null: 
+              where: TAX_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
       - name: TAX_CURRENCY
         tests:
           - not_null 
@@ -58,13 +56,13 @@ models:
                 - float
       - name: PROTOCOL_FEE_AMOUNT_USD
         tests:
-          - not_null 
-            ## TO DO: ADD WHERE CONDITION FOR aUST
-              where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
+          - not_null: 
+              where: PROTOCOL_FEE_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
+
       - name: PROTOCOL_FEE_CURRENCY
         tests:
           - not_null 
@@ -77,9 +75,8 @@ models:
                 - float
       - name: BURN_AMOUNT_USD
         tests:
-          - not_null 
-          ## TO DO: ADD WHERE CONDITION FOR aUST
-              where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
+          - not_null:
+              where: BURN_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -89,9 +86,8 @@ models:
           - not_null 
       - name: WITHDRAW_AMOUNT
         tests:
-          - not_null 
-          ## TO DO: ADD WHERE CONDITION FOR aUST
-              where: BURN_CURRENCY NOT IN ('terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
+          - not_null:
+              where: WITHDRAW_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
