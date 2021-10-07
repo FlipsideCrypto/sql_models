@@ -18,7 +18,7 @@ FROM {{ ref('terra__oracle_prices')}}
 WHERE 1=1
     
 {% if is_incremental() %}
-  AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+  AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
 {% endif %}
 
 GROUP BY 1,2,3
@@ -37,7 +37,7 @@ FROM {{ ref('terra__oracle_prices')}}
 WHERE 1=1
     
 {% if is_incremental() %}
-  AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+  AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
 {% endif %}
 
 GROUP BY 1,2,3
@@ -58,7 +58,7 @@ FROM terra.msgs
 WHERE msg_value:execute_msg:withdraw_voting_rewards IS NOT NULL
 
 {% if is_incremental() %}
-  AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+  AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
 {% endif %}
   
 ),
@@ -77,7 +77,7 @@ JOIN msgs m
 WHERE event_attributes:"0_action" = 'withdraw'
 
 {% if is_incremental() %}
-  AND e.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+  AND e.block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
 {% endif %}
 
 )
