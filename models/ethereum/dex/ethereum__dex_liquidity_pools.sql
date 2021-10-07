@@ -21,7 +21,7 @@ WITH v3_pools AS ( -- uni v3
       {{source('uniswapv3_eth','uniswapv3_pools')}}
       WHERE 
       {% if is_incremental() %}
-        creation_time >= getdate() - interval '2 days'
+        creation_time >= getdate() - interval '7 days'
       {% else %}
         creation_time >= getdate() - interval '12 months'
       {% endif %}
@@ -64,7 +64,7 @@ WITH v3_pools AS ( -- uni v3
 
     WHERE p.event_name    = 'PairCreated'
     {% if is_incremental() %}
-      AND creation_time >= getdate() - interval '2 days'
+      AND creation_time >= getdate() - interval '7 days'
     {% else %}
       AND creation_time >= getdate() - interval '12 months'
     {% endif %}
@@ -105,76 +105,21 @@ WITH v3_pools AS ( -- uni v3
 
     LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} bbb 
       ON token1 = bbb.address
-
-    -- WHERE 
-    -- p.event_name    = 'PairCreated'
-    -- {% if is_incremental() %}
-    --  block_timestamp >= getdate() - interval '2 days'
-    -- {% else %}
-    --  AND block_timestamp >= getdate() - interval '12 months'
-    -- {% endif %}
-
 ), sushi_write_in AS (
   -- adding a few major sushi pools that were created before we have eth data (this gives us data on swaps with these pools)
-  SELECT  
-        NULL AS creation_time,
-        NULL AS creation_tx,
-        '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
-        'WBTC-ETH SLP' AS pool_name,
-        '0xceff51756c56ceffca006cd410b03ffc46dd3a58' AS pool_address,
-        '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599' AS token0,
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' AS token1,
-        'sushiswap' AS platform
-  
-  UNION
-  
-  SELECT  
-        NULL AS creation_time,
-        NULL AS creation_tx,
-        '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
-        'SUSHI-ETH SLP' AS pool_name,
-        '0x795065dcc9f64b5614c407a6efdc400da6221fb0' AS pool_address,
-        '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2' AS token0,
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' AS token1,
-        'sushiswap' AS platform
-  
-  UNION
-  
-  SELECT  
-        NULL AS creation_time,
-        NULL AS creation_tx,
-        '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
-        'USDC-ETH SLP' AS pool_name,
-        '0x397ff1542f962076d0bfe58ea045ffa2d347aca0' AS pool_address,
-        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' AS token0,
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' AS token1,
-        'sushiswap' AS platform
-  
-  
-  UNION
-  
-  SELECT  
-        NULL AS creation_time,
-        NULL AS creation_tx,
-        '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
-        'ETH-USDT SLP' AS pool_name,
-        '0x06da0fd433c1a5d7a4faa01111c044910a184553' AS pool_address,
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' AS token0,
-        '0xdac17f958d2ee523a2206206994597c13d831ec7' AS token1,
-        'sushiswap' AS platform
-    
-  
-  UNION
-  
-  SELECT  
-        NULL AS creation_time,
-        NULL AS creation_tx,
-        '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
-        'DAI-ETH SLP' AS pool_name,
-        '0xc3d03e4f041fd4cd388c549ee2a29a9e5075882f' AS pool_address,
-        '0x6b175474e89094c44da98b954eedeac495271d0f' AS token0,
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' AS token1,
-        'sushiswap' AS platform
+  -- edit now uses a table of sushiswap tables 
+  -- only captures the top 1000 pools by liquidity and pulls these from the Graph endpoint used by sushi https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork
+  SELECT
+      NULL AS creation_time,
+      NULL AS creation_tx,
+      '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
+      pool_name,
+      pool_address,
+      token0,
+      token1,
+      platform
+
+  FROM flipside_dev_db.dbt.sushi_liquidity_pools
   
 ), new_sushi AS (
   SELECT s.* -- future proofing: once the eth backfill is done these manual write-ins will be dups
@@ -209,6 +154,7 @@ stack AS (
      *,
     ARRAY_CONSTRUCT(token0,token1) AS tokens
   FROM stack
+  WHERE pool_address IS NOT NULL AND token0 IS NOT NULL AND token1 IS NOT NULL
 
   UNION
 
@@ -228,4 +174,5 @@ stack AS (
 
 SELECT DISTINCT * FROM 
 curve
+WHERE pool_address IS NOT NULL
 

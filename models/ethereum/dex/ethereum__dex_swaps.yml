@@ -4,25 +4,24 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
+            - DIRECTION
+            - EVENT_INDEX
             - TX_ID
     columns:
-      - name: AMOUNT_IN
+      - name: AMOUNT_IN # TODO: proportional null test
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
-      - name: AMOUNT_OUT
+      - name: AMOUNT_OUT # TODO: proportional null test
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
-      - name: AMOUNT_USD
+      - name: AMOUNT_USD # TODO: proportional null test
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -51,15 +50,16 @@ models:
           - not_null
       - name: POOL_ADDRESS
         tests:
-          - not_null
+          - not_null:
+              where: PLATFORM <> 'uniswap-v3'
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: POOL_NAME
         tests:
-          - not_null
+          - not_null:
+              where: PLATFORM <> 'uniswap-v3'
       - name: ROUTER
         tests:
-          - not_null
       - name: TOKEN_ADDRESS
         tests:
           - not_null
