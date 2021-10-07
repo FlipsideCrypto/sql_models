@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: anchor__stake
+  - name: anchor_dbt__stake
     description: Anchor STAKE
     tests:
       - dbt_utils.unique_combination_of_columns:
