@@ -70,6 +70,7 @@ LEFT OUTER JOIN prices f
  AND t.event_attributes:protocol_fee[0]:denom::string = f.currency 
 
 WHERE event_attributes:burn_amount IS NOT NULL 
+  AND event_attributes:protocol_fee IS NOT NULL
   AND tx_id IN(SELECT DISTINCT tx_id 
                 FROM msgs)
   AND tx_status = 'SUCCEEDED'
