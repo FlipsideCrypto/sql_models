@@ -72,11 +72,11 @@ burns AS (
 SELECT
   tx_id,
   event_attributes:burn_amount[0]:amount / POW(10,6) AS burn_amount,
-  burn_amount * coalesce(i.price,i_b.price) AS burn_amount_usd,
+  burn_amount * i.price AS burn_amount_usd,
   event_attributes:burn_amount[0]:denom::string AS burn_currency,
 
   event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
-  protocol_fee_amount * coalesce(f.price,f_b.price) AS protocol_fee_amount_usd,
+  protocol_fee_amount * f.price AS protocol_fee_amount_usd,
   event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency
 FROM {{source('silver_terra', 'msg_events')}} t
 
@@ -97,6 +97,7 @@ LEFT OUTER JOIN prices_backup f_b
  AND t.event_attributes:protocol_fee[0]:denom::string = f_b.currency 
 
 WHERE event_attributes:burn_amount IS NOT NULL 
+  AND event_attributes:protocol_fee IS NOT NULL
   AND tx_id IN(SELECT DISTINCT tx_id 
                 FROM msgs)
   AND tx_status = 'SUCCEEDED'
@@ -111,15 +112,15 @@ SELECT
   tx_id,
   
   event_attributes:tax_amount[0]:amount /POW(10,6) AS tax_amount,
-  tax_amount * coalesce(o.price,o_b.price) AS tax_amount_usd,
+  tax_amount * o.price AS tax_amount_usd,
   event_attributes:tax_amount[0]:denom::string AS tax_currency,
 
   event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
-  protocol_fee_amount * coalesce(f.price,f_b.price) AS protocol_fee_amount_usd,
+  protocol_fee_amount * f.price AS protocol_fee_amount_usd,
   event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency,
   
   event_attributes:withdraw_amount[0]:amount /POW(10,6) AS withdraw_amount,
-  withdraw_amount * coalesce(i.price,i_b.price) AS withdraw_amount_usd,
+  withdraw_amount * i.price AS withdraw_amount_usd,
   event_attributes:withdraw_amount[0]:denom::string AS withdraw_currency
 FROM {{source('silver_terra', 'msg_events')}} t
 
@@ -148,6 +149,7 @@ LEFT OUTER JOIN prices_backup f_b
  AND t.event_attributes:protocol_fee[0]:denom::string = f_b.currency 
 
 WHERE event_attributes:withdraw_amount IS NOT NULL 
+  AND event_attributes:"2_action" != 'release_shorting_funds'
   AND tx_id IN(SELECT DISTINCT tx_id 
                 FROM msgs)
   AND tx_status = 'SUCCEEDED'
