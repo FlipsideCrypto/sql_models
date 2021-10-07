@@ -19,7 +19,7 @@ sources:
       - name: uniswapv2factory_event_paircreated
   - name: ethereum
     schema: silver
-    tables:      
+    tables:
       - name: ethereum_contracts
       - name: daily_ethereum_token_balances
       - name: ethereum_address_labels
@@ -55,7 +55,7 @@ sources:
       - name: uniswapv3_swaps
   - name: ethereum_nondbt
     schema: ethereum
-    tables:      
+    tables:
       - name: token_prices_hourly_v2
   - name: thorchain
     schema: thorchain
@@ -140,14 +140,6 @@ sources:
       - name: terra_validator_voting_power
       - name: udm_daily_balances_terra
       - name: udm_custom_fields_terra_tax_rate
-  - name: silver_terra
-    schema: silver_terra
-    tables:
-      - name: blocks
-      - name: msgs
-      - name: msg_events
-      - name: transactions
-      - name: transitions
   - name: silver_polygon
     schema: silver_polygon
     tables:
@@ -171,11 +163,3 @@ sources:
     tables:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
-  - name: terra_dbt
-    schema: terra_dbt
-    tables:
-      - name: blocks
-      - name: msgs
-      - name: msg_events
-      - name: transactions
-      - name: transitions

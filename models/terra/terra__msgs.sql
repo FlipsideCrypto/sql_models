@@ -1,9 +1,7 @@
-{{ 
-  config(
-    materialized='view', 
-    tags=['snowflake', 'terra_views', 'msgs', 'terra']
-  )
-}}
+{{ config(
+  materialized = 'view',
+  tags = ['snowflake', 'terra_views', 'msgs', 'terra']
+) }}
 
 SELECT
   block_id,
@@ -18,4 +16,5 @@ SELECT
   msg_module,
   msg_type,
   msg_value
-FROM {{source('silver_terra', 'msgs')}}
+FROM
+  {{ ref('silver_terra__msgs') }}
