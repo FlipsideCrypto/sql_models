@@ -108,6 +108,7 @@ WITH v3_pools AS ( -- uni v3
 ), sushi_write_in AS (
   -- adding a few major sushi pools that were created before we have eth data (this gives us data on swaps with these pools)
   -- edit now uses a table of sushiswap tables 
+  -- only captures the top 1000 pools by liquidity and pulls these from the Graph endpoint used by sushi https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork
   SELECT
       NULL AS creation_time,
       NULL AS creation_tx,
