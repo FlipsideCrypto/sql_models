@@ -110,6 +110,7 @@ LEFT OUTER JOIN prices f
  AND t.event_attributes:protocol_fee[0]:denom::string = f.currency 
 
 WHERE event_attributes:withdraw_amount IS NOT NULL 
+  AND event_attributes:"2_action" != 'release_shorting_funds'
   AND tx_id IN(SELECT DISTINCT tx_id 
                 FROM msgs)
   AND tx_status = 'SUCCEEDED'
