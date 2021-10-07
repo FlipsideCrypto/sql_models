@@ -44,8 +44,7 @@ models:
         tests:
           - not_null 
               ## TO DO: ADD WHERE CONDITION FOR aUST
-                # config: 
-                #   where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
+              where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
 
       - name: TAX_CURRENCY
         tests:
@@ -61,8 +60,7 @@ models:
         tests:
           - not_null 
             ## TO DO: ADD WHERE CONDITION FOR aUST
-              # config: 
-              #   where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
+            where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -81,8 +79,7 @@ models:
         tests:
           - not_null 
           ## TO DO: ADD WHERE CONDITION FOR aUST
-              # config: 
-              #   where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
+            where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -94,8 +91,7 @@ models:
         tests:
           - not_null 
           ## TO DO: ADD WHERE CONDITION FOR aUST
-              # config: 
-              #   where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
+            where: "BURN_CURRENCY != 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'"
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
