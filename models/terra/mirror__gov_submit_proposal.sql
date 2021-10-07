@@ -34,7 +34,7 @@ events AS (
 SELECT 
   tx_id,
   COALESCE(to_timestamp(event_attributes:end_time),event_attributes:end_height) as end_time,
-  event_attributes:poll_id as poll_id
+  event_attributes:poll_id::number as poll_id
 FROM {{source('silver_terra', 'msg_events')}}
 WHERE tx_id IN(select tx_id from msgs)
   AND event_type = 'from_contract'

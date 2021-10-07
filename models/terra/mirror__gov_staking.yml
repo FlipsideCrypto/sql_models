@@ -1,0 +1,81 @@
+version: 2
+models:
+  - name: mirror__gov_staking
+    description: Mirror GOV STAKING
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - MSG_INDEX
+            - TX_ID
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        description: ""
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: ""
+        tests:
+          - not_null
+      - name: TX_ID
+        description: ""
+        tests:
+          - not_null
+      - name: EVENT_TYPE
+        tests:
+          - not_null 
+      - name: SENDER
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}   
+      - name: EVENT_AMOUNT
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: EVENT_AMOUNT_USD
+        description: ""
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: EVENT_CURRENCY
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}   
+      - name: SHARES
+        description: ""
+        tests:
+          - not_null:
+              where: EVENT_TYPE = 'STAKE'
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: CONTRACT_ADDRESS
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}   
+      - name: CONTRACT_LABEL
+        description: ""
+        tests:
+          - not_null

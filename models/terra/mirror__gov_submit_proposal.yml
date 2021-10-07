@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: anchor_dbt__stake
-    description: Anchor STAKE
+  - name: mirror__gov_submit_proposal
+    description: Mirror GOV SUBMIT PROPOSAL
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -28,23 +28,55 @@ models:
         description: ""
         tests:
           - not_null
-      - name: AMOUNT
+      - name: POLL_ID
         description: ""
         tests:
+          - unique
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - decimal
-                - float
-      - name: SENDER
+                - NUMBER
+      - name: END_TIME
+        description: ""
+        tests:
+          - not_null
+      - name: CREATOR
         description: ""
         tests:
           - not_null 
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+   
+              regex: terra[0-9a-zA-Z]{39,40}   
+      - name: AMOUNT
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: TITLE
+        description: ""
+        tests:
+          - not_null
+      - name: LINK
+        description: ""
+        tests:
+          - not_null
+      - name: DESCRIPTION
+        description: ""
+        tests:
+          - not_null
+      - name: MSG
+        description: ""
+        tests:
+          - not_null
       - name: CONTRACT_ADDRESS
         description: ""
         tests:
           - not_null 
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+   
+              regex: terra[0-9a-zA-Z]{39,40}   
+      - name: CONTRACT_LABEL
+        description: ""
+        tests:
+          - not_null

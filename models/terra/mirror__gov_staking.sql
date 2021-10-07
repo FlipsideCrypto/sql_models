@@ -1,8 +1,8 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'block_id || tx_id',
+    unique_key = 'block_id || tx_id || msg_index ',
     incremental_strategy = 'delete+insert',
-    cluster_by = ['block_timestamp', 'block_id'],
+    cluster_by = ['block_timestamp', 'block_id','msg_index'],
     tags=['snowflake', 'terra', 'mirror', 'mirror_gov']
 ) }}
 
@@ -32,7 +32,8 @@ SELECT
   chain_id,
   block_id,
   block_timestamp,
-  tx_id,
+  t.tx_id,
+  t.msg_index,
   msg_value:sender::string as sender,
   msg_value:execute_msg:send:amount / POW(10,6) as event_amount,
   event_amount * o.price AS event_amount_usd,
@@ -60,8 +61,9 @@ WHERE msg_value:execute_msg:send:msg:stake_voting_tokens IS NOT NULL
 
 stake_events AS (
 SELECT 
-  tx_id,
-  event_attributes:share as shares
+  tx_id, 
+  msg_index,
+  event_attributes:share::float as shares
 FROM {{source('silver_terra', 'msg_events')}}
 WHERE tx_id IN(SELECT DISTINCT tx_id FROM stake_msgs)
   AND event_type = 'from_contract'
@@ -78,6 +80,7 @@ SELECT
   block_id,
   block_timestamp,
   m.tx_id,
+  e.msg_index,
   'stake' as event_type,
   sender,
   event_amount,
@@ -89,7 +92,8 @@ SELECT
 FROM stake_msgs m 
 
 JOIN stake_events e 
-  ON m.tx_id = e.tx_id
+ON m.tx_id = e.tx_id
+and m.msg_index = e.msg_index
 
 UNION 
 
@@ -100,7 +104,9 @@ SELECT
   chain_id,
   block_id,
   block_timestamp,
-  tx_id,
+  t.tx_id,
+  t.msg_index,
+
   'unstake' as event_type,
   msg_value:sender::string as sender,
   msg_value:execute_msg:withdraw_voting_tokens:amount / POW(10,6) as event_amount,
@@ -111,12 +117,14 @@ SELECT
   l.address_name as contract_label
 FROM {{source('silver_terra', 'msgs')}} t
 
+
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
  AND 'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' = o.currency 
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
+
 
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL
   AND msg_value:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
