@@ -42,8 +42,12 @@ models:
           - not_null 
       - name: TAX_AMOUNT_USD
         tests:
-          - not_null: 
-              where: TAX_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+      #     - not_null: 
+      #         where: TAX_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: TAX_CURRENCY
         tests:
           - not_null 
@@ -56,8 +60,8 @@ models:
                 - float
       - name: PROTOCOL_FEE_AMOUNT_USD
         tests:
-          - not_null: 
-              where: PROTOCOL_FEE_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+          # - not_null: 
+          #     where: PROTOCOL_FEE_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -75,8 +79,8 @@ models:
                 - float
       - name: BURN_AMOUNT_USD
         tests:
-          - not_null:
-              where: BURN_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+          # - not_null:
+          #     where: BURN_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -94,7 +98,7 @@ models:
                 - float
       - name: WITHDRAW_AMOUNT_USD
         tests:
-          - not_null 
+        #   - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
