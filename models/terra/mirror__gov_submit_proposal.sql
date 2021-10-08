@@ -21,8 +21,9 @@ SELECT
   msg_value:execute_msg:send:msg:create_poll:execute_msg:msg as msg,
   msg_value:execute_msg:send:contract::string as contract_address
 FROM {{source('silver_terra', 'msgs')}}
-WHERE msg_value:execute_msg:send:msg:create_poll IS NOT NULL 
-  AND msg_value:execute_msg:send:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x' -- MIR Governance 
+WHERE 
+--msg_value:execute_msg:send:msg:create_poll IS NOT NULL 
+   msg_value:execute_msg:send:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x' -- MIR Governance 
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
@@ -37,7 +38,9 @@ SELECT
   event_attributes:poll_id::number as poll_id
 FROM {{source('silver_terra', 'msg_events')}}
 WHERE tx_id IN(select tx_id from msgs)
+  and event_attributes:"0_action"::string = 'send'
   AND event_type = 'from_contract'
+  and poll_id is not null 
 
   {% if is_incremental() %}
     AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})

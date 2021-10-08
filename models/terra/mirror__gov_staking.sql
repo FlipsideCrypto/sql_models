@@ -73,6 +73,8 @@ WHERE tx_id IN(SELECT DISTINCT tx_id FROM stake_msgs)
   {% endif %}
 )
 
+
+
 -- Staking 
 SELECT 
   blockchain,
@@ -101,15 +103,15 @@ UNION
 
 SELECT
   t.blockchain,
-  chain_id,
-  block_id,
-  block_timestamp,
+  t.chain_id,
+  t.block_id,
+  t.block_timestamp,
   t.tx_id,
   t.msg_index,
 
   'unstake' as event_type,
   msg_value:sender::string as sender,
-  msg_value:execute_msg:withdraw_voting_tokens:amount / POW(10,6) as event_amount,
+  CASE WHEN msg_value:execute_msg:withdraw_voting_tokens:amount  IS NULL THEN q.EVENT_ATTRIBUTES:"0_amount" ELSE msg_value:execute_msg:withdraw_voting_tokens:amount END / POW(10,6)  as event_amount,
   event_amount * o.price AS event_amount_usd,
   'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' as event_currency,
   NULL as shares,
@@ -117,6 +119,9 @@ SELECT
   l.address_name as contract_label
 FROM {{source('silver_terra', 'msgs')}} t
 
+LEFT JOIN {{source('silver_terra', 'msg_events')}} q
+on t.tx_id = q.tx_id
+AND q.event_type = 'from_contract'
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -128,7 +133,7 @@ ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL
   AND msg_value:contract::string = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
-  AND tx_status = 'SUCCEEDED'
+  AND t.tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
     AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
