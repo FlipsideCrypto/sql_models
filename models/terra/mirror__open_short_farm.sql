@@ -18,7 +18,7 @@ WITH prices AS (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -37,7 +37,7 @@ SELECT
   msg_value:execute_msg:open_position:collateral_ratio AS collateral_ratio,
   msg_value:contract::string AS contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}} m
+FROM {{ref('silver_terra__msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -47,7 +47,7 @@ WHERE msg_value:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -79,7 +79,7 @@ SELECT
   event_attributes:spread_amount / POW(10,6) AS spread,
   
   to_timestamp(event_attributes:unlock_time::numeric) AS unlock_time
-FROM {{source('silver_terra', 'msg_events')}} t
+FROM {{ref('silver_terra__msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -103,7 +103,7 @@ WHERE event_type = 'from_contract'
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 )

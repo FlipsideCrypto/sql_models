@@ -18,7 +18,7 @@ WITH prices AS (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -36,12 +36,12 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:execute_msg:send:msg:auction:position_idx as collateral_id,
   msg_value:execute_msg:send:contract::string as contract_address
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{ref('silver_terra__msgs')}}
 WHERE msg_value:execute_msg:send:msg:auction IS NOT NULL 
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 ),
 
@@ -65,14 +65,14 @@ SELECT
   event_attributes:unlocked_amount[0]:denom::string as unlocked_curency,
   
   event_attributes:owner::string as owner
-FROM {{source('silver_terra', 'msg_events')}}
+FROM {{ref('silver_terra__msg_events')}}
 WHERE event_type = 'from_contract'
   AND tx_id IN(SELECT tx_id FROM msgs)
   AND event_attributes:return_collateral_amount IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 )

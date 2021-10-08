@@ -17,7 +17,7 @@ WITH prices AS (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -30,14 +30,14 @@ SELECT
   tx_id,
   msg_index,
   msg_value:contract::string as claim_0_contract
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{ref('silver_terra__msgs')}}
 WHERE msg_value:execute_msg:withdraw IS NOT NULL
   AND msg_index = 0
   AND msg_value:contract::string = 'terra1897an2xux840p9lrh6py3ryankc6mspw49xse3'
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -49,14 +49,14 @@ SELECT
   msg_index,
   msg_value:sender::string as sender,
   msg_value:contract::string as claim_1_contract
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{ref('silver_terra__msgs')}}
 WHERE msg_value:execute_msg:claim_rewards IS NOT NULL
   AND msg_index = 1
   AND msg_value:contract::string = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
   
 ),
@@ -68,7 +68,7 @@ SELECT
   claim_0_contract,
   event_attributes:"0_amount" / POW(10,6) as claim_0_amount,
   event_attributes:"1_contract_address"::string as claim_0_currency
-FROM {{source('silver_terra', 'msg_events')}} e
+FROM {{ref('silver_terra__msg_events')}} e
   
 JOIN withdraw_msgs m 
   ON m.tx_id = e.tx_id
@@ -79,7 +79,7 @@ WHERE event_type = 'from_contract'
   AND event_attributes:"0_action"::string = 'withdraw'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
   
 ),
@@ -96,7 +96,7 @@ SELECT
   claim_1_contract,
   event_attributes:claim_amount / POW(10,6) as claim_1_amount,
   event_attributes:"2_contract_address"::string as claim_1_currency
-FROM {{source('silver_terra', 'msg_events')}} e
+FROM {{ref('silver_terra__msg_events')}} e
   
 JOIN claim_msgs m 
   ON m.tx_id = e.tx_id
@@ -107,7 +107,7 @@ WHERE event_type = 'from_contract'
   AND event_attributes:"0_action"::string = 'claim_rewards'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
   
 )

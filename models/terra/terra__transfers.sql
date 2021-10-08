@@ -144,7 +144,7 @@ SELECT
   msg_value:execute_msg:transfer:recipient::string as event_to,
   msg_value:execute_msg:transfer:amount / pow(10,6) as event_amount,
   msg_value:contract::string as event_currency
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{ref('silver_terra__msgs')}}
 WHERE msg_value:execute_msg:transfer IS NOT NULL 
 
 {% if is_incremental() %}
