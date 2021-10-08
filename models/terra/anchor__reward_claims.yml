@@ -22,30 +22,52 @@ models:
       - name: TX_ID
         tests:
           - not_null
-      - name: AMOUNT
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: AMOUNT_USD
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: CURRENCY
-        tests:
-          - not_null
       - name: SENDER
         tests:
           - not_null 
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+   
-      - name: CONTRACT_ADDRESS
+      - name: CLAIM_0_AMOUNT
         tests:
-          - not_null 
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+   
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: CLAIM_0_AMOUNT_USD
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: CLAIM_0_CURRENCY
+        tests:
+          - not_null
+      - name: CLAIM_0_CONTRACT
+        tests:
+          - not_null
+      - name: CLAIM_0_CONTRACT_LABEL
+        tests:
+          - not_null
+      - name: CLAIM_1_AMOUNT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: CLAIM_1_AMOUNT_USD
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: CLAIM_1_CURRENCY
+        tests:
+          - not_null
+      - name: CLAIM_1_CONTRACT
+        tests:
+          - not_null
+      - name: CLAIM_1_CONTRACT_LABEL
+        tests:
+          - not_null

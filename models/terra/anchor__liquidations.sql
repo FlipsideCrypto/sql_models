@@ -60,6 +60,7 @@ SELECT
   liquidated_amount * l.price AS liquidated_amount_usd,
   event_attributes:collateral_token::string as liquidated_currency,
   event_attributes:"1_repay_amount" / POW(10,6) as repay_amount,
+  event_attributes:"1_borrower"::string as borrower,
   repay_amount * r.price as repay_amount_usd,
   event_attributes:stable_denom::string as repay_currency,
   event_attributes:bid_fee / POW(10,6) AS bid_fee
@@ -91,7 +92,7 @@ SELECT
   block_timestamp,
   m.tx_id,
   bid_fee,
-  borrower,
+  m.borrower,
   liquidator,
   liquidated_amount,
   liquidated_amount_usd,
@@ -104,4 +105,4 @@ SELECT
 FROM msgs m 
 
 JOIN events e 
-  ON m.tx_id = e.tx_id
+  ON m.tx_id = e.tx_id AND m.borrower = e.borrower

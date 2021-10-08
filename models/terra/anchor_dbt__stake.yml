@@ -22,6 +22,12 @@ models:
       - name: TX_ID
         tests:
           - not_null
+      - name: ACTION
+        tests:
+          - not_null
+      - name: SENDER
+        tests:
+          - not_null 
       - name: AMOUNT
         tests:
           - not_null
@@ -29,13 +35,16 @@ models:
               column_type_list:
                 - decimal
                 - float
-      - name: SENDER
+      - name: AMOUNT_USD
         tests:
-          - not_null 
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+   
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: CONTRACT_ADDRESS
         tests:
           - not_null 
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+   
+      - name: CONTRACT_LABEL
+        tests:
+          - not_null 
