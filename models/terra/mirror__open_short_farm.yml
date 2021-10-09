@@ -7,7 +7,6 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
-            - COLLATERAL_ID
     columns:
       - name: BLOCKCHAIN
         description: ""
@@ -81,7 +80,6 @@ models:
       - name: COLLATERAL_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -101,7 +99,6 @@ models:
       - name: MINT_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -121,7 +118,6 @@ models:
       - name: RETURN_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -141,7 +137,6 @@ models:
       - name: LOCKED_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal

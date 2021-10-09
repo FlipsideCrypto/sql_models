@@ -58,7 +58,6 @@ models:
       - name: TAX_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -68,9 +67,7 @@ models:
         tests:
           - not_null
       - name: PROTOCOL_FEE_AMOUNT
-        description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -78,7 +75,6 @@ models:
       - name: PROTOCOL_FEE_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -98,7 +94,6 @@ models:
       - name: LIQUIDATED_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -118,7 +113,6 @@ models:
       - name: RETURN_COLLATERAL_AMOUNT_USD
         description: ""
         tests:
-          - not_null 
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -128,17 +122,17 @@ models:
         tests:
           - not_null
       - name: UNLOCKED_AMOUNT
-        description: ""
         tests:
-          - not_null 
+          - not_null:
+              where: UNLOCKED_CURRENCY <> NULL
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: UNLOCKED_AMOUNT_USD
-        description: ""
         tests:
-          - not_null 
+          - not_null:
+              where: UNLOCKED_CURRENCY <> NULL
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -146,7 +140,6 @@ models:
       - name: UNLOCKED_CURRENCY
         description: ""
         tests:
-          - not_null
       - name: CONTRACT_ADDRESS
         description: ""
         tests:

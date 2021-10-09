@@ -35,6 +35,7 @@ models:
       - name: COLLATERAL_ID
         description: ""
         tests:
+          - unique
           - not_null
       - name: COLLATERAL_RATIO
         description: ""
@@ -47,17 +48,17 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-zA-Z]{39,40}
       - name: COLLATERAL_AMOUNT
-        description: ""
         tests:
-          - not_null 
+          - not_null:
+              where: COLLATERAL_CURRENCY <> NULL
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: COLLATERAL_AMOUNT_USD
-        description: ""
         tests:
-          - not_null 
+          - not_null:
+              where: COLLATERAL_CURRENCY <> NULL
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -67,17 +68,17 @@ models:
         tests:
           - not_null
       - name: MINT_AMOUNT
-        description: ""
         tests:
-          - not_null 
+          - not_null:
+              where: MINT_CURRENCY <> NULL
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: MINT_AMOUNT_USD
-        description: ""
         tests:
-          - not_null 
+          - not_null:
+              where: MINT_CURRENCY <> NULL
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal

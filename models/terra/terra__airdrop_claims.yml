@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+            - AIRDROP_ID
             - CONTRACT_ADDRESS
     columns:
       - name: BLOCKCHAIN
@@ -40,7 +41,15 @@ models:
               regex: terra[0-9a-zA-Z]{39,40}
       - name: CONTRACT_LABEL
         tests:
-          - not_null
+          - not_null:
+              where: CONTRACT_ADDRESS = 'terra1kalp2knjm4cs3f59ukr4hdhuuncp648eqrgshw'
       - name: TX_ID
         tests:
           - not_null
+      - name: AIRDROP_ID
+        tests:
+          - not_null:
+              where: CONTRACT_ADDRESS NOT IN ('terra1s2yuugawj98gkpy6h9ua7ppss94sqgw2r7tyma', 'terra1268e62h8r0fcr2nt0kplxp8jx5qalwq73a5fuk')
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - number

@@ -1,1 +1,0 @@
-{{ sequence_gaps(ref("mirror__liquidations"), ["block_id", "tx_id",], "collateral_id") }}
