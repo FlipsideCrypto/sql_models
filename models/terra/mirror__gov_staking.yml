@@ -49,7 +49,6 @@ models:
       - name: EVENT_AMOUNT_USD
         description: ""
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
