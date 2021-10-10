@@ -80,6 +80,7 @@ FROM {{source('silver_terra', 'msg_events')}}
 WHERE event_type = 'from_contract'
   AND tx_id IN(SELECT DISTINCT tx_id 
  	  		    FROM msgs )
+  AND event_attributes:offer_amount IS NOT NULL
 
   {% if is_incremental() %}
     AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
