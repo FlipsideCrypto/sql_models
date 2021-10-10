@@ -34,7 +34,6 @@ models:
                 - float
       - name: CLAIM_0_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -57,7 +56,6 @@ models:
                 - float
       - name: CLAIM_1_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal

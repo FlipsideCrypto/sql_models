@@ -24,14 +24,12 @@ models:
           - not_null
       - name: AMOUNT
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
