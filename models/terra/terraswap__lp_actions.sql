@@ -85,7 +85,7 @@ LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
  AND t.event_attributes:assets[1]:denom::string = i.currency  
 
-WHERE msg_index = 1
+WHERE event_attributes:assets IS NOT NULL
   AND tx_id IN(SELECT DISTINCT tx_id FROM provide_msgs)
   AND event_type = 'from_contract'
 
