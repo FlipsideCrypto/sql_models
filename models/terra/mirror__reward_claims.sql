@@ -37,6 +37,7 @@ SELECT
   msg_value:contract::string as contract_address
 FROM {{source('silver_terra', 'msgs')}}
 WHERE msg_value:execute_msg:withdraw_voting_rewards IS NOT NULL
+  AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
   AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
