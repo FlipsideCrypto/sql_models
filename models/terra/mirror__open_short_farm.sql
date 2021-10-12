@@ -74,9 +74,9 @@ SELECT
   locked_amount * l.price AS locked_amount_usd,
   event_attributes:locked_amount[0]:denom::string AS locked_currency,
   
-  event_attributes:tax_amount / POW(10,6) AS tax,
-  event_attributes:commission_amount / POW(10,6) AS commission,
-  event_attributes:spread_amount / POW(10,6) AS spread,
+  event_attributes:tax_amount / POW(10,6) AS tax_amount,
+  event_attributes:commission_amount / POW(10,6) AS commission_amount,
+  event_attributes:spread_amount / POW(10,6) AS spread_amount,
   
   to_timestamp(event_attributes:unlock_time::numeric) AS unlock_time
 FROM {{ref('silver_terra__msg_events')}} t
@@ -117,9 +117,9 @@ SELECT
   collateral_id,
   collateral_ratio, 
   sender, 
-  tax,
-  commission,
-  spread,
+  tax_amount,
+  commission_amount,
+  spread_amount,
   collateral_amount, 
   collateral_amount_usd, 
   collateral_currency, 

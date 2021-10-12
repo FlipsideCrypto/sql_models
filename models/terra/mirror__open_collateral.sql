@@ -74,7 +74,8 @@ LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
  AND t.event_attributes:mint_amount[0]:denom::string = i.currency  
 
-WHERE tx_id IN(SELECT DISTINCT tx_id FROM msgs)
+WHERE t.event_attributes:is_short::string = 'false'
+  AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
   AND event_type = 'from_contract'
 
   {% if is_incremental() %}
