@@ -168,37 +168,15 @@ UNION
 SELECT
   ma.blockchain,
   ma.block_timestamp,
-  ma.currency as currency,
-  ma.symbol as symbol,
-  pp.price / ma.price as luna_exchange_rate,
-  ma.price as price_usd,
-  'oracle' as source
-FROM massets ma
-
-LEFT OUTER JOIN prices pp
-  ON date_trunc('hour', ma.block_timestamp) = pp.block_timestamp
-
-UNION 
-
-SELECT 
-  me.blockchain, 
-  me.block_timestamp,
-  me.event_attributes:asset::string as currency,
-  l.address_name as symbol,
-  me.event_attributes:price / pe.price as luna_exchange_rate,
-  me.event_attributes:price AS price_usd,
-  'oracle' as source
-FROM {{ref('silver_terra__msg_events')}} me
-
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON event_attributes:asset::string = l.address
-
-LEFT OUTER JOIN prices pe
-  ON date_trunc('hour', me.block_timestamp) = pe.block_timestamp
-
-WHERE event_type = 'from_contract'
-  AND tx_id IN(SELECT tx_id 
-               FROM {{ref('silver_terra__msgs')}}
-               WHERE msg_value:contract::string = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t' 
-                 AND msg_value:execute_msg:feed_price IS NOT NULL
-              )
+  ma.currency AS currency,
+  ma.symbol AS symbol,
+  pp.price / ma.price AS luna_exchange_rate,
+  ma.price AS price_usd,
+  'oracle' AS source
+FROM
+  massets ma
+  LEFT OUTER JOIN prices pp
+  ON DATE_TRUNC(
+    'hour',
+    ma.block_timestamp
+  ) = pp.block_timestamp
