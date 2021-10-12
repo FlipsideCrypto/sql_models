@@ -1,7 +1,7 @@
 version: 2
 models:
-  - name: terraswap__lp_actions
-    description: Terraswap LP Actions
+  - name: terraswap__swaps
+    description: Terraswap Swaps
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -28,17 +28,13 @@ models:
         description: ""
         tests:
           - not_null
-      - name: EVENT_TYPE
-        description: ""
-        tests:
-          - not_null
       - name: SENDER
         description: ""
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+  
-      - name: TOKEN_0_AMOUNT
+      - name: TAX_AMOUNT
         description: ""
         tests:
           - not_null
@@ -46,7 +42,7 @@ models:
               column_type_list:
                 - decimal
                 - float
-      - name: TOKEN_0_AMOUNT_USD
+      - name: COMMISSION_AMOUNT
         description: ""
         tests:
           - not_null
@@ -54,11 +50,7 @@ models:
               column_type_list:
                 - decimal
                 - float
-      - name: TOKEN_0_CURRENCY
-        description: ""
-        tests:
-          - not_null
-      - name: TOKEN_1_AMOUNT
+      - name: OFFER_AMOUNT
         description: ""
         tests:
           - not_null
@@ -66,7 +58,7 @@ models:
               column_type_list:
                 - decimal
                 - float
-      - name: TOKEN_1_AMOUNT_USD
+      - name: OFFER_AMOUNT_USD
         description: ""
         tests:
           - not_null
@@ -74,7 +66,27 @@ models:
               column_type_list:
                 - decimal
                 - float
-      - name: TOKEN_1_CURRENCY
+      - name: OFFER_CURRENCY
+        description: ""
+        tests:
+          - not_null
+      - name: RETURN_AMOUNT
+        description: ""
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: RETURN_AMOUNT_USD
+        description: ""
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: RETURN_CURRENCY
         description: ""
         tests:
           - not_null
@@ -88,21 +100,3 @@ models:
         description: ""
         tests:
           - not_null 
-      - name: LP_SHARE_AMOUNT
-        description: ""
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: LP_POOL_ADDRESS
-        description: ""
-        tests:
-          - not_null 
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+   
-      - name: LP_POOL_NAME
-        description: ""
-        tests:
-          - not_null  

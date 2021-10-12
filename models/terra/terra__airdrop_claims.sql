@@ -16,7 +16,7 @@ SELECT
   msg_value:execute_msg:claim:amount / POW(10,6) as amount,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{ref('silver_terra__msgs')}}
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -24,5 +24,5 @@ ON msg_value:contract::string = l.address
 WHERE msg_value:execute_msg:claim IS NOT NULL
 
 {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
 {% endif %}

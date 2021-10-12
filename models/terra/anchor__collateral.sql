@@ -18,7 +18,7 @@ WITH prices AS (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -37,7 +37,7 @@ SELECT
   msg_value:sender::string AS sender,
   msg_value:execute_msg:send:contract::string AS contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}} m
+FROM {{ref('silver_terra__msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
@@ -46,7 +46,7 @@ WHERE msg_value:execute_msg:withdraw_collateral IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -58,7 +58,7 @@ events AS (
   event_attributes:collaterals[0]:amount / POW(10,6) as amount,
   amount * price AS amount_usd,
   event_attributes:collaterals[0]:denom::string as currency
-FROM {{source('silver_terra', 'msg_events')}} m
+FROM {{ref('silver_terra__msg_events')}} m
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', block_timestamp) = o.hour
@@ -70,7 +70,7 @@ WHERE tx_id IN(SELECT tx_id FROM msgs)
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
   
 )  
@@ -109,7 +109,7 @@ SELECT
   msg_value:contract::string as currency,
   msg_value:execute_msg:send:contract::string AS contract_address,
   l.address_name AS contract_label
-FROM {{source('silver_terra', 'msgs')}} m
+FROM {{ref('silver_terra__msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
@@ -122,5 +122,5 @@ WHERE msg_value:execute_msg:send:msg:deposit_collateral IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}

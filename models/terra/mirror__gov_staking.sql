@@ -18,7 +18,7 @@ WITH prices AS (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -39,7 +39,7 @@ SELECT
   msg_value:contract::string as event_currency,
   msg_value:execute_msg:send:contract::string as contract_address,
   l.address_name AS contract_label 
-FROM {{source('silver_terra', 'msgs')}} t
+FROM {{ref('silver_terra__msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -53,7 +53,7 @@ WHERE msg_value:execute_msg:send:msg:stake_voting_tokens IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -62,12 +62,12 @@ stake_events AS (
 SELECT 
   tx_id,
   event_attributes:share as shares
-FROM {{source('silver_terra', 'msg_events')}}
+FROM {{ref('silver_terra__msg_events')}}
 WHERE tx_id IN(SELECT DISTINCT tx_id FROM stake_msgs)
   AND event_type = 'from_contract'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 )
 
@@ -109,7 +109,7 @@ SELECT
   NULL as shares,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}} t
+FROM {{ref('silver_terra__msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -123,5 +123,5 @@ WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
