@@ -11,3 +11,4 @@ logs/
 *.code-workspace
 .history/
 **/.DS_Store
+.vscode/

@@ -57,7 +57,7 @@ redelegate AS (
 prices AS (
     SELECT 
       date_trunc('hour', block_timestamp) as hour,
-      currency,
+      currency,1
       symbol,
       avg(price_usd) as price_usd
     FROM {{ ref('terra__oracle_prices')}} 

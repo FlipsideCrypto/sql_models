@@ -27,10 +27,7 @@ AND (
   SELECT
     DATEADD('day', -1, MAX(system_created_at :: DATE))
   FROM
-    {{ source(
-      'terra_dbt',
-      'transactions'
-    ) }}
+    {{ this }}
 )
 {% endif %}
 )
