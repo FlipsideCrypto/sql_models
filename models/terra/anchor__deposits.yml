@@ -43,3 +43,5 @@ models:
       - name: CONTRACT_ADDRESS
         tests:
           - not_null  
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}  
