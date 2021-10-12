@@ -7,7 +7,7 @@
 ) }}
 
 SELECT
-  t.blockchain,
+  l.blockchain,
   chain_id,
   block_id,
   block_timestamp,

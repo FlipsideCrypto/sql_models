@@ -1,3 +1,4 @@
+-- depends_on: {{ ref('silver_terra__msgs') }}
 {{ config(
   materialized = 'incremental',
   unique_key = 'block_id || tx_id',

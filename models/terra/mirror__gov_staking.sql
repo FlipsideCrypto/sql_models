@@ -41,7 +41,7 @@ stake_msgs AS (
     t.blockchain,
     chain_id,
     block_id,
-    block_timestamp,
+    t.block_timestamp,
     t.tx_id,
     t.msg_index,
     msg_value :sender :: STRING AS sender,
@@ -73,7 +73,7 @@ stake_msgs AS (
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
+AND t.block_timestamp :: DATE >= (
   SELECT
     MAX(
       block_timestamp :: DATE
@@ -177,7 +177,7 @@ WHERE
   AND t.tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
+AND t.block_timestamp :: DATE >= (
   SELECT
     MAX(
       block_timestamp :: DATE

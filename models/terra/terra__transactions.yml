@@ -4,7 +4,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - BLOCK_NUMBER
+            - BLOCK_ID
+            - TX_ID
     columns:
       - name: BLOCKCHAIN
         tests:
