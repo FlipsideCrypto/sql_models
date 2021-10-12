@@ -9,27 +9,21 @@ models:
             - BLOCK_ID
     columns:
       - name: BLOCKCHAIN
-        description: ""
         tests:
           - not_null
       - name: CHAIN_ID
-        description: ""
         tests:
           - not_null
       - name: BLOCK_ID
-        description: ""
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
-        description: ""
         tests:
           - not_null
       - name: TX_ID
-        description: ""
         tests:
           - not_null
       - name: POLL_ID
-        description: ""
         tests:
           - unique
           - not_null
@@ -37,46 +31,37 @@ models:
               column_type_list:
                 - NUMBER
       - name: END_TIME
-        description: ""
         tests:
           - not_null
       - name: CREATOR
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: terra[0-9a-zA-Z]{39,40}   
+              regex: terra[0-9a-zA-Z]{39,40}
       - name: AMOUNT
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: TITLE
-        description: ""
         tests:
           - not_null
       - name: LINK
-        description: ""
         tests:
           - not_null
       - name: DESCRIPTION
-        description: ""
         tests:
           - not_null
       - name: MSG
-        description: ""
         tests:
           - not_null
       - name: CONTRACT_ADDRESS
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: terra[0-9a-zA-Z]{39,40}   
+              regex: terra[0-9a-zA-Z]{39,40}
       - name: CONTRACT_LABEL
-        description: ""
         tests:
           - not_null

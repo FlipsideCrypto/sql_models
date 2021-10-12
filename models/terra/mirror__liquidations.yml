@@ -9,61 +9,50 @@ models:
             - TX_ID
     columns:
       - name: BLOCKCHAIN
-        description: ""
         tests:
           - not_null
       - name: CHAIN_ID
-        description: ""
         tests:
           - not_null
       - name: BLOCK_ID
-        description: ""
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
-        description: ""
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
       - name: TX_ID
-        description: ""
         tests:
           - not_null
       - name: COLLATERAL_ID
-        description: ""
         tests:
           - not_null
       - name: BUYER
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-zA-Z]{39,40}
       - name: OWNER
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-zA-Z]{39,40}
       - name: TAX_AMOUNT
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: TAX_AMOUNT_USD
-        description: ""
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: TAX_CURRENCY
-        description: ""
         tests:
           - not_null
       - name: PROTOCOL_FEE_AMOUNT
@@ -73,52 +62,44 @@ models:
                 - decimal
                 - float
       - name: PROTOCOL_FEE_AMOUNT_USD
-        description: ""
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: PROTOCOL_FEE_CURRENCY
-        description: ""
         tests:
           - not_null
       - name: LIQUIDATED_AMOUNT
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: LIQUIDATED_AMOUNT_USD
-        description: ""
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: LIQUIDATED_CURRENCY
-        description: ""
         tests:
           - not_null
       - name: RETURN_COLLATERAL_AMOUNT
-        description: ""
         tests:
-          - not_null 
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: RETURN_COLLATERAL_AMOUNT_USD
-        description: ""
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: RETURN_COLLATERAL_CURRENCY
-        description: ""
         tests:
           - not_null
       - name: UNLOCKED_AMOUNT
@@ -138,15 +119,12 @@ models:
                 - decimal
                 - float
       - name: UNLOCKED_CURRENCY
-        description: ""
         tests:
       - name: CONTRACT_ADDRESS
-        description: ""
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-zA-Z]{39,40}
       - name: CONTRACT_LABEL
-        description: ""
         tests:
           - not_null
