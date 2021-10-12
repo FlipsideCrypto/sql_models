@@ -51,6 +51,6 @@ models:
       - name: VOTING_POWER
         tests:
           - not_null
-      - name: option
+      - name: '"OPTION"'
         tests:
           - not_null

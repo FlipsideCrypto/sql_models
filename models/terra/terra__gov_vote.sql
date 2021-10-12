@@ -67,7 +67,7 @@ SELECT
     msg_value :option,
     '\"',
     ''
-  ) AS "option",
+  ) AS "OPTION",
   b.balance AS voting_power
 FROM
   {{ ref('silver_terra__msgs') }} A
