@@ -4,14 +4,16 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - CREATION_TX
+            - POOL_ADDRESS
     columns:
       - name: CREATION_TIME
         tests:
-          - not_null
+          - not_null:
+              where: PLATFORM NOT IN ('uniswap-v2', 'sushiswap', 'curve')
       - name: CREATION_TX
         tests:
-          - not_null
+          - not_null:
+              where: PLATFORM NOT IN ('uniswap-v2', 'sushiswap', 'curve')
       - name: FACTORY_ADDRESS
         tests:
           - not_null
@@ -27,10 +29,13 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: POOL_NAME
         tests:
-          - not_null
+          - not_null:
+              where: PLATFORM <> 'uniswap-v3'
       - name: TOKEN0
         tests:
-          - not_null
+          - not_null:
+              where: PLATFORM <> 'curve'
       - name: TOKEN1
         tests:
-          - not_null
+          - not_null:
+              where: PLATFORM <> 'curve'

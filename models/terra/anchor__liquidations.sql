@@ -18,7 +18,7 @@ WITH prices AS (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -36,7 +36,7 @@ SELECT
   msg_value:execute_msg:liquidate_collateral:borrower::string AS borrower,
   msg_value:contract::string as contract_address,
   l.address_name as contract_label
-FROM {{source('silver_terra', 'msgs')}} m
+FROM {{ref('silver_terra__msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -46,7 +46,7 @@ WHERE msg_value:contract::string = 'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ), 
@@ -64,7 +64,7 @@ SELECT
   repay_amount * r.price as repay_amount_usd,
   event_attributes:stable_denom::string as repay_currency,
   event_attributes:bid_fee / POW(10,6) AS bid_fee
-FROM {{source('silver_terra', 'msg_events')}}
+FROM {{ref('silver_terra__msg_events')}}
 
 LEFT OUTER JOIN prices l
  ON date_trunc('hour', block_timestamp) = l.hour
@@ -80,7 +80,7 @@ WHERE event_type = 'from_contract'
   AND event_attributes:"0_action"::string = 'liquidate_collateral'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 )

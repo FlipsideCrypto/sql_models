@@ -1,69 +1,122 @@
 {{ config(
-    materialized = 'incremental',
-    unique_key = 'block_id || tx_id',
-    incremental_strategy = 'delete+insert',
-    cluster_by = ['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra', 'mirror', 'reward_claims']
+  materialized = 'incremental',
+  unique_key = 'block_id || tx_id',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['block_timestamp', 'block_id'],
+  tags = ['snowflake', 'terra', 'mirror', 'reward_claims']
 ) }}
 
 WITH prices AS (
 
-SELECT 
-  date_trunc('hour', block_timestamp) as hour,
-  currency,
-  symbol,
-  avg(price_usd) as price
-FROM {{ ref('terra__oracle_prices')}} 
-    
-WHERE 1=1
-    
-{% if is_incremental() %}
-  AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
-{% endif %}
-
-GROUP BY 1,2,3
-
-),
-
-msgs AS (
-
-SELECT 
-  blockchain,
-  chain_id,
-  block_id,
-  block_timestamp,
-  tx_id,
-  msg_value:sender::string as sender,
-  msg_value:contract::string as contract_address
-FROM {{source('silver_terra', 'msgs')}}
-WHERE msg_value:execute_msg:withdraw_voting_rewards IS NOT NULL
-  AND tx_status = 'SUCCEEDED'
+  SELECT
+    DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) AS HOUR,
+    currency,
+    symbol,
+    AVG(price_usd) AS price
+  FROM
+    {{ ref('terra__oracle_prices') }}
+  WHERE
+    1 = 1
 
 {% if is_incremental() %}
-  AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
-{% endif %}
-  
-),
-
-events AS (
-
-SELECT 
-  m.tx_id,
-  event_attributes:"1_amount" / POW(10,6) as claim_amount,
-  event_attributes:"1_contract_address"::string as claim_currency
-FROM {{source('silver_terra', 'msg_events')}} e
-  
-JOIN msgs m 
-  ON m.tx_id = e.tx_id
-
-WHERE event_attributes:"0_action" = 'withdraw'
-
-{% if is_incremental() %}
-  AND e.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
-{% endif %}
-
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
 )
+{% endif %}
+GROUP BY
+  1,
+  2,
+  3
+),
+prices_backup AS (
+  SELECT
+    DATE_TRUNC(
+      'day',
+      block_timestamp
+    ) AS DAY,
+    currency,
+    symbol,
+    AVG(price_usd) AS price
+  FROM
+    {{ ref('terra__oracle_prices') }}
+  WHERE
+    1 = 1
 
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+GROUP BY
+  1,
+  2,
+  3
+),
+msgs AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    msg_value :contract :: STRING AS contract_address
+  FROM
+    terra.msgs
+  WHERE
+    msg_value :execute_msg :withdraw_voting_rewards IS NOT NULL
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+),
+events AS (
+  SELECT
+    m.tx_id,
+    event_attributes :"1_amount" / pow(
+      10,
+      6
+    ) AS claim_amount,
+    event_attributes :"1_contract_address" :: STRING AS claim_currency
+  FROM
+    {{ ref('silver_terra__msg_events') }}
+    e
+    JOIN msgs m
+    ON m.tx_id = e.tx_id
+  WHERE
+    event_attributes :"0_action" = 'withdraw'
+
+{% if is_incremental() %}
+AND e.block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+)
 SELECT
   m.blockchain,
   chain_id,
@@ -72,18 +125,31 @@ SELECT
   m.tx_id,
   sender,
   claim_amount,
-  claim_amount * p.price AS claim_amount_usd,
+  claim_amount * COALESCE(
+    p.price,
+    pb.price
+  ) AS claim_amount_usd,
   claim_currency,
   contract_address,
   l.address_name AS contract_label
-FROM msgs m
-
-JOIN events e 
+FROM
+  msgs m
+  JOIN events e
   ON m.tx_id = e.tx_id
-
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
-ON contract_address = l.address
-
-LEFT OUTER JOIN prices p
- ON date_trunc('hour', m.block_timestamp) = p.hour
- AND claim_currency = p.currency 
+  LEFT OUTER JOIN {{ source(
+    'shared',
+    'udm_address_labels_new'
+  ) }} AS l
+  ON contract_address = l.address
+  LEFT OUTER JOIN prices p
+  ON DATE_TRUNC(
+    'hour',
+    m.block_timestamp
+  ) = p.hour
+  AND claim_currency = p.currency
+  LEFT OUTER JOIN prices_backup pb
+  ON DATE_TRUNC(
+    'day',
+    m.block_timestamp
+  ) = pb.day
+  AND claim_currency = pb.currency

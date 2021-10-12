@@ -18,7 +18,26 @@ WITH prices AS (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
+    {% endif %}
+
+    GROUP BY 1,2,3
+
+),
+
+prices_backup AS (
+
+  SELECT 
+      date_trunc('day', block_timestamp) as day,
+      currency,
+      symbol,
+      avg(price_usd) as price
+    FROM {{ ref('terra__oracle_prices')}} 
+    
+    WHERE 1=1
+    
+    {% if is_incremental() %}
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -34,13 +53,13 @@ SELECT
   block_timestamp,
   tx_id,
   msg_value
-FROM {{source('silver_terra', 'msgs')}}
+FROM {{ref('silver_terra__msgs')}}
 WHERE msg_value:execute_msg:send:msg:burn IS NOT NULL
   AND msg_value:execute_msg:send:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj'
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -51,12 +70,12 @@ SELECT
   block_timestamp,
   tx_id,
   event_attributes
-FROM {{source('silver_terra', 'msg_events')}}
+FROM {{ref('silver_terra__msg_events')}}
 WHERE tx_id IN(select tx_id from tx)
   AND event_type = 'from_contract'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -86,15 +105,15 @@ SELECT
   tx_id,
   
   event_attributes:withdraw_amount[0]:amount / POW(10,6) AS withdraw_amount,
-  withdraw_amount * o.price AS withdraw_amount_usd,
+  withdraw_amount * coalesce(o.price,o_b.price) AS withdraw_amount_usd,
   event_attributes:withdraw_amount[0]:denom::string AS withdraw_currency,
   
   event_attributes:unlocked_amount[0]:amount / POW(10,6) AS unlocked_amount,
-  unlocked_amount * i.price AS unlocked_amount_usd,
+  unlocked_amount * coalesce(i.price,i_b.price) AS unlocked_amount_usd,
   event_attributes:unlocked_amount[0]:denom::string AS unlocked_currency,
   
-  (event_attributes:"0_tax_amount"[0]:amount + event_attributes:"1_tax_amount"[0]:amount) / POW(10,6) AS tax,
-  tax * a.price AS tax_usd,
+  (event_attributes:"0_tax_amount"[0]:amount + event_attributes:"1_tax_amount"[0]:amount) / POW(10,6) AS tax_amount,
+  tax_amount * coalesce(a.price,a_b.price) AS tax_amount_usd,
   event_attributes:"0_tax_amount"[0]:denom::string AS tax_currency
   
 FROM event_tx t
@@ -111,6 +130,18 @@ LEFT OUTER JOIN prices a
  ON date_trunc('hour', t.block_timestamp) = a.hour
  AND t.event_attributes:"0_tax_amount"[0]:denom::string = a.currency  
 
+LEFT OUTER JOIN prices_backup o_b
+ ON date_trunc('day', t.block_timestamp) = o_b.day
+ AND t.event_attributes:withdraw_amount[0]:denom::string = o_b.currency 
+
+LEFT OUTER JOIN prices_backup i_b
+ ON date_trunc('day', t.block_timestamp) = i_b.day
+ AND t.event_attributes:unlocked_amount[0]:denom::string = i_b.currency  
+
+LEFT OUTER JOIN prices_backup a_b
+ ON date_trunc('day', t.block_timestamp) = a_b.day
+ AND t.event_attributes:"0_tax_amount"[0]:denom::string = a_b.currency  
+
 WHERE event_attributes:withdraw_amount IS NOT NULL 
 
 ),
@@ -121,11 +152,11 @@ SELECT
   tx_id,
   
   event_attributes:burn_amount[0]:amount / POW(10,6) AS burn_amount,
-  burn_amount * o.price AS burn_amount_usd,
+  burn_amount * coalesce(o.price,o_b.price) AS burn_amount_usd,
   event_attributes:burn_amount[0]:denom::string AS burn_currency,  
   
-  event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee,
-  protocol_fee * i.price AS protocol_fee_usd,
+  event_attributes:protocol_fee[0]:amount / POW(10,6) AS protocol_fee_amount,
+  protocol_fee_amount * coalesce(i.price,i_b.price) AS protocol_fee_amount_usd,
   event_attributes:protocol_fee[0]:denom::string AS protocol_fee_currency
 FROM event_tx t
 
@@ -136,6 +167,14 @@ LEFT OUTER JOIN prices o
 LEFT OUTER JOIN prices i
  ON date_trunc('hour', t.block_timestamp) = i.hour
  AND t.event_attributes:protocol_fee[0]:denom::string = i.currency  
+
+LEFT OUTER JOIN prices_backup o_b
+ ON date_trunc('day', t.block_timestamp) = o_b.day
+ AND t.event_attributes:burn_amount[0]:denom::string = o_b.currency 
+
+LEFT OUTER JOIN prices_backup i_b
+ ON date_trunc('day', t.block_timestamp) = i_b.day
+ AND t.event_attributes:protocol_fee[0]:denom::string = i_b.currency  
 
 WHERE event_attributes:burn_amount IS NOT NULL
   
@@ -149,11 +188,11 @@ SELECT
   m.tx_id,
   collateral_id,
   sender,
-  tax,
-  tax_usd,
+  tax_amount,
+  tax_amount_usd,
   tax_currency,
-  protocol_fee,
-  protocol_fee_usd,
+  protocol_fee_amount,
+  protocol_fee_amount_usd,
   protocol_fee_currency,
   burn_amount,
   burn_amount_usd,

@@ -1,0 +1,135 @@
+version: 2
+models:
+  - name: mirror__close_short_farm
+    description: Mirror CLOSE SHORT FARM
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - BLOCK_ID
+    columns:
+      - name: BLOCKCHAIN
+        description: ""
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        description: ""
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: ""
+        tests:
+          - not_null
+      - name: TX_ID
+        description: ""
+        tests:
+          - not_null
+      - name: COLLATERAL_ID
+        tests:
+          - not_null 
+      - name: SENDER
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}   
+      - name: TAX_AMOUNT
+        tests:
+          - not_null 
+      - name: TAX_AMOUNT_USD
+        tests:
+      #     - not_null: 
+      #         where: TAX_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: TAX_CURRENCY
+        tests:
+          - not_null 
+      - name: PROTOCOL_FEE_AMOUNT
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: PROTOCOL_FEE_AMOUNT_USD
+        tests:
+          # - not_null: 
+          #     where: PROTOCOL_FEE_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+
+      - name: PROTOCOL_FEE_CURRENCY
+        tests:
+          - not_null 
+      - name: BURN_AMOUNT
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: BURN_AMOUNT_USD
+        tests:
+          # - not_null:
+          #     where: BURN_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: BURN_CURRENCY
+        tests:
+          - not_null 
+      - name: WITHDRAW_AMOUNT
+        tests:
+          - not_null:
+              where: WITHDRAW_CURRENCY <> 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu'
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: WITHDRAW_AMOUNT_USD
+        tests:
+        #   - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: WITHDRAW_CURRENCY
+        tests:
+          - not_null 
+      - name: UNLOCKED_AMOUNT
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: UNLOCKED_AMOUNT_USD
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: UNLOCKED_CURRENCY
+        tests:
+          - not_null 
+      - name: CONTRACT_ADDRESS
+        description: ""
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}   
+      - name: CONTRACT_LABEL
+        description: ""
+        tests:
+          - not_null

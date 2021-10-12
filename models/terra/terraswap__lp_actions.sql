@@ -18,7 +18,7 @@ WITH prices as (
     WHERE 1=1
     
     {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
     {% endif %}
 
     GROUP BY 1,2,3
@@ -37,7 +37,7 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:contract::string as pool_address,
   l.address_name AS pool_name
-FROM {{source('silver_terra', 'msgs')}} m
+FROM {{ref('silver_terra__msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON msg_value:contract::string = l.address
@@ -46,7 +46,7 @@ WHERE msg_value:execute_msg:provide_liquidity IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -69,7 +69,7 @@ SELECT
     ELSE event_attributes:"2_contract_address"::string 
   END AS lp_pool_address,
   l.address_name AS lp_pool_name
-FROM {{source('silver_terra', 'msg_events')}} t
+FROM {{ref('silver_terra__msg_events')}} t
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
 ON event_attributes:"2_contract_address"::string = l.address
@@ -90,7 +90,7 @@ WHERE event_attributes:assets IS NOT NULL
   AND event_type = 'from_contract'
 
   {% if is_incremental() %}
-    AND t.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND t.block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 ),
@@ -109,7 +109,7 @@ SELECT
   l.address_name AS lp_pool_name,
   msg_value:execute_msg:send:contract::string as pool_address,
   p.address_name AS pool_name
-FROM {{source('silver_terra', 'msgs')}} m
+FROM {{ref('silver_terra__msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as p
 ON msg_value:contract::string = p.address
@@ -121,7 +121,7 @@ WHERE msg_value:execute_msg:send:msg:withdraw_liquidity IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND m.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND m.block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
   
 ),
@@ -140,7 +140,7 @@ SELECT
   event_attributes:refund_assets[1]:denom::string AS token_1_currency,
   
   event_attributes:withdrawn_share / POW(10,6) as lp_share_amount
-FROM {{source('silver_terra', 'msg_events')}} t
+FROM {{ref('silver_terra__msg_events')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
@@ -155,7 +155,7 @@ WHERE tx_id IN(SELECT tx_id FROM withdraw_msgs)
   AND event_attributes:refund_assets IS NOT NULL 
 
   {% if is_incremental() %}
-    AND t.block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND t.block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 
 )
