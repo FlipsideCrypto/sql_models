@@ -66,7 +66,7 @@ LEFT OUTER JOIN prices o
 
 WHERE tx_id IN(SELECT tx_id FROM msgs)
   AND event_type = 'from_contract'
-  AND msg_index = 0
+  AND event_attributes:collaterals IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
