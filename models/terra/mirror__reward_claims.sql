@@ -32,9 +32,9 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 GROUP BY
-  1,
-  2,
-  3
+  HOUR,
+  currency,
+  symbol
 ),
 prices_backup AS (
   SELECT
@@ -61,9 +61,9 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 GROUP BY
-  1,
-  2,
-  3
+  DAY,
+  currency,
+  symbol
 ),
 msgs AS (
   SELECT
