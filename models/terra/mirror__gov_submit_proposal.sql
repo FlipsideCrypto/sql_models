@@ -22,7 +22,7 @@ WITH msgs AS (
     msg_value :execute_msg :send :msg :create_poll :title :: STRING AS title,
     msg_value :execute_msg :send :msg :create_poll :link :: STRING AS link,
     msg_value :execute_msg :send :msg :create_poll :description :: STRING AS description,
-    msg_value :execute_msg :send :msg :create_poll :execute_msg :msg AS msg,
+    coalesce(msg_value :execute_msg :send :msg :create_poll :execute_msg :msg, msg_value:execute_msg:send:msg) AS msg,
     msg_value :execute_msg :send :contract :: STRING AS contract_address
   FROM
     {{ ref('silver_terra__msgs') }}
