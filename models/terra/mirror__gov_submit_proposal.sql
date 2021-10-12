@@ -43,7 +43,7 @@ WHERE tx_id IN(select tx_id from msgs)
   and poll_id is not null 
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
 )
 

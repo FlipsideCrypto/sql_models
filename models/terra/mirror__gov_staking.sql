@@ -64,7 +64,7 @@ SELECT
   tx_id, 
   msg_index,
   event_attributes:share::float as shares
-FROM {{source('silver_terra', 'msg_events')}}
+FROM {{ref('silver_terra__msg_events')}}
 WHERE tx_id IN(SELECT DISTINCT tx_id FROM stake_msgs)
   AND event_type = 'from_contract'
 
@@ -136,5 +136,5 @@ WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL
   AND t.tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{source('silver_terra', 'msgs')}})
+    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
   {% endif %}
