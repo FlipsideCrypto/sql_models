@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: terra__validator_labels
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - LABEL
+    columns:
+      - name: DELEGATOR_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-z]{39,39}
+      - name: LABEL
+        tests:
+          - not_null
+      - name: OPERATOR_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-z]{39,39}
+      - name: VP_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-z]{39,39}

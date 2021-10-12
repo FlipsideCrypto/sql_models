@@ -129,6 +129,30 @@ transfers AS(
 AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
 --  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
+
+UNION 
+
+SELECT 
+  blockchain,
+  chain_id,
+  tx_status,
+  block_id,
+  block_timestamp,
+  tx_id,
+  msg_type, 
+  msg_value:sender::string as event_from,
+  msg_value:execute_msg:transfer:recipient::string as event_to,
+  msg_value:execute_msg:transfer:amount / pow(10,6) as event_amount,
+  msg_value:contract::string as event_currency
+FROM {{ref('silver_terra__msgs')}}
+WHERE msg_value:execute_msg:transfer IS NOT NULL 
+
+{% if is_incremental() %}
+ AND block_timestamp >= getdate() - interval '1 days'
+-- {% else %}
+--  AND block_timestamp >= getdate() - interval '9 months'
+{% endif %}
+
 )
 SELECT
   t.blockchain,

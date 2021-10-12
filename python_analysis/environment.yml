@@ -1,0 +1,8 @@
+name: SQL_MODELS
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pandas
+  - snowflake-sqlalchemy
+prefix: /usr/local/Caskroom/miniconda/base/envs/SQL_MODELS

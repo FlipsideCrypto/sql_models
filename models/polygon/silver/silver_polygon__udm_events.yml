@@ -1,0 +1,68 @@
+version: 2
+models:
+  - name: silver_polygon__udm_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - LOG_INDEX
+            - TX_ID
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: FEE
+        tests:
+          - not_null
+      - name: FROM_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: INPUT_METHOD
+        tests:
+          - not_null
+      - name: LOG_INDEX
+        tests:
+          - not_null
+      - name: LOG_METHOD
+        tests:
+          - not_null
+      - name: NAME
+        tests:
+          - not_null
+      - name: NATIVE_VALUE
+        tests:
+          - not_null
+      - name: SYMBOL
+        tests:
+          - not_null
+      - name: SYSTEM_CREATED_AT
+        tests:
+          - not_null
+      - name: TOKEN_VALUE
+        tests:
+          - not_null
+      - name: TO_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: TX_ID
+        tests:
+          - not_null

@@ -1,0 +1,1 @@
+{{ sequence_gaps(ref("ethereum__transactions"), ["block_id", "tx_id"], "tx_position") }}
