@@ -5,7 +5,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_TIMESTAMP
-            - SYMBOL
+            - CURRENCY
     columns:
       - name: BLOCKCHAIN
         tests:
@@ -21,10 +21,16 @@ models:
           - not_null
       - name: LUNA_EXCHANGE_RATE
         tests:
-          - not_null
+          - not_null:
+              where: PRICE_USD IS NULL
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: PRICE_USD
         tests:
-          - not_null
+          - not_null:
+              where: LUNA_EXCHANGE_RATE IS NULL
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -34,4 +40,5 @@ models:
           - not_null
       - name: SYMBOL
         tests:
-          - not_null
+          - not_null:
+              where: CURRENCY IS NULL

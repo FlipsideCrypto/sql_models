@@ -35,7 +35,7 @@ SELECT
   block_timestamp,
   block_id,
   REGEXP_REPLACE(event_attributes:denom::string,'\"','') as currency,
-  event_attributes:exchange_rate as exchange_rate
+  event_attributes:exchange_rate::float as exchange_rate
 FROM {{source('silver_terra', 'transitions')}}
 WHERE event = 'exchange_rate_update' 
 
@@ -55,7 +55,7 @@ SELECT
   m.block_id,
   m.msg_value:execute_msg:feed_price:prices[0][0]::string as currency,
   p.address_name as symbol,
-  m.msg_value:execute_msg:feed_price:prices[0][1] as price
+  m.msg_value:execute_msg:feed_price:prices[0][1]::float as price
 FROM {{source('silver_terra', 'msgs')}} m
 
 LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} p 
