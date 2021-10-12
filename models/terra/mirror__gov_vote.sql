@@ -13,7 +13,7 @@ SELECT
   block_timestamp,
   tx_id,
   msg_value:sender::string as voter,
-  msg_value:execute_msg:cast_vote:poll_id as poll_id,
+  msg_value:execute_msg:cast_vote:poll_id::number as poll_id,
   msg_value:execute_msg:cast_vote:vote::string as vote,
   msg_value:execute_msg:cast_vote:amount / POW(10,6) as balance,
   msg_value:contract::string as contract_address,
