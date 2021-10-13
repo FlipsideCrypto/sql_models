@@ -6,8 +6,6 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
-            - BORROWER
-            - LIQUIDATOR
     columns:
       - name: BLOCKCHAIN
         tests:
