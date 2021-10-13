@@ -1,11 +1,6 @@
 version: 2
 models:
   - name: anchor__bonds
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - TX_ID
-            - BLOCK_ID
     columns:
       - name: BLOCKCHAIN
         tests:

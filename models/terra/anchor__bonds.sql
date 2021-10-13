@@ -62,7 +62,7 @@ events AS (
 
 SELECT 
   tx_id,
-  event_attributes:"1_amount" / POW(10,6) AS minted_amount,
+  event_attributes:minted / POW(10,6) AS minted_amount,
   minted_amount * price AS minted_amount_usd, 
   event_attributes:"1_contract_address"::string as minted_currency
 FROM {{ref('silver_terra__msg_events')}}

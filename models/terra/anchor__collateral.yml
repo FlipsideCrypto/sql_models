@@ -36,6 +36,3 @@ models:
               column_type_list:
                 - decimal
                 - float
-      - name: CURRENCY
-        tests:
-          - not_null 
