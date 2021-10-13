@@ -40,11 +40,7 @@ SELECT
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
   t.value :chain_id :: STRING AS chain_id,
   t.value :codespace :: STRING AS codespace,
-  CASE 
-    WHEN t.value :chain_id :: STRING = 'columbus-5' 
-    THEN t.value :txhash :: STRING
-    ELSE t.value :tx_id :: STRING
-  END AS tx_id,
+  coalesce(t.value :txhash :: STRING, t.value :tx_id :: STRING ) AS tx_id,
   t.value :tx_type :: STRING AS tx_type,
   t.value :tx_module :: STRING AS tx_module,
   t.value :tx_status :: STRING AS tx_status,
