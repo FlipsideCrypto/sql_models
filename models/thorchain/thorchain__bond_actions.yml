@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: thorchain__bond_actions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - EVENT_ID
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: EVENT_ID
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: FROM_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: thor[0-9a-zA-Z]{39}
+      - name: BOND_TYPE
+        tests:
+          - not_null
+      - name: ASSET_AMOUNT
+        tests:
+          - not_null
+      - name: ASSET_AMOUNT_USD
+        tests:
+          - not_null
