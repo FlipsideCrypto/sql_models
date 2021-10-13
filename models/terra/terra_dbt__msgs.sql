@@ -39,7 +39,12 @@ SELECT
   t.value :block_id :: bigint AS block_id,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
   t.value :chain_id :: STRING AS chain_id,
-  t.value :tx_id :: STRING AS tx_id,
+  COALESCE(
+    t.value :txhash :: STRING,
+    -- Pre Columbus-5: tx_id
+    -- Post Columbus-4: txhash
+    t.value :tx_id :: STRING
+  ) AS tx_id,
   t.value :tx_type :: STRING AS tx_type,
   t.value :tx_status :: STRING AS tx_status,
   t.value :tx_module :: STRING AS tx_module,
