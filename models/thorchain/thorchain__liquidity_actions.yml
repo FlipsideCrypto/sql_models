@@ -4,26 +4,38 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - DAY
+            - EVENT_ID
     columns:
-      - name: DAY
+      - name: BLOCK_TIMESTAMP
         tests:
           - not_null
-      - name: TOTAL_VALUE_POOLED
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
         tests:
           - not_null
-      - name: TOTAL_VALUE_POOLED_USD
+      - name: EVENT_ID
         tests:
           - not_null
-      - name: TOTAL_VALUE_BONDED
+      - name: LP_ACTION
         tests:
           - not_null
-      - name: TOTAL_VALUE_BONDED_USD
+      - name: POOL_NAME
         tests:
           - not_null
-      - name: TOTAL_VALUE_LOCKED
+      - name: RUNE_AMOUNT
         tests:
           - not_null
-      - name: TOTAL_VALUE_LOCKED_USD
+      - name: RUNE_AMOUNT_USD
+        tests:
+          - not_null
+      - name: ASSET_AMOUNT
+        tests:
+          - not_null
+      - name: ASSET_AMOUNT_USD
+        tests:
+          - not_null
+      - name: STAKE_UNITS
         tests:
           - not_null
