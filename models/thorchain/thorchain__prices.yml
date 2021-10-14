@@ -15,7 +15,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 2
       - name: PRICE_RUNE_ASSET
         tests:
           - not_null

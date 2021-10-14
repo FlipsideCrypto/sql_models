@@ -12,7 +12,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 2
       - name: POOL_NAME
         tests:
           - not_null
