@@ -255,12 +255,6 @@ price as (
     {% endif %}
   )
   WHERE rn = 1 
-<<<<<<< HEAD
-)
-WHERE
-  rn = 1
-=======
->>>>>>> b4baf210802c19c3fddc405d2871c1aa6a1ac527
 )
 
 
