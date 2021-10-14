@@ -60,7 +60,7 @@ rune_usd AS (
 
 -- step 3 calculate the prices of assets by pool, in terms of tokens per tokens
 -- and in USD for both tokens
-SELECT
+SELECT DISTINCT
   bpd.block_id,
   bpd.block_timestamp,
   rune_e8 / asset_e8 AS price_rune_asset,

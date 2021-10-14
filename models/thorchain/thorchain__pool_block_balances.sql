@@ -8,7 +8,7 @@
   )
 }}
 
-SELECT
+SELECT DISTINCT
   bpd.block_timestamp,
   bpd.block_id,
   bpd.pool_name,
