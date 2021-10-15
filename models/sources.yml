@@ -163,3 +163,4 @@ sources:
     tables:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
+      - name: prod_address_label_sink_291098491
