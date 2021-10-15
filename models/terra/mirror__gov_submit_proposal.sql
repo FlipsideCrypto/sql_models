@@ -80,10 +80,10 @@ SELECT
   end_time,
   creator,
   amount,
-  title,
-  link,
-  description,
-  msg,
+  m.title,
+  m.link,
+  m.description,
+  m.msg,
   contract_address,
   l.address_name AS contract_label
 FROM
