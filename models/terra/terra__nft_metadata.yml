@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_terra__nft_metadata_galactic_punks
+  - name: terra__nft_metadata
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
