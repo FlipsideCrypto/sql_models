@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'chain_id || block_id || tx_id || msg_index',
+    unique_key = 'contract_address || token_id',
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra_silver', 'terra_dbt__nft_metadata']
 ) }}
