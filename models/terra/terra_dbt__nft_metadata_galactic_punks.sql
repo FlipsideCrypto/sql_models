@@ -20,6 +20,7 @@ WITH base_tables AS (
         )
 
 {% if is_incremental() %}
+--- do I even need a look back?
 AND (
     record_metadata :CreateTime :: INT / 1000
 ) :: TIMESTAMP :: DATE >= (
