@@ -2,7 +2,6 @@
     materialized = 'incremental',
     unique_key = 'contract_address || token_id',
     incremental_strategy = 'delete+insert',
-    cluster_by = ['block_timestamp', 'block_id', 'tx_id'],
     tags = ['snowflake', 'terra_silver', 'terra_nft_metadata']
 ) }}
 
