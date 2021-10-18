@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = 'chain_id || block_id || tx_id || msg_index',
     incremental_strategy = 'delete+insert',
-    tags = ['snowflake', 'terra_silver', 'terra_nft_metadata']
+    tags = ['snowflake', 'terra_silver', 'terra_dbt__nft_metadata']
 ) }}
 
 WITH base_tables AS (
