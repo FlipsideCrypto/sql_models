@@ -24,7 +24,7 @@ AND (
     record_metadata :CreateTime :: INT / 1000
 ) :: TIMESTAMP :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(system_created_at :: DATE))
+        DATEADD('day', -10, MAX(system_created_at :: DATE))
     FROM
         {{ this }}
 )
