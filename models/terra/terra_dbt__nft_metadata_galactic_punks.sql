@@ -39,7 +39,6 @@ SELECT
     VALUE :created_at :: TIMESTAMP AS created_at_timestamp,
     NULL AS created_at_tx_id,
     NULL AS creator_address,
-    NULL AS created_at_timestamp,
     NULL AS creator_name,
     VALUE :src :: STRING AS image_url,
     'Galactic Punks' AS project_name,
