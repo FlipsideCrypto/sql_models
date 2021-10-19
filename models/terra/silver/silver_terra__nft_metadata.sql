@@ -1,8 +1,8 @@
 {{ config(
-    materialized = 'incremental',
+    materialized = 'view',
     unique_key = 'contract_address || token_id',
     incremental_strategy = 'delete+insert',
-    tags = ['snowflake', 'terra_silver', 'terra_nft_metadata']
+    tags = ['snowflake', 'terra_silver', 'silver_terra__nft_metadata']
 ) }}
 
 SELECT
@@ -15,7 +15,7 @@ WHERE
 {% if is_incremental() %}
 AND system_created_at :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(system_created_at :: DATE))
+        DATEADD('day', -10, MAX(system_created_at :: DATE))
     FROM
         {{ this }} AS msgs
 )
@@ -23,4 +23,4 @@ AND system_created_at :: DATE >= (
 
 qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
 ORDER BY
-    system_created_at DESC)) = 1
+    created_at_timestamp DESC)) = 1

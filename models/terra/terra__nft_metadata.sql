@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view',
-    tags = ['snowflake', 'terra_views', 'nft_metadata', 'terra']
+    tags = ['snowflake', 'terra_views', 'terra_nft_metadata', 'terra']
 ) }}
 
 SELECT
@@ -20,4 +20,4 @@ SELECT
     token_metadata_uri,
     token_name
 FROM
-    {{ ref('silver_terra__nft_metadata_galactic_punks') }}
+    {{ ref('silver_terra__nft_metadata') }}

@@ -1,5 +1,5 @@
 {{ config(
-    materialized = 'incremental',
+    materialized = 'view',
     unique_key = 'contract_address || token_id',
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra_silver', 'terra_dbt__nft_metadata']
@@ -20,7 +20,7 @@ WITH base_tables AS (
         )
 
 {% if is_incremental() %}
---- do I even need a look back?
+--- does this need a look back? It's static data
 AND (
     record_metadata :CreateTime :: INT / 1000
 ) :: TIMESTAMP :: DATE >= (
@@ -34,7 +34,7 @@ AND (
 SELECT
     'Terra' AS blockchain,
     NULL AS commission_rate,
-    VALUE :contract_addr AS contract_address,
+    VALUE :collection_addr :: STRING AS contract_address,
     'Galactic Punks' AS contract_name,
     NULL AS created_at_block_id,
     VALUE :created_at :: TIMESTAMP AS created_at_timestamp,
