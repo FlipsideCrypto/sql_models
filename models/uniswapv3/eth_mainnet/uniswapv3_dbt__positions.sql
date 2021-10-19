@@ -31,13 +31,13 @@ AND (
 {% endif %}
 )
 SELECT
-   (
+  (
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
   t.value :blockchain :: STRING AS blockchain,
   t.value :block_id :: bigint AS block_id,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
-  t.value :fee :: INTEGER AS fee,
+  t.value :fee :: FLOAT AS fee,
   t.value :fee_growth_inside0_last_x128 :: FLOAT AS fee_growth_inside0_last_x128,
   t.value :fee_growth_inside1_last_x128 :: FLOAT AS fee_growth_inside1_last_x128,
   t.value :is_active :: BOOLEAN AS is_active,

@@ -1,0 +1,91 @@
+version: 2
+models:
+  - name: silver_uniswapv3__positions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - NF_TOKEN_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: FEE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: FEE_GROWTH_INSIDE0_LAST_x128
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: FEE_GROWTH_INSIDE1_LAST_x128
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: IS_ACTIVE
+        tests:
+          - not_null
+      - name: LIQUIDITY
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: LIQUIDITY_ADJUSTED
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: LIQUIDITY_PROVIDER
+        tests:
+          - not_null
+      - name: NF_POSITION_MANAGER_ADDRESS
+        tests:
+          - not_null
+      - name: NF_TOKEN_ID
+        tests:
+          - not_null
+      - name: POOL_ADDRESS
+        tests:
+          - not_null
+      - name: TICK_LOWER
+        tests:
+          - not_null
+      - name: TICK_UPPER
+        tests:
+          - not_null
+      - name: TOKENS_OWED0
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: TOKENS_OWED1
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: TX_ID
+        tests:
+          - not_null
