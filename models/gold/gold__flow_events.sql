@@ -2,6 +2,7 @@
     materialized='incremental', 
     unique_key='block_number',
     incremental_strategy='delete+insert',
+    cluster_by=['block_timestamp'],
     tags=['snowflake', 'gold_flow', 'gold', 'gold__flow_events'])}}
 
 
