@@ -27,7 +27,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND system_created_at :: DATE >= (
+AND date :: DATE >= (
   SELECT
     DATEADD('day', -1, MAX(date :: DATE))
   FROM

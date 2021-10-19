@@ -4,7 +4,7 @@
         dist='tx_id', 
         unique_key='tx_id',
         incremental_strategy='delete+insert',
-        tags=['events', 'flow']
+        tags=['events', 'flow','gold']
     ) 
 }}
 
