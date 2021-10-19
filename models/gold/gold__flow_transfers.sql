@@ -1,10 +1,10 @@
 {{ 
     config(
         materialized='incremental', 
-        dist='tx_id',
         unique_key='tx_id',
         incremental_strategy='delete+insert',
-        tags=['events', 'flow']
+        cluster_by=['block_timestamp'],
+        tags=['events', 'flow','gold']
     ) 
 }}
 
