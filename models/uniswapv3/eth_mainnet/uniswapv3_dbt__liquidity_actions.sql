@@ -16,7 +16,7 @@ WITH base_tables AS (
     ) }}
   WHERE
     record_content :model :name :: STRING IN (
-      'uniswap_v3_mainnet_position_model'
+      'uniswap_v3_mainnet_liquidity_action_model'
     )
 
 {% if is_incremental() %}
