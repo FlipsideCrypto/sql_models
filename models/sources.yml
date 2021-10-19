@@ -140,6 +140,7 @@ sources:
       - name: terra_validator_voting_power
       - name: udm_daily_balances_terra
       - name: udm_custom_fields_terra_tax_rate
+      - name: nft_metadata_galactic_punks
   - name: silver_polygon
     schema: silver_polygon
     tables:
