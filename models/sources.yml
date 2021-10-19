@@ -165,3 +165,7 @@ sources:
       - name: prod_terra_sink_645110886
       - name: prod_address_label_sink_291098491
       - name: JIM_TEST_REST_PROXY_1507016047
+  - name: gold
+    schema: gold
+    tables:
+      - name: flow_daily_balances
