@@ -1,9 +1,9 @@
 {{ 
     config(
         materialized='incremental', 
-        sort='block_timestamp', 
         dist='tx_id', 
-        unique_key='tx_id', 
+        unique_key='tx_id',
+        incremental_strategy='delete+insert',
         tags=['events', 'flow']
     ) 
 }}
@@ -70,9 +70,7 @@ FROM (
     {{ source('flow', 'udm_events_flow')}}
   WHERE
     {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '1 days'
-    {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      block_timestamp >= getdate() - interval '3 days'
     {% endif %}
   GROUP BY 1,2
 )

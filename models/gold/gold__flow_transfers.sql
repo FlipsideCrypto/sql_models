@@ -1,9 +1,9 @@
 {{ 
     config(
         materialized='incremental', 
-        sort='block_timestamp', 
-        dist='tx_id', 
-        unique_key='tx_id', 
+        dist='tx_id',
+        unique_key='tx_id',
+        incremental_strategy='delete+insert',
         tags=['events', 'flow']
     ) 
 }}
@@ -28,18 +28,17 @@ SELECT
     max(event_amount_usd) as event_amount_usd,
     max(event_currency) as event_currency
 FROM
-    {{ ref('flow_events') }} e
+    {{ ref('gold__flow_events') }} e
 JOIN
-    {{ ref('flow_transactions') }} t
+    {{ ref('gold__flow_transactions') }} t
 ON
     e.tx_id = t.tx_id
 WHERE
     t.tx_type = 'token_transfer'
 AND e.event_type IN ('tokens_deposited', 'tokens_withdrawn') AND event_currency = 'FLOW'
 {% if is_incremental() %}
-  AND e.block_timestamp >= getdate() - interval '1 days'
-{% else %}
-  AND e.block_timestamp >= getdate() - interval '9 months'
+  AND e.block_timestamp >= getdate() - interval '3 days'
+
 {% endif %}
 GROUP BY
 e.blockchain,

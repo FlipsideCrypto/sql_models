@@ -1,7 +1,7 @@
 {{ config(
     materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id || tx_id', 
+    unique_key='block_number',
+    incremental_strategy='delete+insert',
     tags=['snowflake', 'gold_flow', 'gold', 'gold__flow_events'])}}
 
 
@@ -10,7 +10,8 @@ WITH flow_labels AS (
         l1_label,
         l2_label,
         project_name,
-        address_name
+        address_name,
+        address
     FROM 
     {{ source(
         'shared',
@@ -21,7 +22,7 @@ WITH flow_labels AS (
 flow_decimals AS (
     SELECT
         blockchain, 
-        token_address,
+        token_identifier,
         decimal_adjustment,
         symbol
     FROM
@@ -57,7 +58,7 @@ SELECT
   event_to_labels.project_name as event_to_label,
   event_to_labels.address_name as event_to_address_name,
   event_type,
-  event_amount / 10 ^ COALESCE(adj.decimal_adjustment, 0) as event_amount,
+  event_amount / pow(10, COALESCE(adj.decimal_adjustment, 0)) as event_amount,
   NULL::float as event_amount_usd,
   coalesce(adj.symbol, event_currency) as event_currency
 FROM
@@ -84,7 +85,5 @@ ON
   e.event_currency = adj.token_identifier
 WHERE
   {% if is_incremental() %}
-    block_timestamp >= getdate() - interval '1 days'
-  {% else %}
-    block_timestamp >= getdate() - interval '9 months'
+    block_timestamp >= getdate() - interval '3 days'
   {% endif %}
