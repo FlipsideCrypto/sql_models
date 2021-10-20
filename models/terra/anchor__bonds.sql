@@ -62,20 +62,19 @@ events AS (
 
 SELECT 
   tx_id,
-  event_attributes:"1_amount" / POW(10,6) AS minted_amount,
+  event_attributes:"exchange_rate" / POW(10,6) AS minted_amount,
   minted_amount * price AS minted_amount_usd, 
-  event_attributes:"1_contract_address"::string as minted_currency
+  event_attributes:"denom"::string as minted_currency
 FROM {{ref('silver_terra__msg_events')}}
 
 LEFT OUTER JOIN prices o
- ON date_trunc('hour', block_timestamp) = o.hour
- AND event_attributes:"1_contract_address"::string = o.currency 
+  ON date_trunc('hour', block_timestamp) = o.hour
+  AND event_attributes:"denom"::string = o.currency 
+ 
 
 WHERE tx_id IN(SELECT tx_id FROM msgs)
-  AND event_type = 'from_contract'
   AND tx_status = 'SUCCEEDED'
-  AND minted_currency IS NOT NULL
-  AND minted_amount IS NOT NULL
+  
 
   {% if is_incremental() %}
     AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
@@ -88,18 +87,15 @@ SELECT
   chain_id,
   block_id,
   block_timestamp,
-  m.tx_id,
+  m.tx_id
   sender,
   bonded_amount,
   bonded_amount_usd,
   bonded_currency,
   validator,
-  minted_amount,
-  minted_amount_usd,
-  minted_currency,
   contract_address,
   contract_label
-FROM msgs m 
+FROM msgs m
 
 JOIN events e 
   ON m.tx_id = e.tx_id
