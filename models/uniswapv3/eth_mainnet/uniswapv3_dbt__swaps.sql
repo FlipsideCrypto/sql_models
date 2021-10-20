@@ -43,6 +43,7 @@ SELECT
   t.value :liquidity_adjusted :: FLOAT AS liquidity_adjusted,
   t.value :log_index :: INTEGER AS log_index,
   t.value :pool_address :: STRING AS pool_address,
+  t.value :price :: FLOAT AS price,
   t.value :price_0_1 :: FLOAT AS price_0_1,
   t.value :price_1_0 :: FLOAT AS price_1_0,
   t.value :recipient :: STRING AS recipient,
