@@ -33,7 +33,7 @@ pool_fees AS (
     rewards AS system_rewards,
     rewards * rune_usd AS system_rewards_usd,
     asset_liquidity_fees,
-    asset_liquidity_fees * asset_usd AS asset_liqudity_fees_usd,
+    asset_liquidity_fees * asset_usd AS asset_liquidity_fees_usd,
     rune_liquidity_fees,
     rune_liquidity_fees * rune_usd AS rune_liquidity_fees_usd
   FROM {{ ref('thorchain__pool_block_fees') }} pbf
@@ -47,7 +47,7 @@ SELECT
   system_rewards,
   system_rewards_usd,
   -- asset_liquidity_fees,
-  -- asset_liqudity_fees_usd,
+  -- asset_liquidity_fees_usd,
   -- rune_liquidity_fees,  
   -- rune_liquidity_fees_usd,
   COALESCE(asset_depth / POW(10, 8), 0) AS asset_liquidity,
@@ -62,8 +62,8 @@ SELECT
   COALESCE(add_rune_liquidity_volume / POW(10, 8), 0) AS add_rune_liquidity,
   COALESCE(add_rune_liquidity_volume / POW(10, 8) * rune_usd, 0) AS add_rune_liquidity_usd,
   COALESCE(withdraw_count, 0) AS withdraw_count,
-  COALESCE(withdraw_asset_volume / POW(10, 8), 0) AS withdraw_asset_liquditiy,
-  COALESCE(withdraw_asset_volume / POW(10, 8) * asset_usd, 0) AS withdraw_asset_liquditiy_usd,
+  COALESCE(withdraw_asset_volume / POW(10, 8), 0) AS withdraw_asset_liquidity,
+  COALESCE(withdraw_asset_volume / POW(10, 8) * asset_usd, 0) AS withdraw_asset_liquidity_usd,
   COALESCE(withdraw_rune_volume / POW(10, 8), 0) AS withdraw_rune_liquidity,
   COALESCE(withdraw_rune_volume / POW(10, 8) * rune_usd, 0) AS withdraw_rune_liquidity_usd,
   COALESCE(impermanent_loss_protection_paid / POW(10, 8), 0)AS il_protection_paid,

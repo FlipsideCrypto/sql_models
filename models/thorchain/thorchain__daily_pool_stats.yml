@@ -52,10 +52,10 @@ models:
       - name: WITHDRAW_COUNT
         tests:
           - not_null
-      - name: WITHDRAW_ASSET_LIQUDITIY
+      - name: WITHDRAW_ASSET_LIQUIDITY
         tests:
           - not_null
-      - name: WITHDRAW_ASSET_LIQUDITIY_USD
+      - name: WITHDRAW_ASSET_LIQUIDITY_USD
         tests:
           - not_null
       - name: WITHDRAW_RUNE_LIQUIDITY
