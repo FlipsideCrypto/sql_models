@@ -40,7 +40,7 @@ SELECT
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
   t.value :blockchain :: STRING AS blockchain,
   t.value :liquidity :: FLOAT AS liquidity,
-  t.value :liqudity_adjusted :: FLOAT AS liqudity_adjusted,
+  t.value :liquidity_adjusted :: FLOAT AS liquidity_adjusted,
   t.value :log_index :: INTEGER AS log_index,
   t.value :pool_address :: STRING AS pool_address,
   t.value :price_0_1 :: FLOAT AS price_0_1,

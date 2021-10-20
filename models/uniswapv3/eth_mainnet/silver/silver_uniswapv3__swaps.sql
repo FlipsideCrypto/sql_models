@@ -16,7 +16,7 @@ WITH silver AS (
     block_timestamp,
     blockchain,
     liquidity,
-    liqudity_adjusted,
+    liquidity_adjusted,
     log_index,
     pool_address,
     price_0_1,
@@ -48,7 +48,7 @@ SELECT
   block_timestamp,
   blockchain,
   liquidity,
-  liqudity_adjusted,
+  liquidity_adjusted,
   log_index,
   pool_address,
   price_0_1,
@@ -63,6 +63,8 @@ FROM
     'uniswapv3_eth',
     'uniswapv3_swaps'
   ) }}
+WHERE
+  1 = 1
 
 {% if is_incremental() %}
 AND system_created_at :: DATE >= (
@@ -81,7 +83,7 @@ SELECT
   block_timestamp,
   blockchain,
   liquidity,
-  liqudity_adjusted,
+  liquidity_adjusted,
   log_index,
   pool_address,
   price_0_1,

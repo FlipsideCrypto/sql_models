@@ -71,6 +71,8 @@ FROM
     'uniswapv3_eth',
     'uniswapv3_pools'
   ) }}
+WHERE
+  1 = 1
 
 {% if is_incremental() %}
 AND system_created_at :: DATE >= (
