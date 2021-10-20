@@ -1,8 +1,8 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'tx_id || nf_token_id',
+    unique_key = 'pool_address || block_timestamp',
     incremental_strategy = 'delete+insert',
-    tags = ['snowflake', 'uniswapv3_silver', 'uniswapv3_dbt__liquidity_actions']
+    tags = ['snowflake', 'uniswapv3_silver', 'uniswapv3_dbt__pool_stats']
 ) }}
 
 WITH base_tables AS (
@@ -16,7 +16,7 @@ WITH base_tables AS (
         ) }}
     WHERE
         record_content :model :name :: STRING IN (
-            'uniswap_v3_mainnet_liquidity_action_model'
+            'uniswap_v3_mainnet_pool_stats_model'
         )
 
 {% if is_incremental() %}
