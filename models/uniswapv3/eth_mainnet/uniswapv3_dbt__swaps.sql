@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'pool_address',
+  unique_key = 'tx_id || log_index',
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'uniswapv3_silver', 'uniswapv3_dbt__swaps']
 ) }}
@@ -16,7 +16,7 @@ WITH base_tables AS (
     ) }}
   WHERE
     record_content :model :name :: STRING IN (
-      'uniswap_v3_mainnet_swaps_model'
+      'uniswap_v3_mainnet_swap_model'
     )
 
 {% if is_incremental() %}
