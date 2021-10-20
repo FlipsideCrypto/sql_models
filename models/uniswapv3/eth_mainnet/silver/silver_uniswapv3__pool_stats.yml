@@ -1,0 +1,82 @@
+version: 2
+models:
+  - name: silver_uniswapv3__pool_stats
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - POOL_ADDRESS
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: FEE_GROWTH_GLOBAL_0_X128
+          # always null in data
+      - name: FEE_GROWTH_GLOBAL_1_X128
+          # always null in data
+      - name: OBSERVATION_CARDINALITY
+        tests:
+          - not_null
+      - name: OBSERVATION_CARDINALITY_NEXT
+        tests:
+          - not_null
+      - name: OBSERVATION_INDEX
+        tests:
+          - not_null
+      - name: POOL_ADDRESS
+        tests:
+          - not_null
+      - name: PRICE
+        tests:
+          - not_null
+      - name: PRICE_0_1
+        tests:
+          - not_null
+      - name: PRICE_1_0
+        tests:
+          - not_null
+      - name: PROTOCOL_FEES_TOKEN0
+          # always null in data
+      - name: PROTOCOL_FEES_TOKEN1
+          # always null in data
+      - name: SQRT_PRICE_X96
+        tests:
+          - not_null
+      - name: TICK
+        tests:
+          - not_null
+      - name: TOKEN0_BALANCE
+        tests:
+          - not_null
+      - name: TOKEN1_BALANCE
+        tests:
+          - not_null
+      - name: UNLOCKED
+        tests:
+          - not_null
+      - name: VIRTUAL_LIQUIDITY
+        tests:
+          - not_null
+      - name: VIRTUAL_LIQUIDITY_ADJUSTED
+        tests:
+          - not_null
+      - name: VIRTUAL_RESERVES_TOKEN0
+        tests:
+          - not_null
+      - name: VIRTUAL_RESERVES_TOKEN1
+        tests:
+          - not_null
+
+      - name: FEE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
