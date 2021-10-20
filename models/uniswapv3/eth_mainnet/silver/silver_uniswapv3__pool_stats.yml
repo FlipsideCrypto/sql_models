@@ -16,9 +16,9 @@ models:
       - name: BLOCKCHAIN
         tests:
           - not_null
-      - name: FEE_GROWTH_GLOBAL_0_X128
+      - name: FEE_GROWTH_global0_X128
           # always null in data
-      - name: FEE_GROWTH_GLOBAL_1_X128
+      - name: FEE_GROWTH_global1_X128
           # always null in data
       - name: OBSERVATION_CARDINALITY
         tests:
@@ -73,10 +73,10 @@ models:
         tests:
           - not_null
 
-      - name: FEE
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
+      # - name: FEE
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_be_in_type_list:
+      #         column_type_list:
+      #           - decimal
+      #           - float
