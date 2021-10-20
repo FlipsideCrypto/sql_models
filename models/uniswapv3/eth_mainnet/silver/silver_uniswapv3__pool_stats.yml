@@ -17,9 +17,11 @@ models:
         tests:
           - not_null
       - name: FEE_GROWTH_global0_X128
-          # always null in data
+        tests:
+          - not_null
       - name: FEE_GROWTH_global1_X128
-          # always null in data
+        tests:
+          - not_null
       - name: OBSERVATION_CARDINALITY
         tests:
           - not_null
