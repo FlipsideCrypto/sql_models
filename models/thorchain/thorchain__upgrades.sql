@@ -18,6 +18,7 @@ WITH block_prices AS (
 )
 
 SELECT
+  identified_id,
   block_timestamp,
   se.block_id,
   from_address,
