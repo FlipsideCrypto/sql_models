@@ -5,7 +5,6 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
-            - NF_TOKEN_ID
     columns:
       - name: BLOCKCHAIN
         tests:
