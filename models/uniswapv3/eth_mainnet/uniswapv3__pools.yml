@@ -1,19 +1,22 @@
 version: 2
 models:
-  - name: silver_uniswapv3__pools
+  - name: uniswapv3__pools
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
             - NF_TOKEN_ID
     columns:
+       - name: BLOCKCHAIN
+        tests:
+          - not_null     
       - name: BLOCK_ID
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
-      - name: BLOCKCHAIN
+      - name: TX_ID
         tests:
           - not_null
       - name: FACTORY_ADDRESS
@@ -55,27 +58,24 @@ models:
       - name: TOKEN0_ADDRESS
         tests:
           - not_null
-      - name: TOKEN0_DECIMALS
-        tests:
-          - not_null
-      - name: TOKEN0_NAME
+      - name: TOKEN1_ADDRESS
         tests:
           - not_null
       - name: TOKEN0_SYMBOL
         tests:
           - not_null
-      - name: TOKEN1_ADDRESS
+      - name: TOKEN1_SYMBOL
         tests:
           - not_null
-      - name: TOKEN1_DECIMALS
+      - name: TOKEN0_NAME
         tests:
           - not_null
       - name: TOKEN1_NAME
         tests:
           - not_null
-      - name: TOKEN1_SYMBOL
+      - name: TOKEN0_DECIMALS
         tests:
           - not_null
-      - name: TX_ID
+      - name: TOKEN1_DECIMALS
         tests:
           - not_null
