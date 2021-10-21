@@ -20,7 +20,7 @@ SELECT
   b.PROJECT_NAME AS project_name,
   VALUE_NUMERIC AS value_numeric,
   VALUE_STR AS value_string
-FROM {{ source('ethereum', 'silver_ethereum__reads') }} b
+FROM {{ source('ethereum', 'ethereum__reads') }} b
 
 LEFT OUTER JOIN {{ source('ethereum', 'ethereum_address_labels') }} as contract_labels
  ON b.CONTRACT_ADDRESS = contract_labels.address
