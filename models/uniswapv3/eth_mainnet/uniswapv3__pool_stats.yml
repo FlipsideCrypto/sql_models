@@ -67,19 +67,19 @@ models:
       - name: TOKEN0_ADDRESS
         tests:
           - not_null
-     - name: TOKEN1_ADDRESS
+      - name: TOKEN1_ADDRESS
         tests:
           - not_null
-     - name: TOKEN0_SYMBOL
+      - name: TOKEN0_SYMBOL
         tests:
           - not_null
-     - name: TOKEN1_SYMBOL
+      - name: TOKEN1_SYMBOL
         tests:
           - not_null
-     - name: TICK
+      - name: TICK
         tests:
           - not_null
-     - name: UNLOCKED
+      - name: UNLOCKED
         tests:
           - not_null
       - name: VIRTUAL_LIQUIDITY_ADJUSTED

@@ -38,7 +38,7 @@ models:
               column_type_list:
                 - decimal
                 - float
-     - name: RECIPIENT
+      - name: RECIPIENT
         tests:
           - not_null
       - name: SENDER

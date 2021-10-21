@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: uniswapv3__positions_collected
+  - name: uniswapv3__position_collected_fees
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
