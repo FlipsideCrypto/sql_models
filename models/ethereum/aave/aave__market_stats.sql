@@ -27,7 +27,7 @@ WITH aave_reads AS (
     END AS aave_version, 
     inputs,
                 (SPLIT(LOWER(VALUE_STR),'^')) AS coins
-    FROM {{source('ethereum', 'ethereum_reads')}}
+    FROM {{source('ethereum', 'silver_ethereum__reads')}}
     WHERE 
 
         contract_address  IN (
