@@ -38,7 +38,6 @@ WHERE
 AND e.event_type IN ('tokens_deposited', 'tokens_withdrawn') AND event_currency = 'FLOW'
 {% if is_incremental() %}
   AND e.block_timestamp >= getdate() - interval '3 days'
-
 {% endif %}
 GROUP BY
 e.blockchain,
