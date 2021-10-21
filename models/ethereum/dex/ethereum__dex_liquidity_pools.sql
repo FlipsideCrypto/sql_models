@@ -119,7 +119,7 @@ WITH v3_pools AS ( -- uni v3
       token1,
       platform
 
-  FROM flipside_dev_db.dbt.sushi_liquidity_pools
+  FROM {{ ref('silver__historic_dex_pools') }}
   
 ), new_sushi AS (
   SELECT s.* -- future proofing: once the eth backfill is done these manual write-ins will be dups
