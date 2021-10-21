@@ -68,8 +68,8 @@ FROM (
   listagg(distinct event_type, ' | ') within group(order by event_type) as tx_type
   FROM
     {{ source('flow', 'udm_events_flow')}}
+  {% if is_incremental() %}
   WHERE
-    {% if is_incremental() %}
       block_timestamp >= getdate() - interval '3 days'
     {% endif %}
   GROUP BY 1,2
