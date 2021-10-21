@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: silver__historic_dex_pools
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - POOL_ADDRESS
+    columns:
+      - name: FACTORY_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: PLATFORM
+        tests:
+          - not_null
+      - name: POOL_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: POOL_NAME
+        tests:
+          - not_null:
+              where: PLATFORM <> 'uniswap-v3'
+      - name: TOKEN0
+        tests:
+          - not_null:
+              where: PLATFORM <> 'curve'
+      - name: TOKEN1
+        tests:
+          - not_null:
+              where: PLATFORM <> 'curve'
