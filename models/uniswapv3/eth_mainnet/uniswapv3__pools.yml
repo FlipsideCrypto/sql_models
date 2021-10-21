@@ -7,7 +7,7 @@ models:
             - TX_ID
             - NF_TOKEN_ID
     columns:
-       - name: BLOCKCHAIN
+      - name: BLOCKCHAIN
         tests:
           - not_null     
       - name: BLOCK_ID
