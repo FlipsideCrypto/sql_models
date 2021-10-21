@@ -3,7 +3,7 @@
     materialized='incremental', 
     incremental_strategy='delete+insert',
     unique_key='block_timestamp', 
-    tags=[''snowflake', 'gold_flow', 'gold', 'gold__flow_delegator_addresses']) }}
+    tags=['snowflake', 'gold_flow', 'gold', 'gold__flow_delegator_addresses']) }}
 
 SELECT
     t.block_id,

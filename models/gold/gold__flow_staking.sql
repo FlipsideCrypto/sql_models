@@ -2,7 +2,7 @@
    materialized='incremental',
    incremental_strategy='delete+insert',
    unique_key='block_number || tx_id', 
-   tags=['snowflake', 'gold_flow', 'gold', 'gold__flow_staking'] }}
+   tags=['snowflake', 'gold_flow', 'gold', 'gold__flow_staking']) }}
 
 
 -- delegator_tokens_committed
@@ -44,7 +44,7 @@ event_amount,
 event_amount_usd,
 event_currency
 FROM
-{{ ref('flow_events') }} e
+{{ ref('gold__flow_events') }} e
 LEFT OUTER JOIN
   {{ ref('gold__flow_delegator_addresses')}} as d
 ON
@@ -169,8 +169,8 @@ event_amount,
 event_amount_usd,
 event_currency
 FROM
-{{ ref('flow_events') }} e
-JOIN {{ ref('flow_delegator_addresses')}} d
+{{ ref('gold__flow_events') }} e
+JOIN {{ ref('gold__flow_delegator_addresses')}} d
 ON d.delegator_id = 0
 AND e.event_to = d.node_id
 LEFT OUTER JOIN
@@ -232,7 +232,7 @@ FROM ( -- validator side
   t.tx_type = 'unstaked_tokens_withdrawn'
   AND e.event_type = 'unstaked_tokens_withdrawn'
   {% if is_incremental() %}
-    AND e.block_timestamp >= getdate() - interval '15 days'
+    AND e.block_timestamp >= getdate() - interval '1 days'
   {% else %}
     AND e.block_timestamp >= getdate() - interval '9 months'
   {% endif %}
