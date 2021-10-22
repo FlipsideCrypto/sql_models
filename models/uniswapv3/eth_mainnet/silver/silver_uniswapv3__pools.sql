@@ -36,9 +36,9 @@ WITH silver AS (
     1 = 1
 
 {% if is_incremental() %}
-AND system_created_at :: DATE >= (
+AND block_timestamp :: DATE >= (
   SELECT
-    DATEADD('day', -1, MAX(system_created_at :: DATE))
+    DATEADD('day', -1, MAX(block_timestamp :: DATE))
   FROM
     {{ this }} AS pools
 )
@@ -75,9 +75,9 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND system_created_at :: DATE >= (
+AND block_timestamp :: DATE >= (
   SELECT
-    DATEADD('day', -1, MAX(system_created_at :: DATE))
+    DATEADD('day', -1, MAX(block_timestamp :: DATE))
   FROM
     {{ this }} AS pools
 )
