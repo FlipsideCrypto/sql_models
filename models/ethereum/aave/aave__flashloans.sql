@@ -175,15 +175,15 @@ flashloan AS(
                 ELSE COALESCE(event_inputs:asset::string,event_inputs:_reserve::string)
               END AS aave_market,
         COALESCE(event_inputs:amount,event_inputs:_amount) AS flashloan_quantity, --not adjusted for decimals
-        COALESCE(event_inputs:initiator::string,tx_from_address) AS initiator_address,
+        COALESCE(event_inputs:initiator::string,tx_from_addr) AS initiator_address,
         COALESCE(event_inputs:target::string,event_inputs:_target::string) AS target_address,
         COALESCE(event_inputs:premium,event_inputs:_totalFee) AS premium_quantity,
-        tx_to_address AS lending_pool_contract,
+        tx_to_addr AS lending_pool_contract,
         tx_id,
         CASE
-            WHEN contract_address = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
-            WHEN contract_address = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
-            WHEN contract_address = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
+            WHEN contract_addr = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
+            WHEN contract_addr = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
+            WHEN contract_addr = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
           ELSE 'ERROR' END AS aave_version
     FROM
         {{ref('silver_ethereum__events_emitted')}}
@@ -193,7 +193,7 @@ flashloan AS(
         {% else %}
         AND block_timestamp::date >= CURRENT_DATE - 720
         {% endif %}
-        AND contract_address IN(--Aave V2 LendingPool contract address
+        AND contract_addr IN(--Aave V2 LendingPool contract address
             LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'),--V2
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119'),--V1
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'))--AMM

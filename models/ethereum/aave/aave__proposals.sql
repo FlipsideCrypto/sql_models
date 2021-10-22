@@ -12,7 +12,7 @@
 WITH 
   p AS (
   SELECT 
-      block_id,block_timestamp,contract_address AS governance_contract,event_inputs:id::STRING AS proposal_id,
+      block_id,block_timestamp,contract_addr AS governance_contract,event_inputs:id::STRING AS proposal_id,
       'Created' AS status,
       event_inputs:targets AS targets,
       LOWER(event_inputs:creator::STRING) AS proposer,
@@ -22,7 +22,7 @@ WITH
     CURRENT_DATE AS now
   FROM {{ ref('silver_ethereum__events_emitted') }}
   WHERE 
-  event_name = 'ProposalCreated' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'
+  event_name = 'ProposalCreated' AND contract_addr = '0xec568fffba86c094cf06b22134b23074dfe2252c'
 
 ), q AS (
     SELECT DISTINCT
@@ -30,7 +30,7 @@ WITH
         'Queued' AS status
     FROM {{ ref('silver_ethereum__events_emitted') }}
     WHERE 
-    event_name = 'ProposalQueued' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'
+    event_name = 'ProposalQueued' AND contract_addr = '0xec568fffba86c094cf06b22134b23074dfe2252c'
 ), e AS (
     
     SELECT DISTINCT
@@ -38,7 +38,7 @@ WITH
       'Executed' AS status
     FROM {{ ref('silver_ethereum__events_emitted') }}
     WHERE 
-    event_name = 'ProposalExecuted' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'
+    event_name = 'ProposalExecuted' AND contract_addr = '0xec568fffba86c094cf06b22134b23074dfe2252c'
 
 
 ), c AS (

@@ -26,7 +26,7 @@ WITH aave_reads AS (
             ELSE 'Aave V1'
     END AS aave_version, 
     inputs,
-                (SPLIT(LOWER(VALUE_STR),'^')) AS coins
+                (SPLIT(LOWER(VALUE_STRING),'^')) AS coins
     FROM {{ref('silver_ethereum__reads')}}
     WHERE 
 

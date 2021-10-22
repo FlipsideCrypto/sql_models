@@ -176,12 +176,12 @@ withdraw AS(--does not retrieve Aave V1
               END AS aave_market,
         COALESCE(event_inputs:amount,event_inputs:_amount) AS withdraw_amount, --not adjusted for decimals
         COALESCE(event_inputs:to::string,event_inputs:_user::string) AS depositor,
-        tx_to_address AS lending_pool_contract,
+        tx_to_addr AS lending_pool_contract,
         tx_id,
         CASE
-            WHEN contract_address = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
-            WHEN contract_address = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
-            WHEN contract_address = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
+            WHEN contract_addr = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
+            WHEN contract_addr = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
+            WHEN contract_addr = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
           ELSE 'ERROR' END AS aave_version
     FROM
         {{ref('silver_ethereum__events_emitted')}}
@@ -191,7 +191,7 @@ withdraw AS(--does not retrieve Aave V1
         {% else %}
         AND block_timestamp::date >= CURRENT_DATE - 720
         {% endif %}
-        AND contract_address IN(--Aave V2 LendingPool contract address
+        AND contract_addr IN(--Aave V2 LendingPool contract address
             LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'),--V2
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119'),--V1
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'))--AMM
