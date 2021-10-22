@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_id || tx_hash || log_index || to',
+  unique_key = 'block_id || tx_hash || log_index',
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'silver_ethereum', 'ethereum_dbt__events']
 ) }}
