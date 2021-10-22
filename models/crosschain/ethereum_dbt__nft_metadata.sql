@@ -36,22 +36,22 @@ SELECT
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
   'ethereum' AS blockchain,
-  VALUE :commission_rate :: FLOAT AS commission_rate,
-  VALUE :contract_address :: STRING AS contract_address,
-  VALUE :contract_name :: STRING AS contract_name,
-  VALUE :created_at_block_id :: INTEGER AS created_at_block_id,
-  VALUE :created_at :: TIMESTAMP AS created_at_timestamp,
-  VALUE :created_at_tx_id :: INTEGER AS created_at_tx_id,
-  VALUE :creator_address :: STRING AS creator_address,
-  VALUE :creator_name :: STRING AS creator_name,
-  VALUE :src :: STRING AS image_url,
-  VALUE :project_name :: STRING AS project_name,
-  VALUE :token_id :: STRING AS token_id,
-  VALUE :token_metadata AS token_metadata,
-  VALUE :token_metadata_uri :: STRING AS token_metadata_uri,
-  VALUE :name AS token_name
+  t.value :commission_rate :: FLOAT AS commission_rate,
+  t.value :contract_address :: STRING AS contract_address,
+  t.value :contract_name :: STRING AS contract_name,
+  t.value :created_at_block_id :: INTEGER AS created_at_block_id,
+  t.value :created_at_timestamp :: TIMESTAMP AS created_at_timestamp,
+  t.value :created_at_tx_id :: STRING AS created_at_tx_id,
+  t.value :creator_address :: STRING AS creator_address,
+  t.value :creator_name :: STRING AS creator_name,
+  t.value :image_url :: STRING AS image_url,
+  t.value :project_name :: STRING AS project_name,
+  t.value :token_id :: STRING AS token_id,
+  t.value :token_metadata :: OBJECT AS token_metadata,
+  t.value :token_metadata_uri :: STRING AS token_metadata_uri,
+  t.value :token_name :: STRING AS token_name,*
 FROM
   base_tables,
   LATERAL FLATTEN(
-    input => record_content
+    input => record_content: results
   ) t
