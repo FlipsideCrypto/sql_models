@@ -84,7 +84,7 @@ LEFT OUTER JOIN
   flow_decimals adj
 ON
   e.event_currency = adj.token_identifier
-WHERE
-  {% if is_incremental() %}
+{% if is_incremental() %}
+  WHERE
     block_timestamp >= getdate() - interval '3 days'
   {% endif %}
