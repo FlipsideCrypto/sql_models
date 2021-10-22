@@ -19,7 +19,7 @@ WITH decimals_raw as (
   SELECT address AS token_address,
   meta:decimals AS decimals,
   2 as weight
-  FROM {{source('ethereum', 'ethereum_contracts')}}
+  FROM {{ref('silver_ethereum__contracts')}}
   WHERE meta:decimals IS NOT NULL
 
   UNION
