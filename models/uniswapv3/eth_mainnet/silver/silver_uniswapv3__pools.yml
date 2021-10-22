@@ -4,8 +4,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - TX_ID
-            - NF_TOKEN_ID
+            - POOL_ADDRESS
     columns:
       - name: BLOCK_ID
         tests:
