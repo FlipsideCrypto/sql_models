@@ -12,7 +12,7 @@ WITH base_tables AS (
   FROM
     {{ source(
       'bronze',
-      'PROD_ETHEREUM_SINK_407559501'
+      'prod_ethereum_sink_407559501'
     ) }}
   WHERE
     SPLIT(
@@ -35,11 +35,11 @@ SELECT
   (
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
-  'Ethereum' AS blockchain,
+  'ethereum' AS blockchain,
   VALUE :commission_rate :: FLOAT AS commission_rate,
   VALUE :contract_address :: STRING AS contract_address,
   VALUE :contract_name :: STRING AS contract_name,
-  VALUE :created_at_block_id :: TIMESTAMP AS created_at_block_id,
+  VALUE :created_at_block_id :: INTEGER AS created_at_block_id,
   VALUE :created_at :: TIMESTAMP AS created_at_timestamp,
   VALUE :created_at_tx_id :: INTEGER AS created_at_tx_id,
   VALUE :creator_address :: STRING AS creator_address,

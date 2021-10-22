@@ -1,15 +1,13 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='created_at_timestamp', 
-    unique_key='token_id', 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'nft']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  sort = 'created_at_timestamp',
+  unique_key = 'token_id',
+  incremental_strategy = 'delete+insert',
+  tags = ['snowflake', 'ethereum', 'nft','ethereum__nft_metadata']
+) }}
 
 SELECT
-  blockchain,	
+  blockchain,
   commission_rate,
   contract_address,
   contract_name,
@@ -24,12 +22,14 @@ SELECT
   token_metadata,
   token_metadata_uri,
   token_name
-FROM {{ source('ethereum', 'nft_metadata') }}
-WHERE blockchain = 'ethereum'
+FROM
+  {{ ref('silver_crosschain__nft_metadata') }}
+WHERE
+  blockchain = 'ethereum'
+  AND
 
-AND 
 {% if is_incremental() %}
-  created_at_timestamp >= getdate() - interval '1 days'
+created_at_timestamp >= getdate() - INTERVAL '1 days'
 {% else %}
-  created_at_timestamp >= getdate() - interval '9 months'
+  created_at_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}

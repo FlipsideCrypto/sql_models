@@ -35,7 +35,7 @@ SELECT
     (
         record_metadata :CreateTime :: INT / 1000
     ) :: TIMESTAMP AS system_created_at,
-    'Terra' AS blockchain,
+    'terra' AS blockchain,
     NULL AS commission_rate,
     VALUE :collection_addr :: STRING AS contract_address,
     'Galactic Punks' AS contract_name,

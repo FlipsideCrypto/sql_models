@@ -20,4 +20,6 @@ SELECT
     token_metadata_uri,
     token_name
 FROM
-    {{ ref('silver_terra__nft_metadata') }}
+    {{ ref('silver_crosschain__nft_metadata') }}
+WHERE
+    blockchain = 'terra'

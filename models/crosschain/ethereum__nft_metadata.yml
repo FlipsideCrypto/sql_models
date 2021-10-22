@@ -1,10 +1,9 @@
 version: 2
 models:
-  - name: silver_crosschain__nft_metadata
+  - name: ethereum__nft_metadata
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - blockchain
             - contract_address
             - token_id
     columns:
@@ -13,8 +12,7 @@ models:
           - not_null
       - name: commission_rate
         tests:
-        #   # - not_null:
-        #   #   where: contract_name <> 'Galactic Punks'
+          - not_null
       - name: contract_address
         tests:
           - not_null
@@ -23,23 +21,19 @@ models:
           - not_null
       - name: created_at_block_id
         tests:
-        #   # - not_null:
-        #   #   where: contract_name <> 'Galactic Punks'
+          - not_null
       - name: created_at_timestamp
         tests:
           - not_null
       - name: created_at_tx_id
         tests:
-        #   # - not_null:
-        #   #   where: contract_name <> 'Galactic Punks'
+          - not_null
       - name: creator_address
         tests:
-        #   # - not_null:
-        #   #   where: contract_name <> 'Galactic Punks'
+          - not_null
       - name: creator_name
         tests:
-        #   # - not_null:
-        #   #   where: contract_name <> 'Galactic Punks'
+          - not_null
       - name: image_url
         tests:
           - not_null
@@ -54,8 +48,13 @@ models:
           - not_null
       - name: token_metadata_uri
         tests:
-        #   # - not_null:
-        #   #   where: contract_name <> 'Galactic Punks'
+          - not_null
       - name: token_name
         tests:
           - not_null
+
+
+
+
+        #   - not_null:
+        #     - where: contract_name <> 'Galactic Punks'

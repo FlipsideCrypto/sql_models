@@ -2,7 +2,7 @@
     materialized = 'view',
     unique_key = 'contract_address || token_id',
     incremental_strategy = 'delete+insert',
-    tags = ['snowflake', 'terra_silver', 'silver_terra__nft_metadata']
+    tags = ['snowflake', 'terra_silver', 'silver_crosschain__nft_metadata']
 ) }}
 
 WITH silver AS (
@@ -10,7 +10,22 @@ WITH silver AS (
     -- UNION IN OTHER METADATA AS NEEDED
 
     SELECT
-        *
+        system_created_at,
+        blockchain,
+        commission_rate,
+        contract_address,
+        contract_name,
+        created_at_block_id,
+        created_at_timestamp,
+        created_at_tx_id,
+        creator_address,
+        creator_name,
+        image_url,
+        project_name,
+        token_id,
+        token_metadata,
+        token_metadata_uri,
+        token_name
     FROM
         {{ ref('terra_dbt__nft_metadata_galactic_punks') }}
     WHERE
@@ -21,7 +36,7 @@ AND system_created_at :: DATE >= (
     SELECT
         DATEADD('day', -10, MAX(system_created_at :: DATE))
     FROM
-        {{ this }} AS msgs
+        {{ this }} AS terra_nft_metadata_galactic_punks
 )
 {% endif %}
 
@@ -30,7 +45,22 @@ ORDER BY
     created_at_timestamp DESC)) = 1
 UNION ALL
 SELECT
-    *
+    system_created_at,
+    blockchain,
+    commission_rate,
+    contract_address,
+    contract_name,
+    created_at_block_id,
+    created_at_timestamp,
+    created_at_tx_id,
+    creator_address,
+    creator_name,
+    image_url,
+    project_name,
+    token_id,
+    token_metadata,
+    token_metadata_uri,
+    token_name
 FROM
     {{ ref('ethereum_dbt__nft_metadata') }}
 WHERE
@@ -41,7 +71,25 @@ AND system_created_at :: DATE >= (
     SELECT
         DATEADD('day', -10, MAX(system_created_at :: DATE))
     FROM
-        {{ this }} AS msgs
+        {{ this }} AS ethereum_nft_metadata
 )
 {% endif %}
 )
+SELECT
+    blockchain,
+    commission_rate,
+    contract_address,
+    contract_name,
+    created_at_block_id,
+    created_at_timestamp,
+    created_at_tx_id,
+    creator_address,
+    creator_name,
+    image_url,
+    project_name,
+    token_id,
+    token_metadata,
+    token_metadata_uri,
+    token_name
+FROM
+    silver
