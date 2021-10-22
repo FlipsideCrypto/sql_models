@@ -4,6 +4,8 @@
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra_silver', 'silver_terra__nft_metadata']
 ) }}
+-- THIS SECTION CURRENTLY PULLS GALACTIC PUNK METADATA ONLY
+-- UNION IN OTHER METADATA AS NEEDED
 
 SELECT
     *

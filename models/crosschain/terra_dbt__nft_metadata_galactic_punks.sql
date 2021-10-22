@@ -32,6 +32,9 @@ AND (
 {% endif %}
 ) -----
 SELECT
+    (
+        record_metadata :CreateTime :: INT / 1000
+    ) :: TIMESTAMP AS system_created_at,
     'Terra' AS blockchain,
     NULL AS commission_rate,
     VALUE :collection_addr :: STRING AS contract_address,
