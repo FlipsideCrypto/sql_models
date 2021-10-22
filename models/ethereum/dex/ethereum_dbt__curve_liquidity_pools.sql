@@ -12,7 +12,7 @@ WITH pool_tokens AS (
       DISTINCT
           contract_address AS factory,
           LOWER(inputs:_pool::STRING) AS pool_add, 
-          (SPLIT(LOWER(VALUE_STR),'^')) AS coins
+          (SPLIT(LOWER(VALUE_STRING),'^')) AS coins
     FROM {{ref('silver_ethereum__reads')}}
     WHERE 
       contract_name='Vyper_contract' 
