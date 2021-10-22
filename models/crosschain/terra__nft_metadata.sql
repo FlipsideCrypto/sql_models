@@ -1,6 +1,9 @@
 {{ config(
-    materialized = 'view',
-    tags = ['snowflake', 'terra_views', 'terra_nft_metadata', 'terra']
+    materialized = 'incremental',
+    sort = 'created_at_timestamp',
+    unique_key = 'contract address' || 'token_id',
+    incremental_strategy = 'delete+insert',
+    tags = ['snowflake', 'terra_views', 'terra__nft_metadata', 'terra']
 ) }}
 
 SELECT

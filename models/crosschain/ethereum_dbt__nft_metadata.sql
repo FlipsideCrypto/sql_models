@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'blockchain || address || creator',
+  unique_key = 'contract_address || token_id',
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'crosschain', 'ethereum_dbt__nft_metadata']
 ) }}

@@ -1,13 +1,11 @@
 {{ config(
     materialized = 'view',
-    unique_key = 'contract_address || token_id',
+    unique_key = 'blockchain || contract_address || token_id',
     incremental_strategy = 'delete+insert',
-    tags = ['snowflake', 'terra_silver', 'silver_crosschain__nft_metadata']
+    tags = ['snowflake', 'terra_silver', 'ethereum_silver', 'nft', 'silver_crosschain__nft_metadata']
 ) }}
 
 WITH silver AS (
-    -- THIS SECTION CURRENTLY PULLS GALACTIC PUNK METADATA ONLY
-    -- UNION IN OTHER METADATA AS NEEDED
 
     SELECT
         system_created_at,
@@ -27,7 +25,7 @@ WITH silver AS (
         token_metadata_uri,
         token_name
     FROM
-        {{ ref('terra_dbt__nft_metadata_galactic_punks') }}
+        {{ ref('ethereum_dbt__nft_metadata') }}
     WHERE
         1 = 1
 
@@ -36,14 +34,12 @@ AND system_created_at :: DATE >= (
     SELECT
         DATEADD('day', -10, MAX(system_created_at :: DATE))
     FROM
-        {{ this }} AS terra_nft_metadata_galactic_punks
+        {{ this }} AS ethereum_nft_metadata
 )
 {% endif %}
-
-qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
-ORDER BY
-    created_at_timestamp DESC)) = 1
 UNION ALL
+    -- THIS SECTION CURRENTLY PULLS GALACTIC PUNK METADATA ONLY
+    -- UNION IN OTHER METADATA AS NEEDED
 SELECT
     system_created_at,
     blockchain,
@@ -62,7 +58,7 @@ SELECT
     token_metadata_uri,
     token_name
 FROM
-    {{ ref('ethereum_dbt__nft_metadata') }}
+    {{ ref('terra_dbt__nft_metadata_galactic_punks') }}
 WHERE
     1 = 1
 
@@ -71,9 +67,13 @@ AND system_created_at :: DATE >= (
     SELECT
         DATEADD('day', -10, MAX(system_created_at :: DATE))
     FROM
-        {{ this }} AS ethereum_nft_metadata
+        {{ this }} AS terra_nft_metadata_galactic_punks
 )
 {% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
+ORDER BY
+    created_at_timestamp DESC)) = 1
 )
 SELECT
     blockchain,
