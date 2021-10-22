@@ -46,7 +46,7 @@ all_block_with_nodes AS (
 
 all_block_with_nodes_date AS (
   SELECT 
-    date(block_timestamp) AS day,
+    block_timestamp::date AS day,
     AVG(avg_nodes) AS avg_nodes
   FROM all_block_with_nodes
   GROUP BY 1

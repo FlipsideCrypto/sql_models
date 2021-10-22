@@ -44,18 +44,55 @@ reference_pool AS (
 ),
 
 -- step 2 use that pool to determine the price of rune
-rune_usd AS (
+rune_usd_max_tbl AS (
   SELECT
     block_timestamp,
     block_id,
-    asset_e8 / rune_e8 AS rune_usd
+    asset_e8 / rune_e8 AS rune_usd_max
   FROM {{ ref('thorchain__block_pool_depths') }} bpd
   WHERE pool_name = (SELECT pool_name FROM reference_pool)
     {% if is_incremental() %}
-    AND block_timestamp >= getdate() - interval '2 days'
+    AND bpd.block_timestamp >= getdate() - interval '2 days'
     {% else %}
-    AND block_timestamp >= getdate() - interval '9 months'
+    AND bpd.block_timestamp >= getdate() - interval '9 months'
     {% endif %}
+),
+
+rune_usd_sup_tbl AS (
+  SELECT 
+    block_timestamp,
+    block_id,
+    AVG(rune_usd) AS rune_usd_sup
+  FROM (
+    SELECT
+      block_timestamp,
+      block_id,
+      asset_e8 / rune_e8 AS rune_usd
+    FROM {{ ref('thorchain__block_pool_depths') }} bpd
+    WHERE rune_e8 > 0 AND asset_e8 > 0
+      {% if is_incremental() %}
+      AND bpd.block_timestamp >= getdate() - interval '2 days'
+      {% else %}
+      AND bpd.block_timestamp >= getdate() - interval '9 months'
+      {% endif %}
+  )
+  GROUP BY 1,2
+),
+
+rune_usd AS (
+  SELECT 
+    block_timestamp,
+    block_id,
+    CASE WHEN rune_usd_max IS NULL THEN lag(rune_usd_max) ignore nulls over (order by block_id) ELSE rune_usd_max END AS rune_usd
+  FROM (
+    SELECT
+      COALESCE(a.block_timestamp, b.block_timestamp) AS block_timestamp,
+      COALESCE(a.block_id, b.block_id) AS block_id,
+      rune_usd_max
+    FROM rune_usd_max_tbl a
+    FULL JOIN rune_usd_sup_tbl b
+    ON a.block_timestamp = b.block_timestamp AND a.block_id = b.block_id
+  )
 )
 
 -- step 3 calculate the prices of assets by pool, in terms of tokens per tokens
