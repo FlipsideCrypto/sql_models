@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='creation_time', 
-    unique_key='creation_tx', 
+    unique_key='pool_address', 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools']
   )
@@ -110,23 +110,28 @@ WITH v3_pools AS ( -- uni v3
   -- edit now uses a table of sushiswap tables 
   -- only captures the top 1000 pools by liquidity and pulls these from the Graph endpoint used by sushi https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork
   SELECT
+    DISTINCT
       NULL AS creation_time,
       NULL AS creation_tx,
       '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
-      pool_name,
+      CASE WHEN pool_name IS NULL AND platform = 'sushiswap' THEN token0 || '-' || token1 ||' SLP'
+      WHEN pool_name IS NULL AND platform = 'uniswap-v2' THEN token0 || '-' || token1 ||' UNI-V2 LP'
+      ELSE pool_name END AS pool_name,
       pool_address,
       token0,
       token1,
       platform
 
-  FROM flipside_dev_db.dbt.sushi_liquidity_pools
+  FROM {{ ref('silver__historic_dex_pools') }}
   
 ), new_sushi AS (
   SELECT s.* -- future proofing: once the eth backfill is done these manual write-ins will be dups
   FROM sushi_write_in s
-  LEFT JOIN v2_pools v
+  LEFT OUTER JOIN v2_pools v
   ON s.pool_address = v.pool_address
-  WHERE v.pool_address IS NULL
+  LEFT OUTER JOIN v2_redshift r
+  ON s.pool_address = r.pool_address
+  WHERE v.pool_address IS NULL AND r.pool_address IS NULL
 ),
 
 
