@@ -20,6 +20,7 @@ sources:
   - name: ethereum
     schema: silver
     tables:
+      - name: ethereum_balances
       - name: ethereum_contracts
       - name: daily_ethereum_token_balances
       - name: ethereum_address_labels
@@ -28,6 +29,7 @@ sources:
       - name: ethereum_decoded_log_methods
       - name: ethereum_events
       - name: ethereum_events_emitted
+      - name: ethereum_proxy_contract_registry
       - name: ethereum_reads
       - name: ethereum_transactions
       - name: ethereum_token_balances
@@ -164,6 +166,7 @@ sources:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
       - name: prod_address_label_sink_291098491
+      - name: prod_ethereum_sink_407559501
   - name: gold
     schema: gold
     tables:
