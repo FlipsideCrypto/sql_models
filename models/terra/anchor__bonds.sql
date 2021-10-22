@@ -87,7 +87,7 @@ SELECT
   chain_id,
   block_id,
   block_timestamp,
-  m.tx_id
+  m.tx_id,
   sender,
   bonded_amount,
   bonded_amount_usd,
