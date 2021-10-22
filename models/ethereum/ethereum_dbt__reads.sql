@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'block_id || contract_address || function_name || inputs',
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'ethereum', 'reads']
+  tags = ['snowflake', 'ethereum', 'ethereum_dbt__reads']
 ) }}
 
 WITH base_tables AS (
@@ -35,17 +35,16 @@ SELECT
   ) :: TIMESTAMP AS system_created_at,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
   t.value :block_id :: bigint AS block_id,
-  t.value :contract_address :: STRING AS contract_address,
-  t.value :contract_name :: STRING AS contract_name,
-  t.value :function_name :: STRING AS function_name,
-  f.value ::string AS inputs,
-  t.value :project_id :: STRING AS project_id,
-  t.value :project_name :: STRING AS project_name,
+  t.value :contract_address :: VARCHAR AS contract_address,
+  t.value :contract_name :: VARCHAR AS contract_name,
+  t.value :function_name :: VARCHAR AS function_name,
+  t.value :inputs :: OBJECT AS inputs,
+  t.value :project_id :: VARCHAR AS project_id,
+  t.value :project_name :: VARCHAR AS project_name,
   t.value :value_numeric :: FLOAT AS value_numeric,
-  t.value :value_string :: STRING AS value_string
+  t.value :value_string :: VARCHAR AS value_string
 FROM
   base_tables,
   LATERAL FLATTEN(
     input => record_content :results
-  ) t,
-  LATERAL FLATTEN(parse_json(t.value :inputs)) f
+  ) t
