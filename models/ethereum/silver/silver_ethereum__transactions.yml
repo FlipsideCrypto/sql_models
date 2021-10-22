@@ -1,0 +1,70 @@
+version: 2
+models:
+  - name: silver_ethereum__transactions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_HASH
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: TX_HASH
+        tests:
+          - not_null
+      - name: TX_POSITION
+        tests:
+          - not_null
+      - name: NONCE
+        tests:
+          - not_null
+      - name: FROM_ADDRESS
+        description: The sender/initiator of the transaction.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: TO_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: INPUT_METHOD
+        tests:
+          - not_null:
+              where: TX_POSITION <> NULL 
+      - name: GAS_PRICE
+        tests:
+          - not_null:
+              where: SUCCESS = TRUE 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: GAS_LIMIT
+        tests:
+          - not_null:
+              where: SUCCESS = TRUE 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: GAS_USED
+        tests:
+          - not_null:
+              where: SUCCESS = TRUE 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: SUCCESS
+        tests:
+          - not_null
+      
