@@ -23,7 +23,7 @@ atokens AS(
             ELSE 'Aave V1'
           END AS aave_version
     FROM
-        {{ref('ethereum__reads')}}
+        {{ref('silver_ethereum__reads')}}
        ,lateral flatten(input => SPLIT(value_string,'^')) a
     WHERE 1=1
         AND block_timestamp::date >= '2021-06-01'
@@ -90,7 +90,7 @@ decimals_backup AS(
         meta:decimals AS decimals,
         name
     FROM
-        {{source('ethereum', 'ethereum_contracts')}}
+        {{ref('silver_ethereum__contracts')}}
     WHERE 1=1
         AND meta:decimals IS NOT NULL
 ),
@@ -173,7 +173,7 @@ repay AS(
             WHEN contract_address = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
           ELSE 'ERROR' END AS aave_version
     FROM
-        {{ref('ethereum__events_emitted')}}
+        {{ref('silver_ethereum__events_emitted')}}
     WHERE 1=1
         AND block_timestamp::date >= '2021-01-01'
         AND contract_address IN(--Aave V2 LendingPool contract address

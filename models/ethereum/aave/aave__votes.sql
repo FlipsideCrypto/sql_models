@@ -20,6 +20,6 @@ SELECT block_id,
        LOWER(event_inputs:voter::STRING) AS voter,
        tx_id,
        'ethereum' AS blockchain
-FROM {{ ref('ethereum__events_emitted') }}
+FROM {{ ref('silver_ethereum__events_emitted') }}
 WHERE 
 event_name = 'VoteEmitted' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'

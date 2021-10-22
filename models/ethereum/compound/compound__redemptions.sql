@@ -31,7 +31,7 @@ WITH ctoks as (
           WHEN contract_address = '0x80a2ae356fc9ef4305676f7a3e2ed04e12c33946' THEN 'cYFI'
           WHEN contract_address = '0x12392f67bdf24fae0af363c24ac620a2f67dad86' THEN 'cTUSD'
           WHEN contract_address = '0xb3319f5d18bc0d84dd1b4825dcde5d5f7266d407' THEN 'cZRX' end project_name
-      FROM {{ref('ethereum__events_emitted')}}
+      FROM {{ref('silver_ethereum__events_emitted')}}
       WHERE contract_address in (
       '0x6c8c6b02e7b2be14d4fa6022dfd6d75921d90e4e', -- cbat
       '0x70e36f6bf80a52b3b46b3af8e106cc0ed743e8e4', -- ccomp
@@ -58,7 +58,7 @@ ctok_decimals AS (
     SELECT DISTINCT 
         contract_address AS ctok_address, 
         value_numeric AS decimals
-    FROM {{ref('ethereum__reads')}}
+    FROM {{ref('silver_ethereum__reads')}}
     WHERE 
         {% if is_incremental() %}
             block_timestamp >= getdate() - interval '2 days'
@@ -73,7 +73,7 @@ ctok_decimals AS (
     SELECT DISTINCT 
         contract_address, 
         value_numeric AS decimals
-    FROM {{ref('ethereum__reads')}}
+    FROM {{ref('silver_ethereum__reads')}}
     WHERE 
         {% if is_incremental() %}
             block_timestamp >= getdate() - interval '2 days'
@@ -88,7 +88,7 @@ underlying AS (
   SELECT DISTINCT 
     contract_address as address, 
     LOWER(value_string) as token_contract
-  FROM {{ref('ethereum__reads')}}
+  FROM {{ref('silver_ethereum__reads')}}
   WHERE 
     contract_address IN (SELECT address FROM ctoks)
     AND function_name = 'underlying'
@@ -104,7 +104,7 @@ underlying AS (
   SELECT 
     contract_address AS address, 
     LOWER('0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2') AS token_contract
-  FROM {{ref('ethereum__reads')}}
+  FROM {{ref('silver_ethereum__reads')}}
   WHERE 
     contract_address = '0x4ddc2d193948926d02f9b1fe9e1daa0718270ed5'
     {% if is_incremental() %}
@@ -145,7 +145,7 @@ SELECT
     event_inputs:redeemTokens/pow(10,d.decimals) AS redeemed_ctoken,
     REGEXP_REPLACE(event_inputs:redeemer,'\"','') AS supplier,
     tx_id
-FROM {{ ref('ethereum__events_emitted') }} ee
+FROM {{ ref('silver_ethereum__events_emitted') }} ee
 LEFT JOIN
 prices p
 ON date_trunc('hour',block_timestamp) = p.block_hour 

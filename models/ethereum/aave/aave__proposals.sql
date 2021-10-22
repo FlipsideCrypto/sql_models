@@ -20,7 +20,7 @@ WITH
       event_inputs:endBlock::INTEGER AS end_voting_period,
       event_inputs:startBlock::INTEGER AS start_voting_period,
     CURRENT_DATE AS now
-  FROM {{ ref('ethereum__events_emitted') }}
+  FROM {{ ref('silver_ethereum__events_emitted') }}
   WHERE 
   event_name = 'ProposalCreated' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'
 
@@ -28,7 +28,7 @@ WITH
     SELECT DISTINCT
         event_inputs:id::STRING AS id,
         'Queued' AS status
-    FROM {{ ref('ethereum__events_emitted') }}
+    FROM {{ ref('silver_ethereum__events_emitted') }}
     WHERE 
     event_name = 'ProposalQueued' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'
 ), e AS (
@@ -36,7 +36,7 @@ WITH
     SELECT DISTINCT
       COALESCE(event_inputs:id::STRING,event_inputs:proposalId::STRING) AS id,
       'Executed' AS status
-    FROM {{ ref('ethereum__events_emitted') }}
+    FROM {{ ref('silver_ethereum__events_emitted') }}
     WHERE 
     event_name = 'ProposalExecuted' AND contract_address = '0xec568fffba86c094cf06b22134b23074dfe2252c'
 
