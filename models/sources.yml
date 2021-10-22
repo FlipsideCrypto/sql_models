@@ -141,6 +141,7 @@ sources:
       - name: terra_validator_voting_power
       - name: udm_daily_balances_terra
       - name: udm_custom_fields_terra_tax_rate
+      - name: nft_metadata
   - name: silver_polygon
     schema: silver_polygon
     tables:
@@ -166,6 +167,7 @@ sources:
       - name: prod_terra_sink_645110886
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
+      - name: JIM_TEST_REST_PROXY_1507016047
   - name: gold
     schema: gold
     tables:
