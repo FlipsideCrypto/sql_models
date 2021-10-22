@@ -297,4 +297,4 @@ swaps s
 LEFT JOIN
 silver.ethereum_address_labels l
 ON s.from_address = l.address
-
+WHERE s.pool_name IS NOT NULL
