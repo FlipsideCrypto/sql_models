@@ -4,7 +4,7 @@
     sort='block_id', 
     unique_key='block_id', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'compound']
+    tags=['snowflake', 'ethereum', 'compound', 'compound_deposits']
   )
 }}
 
