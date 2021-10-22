@@ -1,8 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_id || tx_id || event_index',
+  unique_key = 'block_id || tx_hash || log_index || to',
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'silver_ethereum', 'ethereum_dbt__events_emitted']
+  tags = ['snowflake', 'silver_ethereum', 'ethereum_dbt__events']
 ) }}
 
 WITH base_tables AS (
@@ -16,7 +16,7 @@ WITH base_tables AS (
     ) }}
   WHERE
     record_content :model :name :: STRING IN (
-      'eth_events_emitted_model'
+      'udm_events'
     )
 
 {% if is_incremental() %}
@@ -36,16 +36,18 @@ SELECT
   ) :: TIMESTAMP AS system_created_at,
   t.value :block_id :: bigint AS block_id,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
-  t.value :contract_addr :: STRING AS contract_addr,
-  t.value :contract_name :: STRING AS contract_name,
-  t.value :event_index :: INTEGER AS event_index,
-  t.value :event_inputs :: OBJECT AS event_inputs,
-  t.value :event_name :: STRING AS event_name,
-  t.value :event_removed :: BOOLEAN AS event_removed,
-  t.value :tx_from_addr :: STRING AS tx_from_addr,
-  t.value :tx_id :: STRING AS tx_id,
-  t.value :tx_succeeded :: BOOLEAN AS tx_succeeded,
-  t.value :tx_to_addr :: STRING AS tx_to_addr
+  t.value :tx_hash :: STRING AS tx_hash,
+  t.value :input_method :: STRING AS input_method,
+  t.value :from :: STRING AS "from",
+  t.value :to :: STRING AS "to",
+  t.value :name :: STRING AS name,
+  t.value :symbol :: STRING AS symbol,
+  t.value :contract_address :: STRING AS contract_address,
+  t.value :eth_value :: FLOAT AS eth_value,
+  t.value :fee :: FLOAT AS fee,
+  t.value :log_index :: INTEGER AS log_index,
+  t.value :log_method :: STRING AS log_method,
+  t.value :token_value :: FLOAT as token_value
 FROM
   base_tables,
   LATERAL FLATTEN(

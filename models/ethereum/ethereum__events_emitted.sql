@@ -31,7 +31,7 @@ SELECT
   CONTRACT_ADDR AS contract_address,
   COALESCE(contract_labels.address_name,CONTRACT_NAME) AS contract_name,
   TX_SUCCEEDED AS tx_succeeded
-FROM {{ source('ethereum', 'ethereum_events_emitted') }} b
+FROM {{ ref('silver_ethereum__events_emitted') }} b
 
 LEFT OUTER JOIN {{ source('ethereum', 'ethereum_address_labels') }} as from_labels
  ON b.TX_FROM_ADDR = from_labels.address
