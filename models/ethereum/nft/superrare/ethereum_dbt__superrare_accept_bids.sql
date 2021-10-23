@@ -21,10 +21,9 @@ accept_bid_txids AS (
     {{ ref('silver_ethereum__events') }}
   WHERE
     input_method = '0x955a5a76'
-    AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 GROUP BY
   tx_id,
@@ -48,10 +47,9 @@ accept_bid_nf_transfers AS (
         accept_bid_txids
     )
     AND contract_addr = '0xb932a70a57673d89f4acffbe830e8ed7f75fb9e0'
-    AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 accept_bid_eth_transfers AS (
@@ -78,10 +76,9 @@ accept_bid_eth_transfers AS (
     )
     AND amount > 0
     AND symbol = 'ETH'
-    AND
 
 {% if is_incremental() %}
-ee.block_timestamp >= getdate() - INTERVAL '1 days'
+AND ee.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 accept_bid_platform_fee AS (

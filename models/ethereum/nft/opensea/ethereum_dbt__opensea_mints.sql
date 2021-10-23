@@ -30,8 +30,7 @@ WHERE
       input_method = '0x755edd17'
       AND block_timestamp > '2020-01-01'
   )
-  AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}

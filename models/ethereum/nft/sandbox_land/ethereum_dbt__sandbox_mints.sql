@@ -23,8 +23,7 @@ FROM
 WHERE
   contract_addr = '0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a'
   AND event_inputs :_from = '0x0000000000000000000000000000000000000000'
-  AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}

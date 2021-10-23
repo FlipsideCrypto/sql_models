@@ -26,10 +26,10 @@ WITH nf_token_transfers AS (
     )
     AND event_name = 'Transfer'
     AND token_id IS NOT NULL
-    AND
+    
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 token_transfers AS (
@@ -41,10 +41,10 @@ token_transfers AS (
     amount > 0
     AND origin_function_signature = '0x454a2ab3'
     AND symbol = 'ETH'
-    AND
+
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 sent_amounts AS (
