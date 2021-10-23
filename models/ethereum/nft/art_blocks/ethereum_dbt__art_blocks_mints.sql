@@ -1,33 +1,36 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='tx_id', 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'nft']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  sort = 'block_timestamp',
+  unique_key = 'tx_id',
+  incremental_strategy = 'delete+insert',
+  tags = ['snowflake', 'ethereum', 'nft']
+) }}
 
-SELECT 
+SELECT
   'art_blocks' AS event_platform,
-  tx_id, 
-  block_timestamp, 
+  tx_id,
+  block_timestamp,
   'mint' AS event_type,
   contract_addr AS contract_address,
-  event_inputs:_tokenId AS token_id,
+  event_inputs :_tokenId AS token_id,
   '0x0000000000000000000000000000000000000000' AS event_from,
-  event_inputs:_to AS event_to,
+  event_inputs :_to AS event_to,
   0 AS price,
-  0 AS platform_fee, 
+  0 AS platform_fee,
   0 AS creator_fee,
   'ETH' AS tx_currency
-FROM {{ source('ethereum', 'ethereum_events_emitted') }}
-WHERE event_name = 'Mint'
- AND contract_addr IN ('0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270', 
-                       '0x059edd72cd353df5106d2b9cc5ab83a52287ac3a')
- AND
+FROM
+  {{ ref('silver_ethereum__events_emitted') }}
+WHERE
+  event_name = 'Mint'
+  AND contract_addr IN (
+    '0xa7d8d9ef8d8ce8992df33d8b8cf4aebabd5bd270',
+    '0x059edd72cd353df5106d2b9cc5ab83a52287ac3a'
+  )
+  AND
+
 {% if is_incremental() %}
-    block_timestamp >= getdate() - interval '1 days'
+block_timestamp >= getdate() - INTERVAL '1 days'
 {% else %}
-    block_timestamp >= getdate() - interval '9 months'
+  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}

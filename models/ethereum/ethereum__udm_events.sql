@@ -107,7 +107,7 @@ originator AS (
     t.input_method AS origin_function_signature,
     f.text_signature AS origin_function_name
   FROM
-    {{ ref('silver_ethereum__ethereum_transactions') }}
+    {{ ref('silver_ethereum__transactions') }}
     t
     LEFT OUTER JOIN {{ source(
       'ethereum',
