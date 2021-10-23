@@ -27,7 +27,7 @@ WITH events AS (
           PARTITION BY tx_hash
         ) AS tx_fee
       FROM
-        {{ source('silver_ethereum__ethereum_events') }}
+        {{ ref('silver_ethereum__ethereum_events') }}
       WHERE
 
 {% if is_incremental() %}
@@ -45,7 +45,7 @@ txn AS (
   SELECT
     *
   FROM
-    {{ source('silver_ethereum__ethereum_transactions') }}
+    {{ ref('silver_ethereum__ethereum_transactions') }}
   WHERE
 
 {% if is_incremental() %}
