@@ -35,8 +35,6 @@ WITH token_prices AS (
 
 {% if is_incremental() %}
 AND recorded_at >= getdate() - INTERVAL '2 days'
-{% else %}
-  AND recorded_at >= getdate() - INTERVAL '9 months'
 {% endif %}
 GROUP BY
   p.symbol,
@@ -71,7 +69,7 @@ events AS (
     token_value,
     fee
   FROM
-    {{ ref('silver_ethereum_ethereum_events') }}
+    {{ ref('silver_ethereum__events') }}
     e
     LEFT OUTER JOIN {{ source(
       'ethereum',
@@ -89,11 +87,10 @@ events AS (
     ) }} AS contract_labels
     ON e.contract_address = contract_labels.address
   WHERE
+    1 = 1
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '2 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
+AND block_timestamp >= getdate() - INTERVAL '2 days'
 {% endif %}
 ),
 originator AS (
@@ -219,8 +216,6 @@ eth_prices AS (
 
 {% if is_incremental() %}
 AND recorded_at >= getdate() - INTERVAL '2 days'
-{% else %}
-  AND recorded_at >= getdate() - INTERVAL '9 months'
 {% endif %}
 GROUP BY
   p.symbol,

@@ -113,3 +113,7 @@ sources:
     schema: gold
     tables:
       - name: flow_daily_balances
+  - name: crosschain
+    schema: silver_crosschain
+    tables:
+      - name: address_labels

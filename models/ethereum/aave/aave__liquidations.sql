@@ -7,7 +7,6 @@
   )
 }}
 
-
 WITH
 atokens AS(
     SELECT
@@ -23,7 +22,7 @@ atokens AS(
             ELSE 'Aave V1'
           END AS aave_version
     FROM
-        {{ref('ethereum__reads')}}
+        {{ref('silver_ethereum__reads')}}
        ,lateral flatten(input => SPLIT(value_string,'^')) a
     WHERE 1=1
         {% if is_incremental() %}
@@ -66,7 +65,7 @@ oracle AS(
         inputs:address::string AS token_address,
         AVG(value_numeric) AS value_ethereum -- values are given in wei and need to be converted to ethereum
     FROM
-        {{ref('ethereum__reads')}}
+        {{ref('silver_ethereum__reads')}}
     WHERE 1=1
         AND contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
         AND block_timestamp::date >= CURRENT_DATE - 720
@@ -98,7 +97,7 @@ decimals_backup AS(
         meta:decimals AS decimals,
         name
     FROM
-        {{source('ethereum', 'ethereum_contracts')}}
+        {{ref('silver_ethereum__contracts')}}
     WHERE 1=1
         AND meta:decimals IS NOT NULL
 ),
@@ -179,22 +178,22 @@ liquidation AS(--need to fix aave v1
         COALESCE(event_inputs:liquidatedCollateralAmount,event_inputs:_liquidatedCollateralAmount) AS liquidated_amount,
         COALESCE(event_inputs:liquidator::string,event_inputs:_liquidator::string) AS liquidator_address,
         COALESCE(event_inputs:user::string,event_inputs:_user::string) AS borrower_address,
-        tx_to_address AS lending_pool_contract,
+        tx_to_addr AS lending_pool_contract,
         tx_id,
         CASE
-            WHEN contract_address = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
-            WHEN contract_address = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
-            WHEN contract_address = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
+            WHEN contract_addr = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
+            WHEN contract_addr = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
+            WHEN contract_addr = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
           ELSE 'ERROR' END AS aave_version
     FROM
-        {{ref('ethereum__events_emitted')}}
+        {{ref('silver_ethereum__events_emitted')}}
     WHERE 1=1
         {% if is_incremental() %}
         AND block_timestamp::date >= CURRENT_DATE - 2
         {% else %}
         AND block_timestamp::date >= CURRENT_DATE - 720
         {% endif %}
-        AND contract_address IN(--Aave V2 LendingPool contract address
+        AND contract_addr IN(--Aave V2 LendingPool contract address
             LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'),--V2
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119'),--V1
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'))--AMM
