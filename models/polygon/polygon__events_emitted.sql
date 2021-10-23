@@ -54,5 +54,5 @@ LEFT OUTER JOIN poly_labels as contract_labels
 
 WHERE 1=1
 {% if is_incremental() %}
- AND b.block_timestamp::date >= (select max(block_timestamp::date) from {{source('polygon', 'events_emitted')}})
+ AND b.block_timestamp::date >= (select max(block_timestamp::date) from {{ this }})
 {% endif %}
