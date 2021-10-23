@@ -45,10 +45,7 @@ buy_nf_transfers AS (
     event_inputs :to AS buyer,
     event_inputs :tokenId AS token_id
   FROM
-    {{ source(
-      'ethereum',
-      'ethereum_events_emitted'
-    ) }}
+    {{ ref('silver_ethereum__events_emitted') }}
   WHERE
     tx_id IN (
       SELECT
