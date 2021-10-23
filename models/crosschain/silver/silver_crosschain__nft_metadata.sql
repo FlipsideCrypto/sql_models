@@ -37,6 +37,10 @@ AND system_created_at :: DATE >= (
         {{ this }} AS ethereum_nft_metadata
 )
 {% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
+ORDER BY
+    created_at_timestamp DESC)) = 1
 UNION ALL
 SELECT
     blockchain,
@@ -68,6 +72,10 @@ created_at_timestamp >= getdate() - INTERVAL '1 days'
 {% else %}
     created_at_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
+ORDER BY
+    created_at_timestamp DESC)) = 1
 UNION ALL
     -- THIS SECTION CURRENTLY PULLS GALACTIC PUNK METADATA ONLY
     -- UNION IN OTHER METADATA AS NEEDED
