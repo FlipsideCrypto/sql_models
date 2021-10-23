@@ -18,7 +18,7 @@ WITH v3_pools AS ( -- uni v3
           token1,
           'uniswap-v3' AS platform
       FROM 
-      {{source('uniswapv3_eth','uniswapv3_pools')}}
+      {{ref('silver_uniswapv3__pools')}}
       WHERE 
       {% if is_incremental() %}
         creation_time >= getdate() - interval '7 days'
@@ -43,9 +43,9 @@ WITH v3_pools AS ( -- uni v3
       REGEXP_REPLACE(p.event_inputs:token0,'\"','') as token0,
       REGEXP_REPLACE(p.event_inputs:token1,'\"','') as token1,
       CASE WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
-    FROM {{ source('ethereum', 'ethereum_events_emitted') }} p -- {{ref('ethereum__events_emitted')}} p
+    FROM {{ref('silver_ethereum__events_emitted') }} p -- {{ref('ethereum__events_emitted')}} p
 
-    LEFT JOIN {{source('ethereum','ethereum_contracts')}} a ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = a.address
+    LEFT JOIN {{ref('silver_ethereum__contracts')}} a ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = a.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} aa
       ON REGEXP_REPLACE(p.event_inputs:token0,'\"','')        = aa.token_address
@@ -53,7 +53,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} aaa 
       ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = aaa.address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_contracts')}}  b 
+    LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
       ON REGEXP_REPLACE(p.event_inputs:token1,'\"','') = b.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} bb 
@@ -88,7 +88,7 @@ WITH v3_pools AS ( -- uni v3
       CASE WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
     FROM {{ source('shared', 'uniswapv2factory_event_paircreated') }} p -- {{ref('ethereum__events_emitted')}} p
 
-    LEFT JOIN {{source('ethereum','ethereum_contracts')}} a 
+    LEFT JOIN {{ref('silver_ethereum__contracts')}} a 
       ON token0 = a.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} aa
@@ -97,7 +97,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} aaa 
       ON token0 = aaa.address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_contracts')}}  b 
+    LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
       ON token1 = b.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} bb 

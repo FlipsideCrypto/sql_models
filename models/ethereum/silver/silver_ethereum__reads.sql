@@ -1,8 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_id || contract_address || function_name || inputs',
+  unique_key = 'block_id || contract_address || function_name',
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_id', 'contract_address', 'function_name'],
+  cluster_by = ['block_timestamp'],
   tags = ['snowflake', 'ethereum', 'reads', 'silver_ethereum__reads']
 ) }}
 

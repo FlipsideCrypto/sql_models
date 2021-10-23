@@ -23,7 +23,7 @@ atokens AS(
             ELSE 'Aave V1'
           END AS aave_version
     FROM
-        {{ref('ethereum__reads')}}
+        {{ref('silver_ethereum__reads')}}
        ,lateral flatten(input => SPLIT(value_string,'^')) a
     WHERE 1=1
         AND block_timestamp::date >= '2021-06-01'
@@ -90,7 +90,7 @@ decimals_backup AS(
         meta:decimals AS decimals,
         name
     FROM
-        {{source('ethereum', 'ethereum_contracts')}}
+        {{ref('silver_ethereum__contracts')}}
     WHERE 1=1
         AND meta:decimals IS NOT NULL
 ),
@@ -163,20 +163,20 @@ repay AS(
                 ELSE COALESCE(event_inputs:vault::string,event_inputs:_reserve::string)
               END AS aave_market,
         COALESCE(event_inputs:amount,event_inputs:_amountMinusFees) AS repayed_amount, --not adjusted for decimals
-        tx_from_address AS repayer_address,
+        tx_from_addr AS repayer_address,
         COALESCE(event_inputs:owner::string,event_inputs:_user::string) AS borrower_address,
-        tx_to_address AS lending_pool_contract,
+        tx_to_addr AS lending_pool_contract,
         tx_id,
         CASE
-            WHEN contract_address = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
-            WHEN contract_address = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
-            WHEN contract_address = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
+            WHEN contract_addr = LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9') THEN 'Aave V2'
+            WHEN contract_addr = LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119') THEN 'Aave V1'
+            WHEN contract_addr = LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb') THEN 'Aave AMM'
           ELSE 'ERROR' END AS aave_version
     FROM
-        {{ref('ethereum__events_emitted')}}
+        {{ref('silver_ethereum__events_emitted')}}
     WHERE 1=1
         AND block_timestamp::date >= '2021-01-01'
-        AND contract_address IN(--Aave V2 LendingPool contract address
+        AND contract_addr IN(--Aave V2 LendingPool contract address
             LOWER('0x7d2768de32b0b80b7a3454c06bdac94a69ddc7a9'),--V2
             LOWER('0x398eC7346DcD622eDc5ae82352F02bE94C62d119'),--V1
             LOWER('0x7937d4799803fbbe595ed57278bc4ca21f3bffcb'))--AMM

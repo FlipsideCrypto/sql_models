@@ -10,10 +10,7 @@ WITH rarible_txns AS (
   SELECT
     tx_hash AS tx_id
   FROM
-    {{ source(
-      'ethereum',
-      'ethereum_transactions'
-    ) }}
+    {{ ref('silver_ethereum__transactions') }}
   WHERE
     to_address IN (
       '0x9757f2d2b135150bbeb65308d4a91804107cd8d6',
@@ -35,10 +32,7 @@ token_transfers AS (
     event_inputs :to AS buyer,
     event_inputs :tokenId AS token_id
   FROM
-    {{ source(
-      'ethereum',
-      'ethereum_events_emitted'
-    ) }}
+    {{ ref('silver_ethereum__events_emitted') }}
   WHERE
     event_name = 'Transfer'
     AND tx_id IN (
@@ -61,10 +55,7 @@ SELECT
   event_inputs :_to AS buyer,
   event_inputs :_id AS token_id
 FROM
-  {{ source(
-    'ethereum',
-    'ethereum_events_emitted'
-  ) }}
+  {{ ref('silver_ethereum__events_emitted') }}
 WHERE
   event_name = 'TransferSingle'
   AND tx_id IN (
@@ -87,10 +78,7 @@ SELECT
   event_inputs :_to AS buyer,
   event_inputs :_tokenId AS token_id
 FROM
-  {{ source(
-    'ethereum',
-    'ethereum_events_emitted'
-  ) }}
+  {{ ref('silver_ethereum__events_emitted') }}
 WHERE
   event_name = 'Transfer'
   AND tx_id IN (

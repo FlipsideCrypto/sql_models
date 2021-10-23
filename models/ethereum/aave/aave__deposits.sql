@@ -23,7 +23,7 @@ atokens AS(
             ELSE 'Aave V1'
           END AS aave_version
     FROM
-        {{ref('ethereum__reads')}}
+        {{ref('silver_ethereum__reads')}}
        ,lateral flatten(input => SPLIT(value_string,'^')) a
     WHERE 1=1
         {% if is_incremental() %}
@@ -66,7 +66,7 @@ oracle AS(
         inputs:address::string AS token_address,
         AVG(value_numeric) AS value_ethereum -- values are given in wei and need to be converted to ethereum
     FROM
-        {{ref('ethereum__reads')}}
+        {{ref('silver_ethereum__reads')}}
     WHERE 1=1
         AND contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
         {% if is_incremental() %}
@@ -102,7 +102,7 @@ decimals_backup AS(
         meta:decimals AS decimals,
         name
     FROM
-        {{source('ethereum', 'ethereum_contracts')}}
+        {{ref('silver_ethereum__contracts')}}
     WHERE 1=1
         AND meta:decimals IS NOT NULL
 ),
@@ -168,7 +168,7 @@ decimals_backup AS(
         meta:decimals AS decimals,
         name
     FROM
-        {{source('ethereum', 'ethereum_contracts')}}
+        {{ref('silver_ethereum__contracts')}}
     WHERE 1=1
         AND meta:decimals IS NOT NULL
 ),
