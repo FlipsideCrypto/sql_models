@@ -1,6 +1,5 @@
 {{ config(
   materialized = 'incremental',
-  sort = 'block_timestamp',
   unique_key = 'tx_id',
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'ethereum', 'nft']
