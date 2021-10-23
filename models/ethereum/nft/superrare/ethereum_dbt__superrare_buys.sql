@@ -29,8 +29,6 @@ buy_txids AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 GROUP BY
   tx_id,
@@ -58,8 +56,6 @@ buy_nf_transfers AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 buy_eth_transfers AS (

@@ -26,8 +26,6 @@ win_auction_txids AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 GROUP BY
   tx_id,
@@ -56,8 +54,6 @@ win_auction_nf_transfers AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 win_auction_eth_transfers AS (
@@ -88,8 +84,6 @@ win_auction_eth_transfers AS (
 
 {% if is_incremental() %}
 ee.block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  ee.block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 win_auction_platform_fee AS (

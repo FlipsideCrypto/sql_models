@@ -42,6 +42,4 @@ WHERE
 
 {% if is_incremental() %}
 eee.block_timestamp >= getdate() - INTERVAL '5 days'
-{% else %}
-  eee.block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}

@@ -42,8 +42,6 @@ eth_transfers AS (
 
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '5 days'
-{% else %}
-  AND block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 nft_transfers AS (
@@ -70,8 +68,6 @@ nft_transfers AS (
 
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '5 days'
-{% else %}
-  AND block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 )
 SELECT

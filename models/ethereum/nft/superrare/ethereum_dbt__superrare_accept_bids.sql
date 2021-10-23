@@ -26,8 +26,6 @@ accept_bid_txids AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 GROUP BY
   tx_id,
@@ -55,8 +53,6 @@ accept_bid_nf_transfers AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 accept_bid_eth_transfers AS (
@@ -87,8 +83,6 @@ accept_bid_eth_transfers AS (
 
 {% if is_incremental() %}
 ee.block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  ee.block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 accept_bid_platform_fee AS (

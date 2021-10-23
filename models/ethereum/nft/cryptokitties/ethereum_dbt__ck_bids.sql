@@ -31,8 +31,6 @@ WITH nf_token_transfers AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 token_transfers AS (
@@ -48,8 +46,6 @@ token_transfers AS (
 
 {% if is_incremental() %}
 block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 sent_amounts AS (

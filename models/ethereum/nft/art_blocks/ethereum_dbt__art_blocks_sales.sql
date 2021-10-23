@@ -38,8 +38,6 @@ token_transfers AS (
 
 {% if is_incremental() %}
 ee.block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  ee.block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 max_xfer AS (
