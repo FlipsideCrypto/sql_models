@@ -12,7 +12,7 @@ with base_tables as (
   from {{source('bronze', 'prod_matic_sink_510901820')}}
   where record_content:model:name::string = 'polygon_events_emitted_model'
   {% if is_incremental() %}
-        AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('polygon_dbt', 'events_emitted')}})
+        AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{ this }})
   {% endif %}
   )
 

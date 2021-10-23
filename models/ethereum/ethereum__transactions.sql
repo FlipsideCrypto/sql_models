@@ -1,9 +1,9 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id', 
+    materialized='incremental',
+    unique_key='block_id || tx_id', 
     incremental_strategy='delete+insert',
+    cluster_by=['block_timestamp'],
     tags=['snowflake', 'ethereum', 'events', 'transactions']
   )
 }}
@@ -18,12 +18,10 @@ WITH events AS (
     count(case when log_index IS NOT NULL then 1 end) over(partition by tx_hash) as event_count,
     max(fee) over(partition by tx_hash) as tx_fee
     FROM
-      {{source('ethereum','ethereum_events')}}
-    WHERE
+      {{ref('silver_ethereum__events')}}
+    WHERE 1=1
       {% if is_incremental() %}
-        block_timestamp >= getdate() - interval '2 days'
-      {% else %}
-        block_timestamp >= getdate() - interval '9 months'
+        AND block_timestamp >= getdate() - interval '2 days'
       {% endif %}
     )
   GROUP BY 1,2,3
@@ -32,12 +30,10 @@ txn AS (
   SELECT
   *
   FROM
-  {{source('ethereum', 'ethereum_transactions')}}
-  WHERE
+  {{ref('silver_ethereum__transactions')}}
+  WHERE 1=1
     {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '2 days'
-    {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      AND block_timestamp >= getdate() - interval '2 days'
     {% endif %}
 ),
 eth_prices AS (
@@ -55,8 +51,6 @@ eth_prices AS (
         a.asset_id = 1027
         {% if is_incremental() %}
           AND recorded_at >= getdate() - interval '2 days'
-        {% else %}
-          AND recorded_at >= getdate() - interval '9 months'
         {% endif %}
     GROUP BY p.symbol, hour
 )

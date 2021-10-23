@@ -12,8 +12,8 @@ WITH pool_tokens AS (
       DISTINCT
           contract_address AS factory,
           LOWER(inputs:_pool::STRING) AS pool_add, 
-          (SPLIT(LOWER(VALUE_STR),'^')) AS coins
-    FROM {{source('ethereum', 'ethereum_reads')}}
+          (SPLIT(LOWER(VALUE_STRING),'^')) AS coins
+    FROM {{ref('silver_ethereum__reads')}}
     WHERE 
       contract_name='Vyper_contract' 
       AND contract_address IN('0x0959158b6040d32d04c301a72cbfd6b39e21c9ae',
@@ -42,7 +42,7 @@ WITH pool_tokens AS (
             COALESCE(l.meta:symbol,l.name,token) AS name 
     FROM
     parsed p
-    LEFT JOIN {{source('ethereum', 'ethereum_contracts')}} l
+    LEFT JOIN {{ref('silver_ethereum__contracts')}} l
         ON (CASE WHEN p.coins = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' THEN '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2' ELSE p.coins END) = l.address
 
 ), names_final AS (
