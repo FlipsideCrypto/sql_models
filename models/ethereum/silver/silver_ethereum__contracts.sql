@@ -6,7 +6,12 @@
   tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__contracts']
 ) }}
 
-
+select system_created_at,
+  address,
+  meta,
+  name
+from 
+(
 SELECT
   system_created_at,
   address,
@@ -24,6 +29,7 @@ SELECT
   name
 FROM
   {{ source('ethereum','ethereum_contracts') }}
+)
 qualify(ROW_NUMBER() over(PARTITION BY address
 ORDER BY
   system_created_at DESC)) = 1
