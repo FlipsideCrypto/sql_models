@@ -6,7 +6,15 @@
   tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__balances']
 ) }}
 
-
+select system_created_at,
+  block_id,
+  block_timestamp,
+  address,
+  balance,
+  contract_address,
+  project_id,
+  project_name
+from (
 SELECT
   system_created_at,
   block_id,
@@ -54,6 +62,7 @@ AND block_timestamp :: DATE >= (
     {{ this }} AS balances
 )
 {% endif %}
+)
 qualify(ROW_NUMBER() over(PARTITION BY address, block_id, contract_address
 ORDER BY
   system_created_at DESC)) = 1
