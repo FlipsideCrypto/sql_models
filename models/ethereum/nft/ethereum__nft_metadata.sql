@@ -1,6 +1,5 @@
 {{ config(
   materialized = 'incremental',
-  sort = 'created_at_timestamp',
   unique_key = 'contract_address || token_id',
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'ethereum', 'nft', 'ethereum__nft_metadata']
