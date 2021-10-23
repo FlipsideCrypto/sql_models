@@ -92,4 +92,6 @@ SELECT
     token_metadata_uri,
     token_name
 FROM
-    silver
+    silver qualify(ROW_NUMBER() over(PARTITION BY blockchain, contract_address, token_id
+ORDER BY
+    created_at_timestamp DESC)) = 1
