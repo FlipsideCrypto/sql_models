@@ -43,6 +43,7 @@ ORDER BY
     created_at_timestamp DESC)) = 1
 UNION ALL
 SELECT
+    '2000-01-01' :: TIMESTAMP AS system_created_at,
     blockchain,
     commission_rate,
     contract_address,
