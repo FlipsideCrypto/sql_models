@@ -27,8 +27,6 @@ WITH token_prices AS (
 
      {% if is_incremental() %}
        AND recorded_at >= getdate() - interval '2 days'
-     {% else %}
-       AND recorded_at >= getdate() - interval '9 months'
      {% endif %}
       
   GROUP BY p.symbol, hour, token_address
@@ -56,7 +54,7 @@ WITH token_prices AS (
     eth_value,
     token_value,
     fee
-  FROM {{source('ethereum','ethereum_events')}} e
+  FROM {{ref('silver_ethereum__events')}} e
 
   LEFT OUTER JOIN
     {{ source('ethereum', 'ethereum_address_labels') }} as from_labels
@@ -70,11 +68,9 @@ WITH token_prices AS (
     {{ source('ethereum', 'ethereum_address_labels') }} as contract_labels
     ON e.contract_address = contract_labels.address
 
-  WHERE
+  WHERE 1=1
     {% if is_incremental() %}
-      block_timestamp >= getdate() - interval '2 days'
-    {% else %}
-      block_timestamp >= getdate() - interval '9 months'
+      AND block_timestamp >= getdate() - interval '2 days'
     {% endif %}
 ),
 originator AS (
@@ -87,7 +83,7 @@ originator AS (
     from_labels.address_name as origin_address_name,
     t.input_method as origin_function_signature,
     f.text_signature as origin_function_name
-  FROM {{source('ethereum', 'ethereum_transactions') }} t
+  FROM {{ref('silver_ethereum__transactions') }} t
   LEFT OUTER JOIN
     {{ source('ethereum', 'sha256_function_signatures') }} as f
       ON t.input_method = f.hex_signature AND f.importance = 1
@@ -179,8 +175,6 @@ eth_prices AS (
     a.asset_id = 1027
     {% if is_incremental() %}
       AND recorded_at >= getdate() - interval '2 days'
-    {% else %}
-      AND recorded_at >= getdate() - interval '9 months'
     {% endif %}
   GROUP BY p.symbol, hour
 ),
