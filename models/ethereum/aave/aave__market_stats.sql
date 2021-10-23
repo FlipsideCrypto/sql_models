@@ -26,8 +26,8 @@ WITH aave_reads AS (
             ELSE 'Aave V1'
     END AS aave_version, 
     inputs,
-                (SPLIT(LOWER(VALUE_STR),'^')) AS coins
-    FROM {{source('ethereum', 'ethereum_reads')}}
+                (SPLIT(LOWER(VALUE_STRING),'^')) AS coins
+    FROM {{ref('silver_ethereum__reads')}}
     WHERE 
 
         contract_address  IN (
@@ -167,7 +167,7 @@ decimals_raw as (
   SELECT address AS token_address,
   meta:decimals AS decimals,name,
   2 as weight
-  FROM {{source('ethereum', 'ethereum_contracts')}}
+  FROM {{ref('silver_ethereum__contracts')}}
   WHERE meta:decimals IS NOT NULL
 
   UNION
@@ -191,7 +191,7 @@ oracle AS(
         LOWER(inputs:address::string) AS token_address,
         MEDIAN(value_numeric) AS value_ethereum -- values are given in wei and need to be converted to ethereum
     FROM
-        {{ref('ethereum__reads')}}
+        {{ref('silver_ethereum__reads')}}
     WHERE 
         contract_address = '0xa50ba011c48153de246e5192c8f9258a2ba79ca9' -- check if there is only one oracle
         {% if is_incremental() %}
