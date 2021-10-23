@@ -21,10 +21,9 @@ win_auction_txids AS (
     {{ ref('silver_ethereum__events') }}
   WHERE
     input_method = '0x5138b08c'
-    AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 GROUP BY
   tx_id,
@@ -49,10 +48,9 @@ win_auction_nf_transfers AS (
         win_auction_txids
     )
     AND contract_addr = '0xb932a70a57673d89f4acffbe830e8ed7f75fb9e0'
-    AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 win_auction_eth_transfers AS (
@@ -79,10 +77,9 @@ win_auction_eth_transfers AS (
     )
     AND amount > 0
     AND symbol = 'ETH'
-    AND
 
 {% if is_incremental() %}
-ee.block_timestamp >= getdate() - INTERVAL '1 days'
+AND ee.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 win_auction_platform_fee AS (

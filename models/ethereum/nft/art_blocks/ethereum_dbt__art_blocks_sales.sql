@@ -33,10 +33,10 @@ token_transfers AS (
   WHERE
     eth_value > 0
     AND contract_address IS NULL
-    AND
+    
 
 {% if is_incremental() %}
-ee.block_timestamp >= getdate() - INTERVAL '1 days'
+AND ee.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 max_xfer AS (

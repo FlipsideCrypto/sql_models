@@ -23,8 +23,7 @@ FROM
 WHERE
   contract_addr = '0x2a46f2ffd99e19a89476e2f62270e0a35bbf0756'
   AND event_name = 'DigitalMediaReleaseCreateEvent'
-  AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}

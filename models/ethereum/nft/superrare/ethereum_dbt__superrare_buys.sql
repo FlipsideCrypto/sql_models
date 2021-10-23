@@ -24,10 +24,9 @@ buy_txids AS (
       '0xcce7ec13',
       '0xd96a094a'
     )
-    AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 GROUP BY
   tx_id,
@@ -51,10 +50,9 @@ buy_nf_transfers AS (
         buy_txids
     )
     AND contract_addr = '0xb932a70a57673d89f4acffbe830e8ed7f75fb9e0'
-    AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 buy_eth_transfers AS (
@@ -84,12 +82,9 @@ buy_eth_transfers AS (
     )
     AND amount > 0
     AND symbol = 'ETH'
-    AND
 
 {% if is_incremental() %}
-ee.block_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-  ee.block_timestamp >= getdate() - INTERVAL '9 months'
+AND ee.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 buy_platform_fee AS (

@@ -23,8 +23,7 @@ FROM
 WHERE
   contract_addr = '0x85f0e02cb992aa1f9f47112f815f519ef1a59e2d'
   AND event_name = 'Transfer'
-  AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '5 days'
+AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}

@@ -24,8 +24,7 @@ WHERE
   contract_addr = '0xb932a70a57673d89f4acffbe830e8ed7f75fb9e0'
   AND event_name = 'Transfer'
   AND event_inputs :from = '0x0000000000000000000000000000000000000000'
-  AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}

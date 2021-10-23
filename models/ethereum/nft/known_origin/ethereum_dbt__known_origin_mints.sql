@@ -23,8 +23,7 @@ FROM
 WHERE
   contract_addr = '0xfbeef911dc5821886e1dda71586d90ed28174b7d'
   AND event_name = 'Minted'
-  AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}

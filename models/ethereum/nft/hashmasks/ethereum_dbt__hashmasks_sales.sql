@@ -16,10 +16,10 @@ WITH mints AS (
     contract_address
   FROM
     {{ ref('ethereum_dbt__hashmasks_mints') }}
-  WHERE
+  WHERE 1=1
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 n_tokens_per AS (
@@ -46,10 +46,9 @@ eth_transfers AS (
         mints
     )
     AND eth_value > 0
-    AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 )
 SELECT

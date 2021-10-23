@@ -22,8 +22,7 @@ FROM
   {{ ref('silver_ethereum__events_emitted') }}
 WHERE
   event_name = 'NiftyCreated'
-  AND
 
 {% if is_incremental() %}
-block_timestamp >= getdate() - INTERVAL '1 days'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
