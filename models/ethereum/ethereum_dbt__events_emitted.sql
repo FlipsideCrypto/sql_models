@@ -36,7 +36,7 @@ SELECT
   ) :: TIMESTAMP AS system_created_at,
   t.value :block_id :: bigint AS block_id,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
-  t.value :contract_addr :: STRING AS contract_addr,
+  t.value :contract_address :: STRING AS contract_addr,
   t.value :contract_name :: STRING AS contract_name,
   t.value :event_index :: INTEGER AS event_index,
   t.value :event_inputs :: OBJECT AS event_inputs,
