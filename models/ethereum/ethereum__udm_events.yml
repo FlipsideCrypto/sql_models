@@ -17,7 +17,6 @@ models:
                 - float
       - name: AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -52,16 +51,12 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: FROM_ADDRESS_NAME
         tests:
-          - not_null
       - name: FROM_LABEL
         tests:
-          - not_null
       - name: FROM_LABEL_SUBTYPE
         tests:
-          - not_null
       - name: FROM_LABEL_TYPE
         tests:
-          - not_null
       - name: ORIGIN_ADDRESS
         tests:
           - not_null
@@ -69,7 +64,6 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: ORIGIN_ADDRESS_NAME
         tests:
-          - not_null
       - name: ORIGIN_FUNCTION_NAME
         tests:
           - not_null
@@ -81,30 +75,23 @@ models:
           - not_null
       - name: ORIGIN_LABEL_SUBTYPE
         tests:
-          - not_null
       - name: ORIGIN_LABEL_TYPE
         tests:
-          - not_null
       - name: SYMBOL
         tests:
-          - not_null
       - name: TO_ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+              regex: 0[xX]+
       - name: TO_ADDRESS_NAME
         tests:
-          - not_null
       - name: TO_LABEL
         tests:
-          - not_null
       - name: TO_LABEL_SUBTYPE
         tests:
-          - not_null
       - name: TO_LABEL_TYPE
         tests:
-          - not_null
       - name: TX_ID
         tests:
           - not_null

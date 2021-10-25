@@ -19,18 +19,17 @@ models:
               interval: 1
       - name: CONTRACT_ADDRESS
         tests:
-          - not_null
+          - not_null:
+              where: CONTRACT_NAME IS NOT NULL
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: CONTRACT_NAME
         tests:
-          - not_null
       - name: EVENT_INDEX
         tests:
           - not_null
       - name: EVENT_INPUTS
         tests:
-          - not_null
       - name: EVENT_NAME
         tests:
           - not_null
@@ -44,16 +43,12 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: TX_FROM_ADDRESS_NAME
         tests:
-          - not_null
       - name: TX_FROM_LABEL
         tests:
-          - not_null
       - name: TX_FROM_LABEL_SUBTYPE
         tests:
-          - not_null
       - name: TX_FROM_LABEL_TYPE
         tests:
-          - not_null
       - name: TX_ID
         tests:
           - not_null
@@ -67,13 +62,9 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: TX_TO_ADDRESS_NAME
         tests:
-          - not_null
       - name: TX_TO_LABEL
         tests:
-          - not_null
       - name: TX_TO_LABEL_SUBTYPE
         tests:
-          - not_null
       - name: TX_TO_LABEL_TYPE
         tests:
-          - not_null

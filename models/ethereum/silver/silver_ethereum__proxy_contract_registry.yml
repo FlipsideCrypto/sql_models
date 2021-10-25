@@ -1,13 +1,10 @@
 version: 2
 models:
-  - name: silver_ethereum__balances
-    description: ERC20 Balances
+  - name: silver_ethereum__proxy_contract_registry
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - ADDRESS
-            - BLOCK_ID
-            - CONTRACT_ADDRESS
+            - TX_ID
     columns:
       - name: BLOCK_ID
         tests:
@@ -18,26 +15,16 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: ADDRESS
-        description: User address
+      - name: LOGIC_CONTRACT_ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-      - name: BALANCE
+      - name: PROXY_CONTRACT_ADDRESS
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: CONTRACT_ADDRESS
-        description: Token contract address
-        tests:
-          - not_null
-      - name: PROJECT_ID
-        tests:
-          - not_null
-      - name: PROJECT_NAME
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: TX_ID
         tests:
           - not_null

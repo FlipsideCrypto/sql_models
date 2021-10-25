@@ -7,17 +7,14 @@ models:
           combination_of_columns:
             - BALANCE_DATE
             - USER_ADDRESS
+            - CONTRACT_ADDRESS
     columns:
       - name: ADDRESS_NAME
         description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
         tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
       - name: AMOUNT_USD
         description: USD Value of the token balance
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -26,6 +23,10 @@ models:
         description: Latest recorded balance for that given day and token.
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: BALANCE_DATE
         description: Day the balance was recorded on
         tests:
@@ -42,27 +43,25 @@ models:
       - name: CONTRACT_LABEL
         description: Name of the contract address if we have one.
         tests:
-          - not_null
       - name: LABEL
         description: "The name of the project, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
         tests:
-          - not_null
       - name: LABEL_SUBTYPE
         description: "Low level address label category breaking down the l1_label, for example: distributor breaks into distributor_cex (centralized exchange hot wallets), distributor_cex_satellite and distributor_dex."
         tests:
-          - not_null
       - name: LABEL_TYPE
         description: "High level address label category: Distributor, Project, Operator, User, Other. Distributor == exchanges. Project is anything related to a dapp, smart contract, or the blockchain’s oversight addresses. Operators are nodes and miners. User is an actual person using a chain. Other is anything that has a label but doesn’t fall into one of the other categories (single use and bots, for example)."
         tests:
-          - not_null
       - name: PRICE
         description: Average price of the token for that day
         tests:
-          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: SYMBOL
         description: Token Symbol
         tests:
-          - not_null
       - name: USER_ADDRESS
         description: Address that the balance is for
         tests:
