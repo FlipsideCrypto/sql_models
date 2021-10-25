@@ -27,10 +27,7 @@ WHERE
         block_timestamp :: DATE
       )
     FROM
-      {{ source(
-        'polygon',
-        'transactions'
-      ) }}
+      {{ this }}
   )
 {% endif %}
 GROUP BY
@@ -50,10 +47,7 @@ WHERE
         block_timestamp :: DATE
       )
     FROM
-      {{ source(
-        'polygon',
-        'transactions'
-      ) }}
+      {{ this }}
   )
 {% endif %}
 ),
@@ -96,10 +90,7 @@ AND p.recorded_at :: DATE >= (
       block_timestamp :: DATE
     )
   FROM
-    {{ source(
-      'polygon',
-      'transactions'
-    ) }}
+    {{ this }}
 )
 {% endif %}
 GROUP BY
