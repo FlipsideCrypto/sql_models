@@ -1,5 +1,5 @@
 {{ config(
-    materialized = 'view',
+    materialized = 'incremental',
     unique_key = 'contract_address || token_id',
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra_silver', 'terra_dbt__nft_metadata']
@@ -16,7 +16,7 @@ WITH base_tables AS (
         ) }}
     WHERE
         record_metadata :key :: STRING IN (
-            '"testing-1634323727"'
+            '"testing-1635197180"'
         )
 
 {% if is_incremental() %}
@@ -48,7 +48,17 @@ SELECT
     'Galactic Punks' AS project_name,
     VALUE :token_id :: STRING AS token_id,
     PARSE_JSON(
-        SPLIT_PART(SPLIT_PART(VALUE :attributes :: STRING, '[', 2), ']', 1)
+        CONCAT(
+            '{"traits": ',
+            PARSE_JSON(
+                SPLIT_PART(SPLIT_PART(VALUE :attributes :: STRING, '[', 2), ']', 1)
+            ),
+            ', "additional_metadata": ',
+            PARSE_JSON(
+                VALUE :additional_metadata
+            ),
+            '}'
+        )
     ) AS token_metadata,
     NULL AS token_metadata_uri,
     VALUE :name AS token_name
