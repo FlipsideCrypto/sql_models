@@ -1,0 +1,97 @@
+version: 2
+models:
+  - name: compound__market_stats
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_HOUR
+            - CONTRACT_NAME
+            - CTOKEN_ADDRESS
+    columns:
+      - name: BLOCK_HOUR
+        tests:
+          - not_null
+      - name: CONTRACT_NAME
+        tests:
+          - not_null
+      - name: CTOKEN_ADDRESS
+        tests:
+          - not_null
+      - name: TOKEN_PRICE
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float  
+      - name: CTOKEN_PRICE
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float  
+      - name: RESERVES_TOKEN_AMOUNT
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: BORROWS_TOKEN_AMOUNT
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float  
+      - name: SUPPLY_TOKEN_AMOUNT
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float    
+      - name: SUPPLY_USD
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float  
+      - name: RESERVES_USD
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float    
+      - name: BORROWS_USD
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: COMP_SPEED
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: SUPPLY_APY
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: BORROW_APY
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: COMP_PRICE
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: COMP_SPEED_USD
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float       
