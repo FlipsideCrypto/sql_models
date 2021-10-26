@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_HASH
+            - TX_POSITION
     columns:
       - name: BLOCK_ID
         tests:
@@ -24,7 +25,8 @@ models:
           - not_null
       - name: NONCE
         tests:
-          - not_null
+          - not_null:
+              where: SUCCESS = TRUE 
       - name: FROM_ADDRESS
         description: The sender/initiator of the transaction.
         tests:
