@@ -1,5 +1,5 @@
 {{ config(
-    materialized = 'view',
+    materialized = 'incremental',
     unique_key = 'blockchain || contract_address || token_id',
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra_silver', 'ethereum_silver', 'nft', 'silver_crosschain__nft_metadata']
