@@ -1,1 +1,1 @@
-{{ sequence_gaps(ref("thorchain__total_block_rewards"), ["reward_entity",], "block_id") }}
+{{ sequence_distinct_gaps(ref("thorchain__total_block_rewards"), "block_id") }}
