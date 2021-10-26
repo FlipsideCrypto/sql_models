@@ -19,7 +19,8 @@ models:
               interval: 1
       - name: CONTRACT_ADDR
         tests:
-          - not_null
+          - not_null:
+              where: CONTRACT_NAME IS NOT NULL
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: EVENT_INDEX

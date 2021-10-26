@@ -22,7 +22,8 @@ models:
           - not_null
       - name: INPUT_METHOD
         tests:
-          - not_null
+          - not_null:
+              where: LOG_INDEX IS NOT NULL
       - name: "from"
         tests:
       - name: "to"
@@ -33,19 +34,20 @@ models:
         tests:
       - name: CONTRACT_ADDRESS
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: ETH_VALUE
         tests:
-          - not_null
+          - not_null:
+              where: TOKEN_VALUE <> 0
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: FEE
         tests:
-          - not_null
+          - not_null:
+              where: TX_HASH <> '0x'
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -55,7 +57,8 @@ models:
           - not_null
       - name: LOG_METHOD
         tests:
-          - not_null
+          - not_null:
+              where: LOG_INDEX IS NOT NULL
       - name: TOKEN_VALUE
         tests:
           - not_null
