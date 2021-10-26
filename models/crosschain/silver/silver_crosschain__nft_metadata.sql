@@ -30,17 +30,13 @@ WITH silver AS (
         1 = 1
 
 {% if is_incremental() %}
-AND system_created_at :: DATE >= (
+AND created_at_timestamp :: DATE >= (
     SELECT
-        DATEADD('day', -10, MAX(system_created_at :: DATE))
+        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
     FROM
-        {{ this }} AS ethereum_nft_metadata
+        {{ this }}
 )
 {% endif %}
-
-qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
-ORDER BY
-    created_at_timestamp DESC)) = 1
 UNION ALL
 SELECT
     '2000-01-01' :: TIMESTAMP AS system_created_at,
@@ -65,18 +61,16 @@ FROM
         'nft_metadata'
     ) }}
 WHERE
-    blockchain = 'ethereum'
-    AND
+    1 = 1
 
 {% if is_incremental() %}
-created_at_timestamp >= getdate() - INTERVAL '1 days'
-{% else %}
-    created_at_timestamp >= getdate() - INTERVAL '9 months'
+AND created_at_timestamp :: DATE >= (
+    SELECT
+        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
+    FROM
+        {{ this }}
+)
 {% endif %}
-
-qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
-ORDER BY
-    created_at_timestamp DESC)) = 1
 UNION ALL
     -- THIS SECTION CURRENTLY PULLS GALACTIC PUNK METADATA ONLY
     -- UNION IN OTHER METADATA AS NEEDED
@@ -103,17 +97,13 @@ WHERE
     1 = 1
 
 {% if is_incremental() %}
-AND system_created_at :: DATE >= (
+AND created_at_timestamp :: DATE >= (
     SELECT
-        DATEADD('day', -10, MAX(system_created_at :: DATE))
+        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
     FROM
-        {{ this }} AS terra_nft_metadata_galactic_punks
+        {{ this }}
 )
 {% endif %}
-
-qualify(ROW_NUMBER() over(PARTITION BY contract_address, token_id
-ORDER BY
-    created_at_timestamp DESC)) = 1
 )
 SELECT
     blockchain,
