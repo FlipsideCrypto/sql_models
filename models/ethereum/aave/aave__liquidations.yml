@@ -1,0 +1,63 @@
+version: 2
+models:
+  - name: aave__liquidations
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - EVENT_INDEX
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        tests: 
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: COLLATERAL_ASSET
+        tests:
+          - not_null 
+      - name: LIQUIDATED_AMOUNT
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: LIQUIDATED_AMOUNT_USD
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: DEBT_TO_COVER_AMOUNT
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: DEBT_TO_COVER_AMOUNT_USD
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: COLLATERAL_TOKEN_PRICE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: DEBT_TOKEN_PRICE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
