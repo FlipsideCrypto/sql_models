@@ -180,3 +180,28 @@ FROM
     'hour',
     ma.block_timestamp
   ) = pp.block_timestamp
+
+UNION 
+
+SELECT 
+  ee.blockchain, 
+  ee.block_timestamp,
+  ee.event_attributes:asset::string as currency,
+  l.address_name as symbol,
+  pp.price / ee.price AS luna_exchange_rate,
+  ee.event_attributes:price AS price_usd,
+  'oracle' as source
+FROM {{ ref('silver_terra__msg_events') }} ee
+
+LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+ON currency = l.address
+
+LEFT OUTER JOIN prices pp
+  ON DATE_TRUNC('hour', ee.block_timestamp) = pp.block_timestamp
+
+WHERE event_type = 'from_contract'
+  AND tx_id IN(SELECT tx_id 
+               FROM terra.msgs 
+               WHERE msg_value:contract::string = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t' 
+                 AND msg_value:execute_msg:feed_price IS NOT NULL
+              )
