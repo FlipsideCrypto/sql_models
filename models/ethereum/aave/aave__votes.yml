@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: aave__votes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - VOTER
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: GOVERNANCE_CONTRACT
+        tests: 
+          - not_null
+      - name: PROPOSAL_ID
+        tests:
+          - not_null 
+      - name: SUPPORT
+        tests: 
+          - not_null 
+      - name: VOTING_POWER
+        tests: 
+          - not_null
+      - name: VOTER
+        tests: 
+          - not_null

@@ -1,0 +1,42 @@
+version: 2
+models:
+  - name: aave__proposals
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - PROPOSAL_TX
+            - PROPOSAL_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: START_VOTING_PERIOD
+        tests:
+          - not_null
+      - name: END_VOTING_PERIOD
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: GOVERNANCE_CONTRACT
+        tests:
+          - not_null 
+      - name: PROPOSAL_ID
+        tests:
+          - not_null
+      - name: STATUS
+        tests:
+          - not_null
+      - name: TARGETS
+        tests: 
+          - not_null
+      - name: PROPOSER
+        tests: 
+          - not_null
+      - name: PROPOSAL_TX
+        tests: 
+          - not_null
