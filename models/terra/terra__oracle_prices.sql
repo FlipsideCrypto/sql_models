@@ -188,7 +188,7 @@ SELECT
   ee.block_timestamp,
   ee.event_attributes:asset::string as currency,
   l.address_name as symbol,
-  pp.price / ee.price AS luna_exchange_rate,
+  pp.price / ee.event_attributes:price AS luna_exchange_rate,
   ee.event_attributes:price AS price_usd,
   'oracle' as source
 FROM {{ ref('silver_terra__msg_events') }} ee
