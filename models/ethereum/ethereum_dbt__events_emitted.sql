@@ -42,10 +42,10 @@ SELECT
   t.value :event_inputs :: OBJECT AS event_inputs,
   t.value :event_name :: STRING AS event_name,
   t.value :event_removed :: BOOLEAN AS event_removed,
-  t.value :tx_from_addr :: STRING AS tx_from_addr,
+  t.value :tx_from :: STRING AS tx_from_addr,
   t.value :tx_id :: STRING AS tx_id,
   t.value :tx_succeeded :: BOOLEAN AS tx_succeeded,
-  t.value :tx_to_addr :: STRING AS tx_to_addr
+  t.value :tx_to :: STRING AS tx_to_addr
 FROM
   base_tables,
   LATERAL FLATTEN(
