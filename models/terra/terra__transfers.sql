@@ -60,6 +60,7 @@ inputs AS(
   WHERE
     msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+    AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
@@ -79,6 +80,7 @@ outputs AS(
   WHERE
     msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+    AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
@@ -124,6 +126,7 @@ transfers AS(
   WHERE
     msg_module = 'bank'
     AND msg_type = 'bank/MsgSend'
+    AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
@@ -146,6 +149,7 @@ SELECT
   msg_value:contract::string as event_currency
 FROM {{ref('silver_terra__msgs')}}
 WHERE msg_value:execute_msg:transfer IS NOT NULL 
+  AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
  AND block_timestamp >= getdate() - interval '1 days'
