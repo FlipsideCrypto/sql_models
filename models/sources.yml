@@ -125,3 +125,4 @@ sources:
     schema: redshift
     tables:
       - name: near_validators
+      - name: near_daily_reward_flow
