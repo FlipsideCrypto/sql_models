@@ -37,9 +37,9 @@ sources:
       - name: sha256_function_signatures
       - name: nft_metadata
   - name: flow
-    schema: silver
+    schema: silver_flow
     tables:
-      - name: daily_flow_staked_balances
+      - name: daily_staked_balances
       - name: udm_daily_balances_flow
       - name: udm_events_flow
   - name: uniswapv3_eth
