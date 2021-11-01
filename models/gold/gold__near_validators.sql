@@ -5,8 +5,6 @@
   cluster_by=['block_timestamp'],
   tags=['snowflake', 'gold', 'near', 'gold__near_validators']
 )}}
-
-
 WITH near_labels AS (
     SELECT 
         l1_label,

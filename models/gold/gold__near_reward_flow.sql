@@ -5,7 +5,6 @@
   cluster_by=['date'],
   tags=['snowflake', 'gold', 'near', 'gold__near_reward_flow'],
 )}}
-
 WITH near_labels AS (
     SELECT 
         l1_label,
