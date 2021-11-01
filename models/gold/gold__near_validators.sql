@@ -12,21 +12,13 @@ WITH near_labels AS (
         project_name,
         address_name,
         address
-    FROM 
-    {{ source(
-        'shared',
-        'udm_address_labels'
-    )}}
+    FROM {{ source('shared', 'udm_address_labels') }}
     WHERE blockchain = 'near'
 ), near_prices AS (
     SELECT
         date_trunc('hour', recorded_at) as hour,
         price
-    FROM
-    {{ source(
-        'shared',
-        'prices'
-    )}}
+    FROM {{ source('shared', 'prices') }}
     WHERE symbol = 'NEAR'
 )
 SELECT
@@ -45,16 +37,9 @@ SELECT
   v.expected_blocks, 
   v.produced_blocks,
   v.epoch_start_block
-FROM
-  {{ source('near', 'near_validators')}} v
-LEFT OUTER JOIN
-  near_labels as address_labels
-ON
-  v.account_id = address_labels.address
-LEFT OUTER JOIN
-  near_prices as stake_price
-ON
-  stake_price.hour = date_trunc('hour', v.block_timestamp)
+FROM {{ source('near', 'near_validators') }} v
+LEFT OUTER JOIN near_labels as address_labels ON v.account_id = address_labels.address
+LEFT OUTER JOIN near_prices as stake_price ON stake_price.hour = date_trunc('hour', v.block_timestamp)
 WHERE
   {% if is_incremental() %}
     block_timestamp >= getdate() - interval '3 days'
