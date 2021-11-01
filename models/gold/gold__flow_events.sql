@@ -1,5 +1,5 @@
 {{ config(
-    materialized='incremental', 
+    materialized='incremental',
     unique_key='block_number',
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
@@ -7,13 +7,13 @@
 
 
 WITH flow_labels AS (
-    SELECT 
+    SELECT
         l1_label,
         l2_label,
         project_name,
         address_name,
         address
-    FROM 
+    FROM
     {{ source(
         'shared',
         'udm_address_labels'
@@ -22,14 +22,11 @@ WITH flow_labels AS (
 ),
 flow_decimals AS (
     SELECT
-        blockchain, 
-        token_identifier,
-        decimal_adjustment,
-        symbol
+       *
     FROM
      {{ source('shared', 'udm_decimal_adjustments')}}
     WHERE blockchain = 'flow'
-)   
+)
 SELECT
   'flow' as blockchain,
   block_timestamp,
