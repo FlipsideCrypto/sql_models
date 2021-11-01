@@ -117,3 +117,7 @@ sources:
     schema: silver_crosschain
     tables:
       - name: address_labels
+  - name: near
+    schema: redshift
+    tables:
+      - name: near_validators
