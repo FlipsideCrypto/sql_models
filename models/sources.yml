@@ -113,6 +113,7 @@ sources:
     schema: gold
     tables:
       - name: flow_daily_balances
+      - name: flow_staked_balances
   - name: crosschain
     schema: silver_crosschain
     tables:
