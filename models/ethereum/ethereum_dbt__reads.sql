@@ -17,6 +17,8 @@ WITH base_tables AS (
     ) }}
   WHERE
     split(record_content:model:sinks[0]:destination::string,'.')[2]::string = 'ethereum_reads'
+    or
+    record_content:model:name::string like 'ethereum-user-generated%'
 
 {% if is_incremental() %}
 AND (
