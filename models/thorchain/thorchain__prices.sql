@@ -100,10 +100,10 @@ rune_usd AS (
 SELECT DISTINCT
   bpd.block_id,
   bpd.block_timestamp,
-  rune_e8 / asset_e8 AS price_rune_asset,
-  asset_e8 / rune_e8 AS price_asset_rune,
-  rune_usd * (rune_e8 / asset_e8) AS asset_usd,
-  rune_usd,
+  COALESCE(rune_e8 / asset_e8, 0) AS price_rune_asset,
+  COALESCE(asset_e8 / rune_e8, 0) AS price_asset_rune,
+  COALESCE(rune_usd * (rune_e8 / asset_e8), 0) AS asset_usd,
+  COALESCE(rune_usd, 0) AS rune_usd,
   pool_name
 FROM {{ ref('thorchain__block_pool_depths') }}  bpd
 JOIN rune_usd ru ON bpd.block_id = ru.block_id
