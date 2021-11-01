@@ -21,7 +21,7 @@
             {{ table }}
     )
 SELECT
-    {{ partition_sql }},
+    {{ partition_sql + "," if partition_sql }}
     {{ previous_column }},
     {{ column }},
     {{ column }} - {{ previous_column }}

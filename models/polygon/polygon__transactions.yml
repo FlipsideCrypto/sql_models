@@ -1,5 +1,4 @@
 version: 2
-
 models:
   - name: polygon__transactions
     tests:
@@ -14,6 +13,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: EVENT_COUNT
         tests:
           - not_null
@@ -22,26 +24,27 @@ models:
           - not_null
       - name: FEE_USD
         tests:
-          - not_null:
-              severity: warn
+          - not_null
       - name: FROM_ADDRESS
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
       - name: FROM_ADDRESS_NAME
         tests:
-          # TODO: null_where
+          - not_null
       - name: FROM_LABEL
         tests:
-          # TODO: null_where
+          - not_null
       - name: FROM_LABEL_SUBTYPE
         tests:
-          # TODO: null_where
+          - not_null
       - name: FROM_LABEL_TYPE
         tests:
-          # TODO: null_where
+          - not_null
       - name: FUNCTION_NAME
         tests:
-          # TODO: null_where
+          - not_null
       - name: FUNCTION_SIGNATURE
         tests:
           - not_null
@@ -51,6 +54,10 @@ models:
       - name: GAS_PRICE
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: GAS_USED
         tests:
           - not_null
@@ -62,22 +69,24 @@ models:
           - not_null
       - name: SYMBOL
         tests:
-          # TODO: null_where
+          - not_null
       - name: TO_ADDRESS
         tests:
-          # TODO: null_where
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
       - name: TO_ADDRESS_NAME
         tests:
-          # TODO: null_where
+          - not_null
       - name: TO_LABEL
         tests:
-          # TODO: null_where
+          - not_null
       - name: TO_LABEL_SUBTYPE
         tests:
-          # TODO: null_where
+          - not_null
       - name: TO_LABEL_TYPE
         tests:
-          # TODO: null_where
+          - not_null
       - name: TX_ID
         tests:
           - not_null

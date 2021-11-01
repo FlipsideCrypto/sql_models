@@ -1,0 +1,45 @@
+version: 2
+models:
+  - name: aave__withdraws
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - EVENT_INDEX
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: EVENT_INDEX
+        tests: 
+          - not_null
+      - name: AAVE_MARKET
+        tests:
+          - not_null 
+      - name: WITHDRAWN_TOKENS
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: WITHDRAWN_USD
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: TOKEN_PRICE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float

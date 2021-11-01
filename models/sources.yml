@@ -19,7 +19,8 @@ sources:
       - name: uniswapv2factory_event_paircreated
   - name: ethereum
     schema: silver
-    tables:      
+    tables:
+      - name: ethereum_balances
       - name: ethereum_contracts
       - name: daily_ethereum_token_balances
       - name: ethereum_address_labels
@@ -28,6 +29,7 @@ sources:
       - name: ethereum_decoded_log_methods
       - name: ethereum_events
       - name: ethereum_events_emitted
+      - name: ethereum_proxy_contract_registry
       - name: ethereum_reads
       - name: ethereum_transactions
       - name: ethereum_token_balances
@@ -55,44 +57,8 @@ sources:
       - name: uniswapv3_swaps
   - name: ethereum_nondbt
     schema: ethereum
-    tables:      
-      - name: token_prices_hourly_v2
-  - name: thorchain
-    schema: thorchain
     tables:
-      - name: active_vault_events
-      - name: add_events
-      - name: asgard_fund_yggdrasil_events
-      - name: block_pool_depths
-      - name: block_log
-      - name: bond_events
-      - name: constants
-      - name: errata_events
-      - name: fee_events
-      - name: gas_events
-      - name: inactive_vault_events
-      - name: message_events
-      - name: new_node_events
-      - name: outbound_events
-      - name: pending_liquidity_events
-      - name: pool_balance_change_events
-      - name: pool_events
-      - name: refund_events
-      - name: reserve_events
-      - name: rewards_events
-      - name: rewards_event_entries
-      - name: set_ip_address_events
-      - name: set_mimir_events
-      - name: set_node_keys_events
-      - name: set_version_events
-      - name: slash_amounts
-      - name: stake_events
-      - name: swap_events
-      - name: switch_events
-      - name: transfer_events
-      - name: unstake_events
-      - name: update_node_account_status_events
-      - name: validator_request_leave_events
+      - name: token_prices_hourly_v2
   - name: thorchain_midgard
     schema: thorchain_midgard_public
     tables:
@@ -132,51 +98,22 @@ sources:
   - name: terra
     schema: silver
     tables:
-      - name: terra_blocks
-      - name: terra_transitions
-      - name: terra_transactions
-      - name: terra_msgs
-      - name: terra_msg_events
-      - name: terra_validator_voting_power
       - name: udm_daily_balances_terra
+      - name: terra_validator_voting_power
       - name: udm_custom_fields_terra_tax_rate
-  - name: silver_terra
-    schema: silver_terra
-    tables:
-      - name: blocks
-      - name: msgs
-      - name: msg_events
-      - name: transactions
-      - name: transitions
-  - name: silver_polygon
-    schema: silver_polygon
-    tables:
-      - name: udm_events
-      - name: events_emitted
-      - name: transactions
-  - name: polygon_dbt
-    schema: polygon_dbt
-    tables:
-      - name: udm_events
-      - name: events_emitted
-      - name: transactions
-  - name: polygon
-    schema: polygon
-    tables:
-      - name: udm_events
-      - name: events_emitted
-      - name: transactions
   - name: bronze
     schema: bronze
     tables:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
+      - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
-  - name: terra_dbt
-    schema: terra_dbt
+      - name: JIM_TEST_REST_PROXY_1507016047
+  - name: gold
+    schema: gold
     tables:
-      - name: blocks
-      - name: msgs
-      - name: msg_events
-      - name: transactions
-      - name: transitions
+      - name: flow_daily_balances
+  - name: crosschain
+    schema: silver_crosschain
+    tables:
+      - name: address_labels

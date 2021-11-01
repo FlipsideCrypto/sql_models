@@ -1,33 +1,50 @@
-{{ 
-  config(
-    materialized='incremental',
-    unique_key='block_id || contract_address || function_name || inputs', 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum_silver', 'ethereum_dbt_reads','ethereum']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = 'block_id || contract_address || function_name',
+  incremental_strategy = 'delete+insert',
+  tags = ['snowflake', 'ethereum', 'ethereum_dbt__reads']
+) }}
 
-with base_tables as (
-  select *
-  from {{source('bronze', 'prod_ethereum_sink_407559501')}}
-  where record_content:model:name::string like 'ethereum-user-generated%'
-  {% if is_incremental() %}
-        AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('ethereum_dbt', 'reads')}})
-  {% endif %}
-  )
+WITH base_tables AS (
 
-select (record_metadata:CreateTime::int/1000)::timestamp as system_created_at
-, record_content:model:blockchain::string as chain_id
-, a.value:block_id::int as block_id
-, a.value:block_timestamp::timestamp as block_timestamp
-, a.value:contract_address::string as contract_address
-, a.value:contract_name::string as contract_name
-, a.value:function_name::string as function_name
-, a.value:inputs::object as inputs
-, a.value:project_id::string as project_id
-, a.value:project_name::string as project_name
-, a.value:value_numeric::float as value_numeric
-, a.value:value_object::object as value_object
-, a.value:value_string::string as value_string
-from base_tables
-,lateral flatten(input => record_content:results) a
+  SELECT
+    * 
+
+  FROM
+    {{ source(
+      'bronze',
+      'prod_ethereum_sink_407559501' 
+    ) }}
+  WHERE
+    split(record_content:model:sinks[0]:destination::string,'.')[2]::string = 'ethereum_reads'
+
+{% if is_incremental() %}
+AND (
+  record_metadata :CreateTime :: INT / 1000
+) :: TIMESTAMP :: DATE >= (
+  SELECT
+    DATEADD('day', -1, MAX(system_created_at :: DATE))
+  FROM
+    {{ this }}
+)
+{% endif %}
+)
+SELECT
+  (
+    record_metadata :CreateTime :: INT / 1000
+  ) :: TIMESTAMP AS system_created_at,
+  t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
+  t.value :block_id :: bigint AS block_id,
+  t.value :contract_address :: VARCHAR AS contract_address,
+  t.value :contract_name :: VARCHAR AS contract_name,
+  t.value :function_name :: VARCHAR AS function_name,
+  t.value :inputs :: OBJECT AS inputs,
+  t.value :project_id :: VARCHAR AS project_id,
+  t.value :project_name :: VARCHAR AS project_name,
+  t.value :value_numeric :: FLOAT AS value_numeric,
+  t.value :value_string :: VARCHAR AS value_string
+FROM
+  base_tables,
+  LATERAL FLATTEN(
+    input => record_content :results
+  ) t

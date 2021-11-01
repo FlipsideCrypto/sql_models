@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='creation_time', 
-    unique_key='creation_tx', 
+    unique_key='pool_address', 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools']
   )
@@ -18,7 +18,7 @@ WITH v3_pools AS ( -- uni v3
           token1,
           'uniswap-v3' AS platform
       FROM 
-      {{source('uniswapv3_eth','uniswapv3_pools')}}
+      {{ref('silver_uniswapv3__pools')}}
       WHERE 
       {% if is_incremental() %}
         creation_time >= getdate() - interval '7 days'
@@ -43,9 +43,9 @@ WITH v3_pools AS ( -- uni v3
       REGEXP_REPLACE(p.event_inputs:token0,'\"','') as token0,
       REGEXP_REPLACE(p.event_inputs:token1,'\"','') as token1,
       CASE WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
-    FROM {{ source('ethereum', 'ethereum_events_emitted') }} p -- {{ref('ethereum__events_emitted')}} p
+    FROM {{ref('silver_ethereum__events_emitted') }} p -- {{ref('ethereum__events_emitted')}} p
 
-    LEFT JOIN {{source('ethereum','ethereum_contracts')}} a ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = a.address
+    LEFT JOIN {{ref('silver_ethereum__contracts')}} a ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = a.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} aa
       ON REGEXP_REPLACE(p.event_inputs:token0,'\"','')        = aa.token_address
@@ -53,7 +53,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} aaa 
       ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = aaa.address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_contracts')}}  b 
+    LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
       ON REGEXP_REPLACE(p.event_inputs:token1,'\"','') = b.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} bb 
@@ -88,7 +88,7 @@ WITH v3_pools AS ( -- uni v3
       CASE WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap' ELSE 'uniswap-v2' END AS platform
     FROM {{ source('shared', 'uniswapv2factory_event_paircreated') }} p -- {{ref('ethereum__events_emitted')}} p
 
-    LEFT JOIN {{source('ethereum','ethereum_contracts')}} a 
+    LEFT JOIN {{ref('silver_ethereum__contracts')}} a 
       ON token0 = a.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} aa
@@ -97,7 +97,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} aaa 
       ON token0 = aaa.address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_contracts')}}  b 
+    LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
       ON token1 = b.address
 
     LEFT JOIN {{source('shared', 'cmc_assets')}} bb 
@@ -108,24 +108,30 @@ WITH v3_pools AS ( -- uni v3
 ), sushi_write_in AS (
   -- adding a few major sushi pools that were created before we have eth data (this gives us data on swaps with these pools)
   -- edit now uses a table of sushiswap tables 
+  -- only captures the top 1000 pools by liquidity and pulls these from the Graph endpoint used by sushi https://api.thegraph.com/subgraphs/name/zippoxer/sushiswap-subgraph-fork
   SELECT
+    DISTINCT
       NULL AS creation_time,
       NULL AS creation_tx,
-      '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' AS factory_address,
-      pool_name,
+      factory_address,
+      CASE WHEN pool_name IS NULL AND platform = 'sushiswap' THEN token0 || '-' || token1 ||' SLP'
+      WHEN pool_name IS NULL AND platform = 'uniswap-v2' THEN token0 || '-' || token1 ||' UNI-V2 LP'
+      ELSE pool_name END AS pool_name,
       pool_address,
       token0,
       token1,
       platform
 
-  FROM flipside_dev_db.dbt.sushi_liquidity_pools
+  FROM {{ ref('silver__historic_dex_pools') }}
   
 ), new_sushi AS (
   SELECT s.* -- future proofing: once the eth backfill is done these manual write-ins will be dups
   FROM sushi_write_in s
-  LEFT JOIN v2_pools v
+  LEFT OUTER JOIN v2_pools v
   ON s.pool_address = v.pool_address
-  WHERE v.pool_address IS NULL
+  LEFT OUTER JOIN v2_redshift r
+  ON s.pool_address = r.pool_address
+  WHERE v.pool_address IS NULL AND r.pool_address IS NULL
 ),
 
 

@@ -4,7 +4,7 @@
     sort='block_timestamp', 
     unique_key= 'tx_id', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex']
+    tags=['snowflake', 'ethereum', 'dex','dex_swaps']
   )
 }}
 
@@ -19,7 +19,7 @@ WITH decimals_raw as (
   SELECT address AS token_address,
   meta:decimals AS decimals,
   2 as weight
-  FROM {{source('ethereum', 'ethereum_contracts')}}
+  FROM {{ref('silver_ethereum__contracts')}}
   WHERE meta:decimals IS NOT NULL
 
   UNION
@@ -41,6 +41,18 @@ WITH decimals_raw as (
   FROM decimals_raw
   QUALIFY (row_number() OVER (partition by token_address order by weight desc)) = 1
 ),
+-- deduped prices
+prices AS(
+    SELECT
+        token_address,
+        hour,
+        AVG(price) AS price,
+        MAX(decimals) AS decimals
+    FROM
+        {{ref('ethereum__token_prices_hourly')}}
+    WHERE 1=1
+    GROUP BY 1,2
+),
 -- daily avg price used when hourly price is missing (it happens a lot)
 prices_daily_backup AS(
     SELECT
@@ -49,11 +61,11 @@ prices_daily_backup AS(
         AVG(price) AS price,
         MAX(decimals) AS decimals
     FROM
-        {{ref('ethereum__token_prices_hourly')}}
+        prices
     WHERE 1=1
     GROUP BY 1,2
 ),
-
+--
  usd_swaps AS (
   SELECT DISTINCT
     block_timestamp, 
@@ -77,7 +89,7 @@ prices_daily_backup AS(
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} p 
     ON s0.contract_address = p.pool_address
 
-  LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price0 
+  LEFT JOIN prices price0 
     ON p.token0 = price0.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price0.hour
 
   LEFT JOIN prices_daily_backup backup0
@@ -119,7 +131,7 @@ prices_daily_backup AS(
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} p 
     ON s0.contract_address = p.pool_address
 
-  LEFT JOIN {{ref('ethereum__token_prices_hourly')}} price1
+  LEFT JOIN prices price1
     ON p.token1 = price1.token_address AND DATE_TRUNC('hour',s0.block_timestamp) = price1.hour
 
   LEFT JOIN prices_daily_backup backup1
@@ -158,7 +170,7 @@ prices_daily_backup AS(
   {{ref('uniswapv3__swaps')}} s
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} dl 
     ON s.pool_address = dl.pool_address
-  LEFT JOIN {{ref('ethereum__token_prices_hourly')}} p 
+  LEFT JOIN prices p 
     ON dl.token0 = p.token_address  AND p.hour = date_trunc('hour',block_timestamp)
   LEFT JOIN {{ref('ethereum__events_emitted')}} ind
     ON s.pool_address = ind.contract_address AND s.tx_id = ind.tx_id
@@ -185,7 +197,7 @@ prices_daily_backup AS(
   {{ref('uniswapv3__swaps')}} s
   LEFT JOIN {{ref('ethereum__dex_liquidity_pools')}} dl 
     ON s.pool_address = dl.pool_address
-  LEFT JOIN {{ref('ethereum__token_prices_hourly')}} p 
+  LEFT JOIN prices p 
     ON dl.token1 = p.token_address  AND p.hour = date_trunc('hour',block_timestamp)
   LEFT JOIN {{ref('ethereum__events_emitted')}} ind
     ON s.pool_address = ind.contract_address AND s.tx_id = ind.tx_id
@@ -205,6 +217,7 @@ prices_daily_backup AS(
     direction
   FROM usd_swaps
   WHERE pool_address NOT IN ('0xdc6a5faf34affccc6a00d580ecb3308fc1848f22') -- stop-gap for big price swings, the actual solution adds an enormous amount of runtime
+
 
   UNION
 
@@ -284,4 +297,4 @@ swaps s
 LEFT JOIN
 silver.ethereum_address_labels l
 ON s.from_address = l.address
-
+WHERE s.pool_name IS NOT NULL

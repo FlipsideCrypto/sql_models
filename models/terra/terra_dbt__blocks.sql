@@ -1,26 +1,47 @@
-{{ 
-  config(
-    materialized='incremental',
-    unique_key='chain_id || block_id', 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'terra_silver', 'terra_blocks']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = 'chain_id || block_id',
+  incremental_strategy = 'delete+insert',
+  tags = ['snowflake', 'terra_silver', 'terra_blocks']
+) }}
 
-with base_tables as (
-  select *
-  from {{source('bronze', 'prod_terra_sink_645110886')}}
-  where record_content:model:name::string = 'terra_block_model'
-  {% if is_incremental() %}
-        AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{source('terra_dbt', 'blocks')}})
-  {% endif %}
-  )
+WITH base_tables AS (
 
-select (record_metadata:CreateTime::int/1000)::timestamp as system_created_at
-, record_content:model:blockchain::string as chain_id
-, t.value:block_id::int as block_id
-, t.value:block_timestamp::timestamp as block_timestamp
-, t.value:blockchain::string as blockchain
-, t.value:proposer_address::string as proposer_address
-from base_tables
-,lateral flatten(input => record_content:results) t
+  SELECT
+    *
+  FROM
+    {{ source(
+      'bronze',
+      'prod_terra_sink_645110886'
+    ) }}
+  WHERE
+    record_content :model :name :: STRING IN (
+      'terra_block_model',
+      'terra-5_block_model'
+    )
+
+{% if is_incremental() %}
+AND (
+  record_metadata :CreateTime :: INT / 1000
+) :: TIMESTAMP :: DATE >= (
+  SELECT
+    DATEADD('day', -1, MAX(system_created_at :: DATE))
+  FROM
+    {{ this }}
+)
+{% endif %}
+)
+SELECT
+  (
+    record_metadata :CreateTime :: INT / 1000
+  ) :: TIMESTAMP AS system_created_at,
+  record_content :model :blockchain :: STRING AS chain_id,
+  t.value :block_id :: INT AS block_id,
+  t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
+  t.value :blockchain :: STRING AS blockchain,
+  t.value :proposer_address :: STRING AS proposer_address
+FROM
+  base_tables,
+  LATERAL FLATTEN(
+    input => record_content :results
+  ) t

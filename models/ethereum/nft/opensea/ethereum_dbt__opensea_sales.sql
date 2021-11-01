@@ -16,10 +16,7 @@ WITH token_transfers AS (
     event_inputs :to AS buyer,
     event_inputs :tokenId AS token_id
   FROM
-    {{ source(
-      'ethereum',
-      'ethereum_events_emitted'
-    ) }}
+    {{ ref('silver_ethereum__events_emitted') }}
   WHERE
     event_name = 'Transfer'
     AND tx_id IN (
@@ -44,10 +41,7 @@ SELECT
   event_inputs :_to AS buyer,
   event_inputs :_id AS token_id
 FROM
-  {{ source(
-    'ethereum',
-    'ethereum_events_emitted'
-  ) }}
+  {{ ref('silver_ethereum__events_emitted') }}
 WHERE
   event_name = 'TransferSingle'
   AND tx_id IN (
@@ -72,10 +66,7 @@ SELECT
   event_inputs :_to AS buyer,
   event_inputs :_tokenId AS token_id
 FROM
-  {{ source(
-    'ethereum',
-    'ethereum_events_emitted'
-  ) }}
+  {{ ref('silver_ethereum__events_emitted') }}
 WHERE
   event_name = 'Transfer'
   AND tx_id IN (
@@ -100,10 +91,7 @@ SELECT
   event_inputs :to AS buyer,
   event_inputs :id AS token_id
 FROM
-  {{ source(
-    'ethereum',
-    'ethereum_events_emitted'
-  ) }}
+  {{ ref('silver_ethereum__events_emitted') }}
 WHERE
   event_name = 'TransferSingle'
   AND tx_id IN (

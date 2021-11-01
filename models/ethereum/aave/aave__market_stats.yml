@@ -1,0 +1,94 @@
+version: 2
+models:
+  - name: aave__market_stats
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_HOUR
+            - AAVE_VERSION
+            - AAVE_MARKET
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_HOUR
+        tests:
+          - not_null
+      - name: AAVE_MARKET
+        tests:
+          - not_null
+      - name: LENDING_POOL_ADD
+        tests: 
+          - not_null
+      - name: ATOKEN_ADDRESS
+        tests:
+          - not_null 
+      - name: RESERVE_PRICE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: ATOKEN_PRICE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: TOTAL_LIQUIDITY_TOKEN
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: TOTAL_LIQUIDITY_USD
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: TOTAL_STABLE_DEBT_TOKEN
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: TOTAL_STABLE_DEBT_USD
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float  
+      - name: SUPPLY_RATE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: BORROW_RATE_STABLE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: BORROW_RATE_VARIABLE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: AAVE_PRICE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float 
+      - name: UTILIZATION_RATE
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: AAVE_VERSION
+        tests: 
+          - not_null 

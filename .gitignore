@@ -6,5 +6,9 @@ logs/
 .venv/
 .python-version
 
+# Visual Studio Code files
 */.vscode
+*.code-workspace
+.history/
 **/.DS_Store
+.vscode/

@@ -16,8 +16,8 @@ WITH
     SELECT 
         DISTINCT
             LOWER(inputs:_pool::STRING) AS pool_add, 
-                (SPLIT(LOWER(VALUE_STR),'^')) AS coins
-    FROM {{source('ethereum', 'ethereum_reads')}}
+                (SPLIT(LOWER(VALUE_STRING),'^')) AS coins
+    FROM {{ref('silver_ethereum__reads')}}
     WHERE 
       contract_name='Vyper_contract'  
       AND contract_address IN ('0x0959158b6040d32d04c301a72cbfd6b39e21c9ae',
@@ -94,7 +94,7 @@ pool_tokens_parsed p0
 LEFT OUTER JOIN
 prices tp0
     ON date_trunc('hour',s.block_timestamp) = tp0.hour AND p0.coins = tp0.token_address
-LEFT JOIN {{source('ethereum', 'ethereum_contracts')}} dc0
+LEFT JOIN {{ref('silver_ethereum__contracts')}} dc0
     ON p0.coins = dc0.address
   -- Token the swapper is getting --
 LEFT OUTER JOIN
@@ -103,7 +103,7 @@ pool_tokens_parsed p1
 LEFT OUTER JOIN
 prices tp1
     ON date_trunc('hour',s.block_timestamp) = tp1.hour AND p1.coins = tp1.token_address
-LEFT JOIN {{source('ethereum', 'ethereum_contracts')}} dc1
+LEFT JOIN {{ref('silver_ethereum__contracts')}} dc1
     ON p1.coins = dc1.address
     WHERE token_in IS NOT NULL AND token_out IS NOT NULL 
     ORDER BY block_timestamp DESC

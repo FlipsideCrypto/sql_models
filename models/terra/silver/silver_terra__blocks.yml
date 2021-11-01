@@ -1,0 +1,32 @@
+version: 2
+models:
+  - name: silver_terra__blocks
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: PROPOSER_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-z]{39,39}
+      - name: SYSTEM_CREATED_AT
+        tests:
+          - not_null

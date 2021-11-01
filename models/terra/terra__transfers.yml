@@ -1,0 +1,78 @@
+version: 2
+models:
+  - name: terra__transfers
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+            - EVENT_AMOUNT
+            - EVENT_CURRENCY
+            - EVENT_TO
+            - EVENT_FROM
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: EVENT_AMOUNT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: EVENT_AMOUNT_USD
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: EVENT_CURRENCY
+        tests:
+      - name: EVENT_FROM
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}
+      - name: EVENT_FROM_ADDRESS_LABEL
+        tests:
+      - name: EVENT_FROM_ADDRESS_NAME
+        tests:
+      - name: EVENT_FROM_LABEL_SUBTYPE
+        tests:
+      - name: EVENT_FROM_LABEL_TYPE
+        tests:
+      - name: EVENT_TO
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}
+      - name: EVENT_TO_ADDRESS_LABEL
+        tests:
+      - name: EVENT_TO_ADDRESS_NAME
+        tests:
+      - name: EVENT_TO_LABEL_SUBTYPE
+        tests:
+      - name: EVENT_TO_LABEL_TYPE
+        tests:
+      - name: MSG_TYPE
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_STATUS
+        tests:
+          - not_null
