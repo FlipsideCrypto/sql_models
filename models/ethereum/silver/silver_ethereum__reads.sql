@@ -76,6 +76,9 @@ WITH silver AS (
     value_numeric,
     value_string
   FROM 
-    silver qualify(ROW_NUMBER() over(PARTITION BY block_id, contract_address, function_name, inputs
+    silver 
+    where coalesce(value_numeric,0) >= 0
+    qualify(ROW_NUMBER() over(PARTITION BY block_id, contract_address, function_name, inputs
+    
   ORDER BY
     system_created_at DESC)) = 1
