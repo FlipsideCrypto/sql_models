@@ -55,13 +55,13 @@ SELECT
   sender,
   amount,
   contract_address,
-  address_name as contract_label
+  address as contract_label
 FROM msgs m
 
 JOIN events e 
   ON m.tx_id = e.tx_id
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}}
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}}
   ON contract_address = address
 
 UNION
@@ -77,10 +77,10 @@ SELECT
   msg_value:sender::string as sender,
   msg_value:execute_msg:send:amount / POW(10,6) as amount,
   msg_value:contract::string as contract_address,
-  address_name as contract_label
+  address as contract_label
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} 
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} 
   ON msg_value:contract::string = address
 
 WHERE msg_value:execute_msg:send:msg:bond IS NOT NULL 

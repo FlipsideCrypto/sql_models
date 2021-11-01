@@ -78,15 +78,12 @@ massets AS(
     m.block_timestamp,
     m.block_id,
     m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
-    p.address_name AS symbol,
+    p.address AS symbol,
     m.msg_value :execute_msg :feed_price :prices [0] [1] AS price
   FROM
     {{ ref('silver_terra__msgs') }}
     m
-    LEFT OUTER JOIN {{ source(
-      'shared',
-      'udm_address_labels_new'
-    ) }}
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
     p
     ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address
   WHERE
@@ -187,13 +184,13 @@ SELECT
   ee.blockchain, 
   ee.block_timestamp,
   ee.event_attributes:asset::string as currency,
-  l.address_name as symbol,
+  l.address as symbol,
   pp.price / ee.event_attributes:price AS luna_exchange_rate,
   ee.event_attributes:price AS price_usd,
   'oracle' as source
 FROM {{ ref('silver_terra__msg_events') }} ee
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON ee.event_attributes:asset::string = l.address
 
 LEFT OUTER JOIN prices pp

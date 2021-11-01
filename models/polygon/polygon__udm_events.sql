@@ -45,10 +45,9 @@ poly_labels AS (
         l1_label,
         l2_label,
         project_name,
-        address_name,
         address
     FROM
-        {{ source('shared','udm_address_labels_new') }}
+        {{ ref('silver_crosschain__address_labels') }}
     WHERE
         blockchain = 'polygon'
 ),
@@ -83,12 +82,12 @@ events AS (
         from_labels.l1_label AS from_label_type,
         from_labels.l2_label AS from_label_subtype,
         from_labels.project_name AS from_label,
-        from_labels.address_name AS from_address_name,
+        from_labels.address AS from_address_name,
         to_address,
         to_labels.l1_label AS to_label_type,
         to_labels.l2_label AS to_label_subtype,
         to_labels.project_name AS to_label,
-        to_labels.address_name AS to_address_name,
+        to_labels.address AS to_address_name,
         log_method AS event_name,
         NULL AS event_type,
         log_index AS event_id,
@@ -117,7 +116,7 @@ originator AS (
         from_labels.l1_label AS origin_label_type,
         from_labels.l2_label AS origin_label_subtype,
         from_labels.project_name AS origin_label,
-        from_labels.address_name AS origin_address_name,
+        from_labels.address AS origin_address_name,
         t.input_method AS origin_function_signature,
         f.text_signature AS origin_function_name
     FROM

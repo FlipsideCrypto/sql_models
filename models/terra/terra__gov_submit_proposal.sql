@@ -52,7 +52,7 @@ SELECT
   proposer_labels.l1_label AS proposer_label_type,
   proposer_labels.l2_label AS proposer_label_subtype,
   proposer_labels.project_name AS proposer_address_label,
-  proposer_labels.address_name AS proposer_address_name,
+  proposer_labels.address AS proposer_address_name,
   p.proposal_id,
   REGEXP_REPLACE(
     msg_value :content :type,
@@ -92,10 +92,7 @@ FROM
     '\"',
     ''
   ) = o.currency
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS proposer_labels
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS proposer_labels
   ON REGEXP_REPLACE(
     t.msg_value :proposer,
     '\"',

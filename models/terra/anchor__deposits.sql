@@ -39,10 +39,10 @@ SELECT
   deposit_amount * price AS deposit_amount_usd,
   msg_value:coins[0]:denom::string as deposit_currency,
   msg_value:contract::string as contract_address,
-  l.address_name as contract_label
+  l.address as contract_label
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:contract::string = l.address
 
 LEFT OUTER JOIN prices o

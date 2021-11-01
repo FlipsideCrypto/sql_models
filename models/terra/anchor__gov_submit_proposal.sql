@@ -13,7 +13,6 @@ SELECT
   block_id,
   block_timestamp,
   tx_id,
-  msg_value:sender::string as creator,
   msg_value:execute_msg:send:amount / POW(10,6) as amount,
   msg_value:execute_msg:send:msg:create_poll:title::string as title,
   msg_value:execute_msg:send:msg:create_poll:link::string as link,
@@ -52,18 +51,17 @@ SELECT
   m.tx_id,
   poll_id,
   end_time,
-  creator,
   amount,
   title,
   link,
   description,
   msg,
   contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM msgs m 
 
 JOIN events e 
   ON m.tx_id = e.tx_id
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON contract_address = l.address

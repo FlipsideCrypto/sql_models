@@ -37,10 +37,10 @@ SELECT
   msg_value:execute_msg:open_position:collateral_ratio as collateral_ratio,
   msg_value:sender::string as sender,
   msg_value:contract::string as contract_address,
-  l.address_name as contract_label
+  l.address as contract_label
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:contract::string = l.address
 
 WHERE msg_value:contract::string = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj' -- Mirror Mint Contract

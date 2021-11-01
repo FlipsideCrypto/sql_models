@@ -201,7 +201,7 @@ SELECT
     LOWER(repay.lending_pool_contract) AS lending_pool_contract,
     repay.aave_version,
     COALESCE(coalesced_prices.coalesced_price,backup_prices.price,prices_daily_backup.avg_daily_price) AS token_price,
-    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol,REGEXP_REPLACE(l.address_name,'AAVE.*: a','')) AS symbol,
+    COALESCE(coalesced_prices.symbol,backup_prices.symbol,prices_daily_backup.symbol,REGEXP_REPLACE(l.address,'AAVE.*: a','')) AS symbol,
     'ethereum' AS blockchain
 FROM
     repay
@@ -221,4 +221,4 @@ FROM
     LEFT JOIN decimals_backup
         ON LOWER(repay.aave_market) = LOWER(decimals_backup.token_address)
     LEFT OUTER JOIN
-    {{source('ethereum', 'ethereum_address_labels')}} l ON LOWER(underlying.aave_token) = l.address
+    {{ref('silver_crosschain__address_labels')}} l ON LOWER(underlying.aave_token) = l.address

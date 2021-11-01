@@ -102,13 +102,13 @@ SELECT
   unlocked_amount * u.price as unlocked_amount_usd,
   unlocked_currency,
   contract_address,
-  g.address_name AS contract_label
+  g.address AS contract_label
 FROM msgs m
 
 JOIN events e 
   ON m.tx_id = e.tx_id
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as g
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as g
 ON m.contract_address = g.address
 
 LEFT OUTER JOIN prices t

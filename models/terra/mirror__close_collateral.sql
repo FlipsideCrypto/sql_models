@@ -75,14 +75,11 @@ msgs AS (
     msg_value :execute_msg :send :msg :burn :position_idx AS collateral_id,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS contract_address,
-    l.address_name AS contract_label
+    l.address AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m
-    LEFT OUTER JOIN {{ source(
-      'shared',
-      'udm_address_labels_new'
-    ) }} AS l
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
     ON msg_value :contract :: STRING = l.address
   WHERE
     msg_value :execute_msg :send :msg :burn IS NOT NULL
