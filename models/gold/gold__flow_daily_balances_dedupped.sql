@@ -20,7 +20,7 @@ SELECT
   balance_type
 FROM
   {{ source(
-      'gold',
+      'flow',
       'flow_daily_balances'
     ) }}
 WHERE

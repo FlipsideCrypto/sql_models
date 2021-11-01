@@ -39,9 +39,14 @@ sources:
   - name: flow
     schema: silver_flow
     tables:
-      - name: daily_staked_balances
+      - name: daily_flow_staked_balances
+      - name: flow_daily_balances
+  - name: flow
+    schema: silver
+    tables:
       - name: udm_daily_balances_flow
       - name: udm_events_flow
+
   - name: uniswapv3_eth
     schema: silver
     tables:
@@ -109,11 +114,6 @@ sources:
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
       - name: JIM_TEST_REST_PROXY_1507016047
-  - name: gold
-    schema: gold
-    tables:
-      - name: flow_daily_balances
-      - name: flow_staked_balances
   - name: crosschain
     schema: silver_crosschain
     tables:

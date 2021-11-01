@@ -2,7 +2,7 @@
 cluster_by=['date'],
   incremental_strategy = 'delete+insert',
 unique_key='date || node_id || delegator_id',
- tags=['gold', 'events','daily balance', 'flow','snowflake'])}}
+ tags=['silver', 'events','daily balance', 'flow','snowflake'])}}
 
 
    WITH labels as (
@@ -21,7 +21,7 @@ unique_key='date || node_id || delegator_id',
 	'FLOW' as currency,
 	'staked' as balance_type
 	FROM
-        {{ source('flow', 'daily_staked_balances')}} b
+        {{ source('flow', 'daily_flow_staked_balances')}} b
 	LEFT JOIN
         {{ ref('gold__flow_delegator_addresses') }} d
 	ON d.node_id = b.node_id
