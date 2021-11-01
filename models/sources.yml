@@ -39,10 +39,10 @@ sources:
   - name: flow
     schema: silver_flow
     tables:
-      - name: daily_flow_staked_balances
-      - name: flow_daily_balances
+      - name: daily_staked_balances
+      - name: daily_balances
   - name: flow
-    schema: silver
+    schema: redshift
     tables:
       - name: udm_daily_balances_flow
       - name: udm_events_flow
@@ -64,6 +64,10 @@ sources:
     schema: ethereum
     tables:
       - name: token_prices_hourly_v2
+  - name: gold
+    schema: gold
+    tables:
+      - name: flow_delegator_addresses
   - name: thorchain_midgard
     schema: thorchain_midgard_public
     tables:

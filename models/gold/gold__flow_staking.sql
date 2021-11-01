@@ -1,7 +1,8 @@
 {{ config(
    materialized='incremental',
    incremental_strategy='delete+insert',
-   unique_key='block_number || tx_id', 
+   unique_key='block_number || tx_id',
+   cluster_by=['block_timestamp'],
    tags=['snowflake', 'gold_flow', 'gold', 'gold__flow_staking']) }}
 
 
@@ -11,13 +12,13 @@
 -- - delegator_tokens_committed reciever is validator
 -- - call this "stake"
 WITH flow_labels AS (
-    SELECT 
+    SELECT
         l1_label,
         l2_label,
         project_name,
         address_name,
         address
-    FROM 
+    FROM
     {{ source(
         'shared',
         'udm_address_labels'

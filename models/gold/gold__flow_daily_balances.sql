@@ -1,11 +1,7 @@
 {{ config(materialized='incremental',
-cluster_by=['date'],
-  incremental_strategy = 'delete+insert',
-unique_key='date || node_id || delegator_id',
- tags=['silver', 'events','daily balance', 'flow','snowflake'])}}
+cluster_by=['date'], unique_key='date || node_id || delegator_id', tags=['gold','gold__flow_daily_balances','events', 'flow'])}}
 
-
-   WITH labels as (
+WITH labels as (
 	SELECT * FROM {{source('shared','udm_address_labels')}}
  WHERE blockchain = 'flow')
 	SELECT
@@ -21,21 +17,21 @@ unique_key='date || node_id || delegator_id',
 	'FLOW' as currency,
 	'staked' as balance_type
 	FROM
-        {{ source('flow', 'daily_flow_staked_balances')}} b
+        {{ source('flow', 'daily_staked_balances')}} b
 	LEFT JOIN
-        {{ ref('gold__flow_delegator_addresses') }} d
+        {{ source('gold','flow_delegator_addresses') }} d
 	ON d.node_id = b.node_id
 	AND d.delegator_id = b.delegator_id
 
     LEFT OUTER JOIN
-	labels
+        labels
     ON
         labels.address = d.delegator_address
 	WHERE
 	{% if is_incremental() %}
 		date >= getdate() - interval '15 days'
 	{% else %}
-		date >= getdate() - interval '9  months'
+		date >= getdate() - interval '12  months'
 	{% endif %}
 
 
@@ -54,7 +50,7 @@ unique_key='date || node_id || delegator_id',
 		currency,
 		balance_type
 	FROM
-        {{ source('flow', 'udm_daily_balances_flow')}} as balances
+        {{ source('flow', 'daily_balances')}} as balances
 
     LEFT OUTER JOIN
        labels
@@ -65,5 +61,5 @@ unique_key='date || node_id || delegator_id',
 	{% if is_incremental() %}
 		date >= getdate() - interval '1 days'
 	{% else %}
-		date >= getdate() - interval '9  months'
+		date >= getdate() - interval '12  months'
 	{% endif %}

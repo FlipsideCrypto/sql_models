@@ -21,7 +21,7 @@ SELECT
 FROM
   {{ source(
       'flow',
-      'flow_daily_balances'
+      'daily_balances'
     ) }}
 WHERE
   1 = 1
