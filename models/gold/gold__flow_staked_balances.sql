@@ -2,10 +2,10 @@
 cluster_by=['balance_date'],
   incremental_strategy = 'delete+insert',
 unique_key='balance_date || node_id || delegator_id',
- tags=['gold', 'events','daily balance', 'flow','snowflake'])}}
+ tags=['gold', 'events','daily balance', 'flow', 'snowflake'])}}
 
-  SELECT
-
+  SELECT * from (
+    SELECT
             current_date()::timestamp as balance_date,
             node_id,
             delegator_id::integer as delegator_id,
@@ -13,6 +13,7 @@ unique_key='balance_date || node_id || delegator_id',
             THEN 0
             ELSE sum(event_amount) / 10e8 END) as delegated_amount
         FROM (
+            select * from (
             SELECT
                 blockchain,
                 block_timestamp,
@@ -32,7 +33,7 @@ unique_key='balance_date || node_id || delegator_id',
                 block_id,
                 event_to as delegator_id,
                 event_from as node_id,
-                (event_amount * -1)
+                (event_amount * -1) as event_amount
             FROM
                 {{ source('flow', 'udm_events_flow')}}
             WHERE event_type = 'delegator_tokens_unstaked'
@@ -45,7 +46,7 @@ unique_key='balance_date || node_id || delegator_id',
                 block_id,
                 '0' as delegator_id,
                 event_to as node_id,
-                (event_amount * -1)
+                (event_amount * -1) as event_amount
             FROM
                 {{ source('flow', 'udm_events_flow')}}
             WHERE event_type = 'tokens_unstaked'
@@ -66,4 +67,6 @@ unique_key='balance_date || node_id || delegator_id',
 
         )
         WHERE block_timestamp < current_date()::timestamp + interval '1 day'
+    ) GROUP BY 1,2,3
+    )
         GROUP BY 1,2,3,4
