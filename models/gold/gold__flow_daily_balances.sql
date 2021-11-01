@@ -50,7 +50,7 @@ unique_key='date || node_id || delegator_id',
         labels.l2_label as address_label_subtype,
         labels.project_name as address_label,
         labels.address_name as address_address_name,
-		balance / 10^8,
+		balance / 10e8,
 		currency,
 		balance_type
 	FROM
