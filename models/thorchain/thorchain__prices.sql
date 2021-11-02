@@ -76,7 +76,7 @@ rune_usd_sup_tbl AS (
       AND bpd.block_timestamp >= getdate() - interval '9 months'
       {% endif %}
   )
-  GROUP BY 1,2
+  GROUP BY block_timestamp,block_id
 ),
 
 rune_usd AS (

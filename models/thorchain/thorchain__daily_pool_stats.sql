@@ -42,14 +42,9 @@ pool_fees AS (
 
 SELECT
   pbs.day,
-  --pbs."status",
   pf.pool_name,
   system_rewards,
   system_rewards_usd,
-  -- asset_liquidity_fees,
-  -- asset_liquidity_fees_usd,
-  -- rune_liquidity_fees,  
-  -- rune_liquidity_fees_usd,
   COALESCE(asset_depth / POW(10, 8), 0) AS asset_liquidity,
   COALESCE(asset_price, 0) AS asset_price,
   COALESCE(asset_price_usd, 0) AS asset_price_usd,

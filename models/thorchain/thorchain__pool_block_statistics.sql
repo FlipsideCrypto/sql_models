@@ -240,7 +240,6 @@ SELECT
   COALESCE(asset_price_usd, 0) AS asset_price_usd,
   COALESCE(average_slip, 0) AS average_slip,
   COALESCE(impermanent_loss_protection_paid, 0) AS impermanent_loss_protection_paid,
--- //  poolAPY,
   COALESCE(rune_depth, 0) AS rune_depth,
   COALESCE(status, 'no status') AS status,
   COALESCE((to_rune_count + to_asset_count), 0) AS swap_count,

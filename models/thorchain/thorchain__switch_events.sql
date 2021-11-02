@@ -16,4 +16,4 @@ SELECT
 FROM {{source('thorchain_midgard', 'switch_events')}} e
 INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = e.BLOCK_TIMESTAMP
 WHERE (e._FIVETRAN_DELETED IS NULL OR e._FIVETRAN_DELETED = False)
-GROUP BY 1,2,3,4,5,6,7
+GROUP BY identified_id,block_timestamp,block_id,BURN_ASSET,BURN_E8,to_address,from_address

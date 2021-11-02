@@ -14,4 +14,4 @@ SELECT
 FROM {{source('thorchain_midgard', 'block_pool_depths')}} d
 INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = d.BLOCK_TIMESTAMP
 WHERE (d._FIVETRAN_DELETED IS NULL OR d._FIVETRAN_DELETED = False)
-GROUP BY 1,2,3,4,5
+GROUP BY block_timestamp,block_id,RUNE_E8,ASSET_E8,pool_name
