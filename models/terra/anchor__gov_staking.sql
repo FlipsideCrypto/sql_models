@@ -38,14 +38,14 @@ SELECT
   amount * o.price AS amount_usd,
   msg_value:contract::string as currency,
   msg_value:execute_msg:send:contract::string as contract_address,
-  l.address_name AS contract_label 
+  l.address AS contract_label 
 FROM {{ref('silver_terra__msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
  AND msg_value:contract::string = o.currency 
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
 
 WHERE msg_value:execute_msg:send:msg:stake_voting_tokens IS NOT NULL 
@@ -108,14 +108,14 @@ SELECT
   'terra14z56l0fp2lsf86zy3hty2z47ezkhnthtr9yq76' as currency,
   NULL as shares,
   msg_value:contract::string as contract_address,
-  l.address_name as contract_label
+  l.address as contract_label
 FROM {{ref('silver_terra__msgs')}} t
 
 LEFT OUTER JOIN prices o
  ON date_trunc('hour', t.block_timestamp) = o.hour
  AND 'terra14z56l0fp2lsf86zy3hty2z47ezkhnthtr9yq76' = o.currency 
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:withdraw_voting_tokens IS NOT NULL

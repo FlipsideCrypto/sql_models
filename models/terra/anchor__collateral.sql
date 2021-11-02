@@ -36,10 +36,10 @@ SELECT
   'withdraw' as action,
   msg_value:sender::string AS sender,
   msg_value:execute_msg:send:contract::string AS contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
 
 WHERE msg_value:execute_msg:withdraw_collateral IS NOT NULL 
@@ -108,10 +108,10 @@ SELECT
   amount * price AS amount_usd,
   msg_value:contract::string as currency,
   msg_value:execute_msg:send:contract::string AS contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
 
 LEFT OUTER JOIN prices o

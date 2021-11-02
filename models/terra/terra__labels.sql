@@ -1,6 +1,6 @@
 {{ config(
       materialized='view',
-      tags=['snowflake', 'terra_views', 'labels']  
+      tags=['snowflake', 'terra_views', 'labels', 'terra_labels']  
     ) 
 }}
 
@@ -9,8 +9,7 @@ SELECT
   address,
   l1_label as label_type,
   l2_label as label_subtype,
-  project_name as label,
-  address_name
-FROM {{source('shared', 'udm_address_labels_new')}}
+  project_name as label
+FROM {{ref('silver_crosschain__address_labels')}}
 WHERE blockchain = 'terra'
   AND l1_label != 'cex'

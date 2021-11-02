@@ -3,7 +3,7 @@
   unique_key = 'block_id',
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
-  tags = ['snowflake', 'ethereum', 'events']
+  tags = ['snowflake', 'ethereum', 'events', 'ethereum_udm_events']
 ) }}
 
 WITH token_prices AS (
@@ -48,20 +48,20 @@ events AS (
     "from" AS from_address,
     from_labels.l1_label AS from_label_type,
     from_labels.l2_label AS from_label_subtype,
-    from_labels.project_name AS from_label,
-    from_labels.address_name AS from_address_name,
+    from_labels.address AS from_label,
+    from_labels.project_name AS from_address_name,
     "to" AS to_address,
     to_labels.l1_label AS to_label_type,
     to_labels.l2_label AS to_label_subtype,
-    to_labels.project_name AS to_label,
-    to_labels.address_name AS to_address_name,
+    to_labels.address AS to_label,
+    to_labels.project_name AS to_address_name,
     log_method AS event_name,
     NULL AS event_type,
     log_index AS event_id,
     contract_address,
     COALESCE(
       e.symbol,
-      contract_labels.address_name
+      contract_labels.address
     ) AS symbol,
     input_method,
     eth_value,
@@ -70,20 +70,14 @@ events AS (
   FROM
     {{ ref('silver_ethereum__events') }}
     e
-    LEFT OUTER JOIN {{ source(
-      'ethereum',
-      'ethereum_address_labels'
-    ) }} AS from_labels
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
+     }} AS from_labels
     ON e."from" = from_labels.address
-    LEFT OUTER JOIN {{ source(
-      'ethereum',
-      'ethereum_address_labels'
-    ) }} AS to_labels
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')                 
+     }} AS to_labels
     ON e."to" = to_labels.address
-    LEFT OUTER JOIN {{ source(
-      'ethereum',
-      'ethereum_address_labels'
-    ) }} AS contract_labels
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
+     }} AS contract_labels
     ON e.contract_address = contract_labels.address
   WHERE
     1 = 1
@@ -99,7 +93,7 @@ originator AS (
     from_labels.l1_label AS origin_label_type,
     from_labels.l2_label AS origin_label_subtype,
     from_labels.project_name AS origin_label,
-    from_labels.address_name AS origin_address_name,
+    from_labels.address AS origin_address_name,
     t.input_method AS origin_function_signature,
     f.text_signature AS origin_function_name
   FROM
@@ -111,7 +105,7 @@ originator AS (
     ) }} AS f
     ON t.input_method = f.hex_signature
     AND f.importance = 1
-    LEFT OUTER JOIN silver.ethereum_address_labels AS from_labels
+    LEFT OUTER JOIN silver_crosschain.address_labels  AS from_labels
     ON t.from_address = from_labels.address
 ),
 full_events AS (

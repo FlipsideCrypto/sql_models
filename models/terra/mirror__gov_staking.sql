@@ -52,7 +52,7 @@ stake_msgs AS (
     event_amount * o.price AS event_amount_usd,
     msg_value :contract :: STRING AS event_currency,
     msg_value :execute_msg :send :contract :: STRING AS contract_address,
-    l.address_name AS contract_label
+    l.address AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     t
@@ -62,10 +62,7 @@ stake_msgs AS (
       t.block_timestamp
     ) = o.hour
     AND msg_value :contract :: STRING = o.currency
-    LEFT OUTER JOIN {{ source(
-      'shared',
-      'udm_address_labels_new'
-    ) }} AS l
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
     ON msg_value :execute_msg :send :contract :: STRING = l.address
   WHERE
     msg_value :execute_msg :send :msg :stake_voting_tokens IS NOT NULL
@@ -152,7 +149,7 @@ SELECT
   'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' AS event_currency,
   NULL AS shares,
   msg_value :contract :: STRING AS contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   t
@@ -166,10 +163,7 @@ FROM
     t.block_timestamp
   ) = o.hour
   AND 'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' = o.currency
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS l
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON msg_value :contract :: STRING = l.address
 WHERE
   msg_value :execute_msg :withdraw_voting_tokens IS NOT NULL

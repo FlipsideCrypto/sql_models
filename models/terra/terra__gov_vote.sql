@@ -57,7 +57,7 @@ SELECT
   voter_labels.l1_label AS voter_label_type,
   voter_labels.l2_label AS voter_label_subtype,
   voter_labels.project_name AS voter_address_label,
-  voter_labels.address_name AS voter_address_name,
+  voter_labels.address AS voter_address_name,
   REGEXP_REPLACE(
     msg_value :proposal_id,
     '\"',
@@ -71,10 +71,7 @@ SELECT
   b.balance AS voting_power
 FROM
   {{ ref('silver_terra__msgs') }} A
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS voter_labels
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')}} AS voter_labels
   ON msg_value :voter = voter_labels.address
   LEFT OUTER JOIN balances b
   ON DATE(

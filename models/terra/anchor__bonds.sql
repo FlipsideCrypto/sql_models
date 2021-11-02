@@ -3,7 +3,7 @@
     unique_key = 'block_id || tx_id',
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra', 'anchor', 'bonds']
+    tags=['snowflake', 'terra', 'anchor', 'bonds', 'anchor_bonds']
 ) }}
 
 WITH prices AS (
@@ -39,10 +39,10 @@ SELECT
   msg_value:coins[0]:denom::string as bonded_currency,
   msg_value:execute_msg:bond:validator::string AS validator,
   msg_value:contract::string AS contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:contract::string = l.address
 
 LEFT OUTER JOIN prices o

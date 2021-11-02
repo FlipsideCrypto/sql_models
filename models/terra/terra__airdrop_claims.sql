@@ -19,13 +19,10 @@ SELECT
     6
   ) AS amount,
   msg_value :contract :: STRING AS contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS l
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON msg_value :contract :: STRING = l.address
 WHERE
   msg_value :execute_msg :claim :amount IS NOT NULL

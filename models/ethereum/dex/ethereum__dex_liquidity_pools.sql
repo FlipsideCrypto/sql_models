@@ -38,7 +38,7 @@ WITH v3_pools AS ( -- uni v3
       ---- if the above is null, try cmc_assets
       ---- if the above is null, try to at least get a name instead of a symbol from ethereum_address_labels
       ---- if all else fails then just use the token contract address to yield an informative name
-      COALESCE(a.meta:symbol,aa.symbol,aaa.address_name,p.event_inputs:token0) ||'-'||COALESCE(b.meta:symbol,bb.symbol,bbb.address_name,p.event_inputs:token1)||' LP' AS pool_name,
+      COALESCE(a.meta:symbol,aa.symbol,aaa.address,p.event_inputs:token0) ||'-'||COALESCE(b.meta:symbol,bb.symbol,bbb.address,p.event_inputs:token1)||' LP' AS pool_name,
       REGEXP_REPLACE(p.event_inputs:pair,'\"','')   as pool_address, 
       REGEXP_REPLACE(p.event_inputs:token0,'\"','') as token0,
       REGEXP_REPLACE(p.event_inputs:token1,'\"','') as token1,
@@ -50,7 +50,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('shared', 'cmc_assets')}} aa
       ON REGEXP_REPLACE(p.event_inputs:token0,'\"','')        = aa.token_address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} aaa 
+    LEFT JOIN {{ref('silver_crosschain__address_labels')}} aaa 
       ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = aaa.address
 
     LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
@@ -59,7 +59,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('shared', 'cmc_assets')}} bb 
       ON REGEXP_REPLACE(p.event_inputs:token1,'\"','')        = bb.token_address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} bbb 
+    LEFT JOIN {{ref('silver_crosschain__address_labels')}} bbb 
       ON REGEXP_REPLACE(p.event_inputs:token1,'\"','') = bbb.address
 
     WHERE p.event_name    = 'PairCreated'
@@ -81,7 +81,7 @@ WITH v3_pools AS ( -- uni v3
       ---- if the above is null, try cmc_assets
       ---- if the above is null, try to at least get a name instead of a symbol from ethereum_address_labels
       ---- if all else fails then just use the token contract address to yield an informative name
-      COALESCE(a.meta:symbol,aa.symbol,aaa.address_name,p.token0) ||'-'||COALESCE(b.meta:symbol,bb.symbol,bbb.address_name,p.token1)||' LP' AS pool_name,
+      COALESCE(a.meta:symbol,aa.symbol,aaa.address,p.token0) ||'-'||COALESCE(b.meta:symbol,bb.symbol,bbb.address ,p.token1)||' LP' AS pool_name,
       pair   as pool_address, 
       token0,
       token1,
@@ -94,7 +94,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('shared', 'cmc_assets')}} aa
       ON token0 = aa.token_address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} aaa 
+    LEFT JOIN {{ref('silver_crosschain__address_labels')}} aaa 
       ON token0 = aaa.address
 
     LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
@@ -103,7 +103,7 @@ WITH v3_pools AS ( -- uni v3
     LEFT JOIN {{source('shared', 'cmc_assets')}} bb 
       ON token1 = bb.token_address
 
-    LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} bbb 
+    LEFT JOIN {{ref('silver_crosschain__address_labels')}} bbb 
       ON token1 = bbb.address
 ), sushi_write_in AS (
   -- adding a few major sushi pools that were created before we have eth data (this gives us data on swaps with these pools)
