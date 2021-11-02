@@ -68,7 +68,7 @@ SELECT
     COALESCE((total_liquidity_fees_rune / POWER(10, 8)), 0) AS total_liquidity_fees_rune,
     COALESCE((assetLiquidityFees / POWER(10, 8)), 0) AS asset_liquidity_fees,
     COALESCE((runeLiquidityFees / POWER(10, 8)), 0) AS rune_liquidity_fees,
-    COALESCE(((total_liquidity_fees_rune + rewards) / POWER(10, 8)), 0) AS earnings
+    ((COALESCE(total_liquidity_fees_rune, 0) + COALESCE(rewards, 0)) / POWER(10, 8)) AS earnings
 FROM all_block_id
 
 LEFT JOIN total_pool_rewards_tbl

@@ -232,7 +232,7 @@ SELECT
   pool_depth.day AS day,
   COALESCE(add_asset_liquidity_volume, 0) AS add_asset_liquidity_volume,
   COALESCE(add_liquidity_count, 0) AS add_liquidity_count,
-  COALESCE((add_asset_liquidity_volume + add_rune_liquidity_volume), 0) AS add_liquidity_volume,
+  (COALESCE(add_asset_liquidity_volume, 0) + COALESCE(add_rune_liquidity_volume, 0)) AS add_liquidity_volume,
   COALESCE(add_rune_liquidity_volume, 0) AS add_rune_liquidity_volume,
   pool_depth.pool_name AS asset,
   asset_depth,
@@ -252,14 +252,14 @@ SELECT
   COALESCE(to_rune_count, 0) AS to_rune_count,
   COALESCE(to_rune_fees, 0) AS to_rune_fees,
   COALESCE(to_rune_volume, 0) AS to_rune_volume,
-  COALESCE((to_rune_fees + to_asset_fees), 0) AS totalFees,
+  (COALESCE(to_rune_fees, 0) + COALESCE(to_asset_fees, 0)) AS totalFees,
   COALESCE(unique_member_count, 0) AS unique_member_count,
   COALESCE(unique_swapper_count, 0) AS unique_swapper_count,
   COALESCE(units, 0) AS units,
   COALESCE(withdraw_asset_volume, 0) AS withdraw_asset_volume,
   COALESCE(withdraw_count, 0) AS withdraw_count,
   COALESCE(withdraw_rune_volume, 0) AS withdraw_rune_volume,
-  COALESCE((withdraw_rune_volume + withdraw_asset_volume), 0) AS withdraw_volume
+  (COALESCE(withdraw_rune_volume, 0) + COALESCE(withdraw_asset_volume, 0)) AS withdraw_volume
 FROM pool_depth
 
 LEFT JOIN pool_status
