@@ -18,6 +18,7 @@ WITH msgs AS (
       10,
       6
     ) AS amount,
+    msg_value:sender::string as creator,
     msg_value :execute_msg :send :msg :create_poll :title :: STRING AS title,
     msg_value :execute_msg :send :msg :create_poll :link :: STRING AS link,
     msg_value :execute_msg :send :msg :create_poll :description :: STRING AS description,
@@ -77,6 +78,7 @@ SELECT
   m.tx_id,
   poll_id,
   end_time,
+  m.creator, 
   amount,
   title,
   link,

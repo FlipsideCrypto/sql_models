@@ -3,7 +3,7 @@
     unique_key = 'block_id || tx_id',
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra', 'anchor', 'bonds']
+    tags=['snowflake', 'terra', 'anchor', 'bonds', 'anchor_bonds']
 ) }}
 
 WITH prices AS (
