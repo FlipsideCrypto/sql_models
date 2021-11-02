@@ -30,7 +30,7 @@ SELECT
   b.balance_type,
   currency
 FROM
-  {{source('terra', 'udm_daily_balances_terra')}} b
+  {{ ref('silver_terra__daily_balances')}} b
 LEFT OUTER JOIN
   prices p
 ON
