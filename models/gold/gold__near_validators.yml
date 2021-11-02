@@ -1,0 +1,11 @@
+version: 2
+models:
+  - name: gold__near_validators
+    description: Validator staked amounts over blocks
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - BLOCK_NUMBER
+            - ADDRESS
+            - STATUS

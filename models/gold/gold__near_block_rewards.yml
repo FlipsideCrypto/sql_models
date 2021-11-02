@@ -1,0 +1,7 @@
+version: 2
+models:
+  - name: gold__near_block_rewards
+    description: Rewards given per block
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
