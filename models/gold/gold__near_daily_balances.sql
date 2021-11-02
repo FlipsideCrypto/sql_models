@@ -16,12 +16,12 @@ WITH near_labels AS (
   WHERE blockchain = 'near'
 ), near_prices AS (
  SELECT
-    p.symbol,
+    symbol,
     date_trunc('day', recorded_at) as day,
     avg(price) as price
  FROM {{ source('shared', 'prices') }}
  WHERE symbol = 'NEAR'
- GROUP BY p.symbol, day
+ GROUP BY symbol, day
 ), near_decimals AS (
   SELECT *
   FROM {{ source('shared', 'udm_decimal_adjustments') }}
@@ -38,21 +38,10 @@ SELECT
   balance / POWER(10, COALESCE(adj.decimal_adjustment, 0)) * p.price as balance_usd,
   balance_type,
   currency
-FROM
-  {{ source('near_silver', 'daily_balances') }} b
-LEFT OUTER JOIN
-  near_decimals
-ON
-  b.currency = adj.token_identifier
-LEFT OUTER JOIN
-  near_prices p
-ON
-  p.symbol = b.currency
-  AND p.day = b.date
-LEFT OUTER JOIN
-  near_labels as address_labels
-ON
-  b.address = address_labels.address
+FROM {{ source('near_silver', 'daily_balances') }} b
+LEFT OUTER JOIN near_decimals adj ON b.currency = adj.token_identifier
+LEFT OUTER JOIN near_prices p ON p.symbol = b.currency AND p.day = b.date
+LEFT OUTER JOIN near_labels as address_labels ON b.address = address_labels.address
 WHERE
   {% if is_incremental() %}
     date >= getdate() - interval '3 days'

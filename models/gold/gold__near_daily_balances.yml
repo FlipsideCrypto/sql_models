@@ -1,0 +1,10 @@
+version: 2
+models:
+  - name: gold__near_daily_balances
+    description: Daily balances by address
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DATE
+            - ADDRESS
+            - BALANCE_TYPE
