@@ -17,9 +17,10 @@ WITH near_labels AS (
 ), near_prices AS (
     SELECT
         date_trunc('hour', recorded_at) as hour,
-        price
+        avg(price) as price
     FROM {{ source('shared', 'prices') }}
     WHERE symbol = 'NEAR'
+    group by hour
 )
 SELECT
   'near' as blockchain,

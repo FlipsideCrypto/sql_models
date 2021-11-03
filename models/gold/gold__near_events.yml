@@ -1,9 +1,17 @@
 version: 2
 models:
   - name: gold__near_events
-    description: Daily delegate counts by address
+    description: Near emmitted events
     tests:
       - dbt_utils.unique_combination_of_columns:
+          # XXX: The original Redshift query produces duplicate rows.
+          # This isn't the PK of the table.
+          config:
+            enabled: false
           combination_of_columns:
-            - DATE
-            - VALIDATOR_ADDRESS
+            - BLOCKCHAIN
+            - BLOCK_NUMBER
+            - TX_ID
+            - TX_FROM
+            - TX_TO
+            - EVENT_TYPE
