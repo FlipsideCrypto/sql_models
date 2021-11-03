@@ -4,7 +4,7 @@
     sort='pool_address', 
     unique_key='pool_address || factory', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools']
+    tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools', 'curve_liquidity_pools']
   )
 }}
 WITH pool_tokens AS (
@@ -59,9 +59,9 @@ WITH pool_tokens AS (
 SELECT 
     n.factory,
     n.pool_address,
-    COALESCE(l.address_name,n.pool_name) AS pool_name,
+    COALESCE(l.address,n.pool_name) AS pool_name,
     n.tokens
 FROM names_final n
-LEFT JOIN {{source('ethereum', 'ethereum_address_labels')}} l
+LEFT JOIN {{ref('silver_crosschain__address_labels')}} l
     ON n.pool_address = l.address
     QUALIFY (row_number() OVER (partition by pool_name order by factory desc)) = 1

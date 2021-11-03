@@ -91,10 +91,10 @@ SELECT
   msg_value:execute_msg:send:msg:burn:position_idx as collateral_id,
   msg_value:sender::string as sender,
   msg_value:execute_msg:send:contract::string as contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM tx t
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
 
 ),

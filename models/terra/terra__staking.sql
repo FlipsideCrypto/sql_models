@@ -119,12 +119,12 @@ SELECT
   delegator_labels.l1_label AS delegator_label_type,
   delegator_labels.l2_label AS delegator_label_subtype,
   delegator_labels.project_name AS delegator_address_label,
-  delegator_labels.address_name AS delegator_address_name,
+  delegator_labels.address AS delegator_address_name,
   a.validator_address,
   validator_labels.l1_label AS validator_label_type,
   validator_labels.l2_label AS validator_label_subtype,
   validator_labels.project_name AS validator_address_label,
-  validator_labels.address_name AS validator_address_name,
+  validator_labels.address AS validator_address_name,
   a.amount :: FLOAT AS event_amount,
   price_usd,
   a.amount * price_usd AS event_amount_usd,
@@ -146,8 +146,8 @@ LEFT OUTER JOIN prices p
   ON p.currency = a.currency
   AND p.hour = DATE_TRUNC('hour', a.block_timestamp)
 
-LEFT OUTER JOIN {{ source( 'shared', 'udm_address_labels_new') }} delegator_labels
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} delegator_labels
   ON A.delegator_address = delegator_labels.address
 
-LEFT OUTER JOIN {{ source( 'shared', 'udm_address_labels_new') }} validator_labels
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} validator_labels
   ON A.validator_address = validator_labels.address 

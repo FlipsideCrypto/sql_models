@@ -36,10 +36,10 @@ SELECT
   'provide_liquidity' as event_type,
   msg_value:sender::string as sender,
   msg_value:contract::string as pool_address,
-  l.address_name AS pool_name
+  l.address AS pool_name
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:contract::string = l.address
 
 WHERE msg_value:execute_msg:provide_liquidity IS NOT NULL 
@@ -68,13 +68,13 @@ SELECT
     WHEN event_attributes:"2_contract_address"::string = 'terra17yap3mhph35pcwvhza38c2lkj7gzywzy05h7l0' THEN event_attributes:"4_contract_address"::string 
     ELSE event_attributes:"2_contract_address"::string 
   END AS lp_pool_address,
-  l.address_name AS lp_pool_name
+  l.address AS lp_pool_name
 FROM {{ref('silver_terra__msg_events')}} t
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON event_attributes:"2_contract_address"::string = l.address
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as r
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as r
 ON event_attributes:"4_contract_address"::string = r.address
 
 LEFT OUTER JOIN prices o
@@ -106,15 +106,15 @@ SELECT
   'withdraw_liquidity' as event_type,
   msg_value:sender::string as sender,
   msg_value:contract::string as lp_pool_address,
-  l.address_name AS lp_pool_name,
+  l.address AS lp_pool_name,
   msg_value:execute_msg:send:contract::string as pool_address,
-  p.address_name AS pool_name
+  p.address AS pool_name
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as p
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as p
 ON msg_value:contract::string = p.address
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:execute_msg:send:contract::string = l.address
 
 WHERE msg_value:execute_msg:send:msg:withdraw_liquidity IS NOT NULL

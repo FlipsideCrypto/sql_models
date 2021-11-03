@@ -35,10 +35,10 @@ SELECT
   tx_id,
   msg_value:execute_msg:liquidate_collateral:borrower::string AS borrower,
   msg_value:contract::string as contract_address,
-  l.address_name as contract_label
+  l.address as contract_label
 FROM {{ref('silver_terra__msgs')}} m
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON msg_value:contract::string = l.address
 
 WHERE msg_value:contract::string = 'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8'

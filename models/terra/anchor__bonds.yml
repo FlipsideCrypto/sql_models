@@ -37,18 +37,15 @@ models:
       - name: BONDED_CURRENCY
         tests:
           - not_null
-      - name: MINTED_AMOUNT
+      - name: SENDER
         tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: MINTED_AMOUNT_USD
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: MINTED_CURRENCY
-        tests:
+          - not_null
+      - name: VALIDATOR
+        tests: 
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests: 
+          - not_null
+      - name: CONTRACT_LABEL
+        tests: 
           - not_null

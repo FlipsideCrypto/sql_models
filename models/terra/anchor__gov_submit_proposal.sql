@@ -52,18 +52,18 @@ SELECT
   m.tx_id,
   poll_id,
   end_time,
-  creator,
+  m.creator, 
   amount,
   title,
   link,
   description,
   msg,
   contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM msgs m 
 
 JOIN events e 
   ON m.tx_id = e.tx_id
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} as l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
 ON contract_address = l.address

@@ -104,7 +104,7 @@ SELECT
   return_amount * r.price AS return_amount_usd,
   return_currency,
   pool_address,
-  l.address_name AS pool_name
+  l.address AS pool_name
 FROM msgs m 
 
 JOIN events e 
@@ -118,5 +118,5 @@ LEFT OUTER JOIN prices r
  ON date_trunc('hour', m.block_timestamp) = r.hour
  AND e.return_currency = r.currency  
 
-LEFT OUTER JOIN {{source('shared','udm_address_labels_new')}} l
+LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} l
   ON pool_address = address

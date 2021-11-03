@@ -36,7 +36,7 @@ balances AS (
     balance_date,
     b.address as user_address,
     labels.project_name as label,
-    labels.address_name as address_name,
+    labels.address as address_name,
     labels.l1_label as label_type,
     labels.l2_label as label_subtype,
     b.contract_address,
@@ -52,12 +52,12 @@ balances AS (
 
   LEFT OUTER JOIN
     -- Labels for addresses
-    {{ source('ethereum', 'ethereum_address_labels') }} as labels
+    {{ ref('silver_crosschain__address_labels') }} as labels
       ON b.address = labels.address
 
   LEFT OUTER JOIN
     -- Labels for contracts
-    {{ source('ethereum', 'ethereum_address_labels') }} as contract_labels
+    {{ ref('silver_crosschain__address_labels') }} as contract_labels
       ON contract_labels.address = b.contract_address
 
   LEFT OUTER JOIN

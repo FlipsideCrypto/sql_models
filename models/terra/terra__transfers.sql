@@ -170,12 +170,12 @@ SELECT
   from_labels.l1_label AS event_from_label_type,
   from_labels.l2_label AS event_from_label_subtype,
   from_labels.project_name AS event_from_address_label,
-  from_labels.address_name AS event_from_address_name,
+  from_labels.address AS event_from_address_name,
   t.event_to,
   to_labels.l1_label AS event_to_label_type,
   to_labels.l2_label AS event_to_label_subtype,
   to_labels.project_name AS event_to_address_label,
-  to_labels.address_name AS event_to_address_name,
+  to_labels.address AS event_to_address_name,
   t.event_amount,
   t.event_amount * price_usd AS event_amount_usd,
   s.symbol AS event_currency
@@ -189,13 +189,7 @@ FROM
   AND t.event_currency = o.currency
   LEFT OUTER JOIN symbol s
   ON t.event_currency = s.currency
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS from_labels
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
   ON event_from = from_labels.address
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS to_labels
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS to_labels
   ON event_to = to_labels.address

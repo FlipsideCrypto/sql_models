@@ -14,11 +14,11 @@ WITH msgs AS (
     block_id,
     block_timestamp,
     tx_id,
-    msg_value :sender :: STRING AS creator,
     msg_value :execute_msg :send :amount / pow(
       10,
       6
     ) AS amount,
+    msg_value:sender::string as creator,
     msg_value :execute_msg :send :msg :create_poll :title :: STRING AS title,
     msg_value :execute_msg :send :msg :create_poll :link :: STRING AS link,
     msg_value :execute_msg :send :msg :create_poll :description :: STRING AS description,
@@ -78,20 +78,17 @@ SELECT
   m.tx_id,
   poll_id,
   end_time,
-  creator,
+  m.creator, 
   amount,
   title,
   link,
   description,
   msg,
   contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM
   msgs m
   JOIN events e
   ON m.tx_id = e.tx_id
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS l
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')}} AS l
   ON contract_address = l.address
