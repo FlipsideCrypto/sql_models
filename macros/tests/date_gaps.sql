@@ -37,7 +37,7 @@ WHERE
         days,
         {{ previous_column }},
         {{ column }}
-    ) <> 1 {% if exclude -%}
+    ) > 1 {% if exclude -%}
         AND {{ column }} NOT IN (
             {{ dbt_utils.date_spine(
                 datepart = "day",
