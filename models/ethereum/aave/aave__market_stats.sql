@@ -267,7 +267,7 @@ aave_data AS (
           a.blockhour,
           a.reserve_token,
           --l.address_name AS reserve_name,
-          COALESCE(p.symbol,REGEXP_REPLACE(l.address,'AAVE.*: a','')) AS reserve_name,
+          COALESCE(p.symbol,REGEXP_REPLACE(l.contract_addr,'AAVE.*: a','')) AS reserve_name,
           a.aave_version,
           a.lending_pool_add,
           COALESCE(p.price,ap.price) AS reserve_price,
@@ -291,7 +291,7 @@ aave_data AS (
   LEFT OUTER JOIN
   decimals d ON a.reserve_token = d.token_address
   LEFT OUTER JOIN
-  {{ref('silver_ethereum__events_emitted')}} l ON a.atoken_address = l.address
+  {{ref('silver_ethereum__events_emitted')}} l ON a.atoken_address = l.contract_addr
   LEFT OUTER JOIN
   aave_prices ap ON a.reserve_token = ap.token_address AND a.blockhour = ap.hour
   LEFT OUTER JOIN

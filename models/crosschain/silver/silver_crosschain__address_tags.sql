@@ -16,18 +16,13 @@ SELECT
   start_date, 
   end_date
 FROM
-  {{ ref('silver_dbt__address_tags') }}
+  {{ source(
+      'shared',
+      'udm_address_tags'
+    ) }}
+
 WHERE
   1 = 1
-
-{% if is_incremental() %}
-AND system_created_at :: DATE >= (
-  SELECT
-    DATEADD('day', -1, MAX(system_created_at :: DATE))
-  FROM
-    {{ this }} AS address_tags
-)
-{% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, tag_name
 ORDER BY
