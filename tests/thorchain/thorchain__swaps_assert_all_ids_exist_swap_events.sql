@@ -1,0 +1,1 @@
+{{ all_ids_exist(ref("thorchain__swap_events"), "tx_id", ref("thorchain__swaps"), "tx_id") }}
