@@ -2,6 +2,7 @@
   materialized = 'incremental',
   unique_key = 'date || address || currency || balance_type',
   incremental_strategy = 'delete+insert',
+  cluster_by = ['date'],
   tags = ['snowflake', 'silver_terra', 'silver_terra__daily_balances']
 ) }}
 
@@ -9,7 +10,7 @@ with address_ranges as (
   select address,
   currency,
   balance_type,
-  blockchain,
+  'terra' as blockchain,
   min(block_timestamp::date) as min_block_date,
   max(current_timestamp::date) as max_block_date
 from {{ source('shared', 'terra_balances') }}
@@ -31,9 +32,14 @@ CTE_MY_DATE AS (
   where a.address is not null
   ),
   eth_balances as (
-select *
+select address,
+currency,
+block_timestamp,
+balance_type,
+'terra' as blockchain,
+balance
 from {{ source('shared', 'terra_balances') }}
-QUALIFY(row_number() over(partition by address, currency, block_timestamp::date, balance_type order by block_timestamp desc)) = 1
+QUALIFY(row_number() over(partition by address, currency, block_timestamp::date, balance_type, blockchain order by block_timestamp desc)) = 1
 ),
 balance_tmp as (
 select d.date,
