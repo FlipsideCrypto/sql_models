@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: silver_flow__daily_staked_balances
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BALANCE_DATE
+            - NODE_ID
+            - DELEGATOR_ID
+
+    columns:
+      - name: "DELEGATED_AMOUNT"
+      - name: "BALANCE_DATE"
+        tests:
+          - not_null
+      - name: "DELEGATOR_ID"
+      - name: "NODE_ID"

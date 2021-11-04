@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: gold__flow_transfers
+    columns:
+      - name: "EVENT_TO_ADDRESS_NAME"
+      - name: "EVENT_FROM_LABEL_SUBTYPE"
+      - name: "EVENT_TO_LABEL_SUBTYPE"
+      - name: "BLOCKCHAIN"
+      - name: "EVENT_FROM_ADDRESS_NAME"
+      - name: "EVENT_CURRENCY"
+      - name: "EVENT_AMOUNT_USD"
+      - name: "EVENT_TO_LABEL_TYPE"
+      - name: "EVENT_TYPE"
+      - name: "BLOCK_TIMESTAMP"
+        tests:
+          - not_null
+      - name: "EVENT_AMOUNT"
+      - name: "EVENT_FROM_LABEL"
+      - name: "EVENT_FROM_LABEL_TYPE"
+      - name: "TX_ID"
+        tests:
+          - unique
+      - name: "EVENT_TO_LABEL"
+      - name: "BLOCK_NUMBER"
+      - name: "EVENT_FROM"
+      - name: "EVENT_TO"

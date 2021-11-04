@@ -1,4 +1,4 @@
-{{ config(materialized='incremental',  unique_key='tx_id',
+{{ config(materialized='incremental',  unique_key='tx_id || event_from || event_to',
     cluster_by=['block_timestamp'],
 tags=['events', 'flow', 'rewards','snowflake','gold']) }}
 
@@ -10,7 +10,7 @@ SELECT
 e.block_timestamp,
 e.block_number,
 e.tx_id,
-event_from,
+e.event_from,
 event_from_label_type,
 event_from_label_subtype,
 event_from_label,
@@ -56,7 +56,7 @@ e.blockchain,
 e.block_timestamp,
 e.block_number,
 e.tx_id,
-event_from,
+e.event_from,
 event_from_label_type,
 event_from_label_subtype,
 event_from_label,

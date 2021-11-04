@@ -8,13 +8,7 @@
 
 SELECT
   date,
-  node_id,
-  delegator_id,
   address,
-  address_label_type,
-  address_label_subtype,
-  address_label,
-  address_address_name,
   balance,
   currency,
   balance_type

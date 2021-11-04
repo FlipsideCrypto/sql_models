@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: gold__flow_delegator_addresses
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+            - NODE_ID
+    columns:
+      - name: "NODE_ID"
+      - name: "BLOCK_ID"
+      - name: "TX_ID"
+      - name: "DELEGATOR_ADDRESS"
+      - name: "BLOCK_TIMESTAMP"
+        tests:
+          - not_null
+      - name: "DELEGATOR_ID"

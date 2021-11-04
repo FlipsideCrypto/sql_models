@@ -1,0 +1,30 @@
+version: 2
+
+models:
+  - name: gold__flow_staking
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_NUMBER
+            - TX_ID
+    columns:
+      - name: "EVENT_TO"
+      - name: "EVENT_FROM_LABEL_SUBTYPE"
+      - name: "EVENT_TO_ADDRESS_NAME"
+      - name: "EVENT_AMOUNT_USD"
+      - name: "BLOCK_NUMBER"
+      - name: "BLOCK_TIMESTAMP"
+        tests:
+          - not_null
+      - name: "BLOCKCHAIN"
+      - name: "EVENT_FROM_LABEL"
+      - name: "EVENT_AMOUNT"
+      - name: "EVENT_TO_LABEL_TYPE"
+      - name: "EVENT_TO_LABEL"
+      - name: "TX_ID"
+      - name: "EVENT_CURRENCY"
+      - name: "EVENT_FROM"
+      - name: "EVENT_FROM_ADDRESS_NAME"
+      - name: "EVENT_TO_LABEL_SUBTYPE"
+      - name: "EVENT_FROM_LABEL_TYPE"
+      - name: "EVENT_TYPE"

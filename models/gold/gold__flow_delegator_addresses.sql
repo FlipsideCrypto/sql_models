@@ -1,8 +1,8 @@
-{{ 
+{{
   config(
-    materialized='incremental', 
+    materialized='incremental',
     incremental_strategy='delete+insert',
-    unique_key='block_timestamp', 
+    unique_key='block_id || tx_id || node_id',
     tags=['snowflake', 'gold_flow', 'gold', 'gold__flow_delegator_addresses']) }}
 
 SELECT
