@@ -1,7 +1,7 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'block_timestamp',
+  unique_key = "CONCAT_WS('-', block_timestamp)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'terra', 'oracle']
 ) }}
@@ -177,28 +177,33 @@ FROM
     'hour',
     ma.block_timestamp
   ) = pp.block_timestamp
-
-UNION 
-
-SELECT 
-  ee.blockchain, 
+UNION
+SELECT
+  ee.blockchain,
   ee.block_timestamp,
-  ee.event_attributes:asset::string as currency,
-  l.address as symbol,
-  pp.price / ee.event_attributes:price AS luna_exchange_rate,
-  ee.event_attributes:price AS price_usd,
-  'oracle' as source
-FROM {{ ref('silver_terra__msg_events') }} ee
-
-LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
-ON ee.event_attributes:asset::string = l.address
-
-LEFT OUTER JOIN prices pp
-  ON DATE_TRUNC('hour', ee.block_timestamp) = pp.block_timestamp
-
-WHERE event_type = 'from_contract'
-  AND tx_id IN(SELECT tx_id 
-               FROM {{ ref('silver_terra__msgs') }} 
-               WHERE msg_value:contract::string = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t' 
-                 AND msg_value:execute_msg:feed_price IS NOT NULL
-              )
+  ee.event_attributes :asset :: STRING AS currency,
+  l.address AS symbol,
+  pp.price / ee.event_attributes :price AS luna_exchange_rate,
+  ee.event_attributes :price AS price_usd,
+  'oracle' AS source
+FROM
+  {{ ref('silver_terra__msg_events') }}
+  ee
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+  ON ee.event_attributes :asset :: STRING = l.address
+  LEFT OUTER JOIN prices pp
+  ON DATE_TRUNC(
+    'hour',
+    ee.block_timestamp
+  ) = pp.block_timestamp
+WHERE
+  event_type = 'from_contract'
+  AND tx_id IN(
+    SELECT
+      tx_id
+    FROM
+      {{ ref('silver_terra__msgs') }}
+    WHERE
+      msg_value :contract :: STRING = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t'
+      AND msg_value :execute_msg :feed_price IS NOT NULL
+  )

@@ -1,9 +1,9 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'block_id',
+  unique_key = "block_id",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp'],
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'transfers']
 ) }}
 
@@ -132,31 +132,32 @@ transfers AS(
 AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
 --  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
-
-UNION 
-
-SELECT 
+UNION
+SELECT
   blockchain,
   chain_id,
   tx_status,
   block_id,
   block_timestamp,
   tx_id,
-  msg_type, 
-  msg_value:sender::string as event_from,
-  msg_value:execute_msg:transfer:recipient::string as event_to,
-  msg_value:execute_msg:transfer:amount / pow(10,6) as event_amount,
-  msg_value:contract::string as event_currency
-FROM {{ref('silver_terra__msgs')}}
-WHERE msg_value:execute_msg:transfer IS NOT NULL 
+  msg_type,
+  msg_value :sender :: STRING AS event_from,
+  msg_value :execute_msg :transfer :recipient :: STRING AS event_to,
+  msg_value :execute_msg :transfer :amount / pow(
+    10,
+    6
+  ) AS event_amount,
+  msg_value :contract :: STRING AS event_currency
+FROM
+  {{ ref('silver_terra__msgs') }}
+WHERE
+  msg_value :execute_msg :transfer IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
--- {% else %}
+AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
 --  AND block_timestamp >= getdate() - interval '9 months'
 {% endif %}
-
 )
 SELECT
   t.blockchain,

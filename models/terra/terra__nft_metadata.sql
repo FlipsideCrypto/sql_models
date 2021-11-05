@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     sort = 'created_at_timestamp',
-    unique_key = 'contract_address || token_id',
+    unique_key = "CONCAT_WS('-', contract_address, token_id)",
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra_views', 'terra__nft_metadata', 'terra']
 ) }}

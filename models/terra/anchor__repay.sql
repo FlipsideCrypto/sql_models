@@ -1,54 +1,78 @@
 {{ config(
-    materialized = 'incremental',
-    unique_key = 'block_id || tx_id',
-    incremental_strategy = 'delete+insert',
-    cluster_by = ['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra', 'anchor', 'repay']
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', block_id, tx_id)",
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['block_timestamp::DATE'],
+  tags = ['snowflake', 'terra', 'anchor', 'repay']
 ) }}
 
 WITH prices AS (
 
-  SELECT 
-      date_trunc('hour', block_timestamp) as hour,
-      currency,
-      symbol,
-      avg(price_usd) as price
-    FROM {{ ref('terra__oracle_prices')}} 
-    
-    WHERE 1=1
-    
-    {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
-    {% endif %}
+  SELECT
+    DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) AS HOUR,
+    currency,
+    symbol,
+    AVG(price_usd) AS price
+  FROM
+    {{ ref('terra__oracle_prices') }}
+  WHERE
+    1 = 1
 
-    GROUP BY 1,2,3
-
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
 )
-
-SELECT 
+{% endif %}
+GROUP BY
+  1,
+  2,
+  3
+)
+SELECT
   m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
   tx_id,
-  msg_value:sender::string as sender,
-  msg_value:coins[0]:amount / POW(10,6) as amount,
+  msg_value :sender :: STRING AS sender,
+  msg_value :coins [0] :amount / pow(
+    10,
+    6
+  ) AS amount,
   amount * price AS amount_usd,
-  msg_value:coins[0]:denom::string as currency,
-  msg_value:contract::string as contract_address,
+  msg_value :coins [0] :denom :: STRING AS currency,
+  msg_value :contract :: STRING AS contract_address,
   l.address AS contract_label
-FROM {{ref('silver_terra__msgs')}} m
-
-LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
-ON msg_value:contract::string = l.address
-
-LEFT OUTER JOIN prices r
- ON date_trunc('hour', block_timestamp) = hour
- AND msg_value:coins[0]:denom::string = r.currency 
-
-WHERE msg_value:execute_msg:repay_stable IS NOT NULL 
+FROM
+  {{ ref('silver_terra__msgs') }}
+  m
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+  ON msg_value :contract :: STRING = l.address
+  LEFT OUTER JOIN prices r
+  ON DATE_TRUNC(
+    'hour',
+    block_timestamp
+  ) = HOUR
+  AND msg_value :coins [0] :denom :: STRING = r.currency
+WHERE
+  msg_value :execute_msg :repay_stable IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
-  {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
-  {% endif %}
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}

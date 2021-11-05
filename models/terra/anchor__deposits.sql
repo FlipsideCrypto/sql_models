@@ -1,90 +1,126 @@
 {{ config(
-    materialized = 'incremental',
-    unique_key = 'block_id || tx_id',
-    incremental_strategy = 'delete+insert',
-    cluster_by = ['block_timestamp', 'block_id'],
-    tags=['snowflake', 'terra', 'anchor', 'deposits']
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', block_id, tx_id)",
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['block_timestamp::DATE'],
+  tags = ['snowflake', 'terra', 'anchor', 'deposits']
 ) }}
 
 WITH prices AS (
 
-  SELECT 
-      date_trunc('hour', block_timestamp) as hour,
-      currency,
-      symbol,
-      avg(price_usd) as price
-    FROM {{ ref('terra__oracle_prices')}} 
-    
-    WHERE 1=1
-    
-    {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
-    {% endif %}
+  SELECT
+    DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) AS HOUR,
+    currency,
+    symbol,
+    AVG(price_usd) AS price
+  FROM
+    {{ ref('terra__oracle_prices') }}
+  WHERE
+    1 = 1
 
-    GROUP BY 1,2,3
-
-),
-
-msgs AS (
-
-SELECT
-  m.blockchain,
-  chain_id,
-  block_id,
-  block_timestamp,
-  tx_id,
-  msg_index,
-  msg_value:sender::string as sender,
-  msg_value:coins[0]:amount / POW(10,6) as deposit_amount,
-  deposit_amount * price AS deposit_amount_usd,
-  msg_value:coins[0]:denom::string as deposit_currency,
-  msg_value:contract::string as contract_address,
-  l.address as contract_label
-FROM {{ref('silver_terra__msgs')}} m
-
-LEFT OUTER JOIN {{ref('silver_crosschain__address_labels')}} as l
-ON msg_value:contract::string = l.address
-
-LEFT OUTER JOIN prices o
- ON date_trunc('hour', block_timestamp) = o.hour
- AND msg_value:coins[0]:denom::string = o.currency 
-
-WHERE msg_value:execute_msg:deposit_stable IS NOT NULL 
-  AND msg_value:contract::string = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
-  AND tx_status = 'SUCCEEDED'
-
-  {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
-  {% endif %}
-
-),
-
-events AS (
-
-SELECT 
-  tx_id,
-  msg_index,
-  event_attributes:mint_amount / POW(10,6) as mint_amount,
-  mint_amount * price AS mint_amount_usd,
-  event_attributes:"1_contract_address"::string as mint_currency
-FROM {{ref('silver_terra__msg_events')}}
-
-LEFT OUTER JOIN prices o
- ON date_trunc('hour', block_timestamp) = o.hour
- AND event_attributes:"1_contract_address"::string = o.currency 
-
-WHERE event_type = 'from_contract'
-  AND tx_id IN(SELECT tx_id FROM msgs)
-  AND event_attributes:"0_action"::string = 'deposit_stable'
-  AND tx_status = 'SUCCEEDED'
-
-  {% if is_incremental() %}
-    AND block_timestamp::date >= (select max(block_timestamp::date) from {{ref('silver_terra__msgs')}})
-  {% endif %}
-
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
 )
+{% endif %}
+GROUP BY
+  1,
+  2,
+  3
+),
+msgs AS (
+  SELECT
+    m.blockchain,
+    chain_id,
+    block_id,
+    block_timestamp,
+    tx_id,
+    msg_index,
+    msg_value :sender :: STRING AS sender,
+    msg_value :coins [0] :amount / pow(
+      10,
+      6
+    ) AS deposit_amount,
+    deposit_amount * price AS deposit_amount_usd,
+    msg_value :coins [0] :denom :: STRING AS deposit_currency,
+    msg_value :contract :: STRING AS contract_address,
+    l.address AS contract_label
+  FROM
+    {{ ref('silver_terra__msgs') }}
+    m
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+    ON msg_value :contract :: STRING = l.address
+    LEFT OUTER JOIN prices o
+    ON DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) = o.hour
+    AND msg_value :coins [0] :denom :: STRING = o.currency
+  WHERE
+    msg_value :execute_msg :deposit_stable IS NOT NULL
+    AND msg_value :contract :: STRING = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
+    AND tx_status = 'SUCCEEDED'
 
-SELECT 
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+),
+events AS (
+  SELECT
+    tx_id,
+    msg_index,
+    event_attributes :mint_amount / pow(
+      10,
+      6
+    ) AS mint_amount,
+    mint_amount * price AS mint_amount_usd,
+    event_attributes :"1_contract_address" :: STRING AS mint_currency
+  FROM
+    {{ ref('silver_terra__msg_events') }}
+    LEFT OUTER JOIN prices o
+    ON DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) = o.hour
+    AND event_attributes :"1_contract_address" :: STRING = o.currency
+  WHERE
+    event_type = 'from_contract'
+    AND tx_id IN(
+      SELECT
+        tx_id
+      FROM
+        msgs
+    )
+    AND event_attributes :"0_action" :: STRING = 'deposit_stable'
+    AND tx_status = 'SUCCEEDED'
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+)
+SELECT
   blockchain,
   chain_id,
   block_id,
@@ -99,7 +135,7 @@ SELECT
   mint_currency,
   contract_address,
   contract_label
-FROM msgs m 
-
-JOIN events e 
+FROM
+  msgs m
+  JOIN events e
   ON m.tx_id = e.tx_id
