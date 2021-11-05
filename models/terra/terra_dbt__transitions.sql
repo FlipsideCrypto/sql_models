@@ -1,7 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'chain_id || block_id || index || transition_type || event',
+  unique_key = 'HASH(chain_id, block_id, transition_type, index, event)',
   incremental_strategy = 'delete+insert',
+  cluster_by = ['block_timestamp::DATE', 'block_id'],
   tags = ['snowflake', 'terra_silver', 'terra_transitions']
 ) }}
 
