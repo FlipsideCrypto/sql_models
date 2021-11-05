@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key="block_id || '-' || reward_entity", 
+    unique_key="CONCAT_WS('-', block_id, reward_entity)", 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'thorchain_total_block_rewards']
   )
