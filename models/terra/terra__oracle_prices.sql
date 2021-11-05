@@ -91,8 +91,7 @@ massets AS(
     AND msg_value :sender = 'terra128968w0r6cche4pmf4xn5358kx2gth6tr3n0qs' -- Make sure we are pulling right events
 
 {% if is_incremental() %}
-AND m.block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---   AND m.block_timestamp >= getdate() - interval '9 months'
+AND m.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 )
 SELECT

@@ -42,8 +42,7 @@ WITH input AS (
     AND event_type = 'transfer'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 tbl_recipient AS (
@@ -67,8 +66,7 @@ tbl_recipient AS (
     message_attribute = 'recipient'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 tbl_amount AS (

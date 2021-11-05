@@ -46,6 +46,5 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND DATE >= getdate() - INTERVAL '3 days' -- {% else %}
---   date >= getdate() - interval '12 months'
+AND DATE >= getdate() - INTERVAL '3 days'
 {% endif %}

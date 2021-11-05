@@ -34,8 +34,7 @@ WITH staking_events AS (
     AND msg_type = 'staking/MsgCreateValidator'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 staking AS (
@@ -115,8 +114,7 @@ staking AS (
     AND msg_type = 'staking/MsgCreateValidator'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 event_base AS (

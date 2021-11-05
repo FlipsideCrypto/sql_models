@@ -31,14 +31,12 @@ WITH balances AS (
         AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---   AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 )
 
 {% if is_incremental() %}
-AND DATE >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND date >= getdate() - interval '9 months'
+AND DATE >= getdate() - INTERVAL '1 days'
 {% endif %}
 )
 SELECT
@@ -86,6 +84,5 @@ WHERE
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
