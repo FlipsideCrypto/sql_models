@@ -1,8 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'chain_id || block_id || tx_id || msg_index || event_index || event_type',
+  unique_key = "CONCAT_WS('-', chain_id, block_id, tx_id, msg_index, event_index, event_type)",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp', 'block_id', 'tx_id'],
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra_silver', 'terra_msg_events']
 ) }}
 

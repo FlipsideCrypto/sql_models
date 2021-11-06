@@ -1,9 +1,9 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'block_id',
+  unique_key = "block_id",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp'],
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'gov']
 ) }}
 
@@ -31,14 +31,12 @@ WITH balances AS (
         AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---   AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 )
 
 {% if is_incremental() %}
-AND DATE >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND date >= getdate() - interval '9 months'
+AND DATE >= getdate() - INTERVAL '1 days'
 {% endif %}
 )
 SELECT
@@ -71,7 +69,7 @@ SELECT
   b.balance AS voting_power
 FROM
   {{ ref('silver_terra__msgs') }} A
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')}} AS voter_labels
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS voter_labels
   ON msg_value :voter = voter_labels.address
   LEFT OUTER JOIN balances b
   ON DATE(
@@ -86,6 +84,5 @@ WHERE
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}

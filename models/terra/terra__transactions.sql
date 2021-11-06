@@ -20,9 +20,3 @@ SELECT
   gas_wanted
 FROM
   {{ ref('silver_terra__transactions') }}
-  -- WHERE
-  -- {% if is_incremental() %}
-  --   block_timestamp >= getdate() - interval '1 days'
-  -- {% else %}
-  --   block_timestamp >= getdate() - interval '9 months'
-  -- {% endif %}
