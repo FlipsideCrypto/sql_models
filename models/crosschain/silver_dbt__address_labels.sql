@@ -31,14 +31,16 @@ AND (
     {{ this }}
 )
 {% endif %}
-)
+), 
+
+final_table AS (
 SELECT
   (
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
   insert_date,
   blockchain,
-  last_value(t.value :address :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS address,
+  LOWER(last_value(t.value :address :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC)) AS address,
   last_value(t.value :creator :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS creator,
   last_value(t.value :l1_label :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS l1_label,
   last_value(t.value :l2_label :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS l2_label,
@@ -49,3 +51,9 @@ FROM
   LATERAL FLATTEN(
     input => record_content 
   ) t
+)
+
+SELECT * 
+FROM final_table
+WHERE l1_label NOT IN ('operator', 'project', 'distributor') -- Deprecated label types
+AND insert_date > '2021-11-01'

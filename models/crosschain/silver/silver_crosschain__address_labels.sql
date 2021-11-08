@@ -10,12 +10,12 @@ SELECT
   system_created_at,
   insert_date,
   blockchain,
-  address,
-  creator,
-  l1_label,
-  l2_label,
-  address_name, 
-  project_name
+  last_value(address) OVER (PARTITION BY address, blockchain ORDER BY insert_date DESC) AS address,
+  last_value(creator) OVER (PARTITION BY address, blockchain ORDER BY insert_date DESC) AS creator,
+  last_value(l1_label) OVER (PARTITION BY address, blockchain ORDER BY insert_date DESC) AS l1_label,
+  last_value(l2_label) OVER (PARTITION BY address, blockchain ORDER BY insert_date DESC) AS l2_label,
+  last_value(address_name) OVER (PARTITION BY address, blockchain ORDER BY insert_date DESC) AS address_name, 
+  last_value(project_name) OVER (PARTITION BY address, blockchain ORDER BY insert_date DESC) AS project_name
 FROM
   {{ ref('silver_dbt__address_labels') }}
 WHERE
