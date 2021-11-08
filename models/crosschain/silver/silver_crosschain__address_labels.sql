@@ -14,6 +14,7 @@ SELECT
   creator,
   l1_label,
   l2_label,
+  address_name, 
   project_name
 FROM
   {{ ref('silver_dbt__address_labels') }}
