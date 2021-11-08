@@ -1,9 +1,9 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'block_id',
+  unique_key = "block_id",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp'],
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'swap']
 ) }}
 
@@ -46,8 +46,7 @@ WITH msgs AS(
     AND msg_type = 'market/MsgSwap'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 events_transfer AS(
@@ -103,8 +102,7 @@ events_transfer AS(
     AND msg_type = 'market/MsgSwap'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 fees AS(
@@ -125,8 +123,7 @@ fees AS(
     AND msg_type = 'market/MsgSwap'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 prices AS (
@@ -162,10 +159,6 @@ SELECT
   ) * fe.price_usd AS swap_fee_amount_usd,
   fe.symbol AS swap_fee_currency,
   m.trader,
-  -- trader_labels.l1_label as trader_label_type,
-  -- trader_labels.l2_label as trader_label_subtype,
-  -- trader_labels.project_name as trader_address_label,
-  -- trader_labels.address_name as trader_address_name,
   aa.symbol AS ask_currency,
   m.offer_amount / pow(
     10,
@@ -176,16 +169,6 @@ SELECT
     6
   ) * oo.price_usd AS offer_amount_usd,
   oo.symbol AS offer_currency,
-  -- et."0_sender" as sender,
-  -- sender_labels.l1_label as sender_label_type,
-  -- sender_labels.l2_label as sender_label_subtype,
-  -- sender_labels.project_name as sender_address_label,
-  -- sender_labels.address_name as sender_address_name,
-  -- et."0_recipient" as receiver,
-  -- receiver_labels.l1_label as receiver_label_type,
-  -- receiver_labels.l2_label as receiver_label_subtype,
-  -- receiver_labels.project_name as receiver_address_label,
-  -- receiver_labels.address_name as receiver_address_name,
   et."0_amount" / pow(
     10,
     6
@@ -238,11 +221,6 @@ FROM
     'hour',
     m.block_timestamp
   ) = aa.hour
-  AND m.ask_currency = aa.currency -- LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as trader_labels
-  -- ON m.trader = trader_labels.address
-  -- LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as sender_labels
-  -- ON et."0_sender" = sender_labels.address
-  -- LEFT OUTER JOIN {{source('shared','udm_address_labels')}} as receiver_labels
-  -- ON et."0_recipient" = receiver_labels.address
+  AND m.ask_currency = aa.currency
 WHERE
   tx_status = 'SUCCEEDED'

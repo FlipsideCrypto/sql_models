@@ -291,10 +291,10 @@ SELECT
       s.platform,
       s.event_index,
       s.direction, 
-      CASE WHEN s.from_address <> s.to_address THEN l.project_name ELSE NULL END AS router
+      CASE WHEN s.from_address <> s.to_address THEN l.address ELSE NULL END AS router
 FROM 
 swaps s
 LEFT JOIN
-silver.ethereum_address_labels l
+silver_crosschain.address_labels l
 ON s.from_address = l.address
 WHERE s.pool_name IS NOT NULL

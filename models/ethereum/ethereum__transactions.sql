@@ -4,7 +4,7 @@
     unique_key='block_id || tx_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'ethereum', 'events', 'transactions']
+    tags=['snowflake', 'ethereum', 'events', 'transactions', 'ethereum_tranactions']
   )
 }}
 
@@ -100,10 +100,10 @@ SELECT
   ON
     date_trunc('hour', t.block_timestamp) = p.hour
   LEFT OUTER JOIN
-    {{ source('ethereum', 'ethereum_address_labels') }} as from_labels
+    {{ ref('silver_crosschain__address_labels') }} as from_labels
   ON
     from_address = from_labels.address
   LEFT OUTER JOIN
-    {{ source('ethereum', 'ethereum_address_labels') }} as to_labels
+    {{ ref('silver_crosschain__address_labels') }} as to_labels
   ON
     to_address = to_labels.address

@@ -52,12 +52,12 @@ balances AS (
 
   LEFT OUTER JOIN
     -- Labels for addresses
-    {{ source('ethereum', 'ethereum_address_labels') }} as labels
+    {{ ref('silver_crosschain__address_labels') }} as labels
       ON b.address = labels.address
 
   LEFT OUTER JOIN
     -- Labels for contracts
-    {{ source('ethereum', 'ethereum_address_labels') }} as contract_labels
+    {{ ref('silver_crosschain__address_labels') }} as contract_labels
       ON contract_labels.address = b.contract_address
 
   LEFT OUTER JOIN

@@ -4,7 +4,7 @@
     sort='block_timestamp', 
     unique_key= 'tx_id || event_index', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex']
+    tags=['snowflake', 'ethereum', 'dex', 'curve_swaps']
   )
 }}
 
@@ -68,7 +68,7 @@ SELECT
   DISTINCT
     s.block_timestamp,
     s.pool_address,
-    COALESCE(l.address_name,lp.pool_name) AS pool_name,
+    COALESCE(l.address,lp.pool_name) AS pool_name,
     s.tx_id,
     s.event_index,
     s.swapper,
@@ -82,7 +82,7 @@ FROM
 curve_swaps_raw s
   -- Info for the pool --
 LEFT JOIN
-{{source('ethereum', 'ethereum_address_labels')}} l
+{{ref('silver_crosschain__address_labels')}} l
     ON s.pool_address = l.address
 LEFT JOIN
 {{ref('ethereum_dbt__curve_liquidity_pools')}} lp

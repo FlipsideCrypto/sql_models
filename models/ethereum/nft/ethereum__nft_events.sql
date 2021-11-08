@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'tx_id',
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'ethereum', 'nft']
+  tags = ['snowflake', 'ethereum', 'nft', 'ethereum_nft_events']
 ) }}
 
 WITH nft AS (
@@ -322,8 +322,7 @@ FROM
     'hour',
     block_timestamp
   ) = p.hour
-  LEFT OUTER JOIN {{ source(
-    'ethereum',
-    'ethereum_address_labels'
+  LEFT OUTER JOIN {{ ref( 
+  'silver_crosschain__address_labels'
   ) }} AS contract_labels
   ON nft.contract_address = contract_labels.address

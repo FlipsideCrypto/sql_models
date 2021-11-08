@@ -1,0 +1,49 @@
+version: 2
+models:
+  - name: compound__deposits
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - BLOCK_TIMESTAMP
+            - TX_ID
+            - CTOKEN_SYMBOL
+            - SUPPLIER
+            - SUPPLIED_BASE_ASSET
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CTOKEN
+        tests:
+          - not_null
+      - name: CTOKEN_SYMBOL
+        tests:
+          - not_null
+      - name: ISSUED_CTOKENS
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float  
+      - name: SUPPLIED_BASE_ASSET
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float    
+      - name: SUPPLIED_BASE_ASSET_USD
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: SUPPLIER
+        tests: 
+          - not_null
+      - name: TX_ID
+        tests: 
+          - not_null

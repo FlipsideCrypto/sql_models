@@ -55,14 +55,11 @@ poly_labels AS (
   SELECT
     l1_label,
     l2_label,
-    project_name,
-    address_name,
+    project_name, 
+    address_name, 
     address
   FROM
-    {{ source(
-      'shared',
-      'udm_address_labels_new'
-    ) }}
+    {{ ref('silver_crosschain__address_labels') }}
   WHERE
     blockchain = 'polygon'
 ),

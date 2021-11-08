@@ -1,9 +1,9 @@
 -- depends_on: {{ ref('silver_terra__msgs') }}
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_id || tx_id',
+  unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp', 'block_id'],
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'mirror', 'reward_claims']
 ) }}
 
@@ -132,15 +132,12 @@ SELECT
   ) AS claim_amount_usd,
   claim_currency,
   contract_address,
-  l.address_name AS contract_label
+  l.address AS contract_label
 FROM
   msgs m
   JOIN events e
   ON m.tx_id = e.tx_id
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS l
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON contract_address = l.address
   LEFT OUTER JOIN prices p
   ON DATE_TRUNC(

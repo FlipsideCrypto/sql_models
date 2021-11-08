@@ -13,10 +13,10 @@ with poly_labels AS (
         l1_label,
         l2_label,
         project_name,
-        address_name,
+        address_name, 
         address
     FROM
-        {{ source('shared','udm_address_labels_new') }}
+        {{ ref('silver_crosschain__address_labels') }}
     WHERE
         blockchain = 'polygon'
 )
@@ -39,7 +39,7 @@ SELECT
   to_labels.project_name as tx_to_label,
   to_labels.address_name as tx_to_address_name,
   CONTRACT_ADDRESS AS contract_address,
-  COALESCE(contract_labels.address_name,CONTRACT_NAME) AS contract_name,
+  COALESCE(contract_labels.address,CONTRACT_NAME) AS contract_name,
   TX_SUCCEEDED AS tx_succeeded
 FROM {{ ref('silver_polygon__events_emitted')}} b
 

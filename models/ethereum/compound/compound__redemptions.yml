@@ -1,0 +1,50 @@
+version: 2
+models:
+  - name: compound__redemptions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - BLOCK_TIMESTAMP
+            - TX_ID
+            - SUPPLIER
+            - CTOKEN
+            - RECIEVED_AMOUNT
+            - REDEEMED_CTOKEN
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: CTOKEN
+        tests:
+          - not_null
+      - name: CTOKEN_SYMBOL
+        tests:
+          - not_null
+      - name: RECIEVED_AMOUNT
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float  
+      - name: RECIEVED_AMOUNT_USD
+        tests:
+        - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float    
+      - name: REDEEMED_CTOKEN
+        tests: 
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: SUPPLIER
+        tests: 
+          - not_null
+      - name: TX_ID
+        tests: 
+          - not_null

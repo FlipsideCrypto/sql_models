@@ -3,7 +3,7 @@
   unique_key = 'block_id',
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
-  tags = ['snowflake', 'ethereum', 'events']
+  tags = ['snowflake', 'ethereum', 'events', 'ethereum_udm_events']
 ) }}
 
 WITH token_prices AS (
@@ -61,7 +61,7 @@ events AS (
     contract_address,
     COALESCE(
       e.symbol,
-      contract_labels.address_name
+      contract_labels.address
     ) AS symbol,
     input_method,
     eth_value,
@@ -70,20 +70,14 @@ events AS (
   FROM
     {{ ref('silver_ethereum__events') }}
     e
-    LEFT OUTER JOIN {{ source(
-      'ethereum',
-      'ethereum_address_labels'
-    ) }} AS from_labels
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
+     }} AS from_labels
     ON e."from" = from_labels.address
-    LEFT OUTER JOIN {{ source(
-      'ethereum',
-      'ethereum_address_labels'
-    ) }} AS to_labels
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')                 
+     }} AS to_labels
     ON e."to" = to_labels.address
-    LEFT OUTER JOIN {{ source(
-      'ethereum',
-      'ethereum_address_labels'
-    ) }} AS contract_labels
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
+     }} AS contract_labels
     ON e.contract_address = contract_labels.address
   WHERE
     1 = 1
@@ -111,7 +105,7 @@ originator AS (
     ) }} AS f
     ON t.input_method = f.hex_signature
     AND f.importance = 1
-    LEFT OUTER JOIN silver.ethereum_address_labels AS from_labels
+    LEFT OUTER JOIN silver_crosschain.address_labels  AS from_labels
     ON t.from_address = from_labels.address
 ),
 full_events AS (

@@ -1,9 +1,9 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'block_id',
+  unique_key = "block_id",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp'],
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'transfers']
 ) }}
 
@@ -60,10 +60,10 @@ inputs AS(
   WHERE
     msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+    AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---   AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 outputs AS(
@@ -79,10 +79,10 @@ outputs AS(
   WHERE
     msg_module = 'bank'
     AND msg_type = 'bank/MsgMultiSend'
+    AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---   AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 transfers AS(
@@ -124,35 +124,36 @@ transfers AS(
   WHERE
     msg_module = 'bank'
     AND msg_type = 'bank/MsgSend'
+    AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
-
-UNION 
-
-SELECT 
+UNION
+SELECT
   blockchain,
   chain_id,
   tx_status,
   block_id,
   block_timestamp,
   tx_id,
-  msg_type, 
-  msg_value:sender::string as event_from,
-  msg_value:execute_msg:transfer:recipient::string as event_to,
-  msg_value:execute_msg:transfer:amount / pow(10,6) as event_amount,
-  msg_value:contract::string as event_currency
-FROM {{ref('silver_terra__msgs')}}
-WHERE msg_value:execute_msg:transfer IS NOT NULL 
+  msg_type,
+  msg_value :sender :: STRING AS event_from,
+  msg_value :execute_msg :transfer :recipient :: STRING AS event_to,
+  msg_value :execute_msg :transfer :amount / pow(
+    10,
+    6
+  ) AS event_amount,
+  msg_value :contract :: STRING AS event_currency
+FROM
+  {{ ref('silver_terra__msgs') }}
+WHERE
+  msg_value :execute_msg :transfer IS NOT NULL
+  AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
- AND block_timestamp >= getdate() - interval '1 days'
--- {% else %}
---  AND block_timestamp >= getdate() - interval '9 months'
+AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
-
 )
 SELECT
   t.blockchain,
@@ -185,13 +186,7 @@ FROM
   AND t.event_currency = o.currency
   LEFT OUTER JOIN symbol s
   ON t.event_currency = s.currency
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS from_labels
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
   ON event_from = from_labels.address
-  LEFT OUTER JOIN {{ source(
-    'shared',
-    'udm_address_labels_new'
-  ) }} AS to_labels
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS to_labels
   ON event_to = to_labels.address

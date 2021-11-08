@@ -1,7 +1,7 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'block_timestamp',
+  unique_key = "CONCAT_WS('-', block_timestamp)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'terra', 'oracle']
 ) }}
@@ -78,15 +78,12 @@ massets AS(
     m.block_timestamp,
     m.block_id,
     m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
-    p.address_name AS symbol,
+    p.address AS symbol,
     m.msg_value :execute_msg :feed_price :prices [0] [1] AS price
   FROM
     {{ ref('silver_terra__msgs') }}
     m
-    LEFT OUTER JOIN {{ source(
-      'shared',
-      'udm_address_labels_new'
-    ) }}
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
     p
     ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address
   WHERE
@@ -94,8 +91,7 @@ massets AS(
     AND msg_value :sender = 'terra128968w0r6cche4pmf4xn5358kx2gth6tr3n0qs' -- Make sure we are pulling right events
 
 {% if is_incremental() %}
-AND m.block_timestamp >= getdate() - INTERVAL '1 days' -- {% else %}
---   AND m.block_timestamp >= getdate() - interval '9 months'
+AND m.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 )
 SELECT
@@ -180,3 +176,33 @@ FROM
     'hour',
     ma.block_timestamp
   ) = pp.block_timestamp
+UNION
+SELECT
+  ee.blockchain,
+  ee.block_timestamp,
+  ee.event_attributes :asset :: STRING AS currency,
+  l.address AS symbol,
+  pp.price / ee.event_attributes :price AS luna_exchange_rate,
+  ee.event_attributes :price AS price_usd,
+  'oracle' AS source
+FROM
+  {{ ref('silver_terra__msg_events') }}
+  ee
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+  ON ee.event_attributes :asset :: STRING = l.address
+  LEFT OUTER JOIN prices pp
+  ON DATE_TRUNC(
+    'hour',
+    ee.block_timestamp
+  ) = pp.block_timestamp
+WHERE
+  event_type = 'from_contract'
+  AND tx_id IN(
+    SELECT
+      tx_id
+    FROM
+      {{ ref('silver_terra__msgs') }}
+    WHERE
+      msg_value :contract :: STRING = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t'
+      AND msg_value :execute_msg :feed_price IS NOT NULL
+  )
