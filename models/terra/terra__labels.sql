@@ -9,7 +9,7 @@ SELECT
   address,
   l1_label as label_type,
   l2_label as label_subtype,
-  project_name as label
+  project_name as label, 
+  address_name as address_name
 FROM {{ref('silver_crosschain__address_labels')}}
 WHERE blockchain = 'terra'
-  AND l1_label != 'cex'
