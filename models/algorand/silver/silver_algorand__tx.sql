@@ -20,11 +20,15 @@ SELECT
   r.value :genesishashb64 AS genesishashb64,
   r.value :keyReg AS keyReg,
   r.value :lastRound AS lastRound,
+  r.value :note AS note,
+  r.value :noteb64 AS noteb64,
   r.value :payment AS payment,
   r.value :round AS round_,
   r.value :tx AS tx,
   r.value :txResults AS txResults,
-  r.value :type AS type_
+  r.value :type AS type_,
+  r.value :group AS group_,
+  r.value :lease AS lease
 FROM
   {{ source(
     'bronze',
