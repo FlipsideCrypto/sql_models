@@ -121,3 +121,14 @@ sources:
     schema: silver_crosschain
     tables:
       - name: address_labels
+  - name: near
+    schema: redshift
+    tables:
+      - name: near_validators
+      - name: near_daily_reward_flow
+      - name: near_delegator_counts
+      - name: udm_events_near
+  - name: near_silver
+    schema: silver_near
+    tables:
+      - name: daily_balances
