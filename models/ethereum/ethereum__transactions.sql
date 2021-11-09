@@ -4,7 +4,7 @@
     unique_key='block_id || tx_id', 
     incremental_strategy='delete+insert',
     cluster_by=['block_timestamp'],
-    tags=['snowflake', 'ethereum', 'events', 'transactions', 'ethereum_tranactions']
+    tags=['snowflake', 'ethereum', 'events', 'transactions', 'ethereum_transactions']
   )
 }}
 
