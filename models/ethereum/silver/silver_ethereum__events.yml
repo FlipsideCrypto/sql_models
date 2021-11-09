@@ -7,6 +7,7 @@ models:
             - BLOCK_ID
             - TX_HASH
             - LOG_INDEX
+            - '"to"'
     columns:
       - name: BLOCK_ID
         tests:
@@ -54,11 +55,8 @@ models:
                 - float
       - name: LOG_INDEX
         tests:
-          - not_null
       - name: LOG_METHOD
         tests:
-          - not_null:
-              where: LOG_INDEX IS NOT NULL
       - name: TOKEN_VALUE
         tests:
           - not_null
