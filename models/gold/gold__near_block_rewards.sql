@@ -1,6 +1,7 @@
 {{ config(
   materialized='table',
-  cluster_by=['block_timestamp'],
+  unique_key = "CONCAT_WS('-', blockchain, block_number, address)",
+  cluster_by = ['block_timestamp::DATE'],
   tags=['snowflake', 'gold', 'near', 'gold__near_rewards']
 )}}
 WITH validators AS (

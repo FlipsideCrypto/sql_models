@@ -1,6 +1,6 @@
 {{ config(
   materialized='incremental', 
-  unique_key='date',
+  unique_key = "CONCAT_WS('-', date, address, balance_type)",
   incremental_strategy='delete+insert',
   cluster_by=['date', 'currency'],
   tags=['snowflake', 'gold', 'near', 'gold__near_daily_balances'],

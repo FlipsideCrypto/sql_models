@@ -1,6 +1,6 @@
 {{ config(
   materialized='incremental',
-  unique_key='date',
+  unique_key = "CONCAT_WS('-', blockchain, date, address, metric_slug)",
   incremental_strategy='delete+insert',
   cluster_by=['date'],
   tags=['snowflake', 'gold', 'near', 'gold__near_reward_flow'],

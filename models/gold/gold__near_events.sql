@@ -1,8 +1,7 @@
 {{ config(
   materialized='incremental', 
-  unique_key='block_timestamp', 
   incremental_strategy='delete+insert',
-  cluster_by=['block_timestamp'],
+  cluster_by=['block_timestamp::DATE'],
   tags=['snowflake', 'gold', 'near', 'gold__near_events']
 )}}
 WITH near_labels AS (
