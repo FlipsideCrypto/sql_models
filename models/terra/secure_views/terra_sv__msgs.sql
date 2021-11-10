@@ -1,6 +1,7 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'terra_views', 'msg_events', 'terra']
+  secure = 'true',
+  tags = ['snowflake', 'terra_views', 'msgs', 'terra', 'secure_views']
 ) }}
 
 SELECT
@@ -15,8 +16,6 @@ SELECT
   msg_index,
   msg_module,
   msg_type,
-  event_index,
-  event_type,
-  event_attributes
+  msg_value
 FROM
-  {{ ref('silver_terra__msg_events') }}
+  {{ ref('silver_terra__msgs') }}
