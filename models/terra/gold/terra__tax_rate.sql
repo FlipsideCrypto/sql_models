@@ -8,14 +8,13 @@
 ) }}
 
 SELECT
-  blockchain,
+  chain_id AS blockchain,
   block_timestamp,
   block_number,
   tax_rate
 FROM
-  {{ source(
-    'terra',
-    'udm_custom_fields_terra_tax_rate'
+  {{ ref(
+    'silver_terra__tax_rate'
   ) }}
 WHERE
   1 = 1
