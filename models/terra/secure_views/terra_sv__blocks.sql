@@ -1,6 +1,7 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'terra_views', 'blocks', 'terra'],
+  secure = 'true',
+  tags = ['snowflake', 'terra_views', 'blocks', 'terra', 'secure_views'],
 ) }}
 
 SELECT
