@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key='block_id || reward_entity', 
+    unique_key="CONCAT_WS('-', block_id, reward_entity)", 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'thorchain_total_block_rewards']
   )
@@ -21,8 +21,8 @@ SELECT
   ree.block_timestamp,
   ree.block_id,
   ree.pool_name AS reward_entity,
-  rune_e8 / POW(10, 8) AS rune_amount,
-  rune_e8 / POW(10, 8) * rune_usd AS rune_amount_usd
+  COALESCE(rune_e8 / POW(10, 8), 0) AS rune_amount,
+  COALESCE(rune_e8 / POW(10, 8) * rune_usd, 0) AS rune_amount_usd
 FROM {{ ref('thorchain__rewards_event_entries') }} ree
 JOIN {{ ref('thorchain__prices') }} p 
 ON ree.block_id = p.block_id AND ree.pool_name = p.pool_name

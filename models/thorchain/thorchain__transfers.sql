@@ -23,8 +23,8 @@ SELECT
   from_address,
   to_address,
   asset,
-  amount_e8 / POW(10, 8) AS rune_amount,
-  amount_e8 / POW(10, 8) * rune_usd AS rune_amount_usd
+  COALESCE(amount_e8 / POW(10, 8), 0) AS rune_amount,
+  COALESCE(amount_e8 / POW(10, 8) * rune_usd, 0) AS rune_amount_usd
 FROM {{ ref('thorchain__transfer_events') }} se
 
 JOIN block_prices p 

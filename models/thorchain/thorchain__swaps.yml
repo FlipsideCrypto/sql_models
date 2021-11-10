@@ -1,0 +1,67 @@
+version: 2
+models:
+  - name: thorchain__swaps
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: POOL_NAME
+        tests:
+          - not_null
+      - name: FROM_ADDRESS
+        tests:
+          - not_null
+      - name: TO_ADDRESS
+        tests:
+          - not_null
+      - name: FROM_ASSET
+        tests:
+          - not_null
+      - name: TO_ASSET
+        tests:
+          - not_null
+      - name: FROM_AMOUNT
+        tests:
+          - not_null
+      - name: TO_AMOUNT
+        tests:
+          - not_null
+      - name: MIN_TO_AMOUNT
+        tests:
+          - not_null
+      - name: FROM_AMOUNT_USD
+        tests:
+          - not_null
+      - name: TO_AMOUNT_USD
+        tests:
+          - not_null
+      - name: TO_AMOUNT_MIN_USD
+        tests:
+          - not_null
+      - name: SWAP_SLIP_BP
+        tests:
+          - not_null
+      - name: LIQ_FEE_RUNE
+        tests:
+          - not_null
+      - name: LIQ_FEE_RUNE_USD
+        tests:
+          - not_null
+      - name: LIQ_FEE_ASSET
+        tests:
+          - not_null
+      - name: LIQ_FEE_ASSET_USD
+        tests:
+          - not_null
