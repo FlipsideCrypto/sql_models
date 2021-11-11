@@ -26,16 +26,16 @@ daily_rune_price AS (
 
 SELECT
   br.day,
-  liquidity_fee AS liquidity_fees,
-  liquidity_fee * rune_usd AS liquidity_fees_usd,
+  COALESCE(liquidity_fee, 0) AS liquidity_fees,
+  COALESCE(liquidity_fee * rune_usd, 0) AS liquidity_fees_usd,
   block_rewards AS block_rewards,
   block_rewards * rune_usd AS block_rewards_usd,
-  earnings AS total_earnings,
-  earnings * rune_usd AS total_earnings_usd,
+  COALESCE(earnings, 0) AS total_earnings,
+  COALESCE(earnings * rune_usd, 0) AS total_earnings_usd,
   bonding_earnings AS earnings_to_nodes,
   bonding_earnings * rune_usd AS earnings_to_nodes_usd,
-  liquidity_earnings AS earnings_to_pools,
-  liquidity_earnings * rune_usd AS earnings_to_pools_usd,
+  COALESCE(liquidity_earnings, 0) AS earnings_to_pools,
+  COALESCE(liquidity_earnings * rune_usd, 0) AS earnings_to_pools_usd,
   avg_node_count
 FROM {{ ref('thorchain__block_rewards') }} br
 

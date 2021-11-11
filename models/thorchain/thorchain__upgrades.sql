@@ -2,7 +2,7 @@
   config(
     materialized='incremental', 
     sort='block_timestamp', 
-    unique_key='block_id || from_address || to_address || burn_asset', 
+    unique_key="CONCAT_WS('-', block_id, from_address, to_address, burn_asset)", 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'thorchain', 'thorchain_upgrades']
   )
@@ -18,6 +18,7 @@ WITH block_prices AS (
 )
 
 SELECT
+  identified_id,
   block_timestamp,
   se.block_id,
   from_address,
