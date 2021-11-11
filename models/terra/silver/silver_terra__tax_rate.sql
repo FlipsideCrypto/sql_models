@@ -31,24 +31,3 @@ ORDER BY
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
-UNION ALL
-  /*
-            Columbus-4 tax data
-            # TODO: backfill bronze and remove this query
-     */
-SELECT
-  NULL :: TIMESTAMP AS system_created_at,
-  'colubus-4' :: VARCHAR(10) AS chain_id,
-  block_number,
-  block_timestamp,
-  tax_rate
-FROM
-  {{ source(
-    'terra',
-    'udm_custom_fields_terra_tax_rate'
-  ) }}
-WHERE
-  block_number < 4724001 -- Columubs-5 Genesis block
-  qualify(ROW_NUMBER() over(PARTITION BY chain_id, block_number
-ORDER BY
-  system_created_at DESC)) = 1
