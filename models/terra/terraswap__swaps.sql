@@ -91,7 +91,57 @@ AND block_timestamp :: DATE >= (
 ),
 events AS (
   SELECT
+  --Native
     tx_id,
+    event_attributes: contract_address :: STRING as pair,
+    AS_NUMBER(
+      event_attributes :tax_amount
+    ) / pow(
+      10,
+      6
+    ) AS tax_amount,
+    event_attributes :commission_amount :: numeric / pow(
+      10,
+      6
+    ) AS commission_amount,
+    event_attributes :offer_amount :: numeric / pow(
+      10,
+      6
+    ) AS offer_amount,
+    event_attributes :offer_asset :: STRING AS offer_currency,
+    event_attributes :return_amount :: numeric / pow(
+      10,
+      6
+    ) AS return_amount,
+    event_attributes :ask_asset :: STRING AS return_currency
+  FROM
+    {{ ref('silver_terra__msg_events') }}
+  WHERE
+    event_type = 'from_contract'
+    AND tx_id IN(
+      SELECT
+        DISTINCT tx_id
+      FROM
+        msgs
+    )
+    AND event_attributes :offer_amount IS NOT NULL
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+
+UNION
+SELECT
+  --Non-native
+    tx_id,
+     event_attributes: "0_contract_address" :: STRING as pair,
     AS_NUMBER(
       event_attributes :tax_amount
     ) / pow(
@@ -156,6 +206,7 @@ FROM
   msgs m
   JOIN events e
   ON m.tx_id = e.tx_id
+  and m.pool_address = e.pair
   LEFT OUTER JOIN prices o
   ON DATE_TRUNC(
     'hour',

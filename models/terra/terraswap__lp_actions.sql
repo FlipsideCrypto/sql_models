@@ -90,7 +90,8 @@ provide_events AS (
       WHEN event_attributes :"2_contract_address" :: STRING = 'terra17yap3mhph35pcwvhza38c2lkj7gzywzy05h7l0' THEN event_attributes :"4_contract_address" :: STRING
       ELSE event_attributes :"2_contract_address" :: STRING
     END AS lp_pool_address,
-    l.address AS lp_pool_name
+    l.address AS lp_pool_name,
+    event_attributes :"0_contract_address" :: STRING as pool_address
   FROM
     {{ ref('silver_terra__msg_events') }}
     t
@@ -169,6 +170,7 @@ AND m.block_timestamp :: DATE >= (
 withdraw_events AS (
   SELECT
     tx_id,
+    event_attributes :"0_contract_address" :: STRING as contract,
     event_attributes :refund_assets [0] :amount / pow(
       10,
       6
@@ -235,7 +237,7 @@ SELECT
   token_1_amount,
   token_1_amount_usd,
   token_1_currency,
-  pool_address,
+  m.pool_address,
   pool_name,
   lp_share_amount,
   lp_pool_address,
@@ -244,6 +246,7 @@ FROM
   provide_msgs m
   JOIN provide_events e
   ON m.tx_id = e.tx_id
+  and m.pool_address = e.pool_address
 UNION
   -- Remove Liquidity
 SELECT
@@ -269,3 +272,5 @@ FROM
   withdraw_msgs w
   JOIN withdraw_events we
   ON w.tx_id = we.tx_id
+  and w.lp_pool_address = we.contract
+

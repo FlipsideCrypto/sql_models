@@ -24,6 +24,7 @@ WITH msgs AS (
     {{ ref('silver_terra__msgs') }}
   WHERE
     msg_value :execute_msg :unbond IS NOT NULL
+    AND msg_value :execute_msg :unbond :amount IS NOT NULL
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
@@ -52,6 +53,7 @@ events AS (
     )
     AND event_type = 'execute_contract'
     AND msg_index = 0
+    AND contract_address IS NOT NULL
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
