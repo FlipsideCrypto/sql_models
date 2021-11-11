@@ -34,4 +34,5 @@ GROUP BY
   block_id,
   rune_e8,
   asset_e8,
+  synth_e8,
   pool_name

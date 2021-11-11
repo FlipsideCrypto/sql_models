@@ -13,15 +13,13 @@ SELECT
   e.chain,
   e.address,
   e.expire,
-  e.block_timestamp,
   e.name,
   e.fund_amount_e8,
-  e.from,
   e.registration_fee_e8
 FROM
   {{ source(
     'thorchain_midgard',
-    'stake_events'
+    'thorname_change_events'
   ) }}
   e
   INNER JOIN {{ source(

@@ -69,8 +69,8 @@ sources:
       - name: active_vault_events
       - name: add_events
       - name: asgard_fund_yggdrasil_events
-      - name: block_pool_depths
       - name: block_log
+      - name: block_pool_depths
       - name: bond_events
       - name: constants
       - name: errata_events
@@ -85,8 +85,8 @@ sources:
       - name: pool_events
       - name: refund_events
       - name: reserve_events
-      - name: rewards_events
       - name: rewards_event_entries
+      - name: rewards_events
       - name: set_ip_address_events
       - name: set_mimir_events
       - name: set_node_keys_events
@@ -95,6 +95,7 @@ sources:
       - name: stake_events
       - name: swap_events
       - name: switch_events
+      - name: thorname_change_events
       - name: transfer_events
       - name: unstake_events
       - name: update_node_account_status_events

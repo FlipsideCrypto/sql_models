@@ -38,4 +38,5 @@ GROUP BY
   burn_asset,
   burn_e8,
   to_address,
+  tx,
   from_address
