@@ -64,7 +64,7 @@ sources:
     tables:
       - name: token_prices_hourly_v2
   - name: thorchain_midgard
-    schema: thorchain_midgard_public
+    schema: BRONZE_MIDGARD_20211108_MIDGARD
     tables:
       - name: active_vault_events
       - name: add_events

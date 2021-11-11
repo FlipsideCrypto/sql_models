@@ -9,16 +9,15 @@ SELECT
   ) AS block_timestamp,
   bl.height AS block_id,
   e._FIVETRAN_ID AS event_id,
-  e.rune_tx AS rune_tx_id,
-  e.pool AS pool_name,
-  e.rune_e8,
-  e.rune_addr AS rune_address,
-  e.stake_units,
-  e.asset_tx AS asset_tx_id,
-  e.asset_e8,
-  e.asset_addr AS asset_address,
-  e.asset_chain AS asset_blockchain,
-  e._ASSET_IN_RUNE_E8
+  e.owner,
+  e.chain,
+  e.address,
+  e.expire,
+  e.block_timestamp,
+  e.name,
+  e.fund_amount_e8,
+  e.from,
+  e.registration_fee_e8
 FROM
   {{ source(
     'thorchain_midgard',
