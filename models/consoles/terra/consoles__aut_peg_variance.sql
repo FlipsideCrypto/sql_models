@@ -20,7 +20,7 @@ WITH ORACLE AS (
         {{ ref('terra__oracle_prices') }}
     WHERE
         block_timestamp > getdate() - INTERVAL '6 month'
-        AND symbol = 'JPT'
+        AND symbol = 'AUT'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
@@ -52,18 +52,18 @@ swaps AS (
         ) AS luna,
         SUM(
             IFF(
-                token_0_currency = 'JPT',
+                token_0_currency = 'AUT',
                 token_0_amount,
                 token_1_amount
             )
-        ) AS jpt,
-        jpt / luna AS swap_exchange
+        ) AS aut,
+        aut / luna AS swap_exchange
     FROM
         {{ ref('terra__swaps') }}
     WHERE
         swap_pair IN (
-            'JPT to LUNA',
-            'LUNA to JPT'
+            'AUT to LUNA',
+            'LUNA to AUT'
         )
         AND block_timestamp > getdate() - INTERVAL '6 month'
 
