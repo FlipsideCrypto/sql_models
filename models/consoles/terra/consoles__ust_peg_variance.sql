@@ -1,8 +1,7 @@
 -- Velocity: 8dcd4c26-575b-4a9a-9b00-a70cf21bc4d7
 {{ config(
-    materialized = 'incremental',
+    materialized = 'view',
     unique_key = "CONCAT_WS('-', date, currency)",
-    incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra', 'console']
 ) }}
 
@@ -22,21 +21,10 @@ WITH ORACLE AS (
     WHERE
         block_timestamp > getdate() - INTERVAL '6 month'
         AND symbol = 'UST'
-
-{% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-    SELECT
-        MAX(
-            block_timestamp :: DATE
-        )
-    FROM
-        {{ ref('terra__oracle_prices') }}
-)
-{% endif %}
-GROUP BY
-    DATE,
-    currency,
-    symbol
+    GROUP BY
+        DATE,
+        currency,
+        symbol
 ),
 swaps AS (
     SELECT
@@ -68,19 +56,8 @@ swaps AS (
         )
         AND trader <> 'terra10kjnhhsgm4jfakr85673and3aw2y4a03598e0m'
         AND block_timestamp > getdate() - INTERVAL '6 month'
-
-{% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-    SELECT
-        MAX(
-            block_timestamp :: DATE
-        )
-    FROM
-        {{ ref('terra__swaps') }}
-)
-{% endif %}
-GROUP BY
-    DATE
+    GROUP BY
+        DATE
 )
 SELECT
     ORACLE.date,

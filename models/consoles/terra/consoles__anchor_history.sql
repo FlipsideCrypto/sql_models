@@ -1,8 +1,7 @@
 -- Velocity: 61ef8e66-1b59-4c68-b451-524aee171182
 {{ config(
-    materialized = 'incremental',
+    materialized = 'view',
     unique_key = 'date',
-    incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra', 'anchor', 'console']
 ) }}
 
@@ -28,19 +27,8 @@ WITH borrows AS (
         msg_value :contract = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
         AND msg_value :execute_msg :borrow_stable IS NOT NULL
         AND tx_status = 'SUCCEEDED'
-
-{% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-    SELECT
-        MAX(
-            block_timestamp :: DATE
-        )
-    FROM
-        {{ ref('terra__msgs') }}
-)
-{% endif %}
-GROUP BY
-    DATE
+    GROUP BY
+        DATE
 ),
 repayments AS (
     SELECT
@@ -64,19 +52,8 @@ repayments AS (
         AND msg_value :coins [0] :denom = 'uusd'
         AND msg_value :execute_msg :repay_stable IS NOT NULL
         AND tx_status = 'SUCCEEDED'
-
-{% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-    SELECT
-        MAX(
-            block_timestamp :: DATE
-        )
-    FROM
-        {{ ref('terra__msgs') }}
-)
-{% endif %}
-GROUP BY
-    DATE
+    GROUP BY
+        DATE
 ),
 liquidate_tx AS (
     SELECT
@@ -87,17 +64,6 @@ liquidate_tx AS (
         msg_value :contract = 'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8'
         AND msg_value :execute_msg :liquidate_collateral IS NOT NULL
         AND tx_status = 'SUCCEEDED'
-
-{% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-    SELECT
-        MAX(
-            block_timestamp :: DATE
-        )
-    FROM
-        {{ ref('terra__msgs') }}
-)
-{% endif %}
 ),
 repayment_by_liquidations AS (
     SELECT
@@ -123,19 +89,8 @@ repayment_by_liquidations AS (
         )
         AND event_type = 'transfer'
         AND event_attributes :"1_recipient" = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
-
-{% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-    SELECT
-        MAX(
-            block_timestamp :: DATE
-        )
-    FROM
-        {{ ref('terra__msg_events') }}
-)
-{% endif %}
-GROUP BY
-    DATE
+    GROUP BY
+        DATE
 ),
 average_daily_luna_prices AS (
     SELECT
@@ -148,19 +103,8 @@ average_daily_luna_prices AS (
         {{ ref('terra__oracle_prices') }}
     WHERE
         currency = 'uluna'
-
-{% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-    SELECT
-        MAX(
-            block_timestamp :: DATE
-        )
-    FROM
-        {{ ref('terra__oracle_prices') }}
-)
-{% endif %}
-GROUP BY
-    DATE
+    GROUP BY
+        DATE
 )
 SELECT
     borrows.date,

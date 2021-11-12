@@ -1,8 +1,7 @@
 -- Velocity: 320abd12-4abf-4c05-a64a-a541f49e8c5c
 {{ config(
-    materialized = 'incremental',
+    materialized = 'view',
     unique_key = 'date',
-    incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra', 'console']
 ) }}
 
@@ -14,17 +13,6 @@ FROM
 WHERE
     currency = 'LUNA'
     AND balance_type = 'staked'
-
-{% if is_incremental() %}
-AND DATE :: DATE >= (
-    SELECT
-        MAX(
-            DATE :: DATE
-        )
-    FROM
-        {{ ref('terra__daily_balances') }}
-)
-{% endif %}
 GROUP BY
     DATE
 ORDER BY
