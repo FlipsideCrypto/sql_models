@@ -20,7 +20,7 @@ WITH ORACLE AS (
         {{ ref('terra__oracle_prices') }}
     WHERE
         block_timestamp > getdate() - INTERVAL '6 month'
-        AND symbol = 'KRT'
+        AND symbol = 'JPT'
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
     SELECT
@@ -31,7 +31,6 @@ AND block_timestamp :: DATE >= (
         {{ ref('terra__oracle_prices') }}
 )
 {% endif %}
-
     GROUP BY
         1,
         2,
@@ -52,18 +51,18 @@ swaps AS (
         ) AS luna,
         SUM(
             IFF(
-                token_0_currency = 'KRT',
+                token_0_currency = 'JPT',
                 token_0_amount,
                 token_1_amount
             )
-        ) AS krt,
-        krt / luna AS swap_exchange
+        ) AS jpt,
+        jpt / luna AS swap_exchange
     FROM
         {{ ref('terra__swaps') }}
     WHERE
         swap_pair IN (
-            'KRT to LUNA',
-            'LUNA to KRT'
+            'JPT to LUNA',
+            'LUNA to JPT'
         )
         AND block_timestamp > getdate() - INTERVAL '6 month'
 {% if is_incremental() %}

@@ -21,6 +21,16 @@ WITH ORACLE AS (
     WHERE
         block_timestamp > getdate() - INTERVAL '6 month'
         AND symbol = 'EUT'
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+    SELECT
+        MAX(
+            block_timestamp :: DATE
+        )
+    FROM
+        {{ ref('terra__oracle_prices') }}
+)
+{% endif %}
     GROUP BY
         1,
         2,
@@ -55,6 +65,16 @@ swaps AS (
             'LUNA to EUT'
         )
         AND block_timestamp > getdate() - INTERVAL '6 month'
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+    SELECT
+        MAX(
+            block_timestamp :: DATE
+        )
+    FROM
+        {{ ref('terra__swaps') }}
+)
+{% endif %}
     GROUP BY
         1
 )
