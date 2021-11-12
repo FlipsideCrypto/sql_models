@@ -29,7 +29,9 @@ models:
           - not_null
       - name: RUNE_AMOUNT_USD
         tests:
-          - not_null
+          - not_null:
+              where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'
+
       - name: ASSET_AMOUNT
         tests:
           - not_null
