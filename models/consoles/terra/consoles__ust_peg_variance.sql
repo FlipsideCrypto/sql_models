@@ -2,7 +2,7 @@
 {{ config(
     materialized = 'view',
     unique_key = "CONCAT_WS('-', date, currency)",
-    tags = ['snowflake', 'terra', 'console_a']
+    tags = ['snowflake', 'terra', 'console']
 ) }}
 
 WITH ORACLE AS (

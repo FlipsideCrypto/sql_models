@@ -2,7 +2,7 @@
 {{ config(
     materialized = 'view',
     unique_key = 'date',
-    tags = ['snowflake', 'terra', 'anchor', 'console_a']
+    tags = ['snowflake', 'terra', 'anchor', 'console']
 ) }}
 
 WITH borrows AS (
