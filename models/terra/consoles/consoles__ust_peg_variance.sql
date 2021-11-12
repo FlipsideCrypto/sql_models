@@ -36,7 +36,7 @@ AND block_timestamp :: DATE >= (
 GROUP BY
     DATE,
     currency,
-    oracle_exchange
+    symbol
 ),
 swaps AS (
     SELECT
@@ -60,7 +60,7 @@ swaps AS (
         ) AS ust,
         ust / luna AS swap_exchange
     FROM
-        terra.swaps {{ ref('terra__swaps') }}
+        {{ ref('terra__swaps') }}
     WHERE
         swap_pair IN (
             'UST to LUNA',

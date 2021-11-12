@@ -1,7 +1,7 @@
 -- Velocity: 115cafb9-4e82-4967-9c43-906b706760e4
 {{ config(
     materialized = 'incremental',
-    unique_key = 'date',
+    unique_key = 'day',
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'terra', 'console']
 ) }}
@@ -9,7 +9,7 @@
 WITH total_supply AS (
 
     SELECT
-        DATE(DATE) AS DAY,
+        DATE AS DAY,
         SUM(balance) AS daily_total_supply
     FROM
         {{ ref('terra__daily_balances') }}
@@ -18,10 +18,10 @@ WITH total_supply AS (
         AND address != 'terra1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3nln0mh'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
+AND DAY >= (
     SELECT
         MAX(
-            block_timestamp :: DATE
+            DATE
         )
     FROM
         {{ ref('terra__daily_balances') }}
@@ -32,7 +32,7 @@ GROUP BY
 ),
 staked AS (
     SELECT
-        DATE(DATE) AS DAY,
+        DATE AS DAY,
         SUM(balance) AS total_stake
     FROM
         {{ ref('terra__daily_balances') }}
@@ -42,10 +42,10 @@ staked AS (
         AND balance_type = 'staked'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
+AND DAY >= (
     SELECT
         MAX(
-            block_timestamp :: DATE
+            DATE
         )
     FROM
         {{ ref('terra__daily_balances') }}

@@ -16,10 +16,10 @@ WHERE
     AND balance_type = 'staked'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
+AND DATE :: DATE >= (
     SELECT
         MAX(
-            block_timestamp :: DATE
+            DATE :: DATE
         )
     FROM
         {{ ref('terra__daily_balances') }}
