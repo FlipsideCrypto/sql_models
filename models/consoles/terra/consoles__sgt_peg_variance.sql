@@ -86,7 +86,7 @@ SELECT
     o.symbol,
     o.oracle_exchange,
     s.swap_exchange,
-    swap_exchange / oracle_exchange AS "% of Peg"
+    swap_exchange / oracle_exchange AS percent_of_peg
 FROM
     ORACLE o
     INNER JOIN swaps s
