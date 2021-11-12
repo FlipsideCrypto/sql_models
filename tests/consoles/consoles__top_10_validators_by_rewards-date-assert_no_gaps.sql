@@ -1,0 +1,1 @@
+{{ date_gaps(ref("top_10_validators_by_rewards"), [], "date") }}
