@@ -18,13 +18,13 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - string
+                - varchar
       - name: symbol
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - string
+                - varchar
       - name: oracle_exchange
         tests:
           - not_null
@@ -37,7 +37,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - float     
-      - name: "'% of Peg'"
+      - name: percent_of_peg
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:

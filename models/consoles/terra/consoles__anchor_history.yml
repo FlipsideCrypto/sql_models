@@ -17,7 +17,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - integer
+                - number
       - name: total_borrowed
         tests:
           - not_null
@@ -29,7 +29,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - integer
+                - number
       - name: total_repaid
         tests:
           - not_null
@@ -41,7 +41,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - integer
+                - number
       - name: total_liquidated
         tests:
           - not_null

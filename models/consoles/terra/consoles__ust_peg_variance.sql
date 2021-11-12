@@ -2,7 +2,7 @@
 {{ config(
     materialized = 'view',
     unique_key = "CONCAT_WS('-', date, currency)",
-    tags = ['snowflake', 'terra', 'console']
+    tags = ['snowflake', 'terra', 'console_a']
 ) }}
 
 WITH ORACLE AS (
@@ -65,7 +65,7 @@ SELECT
     ORACLE.symbol,
     ORACLE.oracle_exchange,
     swaps.swap_exchange,
-    swap_exchange / oracle_exchange AS "% of Peg"
+    swap_exchange / oracle_exchange AS percent_of_peg
 FROM
     ORACLE
     INNER JOIN swaps

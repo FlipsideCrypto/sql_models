@@ -2,7 +2,7 @@
 {{ config(
     materialized = 'view',
     unique_key = 'date',
-    tags = ['snowflake', 'terra', 'console']
+    tags = ['snowflake', 'terra', 'console_a']
 ) }}
 
 SELECT

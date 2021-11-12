@@ -1,8 +1,8 @@
 -- Velocity: 115cafb9-4e82-4967-9c43-906b706760e4
 {{ config(
     materialized = 'view',
-    unique_key = 'day',
-    tags = ['snowflake', 'terra', 'console']
+    unique_key = "CONCAT_WS('-', day, type)",
+    tags = ['snowflake', 'terra', 'console_a']
 ) }}
 
 WITH total_supply AS (
