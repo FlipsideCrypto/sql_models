@@ -13,15 +13,15 @@ SELECT
 FROM {{ ref('terra__msgs') }}
 WHERE msg_value:contract = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s'
     and DATE(block_timestamp) >= '2020-11-01'
-GROUP BY 1
-ORDER BY 2
+GROUP BY sender_address
+ORDER BY join_date
 )
 
 SELECT
   join_date,
-  COUNT(sender_address) new_anchor_users -- Addresses are already unique
+  COUNT(sender_address) new_anchor_users 
 FROM
   join_date_per_anchor_user
-WHERE join_date >= '2021-01-01' -- We'll focus on 2021
-GROUP BY 1
-ORDER BY 1
+WHERE join_date >= '2021-01-01' 
+GROUP BY join_date
+ORDER BY join_date

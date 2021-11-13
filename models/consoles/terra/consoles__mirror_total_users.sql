@@ -5,7 +5,12 @@
 ) }}
 
 WITH MIRROR_CONTRACTS AS (SELECT 
-  *
+  address,
+  address_name,
+  blockchain,
+  label,
+  label_subtype,
+  label_type
 FROM {{ ref('terra__labels') }}
 WHERE label::string = 'mirror'
 ORDER BY label_type DESC), 

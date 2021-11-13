@@ -13,7 +13,7 @@ WITH prices AS
       AVG(PRICE_USD) avg_price_usd
     FROM {{ ref('terra__oracle_prices') }} 
      where block_timestamp > CURRENT_DATE - interval '90 days'
-    GROUP BY 1, 2
+    GROUP BY block_date, currency
 )
 ,
 swaps AS
@@ -47,5 +47,5 @@ SELECT
   SUM(swap_usd_value) swap_value_usd
 FROM
   swaps
-GROUP BY 1
-ORDER BY 1 DESC
+GROUP BY block_date
+ORDER BY block_date DESC

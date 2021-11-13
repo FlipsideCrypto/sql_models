@@ -6,7 +6,6 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_DATE
-            - SWAP_VALUE_USD
     columns:
       - name: BLOCK_DATE
         tests:

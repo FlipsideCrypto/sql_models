@@ -6,7 +6,6 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - JOIN_DATE
-            - NEW_ANCHOR_USERS
     columns:
       - name: JOIN_DATE
         tests:
