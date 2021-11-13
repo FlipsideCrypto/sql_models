@@ -6,8 +6,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           # XXX: The original Redshift query produces duplicate rows.
           # This isn't the PK of the table.
-          config:
-            enabled: false
+          # config:
+          #   enabled: false
           combination_of_columns:
             - BLOCKCHAIN
             - BLOCK_NUMBER
