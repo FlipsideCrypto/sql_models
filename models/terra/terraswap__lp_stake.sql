@@ -12,14 +12,13 @@ WITH msgs AS (
     blockchain,
     chain_id,
     block_id,
+    msg_index,
     block_timestamp,
     tx_id,
     'unstake_lp' AS event_type,
     msg_value :sender :: STRING AS sender,
-    msg_value :execute_msg :unbond :amount / pow(
-      10,
-      6
-    ) AS amount
+    coalesce(msg_value :execute_msg :unbond :amount, msg_value :execute_msg :unbond :tokens, 
+              msg_value :execute_msg :unbond :asset :amount, 0) / pow(10,6) AS amount
   FROM
     {{ ref('silver_terra__msgs') }}
   WHERE
@@ -27,43 +26,27 @@ WITH msgs AS (
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM{{ ref('silver_terra__msgs') }})
 {% endif %}
 ),
+
 events AS (
   SELECT
+    msg_index,
     tx_id,
-    event_attributes :"0_contract_address" :: STRING AS contract_address
+    coalesce(event_attributes :"0_contract_address" :: STRING, event_attributes :contract_address :: STRING ) AS contract_address
   FROM
     {{ ref('silver_terra__msg_events') }}
-  WHERE
-    tx_id IN(
-      SELECT
-        DISTINCT tx_id
-      FROM
-        msgs
-    )
+  WHERE tx_id IN(SELECT DISTINCT tx_id FROM msgs)
     AND event_type = 'execute_contract'
-    AND msg_index = 0
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM{{ ref('silver_terra__msgs') }})
 {% endif %}
-) -- unstake
+
+) 
+
+-- unstake
 SELECT
   m.blockchain,
   chain_id,
@@ -77,11 +60,16 @@ SELECT
   address AS contract_label
 FROM
   msgs m
-  JOIN events e
+  
+JOIN events e
   ON m.tx_id = e.tx_id
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
+  AND m.msg_index = e.msg_index
+  
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   ON contract_address = address
+
 UNION
+
   -- stake
 SELECT
   m.blockchain,
@@ -91,28 +79,17 @@ SELECT
   tx_id,
   'stake_lp' AS event_type,
   msg_value :sender :: STRING AS sender,
-  msg_value :execute_msg :send :amount / pow(
-    10,
-    6
-  ) AS amount,
+  msg_value :execute_msg :send :amount / pow(10,6) AS amount,
   msg_value :contract :: STRING AS contract_address,
   address AS contract_label
-FROM
-  {{ ref('silver_terra__msgs') }}
-  m
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
+FROM {{ ref('silver_terra__msgs') }} m
+  
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   ON msg_value :contract :: STRING = address
-WHERE
-  msg_value :execute_msg :send :msg :bond IS NOT NULL
+
+WHERE msg_value :execute_msg :send :msg :bond IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM{{ ref('silver_terra__msgs') }})
 {% endif %}

@@ -9,10 +9,7 @@
 WITH prices AS (
 
   SELECT
-    DATE_TRUNC(
-      'hour',
-      block_timestamp
-    ) AS HOUR,
+    DATE_TRUNC('hour',block_timestamp) AS HOUR,
     currency,
     symbol,
     AVG(price_usd) AS price
@@ -22,123 +19,81 @@ WITH prices AS (
     1 = 1
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
 {% endif %}
+
 GROUP BY
   1,
   2,
   3
 ),
+
 msgs AS (
   -- native to non-native/native
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    block_timestamp,
-    tx_id,
-    msg_value :sender :: STRING AS sender,
-    msg_value :contract :: STRING AS pool_address
-  FROM
-    {{ ref('silver_terra__msgs') }}
-  WHERE
-    msg_value :execute_msg :swap IS NOT NULL
-    AND tx_status = 'SUCCEEDED'
+SELECT
+  blockchain,
+  chain_id,
+  block_id,
+  msg_index,
+  block_timestamp,
+  tx_id,
+  msg_value :sender :: STRING AS sender,
+  msg_value :contract :: STRING AS pool_address
+FROM {{ ref('silver_terra__msgs') }}
+WHERE msg_value :execute_msg :swap IS NOT NULL
+  AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
 {% endif %}
+
 UNION
+
   -- non-native to native
 SELECT
   blockchain,
   chain_id,
   block_id,
+  msg_index,
   block_timestamp,
   tx_id,
   msg_value :sender :: STRING AS sender,
   msg_value :execute_msg :send :contract :: STRING AS pool_address
-FROM
-  {{ ref('silver_terra__msgs') }}
-WHERE
-  msg_value :execute_msg :send :msg :swap IS NOT NULL
+FROM {{ ref('silver_terra__msgs') }}
+WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
 {% endif %}
 ),
+
 events AS (
-  SELECT
-    tx_id,
-    AS_NUMBER(
-      event_attributes :tax_amount
-    ) / pow(
-      10,
-      6
-    ) AS tax_amount,
-    event_attributes :commission_amount :: numeric / pow(
-      10,
-      6
-    ) AS commission_amount,
-    event_attributes :offer_amount :: numeric / pow(
-      10,
-      6
-    ) AS offer_amount,
-    event_attributes :offer_asset :: STRING AS offer_currency,
-    event_attributes :return_amount :: numeric / pow(
-      10,
-      6
-    ) AS return_amount,
-    event_attributes :ask_asset :: STRING AS return_currency
-  FROM
-    {{ ref('silver_terra__msg_events') }}
-  WHERE
-    event_type = 'from_contract'
-    AND tx_id IN(
-      SELECT
-        DISTINCT tx_id
-      FROM
-        msgs
-    )
-    AND event_attributes :offer_amount IS NOT NULL
+
+SELECT
+  msg_index,
+  tx_id,
+  coalesce(AS_NUMBER(event_attributes :tax_amount), event_attributes:tax_amount :: numeric) / pow(10,6) AS tax_amount, 
+  event_attributes :commission_amount :: numeric / pow(10,6) AS commission_amount,
+  event_attributes :offer_amount :: numeric / pow(10,6) AS offer_amount,
+  event_attributes :offer_asset :: STRING AS offer_currency,
+  event_attributes :return_amount :: numeric / pow(10,6) AS return_amount,
+  event_attributes :ask_asset :: STRING AS return_currency
+FROM {{ ref('silver_terra__msg_events') }}
+WHERE event_type = 'from_contract'
+  AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
+  AND event_attributes :offer_amount IS NOT NULL
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
 {% endif %}
 )
+
 SELECT
   m.blockchain,
   chain_id,
   block_id,
+  m.msg_index,
   block_timestamp,
   m.tx_id,
   sender,
@@ -151,23 +106,21 @@ SELECT
   return_amount * r.price AS return_amount_usd,
   return_currency,
   pool_address,
-  l.address AS pool_name
+  l.address_name AS pool_name
 FROM
   msgs m
-  JOIN events e
+
+JOIN events e
   ON m.tx_id = e.tx_id
-  LEFT OUTER JOIN prices o
-  ON DATE_TRUNC(
-    'hour',
-    m.block_timestamp
-  ) = o.hour
+  AND m.msg_index = e.msg_index
+
+LEFT OUTER JOIN prices o
+  ON DATE_TRUNC('hour',m.block_timestamp) = o.hour
   AND e.offer_currency = o.currency
-  LEFT OUTER JOIN prices r
-  ON DATE_TRUNC(
-    'hour',
-    m.block_timestamp
-  ) = r.hour
+  
+LEFT OUTER JOIN prices r
+  ON DATE_TRUNC('hour',m.block_timestamp) = r.hour
   AND e.return_currency = r.currency
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
-  l
+  
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l
   ON pool_address = address
