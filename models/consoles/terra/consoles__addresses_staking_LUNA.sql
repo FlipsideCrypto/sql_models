@@ -11,7 +11,7 @@ WITH tmp AS(
     date, 
     address, 
     balance
-FROM "FLIPSIDE_DEV_DB"."SILVER_TERRA"."DAILY_BALANCES"
+FROM {{ ref('terra__daily_balances') }}
 WHERE balance_type = 'staked' and currency = 'LUNA'
 AND date::date >= CURRENT_DATE - 60
 
@@ -23,4 +23,4 @@ SELECT
   balance
 FROM tmp
 WHERE balance > 0
-ORDER BY 1, 2
+ORDER BY date, address DESC

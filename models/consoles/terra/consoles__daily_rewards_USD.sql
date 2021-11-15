@@ -11,28 +11,29 @@ WITH prices AS (
   symbol,
   currency,
   avg(price_usd) as price
-  from {{ ref('terra__oracle_prices') }}
-  where date >= CURRENT_DATE - 31
-  group by 1,2,3
+  FROM {{ ref('terra__oracle_prices') }}
+  WHERE date >= CURRENT_DATE - 31
+  GROUP BY date, symbol, currency
 ),
-reward as (
-  select 
-  date_trunc('hour', t.block_timestamp) as date,
-  sum(fl.value:amount / pow(10,6)) as event_amount,
-  fl.value:denom::string as event_currency
-  -- event_attributes:validator::string as validator
-from {{ ref('silver_terra__transitions') }} t
-  , lateral flatten(input => event_attributes:amount) fl
-where t.transition_type = 'begin_block'
-  and t.event = 'rewards'
-  and t.block_timestamp >= CURRENT_DATE - 30
-group by 1,3)
 
-select date_trunc('day', r.date) as date,
-sum(event_amount * price) as reward 
-from reward r 
-left outer join prices p 
-on r.date = p.date 
-and r.event_currency = p.currency
-group by 1 
-order by 1 desc
+reward AS (
+  SELECT 
+    date_trunc('hour', t.block_timestamp) as date,
+    sum(fl.value:amount / pow(10,6)) as event_amount,
+    fl.value:denom::string as event_currency
+  FROM {{ ref('silver_terra__transitions') }} t
+    , lateral flatten(input => event_attributes:amount) fl
+  WHERE t.transition_type = 'begin_block'
+    AND t.event = 'rewards'
+    AND t.block_timestamp >= CURRENT_DATE - 30
+  GROUP BY date, event_currency)
+
+SELECT 
+  date_trunc('day', r.date) as day,
+  sum(event_amount * price) as reward 
+FROM reward r 
+LEFT OUTER JOIN prices p 
+  ON r.date = p.date 
+  AND r.event_currency = p.currency
+GROUP BY day 
+ORDER BY day DESC

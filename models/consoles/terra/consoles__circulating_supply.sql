@@ -13,5 +13,5 @@ WHERE currency IN('KRT',
                 'LUNA',
                 'SDT',
                 'UST')
-GROUP BY 1, 2
-ORDER BY 1 DESC, 2 DESC
+GROUP BY metric_date, currency
+ORDER BY metric_date DESC
