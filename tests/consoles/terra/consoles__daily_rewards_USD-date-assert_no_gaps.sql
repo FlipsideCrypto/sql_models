@@ -1,1 +1,1 @@
-{{ date_gaps(ref("consoles__daily_rewards_USD"), [], "date") }}
+{{ date_gaps(ref("consoles__daily_rewards_USD"), [], "day") }}

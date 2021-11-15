@@ -5,10 +5,10 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - DATE
+            - DAY
             - REWARD 
     columns:
-      - name: DATE
+      - name: DAY
         description: Date that corresponds to total LUNA staking rewards
         tests:
           - not_null
