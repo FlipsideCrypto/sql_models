@@ -1,0 +1,21 @@
+version: 2
+models:
+  - name: silver_terra__tax_rate
+    columns:
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: BLOCK_NUMBER
+        tests:
+          - not_null
+          - unique
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          #     where: CHAIN_ID = 'columbus-5'
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: CHAIN_ID
+        tests:
+          - not_null

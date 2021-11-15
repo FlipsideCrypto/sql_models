@@ -1,0 +1,43 @@
+version: 2
+models:
+  - name: thorchain__liquidity_actions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - EVENT_ID
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: EVENT_ID
+        tests:
+          - not_null
+      - name: LP_ACTION
+        tests:
+          - not_null
+      - name: POOL_NAME
+        tests:
+          - not_null
+      - name: RUNE_AMOUNT
+        tests:
+          - not_null
+      - name: RUNE_AMOUNT_USD
+        tests:
+          - not_null:
+              where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'
+
+      - name: ASSET_AMOUNT
+        tests:
+          - not_null
+      - name: ASSET_AMOUNT_USD
+        tests:
+          - not_null
+      - name: STAKE_UNITS
+        tests:
+          - not_null

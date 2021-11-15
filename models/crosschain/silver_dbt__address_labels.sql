@@ -31,9 +31,8 @@ AND (
     {{ this }}
 )
 {% endif %}
-), 
+) 
 
-final_table AS (
 SELECT
   (
     record_metadata :CreateTime :: INT / 1000
@@ -51,9 +50,3 @@ FROM
   LATERAL FLATTEN(
     input => record_content 
   ) t
-)
-
-SELECT * 
-FROM final_table
-WHERE l1_label NOT IN ('operator', 'project', 'distributor') -- Deprecated label types
-AND insert_date > '2021-11-01'

@@ -1,0 +1,11 @@
+version: 2
+models:
+  - name: gold__near_reward_flow
+    description: Daily rewards by address
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - DATE
+            - ADDRESS
+            - METRIC_SLUG
