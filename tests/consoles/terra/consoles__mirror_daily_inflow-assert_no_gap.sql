@@ -1,0 +1,1 @@
+{{ date_gaps(ref("consoles__mirror_daily_inflow"), [], "join_date") }}
