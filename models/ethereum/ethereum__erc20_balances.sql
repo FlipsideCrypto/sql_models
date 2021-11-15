@@ -36,7 +36,7 @@ balances AS (
     balance_date,
     b.address as user_address,
     labels.project_name as label,
-    labels.address as address_name,
+    labels.address_name as address_name,
     labels.l1_label as label_type,
     labels.l2_label as label_subtype,
     b.contract_address,

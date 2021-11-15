@@ -1,0 +1,18 @@
+version: 2
+models:
+  - name: consoles__top_10_validators_by_rewards
+    description: The ten validators who have earned the most LUNA staking rewards
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - VALIDATOR
+            - REWARD 
+    columns:
+      - name: VALIDATOR
+        description: Validator's LUNA address
+        tests:
+          - not_null
+      - name: REWARD
+        description: Total amount of LUNA staking rewards in USD
+        tests:
+          - not_null

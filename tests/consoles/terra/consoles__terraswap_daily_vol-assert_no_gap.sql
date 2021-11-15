@@ -1,0 +1,1 @@
+{{ date_gaps(ref("consoles__terraswap_daily_vol"), [], "block_date") }}

@@ -1,59 +1,110 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'date || address || currency || balance_type',
+  unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
   incremental_strategy = 'delete+insert',
+  cluster_by = ['date'],
   tags = ['snowflake', 'silver_terra', 'silver_terra__daily_balances']
 ) }}
 
-with address_ranges as (
-  select address,
+WITH address_ranges AS (
+
+  SELECT
+    address,
+    currency,
+    balance_type,
+    'terra' AS blockchain,
+    MIN(
+      block_timestamp :: DATE
+    ) AS min_block_date,
+    MAX(
+      CURRENT_TIMESTAMP :: DATE
+    ) AS max_block_date
+  FROM
+    {{ source(
+      'shared',
+      'terra_balances'
+    ) }}
+  GROUP BY
+    1,
+    2,
+    3,
+    4
+),
+cte_my_date AS (
+  SELECT
+    HOUR :: DATE AS DATE
+  FROM
+    {{ source(
+      'shared',
+      'hours'
+    ) }}
+  GROUP BY
+    1
+),
+all_dates AS (
+  SELECT
+    C.date,
+    A.address,
+    A.currency,
+    A.balance_type,
+    A.blockchain
+  FROM
+    cte_my_date C
+    LEFT JOIN address_ranges A
+    ON C.date BETWEEN A.min_block_date
+    AND A.max_block_date
+  WHERE
+    A.address IS NOT NULL
+),
+eth_balances AS (
+  SELECT
+    address,
+    currency,
+    block_timestamp,
+    balance_type,
+    'terra' AS blockchain,
+    balance
+  FROM
+    {{ source(
+      'shared',
+      'terra_balances'
+    ) }}
+    qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
+  ORDER BY
+    balance DESC)) = 1
+),
+balance_tmp AS (
+  SELECT
+    d.date,
+    d.address,
+    d.currency,
+    b.balance,
+    d.balance_type,
+    d.blockchain
+  FROM
+    all_dates d
+    LEFT JOIN eth_balances b
+    ON d.date = b.block_timestamp :: DATE
+    AND d.address = b.address
+    AND d.currency = b.currency
+    AND d.balance_type = b.balance_type
+    AND d.blockchain = b.blockchain
+)
+SELECT
+  DATE,
+  address,
   currency,
   balance_type,
   blockchain,
-  min(block_timestamp::date) as min_block_date,
-  max(current_timestamp::date) as max_block_date
-from {{ source('shared', 'terra_balances') }}
-group by 1,2,3,4
-),
-CTE_MY_DATE AS (
-  SELECT hour::date as date
-  from {{ source('shared', 'hours') }}
-  group by 1
-  ),
-  all_dates as (
-  select c.date,
-  a.address,
-  a.currency,
-  a.balance_type,
-  a.blockchain
-  from cte_my_date c
-  left join address_ranges a on c.date between a.min_block_date and a.max_block_date
-  where a.address is not null
-  ),
-  eth_balances as (
-select *
-from {{ source('shared', 'terra_balances') }}
-QUALIFY(row_number() over(partition by address, currency, block_timestamp::date, balance_type order by block_timestamp desc)) = 1
-),
-balance_tmp as (
-select d.date,
-d.address,
-d.currency,
-b.balance,
-d.balance_type,
-d.blockchain
-from all_dates d
-left join eth_balances b on d.date = b.block_timestamp::date 
-                        and d.address = b.address
-                        and d.currency = b.currency
-                        and d.balance_type = b.balance_type
-                        and d.blockchain = b.blockchain
-)
-
-select date,
-address,
-currency,
-balance_type,
-blockchain,
-last_value(balance ignore nulls) over(partition by address,currency,balance_type,blockchain order by date asc rows unbounded preceding) as balance
-from balance_tmp
+  LAST_VALUE(
+    balance ignore nulls
+  ) over(
+    PARTITION BY address,
+    currency,
+    balance_type,
+    blockchain
+    ORDER BY
+      DATE ASC rows unbounded preceding
+  ) AS balance
+FROM
+  balance_tmp

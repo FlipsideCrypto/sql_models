@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='table', 
-    unique_key='day || pool_name', 
+    unique_key="CONCAT_WS('-', day, pool_name)", 
     tags=['snowflake', 'thorchain', 'thorchain_pool_block_fees']
   )
 }}
@@ -64,11 +64,11 @@ liquidity_fees_rune_tbl AS (
 SELECT
     all_block_id.day,
     all_block_id.pool_name,
-    (rewards / POWER(10, 8)) AS rewards,
-    (total_liquidity_fees_rune / POWER(10, 8)) AS total_liquidity_fees_rune,
-    (assetLiquidityFees / POWER(10, 8)) AS asset_liquidity_fees,
-    (runeLiquidityFees / POWER(10, 8)) AS rune_liquidity_fees,
-    ((total_liquidity_fees_rune + rewards) / POWER(10, 8)) AS earnings
+    COALESCE((rewards / POWER(10, 8)), 0) AS rewards,
+    COALESCE((total_liquidity_fees_rune / POWER(10, 8)), 0) AS total_liquidity_fees_rune,
+    COALESCE((assetLiquidityFees / POWER(10, 8)), 0) AS asset_liquidity_fees,
+    COALESCE((runeLiquidityFees / POWER(10, 8)), 0) AS rune_liquidity_fees,
+    ((COALESCE(total_liquidity_fees_rune, 0) + COALESCE(rewards, 0)) / POWER(10, 8)) AS earnings
 FROM all_block_id
 
 LEFT JOIN total_pool_rewards_tbl
