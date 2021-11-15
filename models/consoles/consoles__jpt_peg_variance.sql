@@ -33,9 +33,9 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 GROUP BY
-    1,
-    2,
-    3
+    DATE,
+    currency,
+    symbol
 ),
 swaps AS (
     SELECT
