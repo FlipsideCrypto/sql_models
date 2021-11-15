@@ -13,9 +13,8 @@ SELECT
   currency,
   balance_type
 FROM
-  {{ source(
-      'flow',
-      'daily_balances'
+  {{ ref(
+      'silver_flow__daily_balances'
     ) }}
 WHERE
   1 = 1

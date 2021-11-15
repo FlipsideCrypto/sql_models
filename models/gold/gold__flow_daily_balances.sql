@@ -30,14 +30,12 @@ SELECT
     'FLOW' AS currency,
     'staked' AS balance_type
 FROM
-    {{ source(
-        'flow',
-        'daily_staked_balances'
+    {{ ref(
+        'silver_flow__daily_staked_balances'
     ) }}
     b
-    LEFT JOIN {{ source(
-        'gold',
-        'flow_delegator_addresses'
+    LEFT JOIN {{ ref(
+        'gold__flow_delegator_addresses'
     ) }}
     d
     ON d.node_id = b.node_id
@@ -65,9 +63,8 @@ SELECT
     currency,
     balance_type
 FROM
-    {{ source(
-        'flow',
-        'daily_balances'
+    {{ ref(
+        'silver_flow__daily_balances'
     ) }} AS balances
     LEFT OUTER JOIN labels
     ON labels.address = balances.address
