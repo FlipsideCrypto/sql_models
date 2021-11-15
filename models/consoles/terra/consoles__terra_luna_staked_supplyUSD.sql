@@ -10,5 +10,5 @@ SUM(balance_usd) AS staked_supply_usd
 FROM 
 {{ ref('terra__daily_balances') }}
 WHERE currency = 'LUNA' AND balance_type = 'staked'
-GROUP BY 1 
-ORDER BY 1 DESC 
+GROUP BY date
+ORDER BY date DESC 

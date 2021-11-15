@@ -14,7 +14,5 @@ WHERE event_currency IN('KRT',
                 'SDT',
                 'UST')
 and block_timestamp::date >= CURRENT_DATE - 180
-GROUP BY 1,
-         2
-ORDER BY 1 DESC,
-         2 DESC
+GROUP BY metric_date, currency
+ORDER BY metric_date DESC, currency DESC

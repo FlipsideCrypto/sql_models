@@ -19,6 +19,6 @@ LEFT OUTER JOIN {{ ref('terra__labels') }} c
 WHERE msg_value:execute_msg:swap IS NOT NULL
   AND contract_label is not null
   AND block_timestamp >= CURRENT_DATE - 7
-  group by 1,2
-order by 3 DESC
+  group by contract_label, contract_address
+order by tradeCount DESC
 LIMIT 5

@@ -13,5 +13,5 @@ FROM
 WHERE msg_value:contract = 'terra1tndcaqxkpc5ce9qee5ggqf430mr2z3pefe5wj6'
 and date_trunc('day',block_timestamp) >= '2021-01-01'
 
-group by 1
-order by 1 desc
+group by block_day
+order by block_day desc
