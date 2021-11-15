@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'terraswap', 'swap']
+  tags = ['snowflake', 'terra', 'terraswap', 'terraswap_swaps']
 ) }}
 
 WITH prices AS (
@@ -201,7 +201,7 @@ SELECT
   return_amount * r.price AS return_amount_usd,
   return_currency,
   pool_address,
-  l.address AS pool_name
+  l.address_name AS pool_name
 FROM
   msgs m
   JOIN events e
@@ -221,4 +221,4 @@ FROM
   AND e.return_currency = r.currency
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   l
-  ON pool_address = address
+  ON pool_address = l.address

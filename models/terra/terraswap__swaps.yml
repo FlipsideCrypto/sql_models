@@ -8,6 +8,7 @@ models:
             - TX_ID
             - POOL_ADDRESS
             - OFFER_AMOUNT
+            - RETURN_AMOUNT
     columns:
       - name: BLOCKCHAIN
         tests:

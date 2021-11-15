@@ -46,7 +46,7 @@ provide_msgs AS (
     'provide_liquidity' AS event_type,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS pool_address,
-    l.address AS pool_name
+    l.address_name AS pool_name
   FROM
     {{ ref('silver_terra__msgs') }}
     m
@@ -86,11 +86,12 @@ provide_events AS (
       10,
       6
     ) AS lp_share_amount,
-    CASE
+     CASE
       WHEN event_attributes :"2_contract_address" :: STRING = 'terra17yap3mhph35pcwvhza38c2lkj7gzywzy05h7l0' THEN event_attributes :"4_contract_address" :: STRING
+      WHEN event_attributes :"2_contract_address" :: STRING IS NULL THEN event_attributes :"1_contract_address" :: STRING
       ELSE event_attributes :"2_contract_address" :: STRING
     END AS lp_pool_address,
-    l.address AS lp_pool_name,
+    l.address_name AS lp_pool_name,
     event_attributes :"0_contract_address" :: STRING as pool_address
   FROM
     {{ ref('silver_terra__msg_events') }}
@@ -142,16 +143,16 @@ withdraw_msgs AS (
     'withdraw_liquidity' AS event_type,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS lp_pool_address,
-    l.address AS lp_pool_name,
+    l.address_name AS lp_pool_name,
     msg_value :execute_msg :send :contract :: STRING AS pool_address,
-    p.address AS pool_name
+    p.address_name AS pool_name
   FROM
     {{ ref('silver_terra__msgs') }}
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS p
-    ON msg_value :contract :: STRING = p.address
+    ON msg_value :execute_msg :send :contract :: STRING = p.address
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :execute_msg :send :contract :: STRING = l.address
+    ON msg_value :contract :: STRING = l.address
   WHERE
     msg_value :execute_msg :send :msg :withdraw_liquidity IS NOT NULL
     AND tx_status = 'SUCCEEDED'

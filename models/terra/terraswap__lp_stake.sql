@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'terraswap', 'lp']
+  tags = ['snowflake', 'terra', 'terraswap', 'terraswap_lp_stake']
 ) }}
 -- LP Un-staking
 WITH msgs AS (
@@ -76,13 +76,13 @@ SELECT
   sender,
   amount,
   contract_address,
-  address AS contract_label
+  l.address_name AS contract_label
 FROM
   msgs m
   JOIN events e
   ON m.tx_id = e.tx_id
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
-  ON contract_address = address
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l
+  ON contract_address = l.address
 UNION
   -- stake
 SELECT
@@ -98,12 +98,12 @@ SELECT
     6
   ) AS amount,
   msg_value :contract :: STRING AS contract_address,
-  address AS contract_label
+  l.address_name AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
-  ON msg_value :contract :: STRING = address
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l
+  ON msg_value :contract :: STRING = l.address
 WHERE
   msg_value :execute_msg :send :msg :bond IS NOT NULL
   AND tx_status = 'SUCCEEDED'
