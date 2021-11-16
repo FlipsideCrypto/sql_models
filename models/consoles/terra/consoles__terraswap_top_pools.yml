@@ -1,0 +1,30 @@
+version: 2
+models:
+  - name: consoles__terraswap_top_pools
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - CONTRACT_LABEL
+    columns:
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: TRADECOUNT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - number
+      - name: ADDRESSCOUNT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - number
+      - name: VOLUMETOKENAMOUNT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - float
+                - decimal
