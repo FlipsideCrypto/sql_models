@@ -337,5 +337,5 @@ SELECT
   total_stake,
   depth_product,
   liquidity_unit_value_index,
-  LAG(liquidity_unit_value_index, 1) OVER (PARTITION BY pool_name ORDER BY day ASC) AS prev_liquidity_unit_value_index
+  LAG(liquidity_unit_value_index, 1) OVER (PARTITION BY asset ORDER BY day ASC) AS prev_liquidity_unit_value_index
 FROM joined
