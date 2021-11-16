@@ -14,8 +14,7 @@ with rawfees as (
 FROM 
 {{ ref('terra__transactions') }}
 WHERE fee_denom IS NOT NULL 
-  --AND fee_denom in ('UST', 'SDT', 'AUT', 'CAT', 'EUT', 'JPT', 'KRT', 'LUNA', 'MNT')
-  AND block_timestamp::date >= CURRENT_DATE - 90
+AND block_timestamp::date >= CURRENT_DATE - 90
 GROUP BY metric_date, fee_denom
 ORDER BY metric_date, fee_denom
 ),
