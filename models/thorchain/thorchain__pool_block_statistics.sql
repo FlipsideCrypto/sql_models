@@ -264,7 +264,7 @@ joined AS (
     COALESCE(withdraw_rune_volume, 0) AS withdraw_rune_volume,
     COALESCE((withdraw_rune_volume + withdraw_asset_volume), 0) AS withdraw_volume,
     SUM( COALESCE(added_stake, 0) - COALESCE(withdrawn_stake, 0) ) OVER (PARTITION BY pool_depth.pool_name ORDER BY pool_depth.day ASC) AS total_stake,
-    (asset_depth * POW(10, 8)) * (COALESCE(rune_depth, 0) * POW(10, 8)) AS depth_product,
+    asset_depth * COALESCE(rune_depth, 0) AS depth_product,
     CASE WHEN total_stake = 0 THEN 0 ELSE sqrt(depth_product) / total_stake END AS liquidity_unit_value_index
   FROM pool_depth
 
