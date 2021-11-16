@@ -7,7 +7,7 @@
 ) }}
 
 SELECT
-  l.blockchain,
+  m.blockchain,
   chain_id,
   block_id,
   block_timestamp,
@@ -19,9 +19,9 @@ SELECT
     6
   ) AS amount,
   msg_value :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
-  {{ ref('silver_terra__msgs') }}
+  {{ ref('silver_terra__msgs') }} m
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON msg_value :contract :: STRING = l.address
 WHERE

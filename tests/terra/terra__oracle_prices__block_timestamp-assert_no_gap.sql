@@ -1,0 +1,1 @@
+{{ date_gaps(ref("terra__oracle_prices"), ["currency"], "block_timestamp") }}
