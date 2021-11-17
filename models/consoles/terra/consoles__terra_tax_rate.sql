@@ -14,7 +14,7 @@ WITH tax_rate AS (
         {{ ref('silver_terra__tax_rate') }}
     where block_timestamp::date >= CURRENT_DATE - 90
     GROUP BY
-    1
+    date
 
 ),
 price AS (
@@ -30,7 +30,7 @@ price AS (
         asset_id = '6370'
     and recorded_at::date >= CURRENT_DATE - 90
 GROUP BY
-        1
+        metric_date
 )
 
 

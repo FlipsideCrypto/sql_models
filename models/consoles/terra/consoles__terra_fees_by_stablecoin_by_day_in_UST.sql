@@ -16,7 +16,7 @@ FROM  {{ ref('terra__transactions') }}
 WHERE fee_denom IS NOT NULL 
   AND block_timestamp::date >= CURRENT_DATE - 90
 GROUP BY metric_date, fee_denom
-ORDER BY 1,2
+ORDER BY metric_date, fee_denom
 ),
 
 prices as (
@@ -28,7 +28,7 @@ prices as (
   from {{ ref('terra__oracle_prices') }}
   where block_timestamp::date > CURRENT_DATE - 90
   and symbol in ('UST', 'SDT', 'AUT', 'CAT', 'EUT', 'JPT', 'KRT', 'LUNA', 'MNT')
-  group by 1, 2, 3
+  group by metric_date, symbol, fee_denom
 )
 
 select 
@@ -38,6 +38,6 @@ amount * price as fee
 from rawfees r join prices p 
 on r.metric_date = p.metric_date 
 and r.fee_denom = p.fee_denom
-order by 1 desc, 2
+order by BLOCK_DATE desc, currency
 
 
