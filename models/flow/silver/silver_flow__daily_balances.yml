@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: silver_flow__daily_balances
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DATE
+            - CURRENCY
+            - ADDRESS
+            - BALANCE_TYPE
+    columns:
+      - name: "DATE"
+        tests:
+          - not_null
+      - name: "CURRENCY"
+      - name: "BALANCE_TYPE"
+      - name: "ADDRESS"
+      - name: "BLOCKCHAIN"
+      - name: "BALANCE"

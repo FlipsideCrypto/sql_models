@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: gold__flow_transactions
+    columns:
+      - name: "BLOCK_TIMESTAMP"
+        tests:
+          - not_null
+      - name: "TX_TYPE"
+      - name: "TX_ID"
+        tests:
+          - unique
