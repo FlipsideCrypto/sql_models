@@ -42,7 +42,7 @@ FROM
   AND p.day = b.date
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON b.address = l.address
-  AND l.project_name = 'terra'
+  AND l.blockchain = 'terra'
 WHERE
   1 = 1
 
