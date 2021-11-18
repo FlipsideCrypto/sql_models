@@ -57,7 +57,7 @@ msgs AS (
     {{ ref('silver_terra__msgs') }}
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :contract :: STRING = l.address
+    ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
     LEFT OUTER JOIN prices o
     ON DATE_TRUNC(
       'hour',

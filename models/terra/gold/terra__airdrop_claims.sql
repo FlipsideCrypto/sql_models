@@ -23,7 +23,7 @@ SELECT
 FROM
   {{ ref('silver_terra__msgs') }}
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON msg_value :contract :: STRING = l.address
+  ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 WHERE
   msg_value :execute_msg :claim :amount IS NOT NULL
   AND tx_status = 'SUCCEEDED'

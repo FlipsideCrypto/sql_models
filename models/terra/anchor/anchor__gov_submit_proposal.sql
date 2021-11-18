@@ -90,4 +90,4 @@ FROM
   JOIN events e
   ON m.tx_id = e.tx_id
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON contract_address = l.address
+  ON contract_address = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'

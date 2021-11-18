@@ -174,9 +174,9 @@ FROM
   JOIN withdraw w
   ON C.tx_id = w.tx_id
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l0
-  ON claim_0_contract = l0.address
+  ON claim_0_contract = l0.address AND l0.blockchain = 'terra' AND l0.creator = 'flipside'
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l1
-  ON claim_1_contract = l1.address
+  ON claim_1_contract = l1.address AND l1.blockchain = 'terra' AND l1.creator = 'flipside'
   LEFT OUTER JOIN prices p0
   ON DATE_TRUNC(
     'hour',
