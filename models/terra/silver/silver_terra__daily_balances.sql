@@ -24,10 +24,11 @@ FROM
     'shared',
     'terra_balances'
   ) }}
+WHERE
+  balance > 0
 
 {% if is_incremental() %}
-WHERE
-  block_timestamp >= getdate() - INTERVAL '3 DAYS'
+AND block_timestamp >= getdate() - INTERVAL '3 DAYS'
 {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type

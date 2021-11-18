@@ -43,6 +43,7 @@ FROM
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON b.address = l.address
   AND l.blockchain = 'terra'
+  AND l.creator = 'flipside'
 WHERE
   1 = 1
 
