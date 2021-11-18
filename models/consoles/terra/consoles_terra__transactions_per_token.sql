@@ -2,7 +2,6 @@
   materialized = 'view',
   tags = ['snowflake', 'terra', 'console', 'terra_transactions_per_token']
 ) }}
---queryId: 05a6c0ed-6df1-404d-82c1-9e94034b3b66
 SELECT 
 block_timestamp::date AS metric_date,
 event_currency as currency,
