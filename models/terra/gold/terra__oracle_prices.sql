@@ -120,7 +120,11 @@ SELECT
     ELSE l.currency
   END AS symbol,
   exchange_rate AS luna_exchange_rate,
-  price / exchange_rate AS price_usd,
+  CASE
+  WHEN (price/exchange_rate) IS NULL 
+  THEN (last_value(price ignore nulls) over (partition by symbol order by l.block_timestamp asc rows between unbounded preceding and current row))/exchange_rate
+  else price/exchange_rate 
+  END AS price_usd,
   'oracle' AS source
 FROM
   luna_rate l
