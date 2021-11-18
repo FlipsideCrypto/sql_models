@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__anchor_daily_inflow
+  - name: consoles_terra__anchor_daily_inflow
     description: Anchor Daily Inflow
     tests:
       - dbt_utils.unique_combination_of_columns:

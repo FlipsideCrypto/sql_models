@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__circulating_supply
+  - name: consoles_terra__circulating_supply
     description: Total circulating supply of LUNA 
     tests:
       - dbt_utils.unique_combination_of_columns:

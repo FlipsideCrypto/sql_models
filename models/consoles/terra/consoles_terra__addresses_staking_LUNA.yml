@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__addresses_staking_LUNA
+  - name: consoles_terra__addresses_staking_LUNA
     description: Total number of addresses staking LUNA over time
     tests:
       - dbt_utils.unique_combination_of_columns:

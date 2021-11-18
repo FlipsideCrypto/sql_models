@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__terra_fees_generated
+  - name: consoles_terra__terra_fees_generated
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

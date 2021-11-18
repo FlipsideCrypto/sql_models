@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__top_10_validators_by_rewards
+  - name: consoles_terra__top_10_validators_by_rewards
     description: The ten validators who have earned the most LUNA staking rewards
     tests:
       - dbt_utils.unique_combination_of_columns:
