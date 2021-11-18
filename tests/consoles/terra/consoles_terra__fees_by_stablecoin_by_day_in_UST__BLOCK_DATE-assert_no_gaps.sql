@@ -1,0 +1,1 @@
+{{ date_gaps(ref("consoles_terra__fees_by_stablecoin_by_day_in_UST"), [], "BLOCK_DATE") }}

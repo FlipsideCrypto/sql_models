@@ -1,7 +1,7 @@
 -- Velocity: 8dcd4c26-575b-4a9a-9b00-a70cf21bc4d7
 {{ config(
     materialized = 'view',
-    unique_key = "CONCAT_WS('-', date, currency)",
+    unique_key = "CONCAT_WS('-', METRIC_DATE, currency)",
     tags = ['snowflake', 'terra', 'console']
 ) }}
 

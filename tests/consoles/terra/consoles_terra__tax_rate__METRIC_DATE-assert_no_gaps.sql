@@ -1,0 +1,1 @@
+{{ date_gaps(ref("consoles_terra__tax_rate"), [], "METRIC_DATE") }}

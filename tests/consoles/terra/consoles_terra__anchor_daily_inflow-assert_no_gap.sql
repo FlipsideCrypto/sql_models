@@ -1,0 +1,1 @@
+{{ date_gaps(ref("consoles_terra__anchor_daily_inflow"), [], "join_date") }}
