@@ -59,7 +59,7 @@ luna_rate AS (
       '\"',
       ''
     ) AS currency,
-    event_attributes :exchange_rate AS exchange_rate
+    event_attributes :exchange_rate :: FLOAT AS exchange_rate
   FROM
     {{ ref('silver_terra__transitions') }}
   WHERE
@@ -79,7 +79,7 @@ massets AS(
     m.block_id,
     m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
     p.address AS symbol,
-    m.msg_value :execute_msg :feed_price :prices [0] [1] AS price
+    m.msg_value :execute_msg :feed_price :prices [0] [1] :: FLOAT AS price
   FROM
     {{ ref('silver_terra__msgs') }}
     m
@@ -120,7 +120,11 @@ SELECT
     ELSE l.currency
   END AS symbol,
   exchange_rate AS luna_exchange_rate,
-  price / exchange_rate AS price_usd,
+  CASE
+  WHEN (price/exchange_rate) IS NULL 
+  THEN (last_value(price ignore nulls) over (partition by symbol order by l.block_timestamp asc rows between unbounded preceding and current row))/exchange_rate
+  else price/exchange_rate 
+  END AS price_usd,
   'oracle' AS source
 FROM
   luna_rate l
@@ -182,8 +186,8 @@ SELECT
   ee.block_timestamp,
   ee.event_attributes :asset :: STRING AS currency,
   l.address AS symbol,
-  pp.price / ee.event_attributes :price AS luna_exchange_rate,
-  ee.event_attributes :price AS price_usd,
+  pp.price / ee.event_attributes :price :: FLOAT AS luna_exchange_rate,
+  ee.event_attributes :price :: FLOAT AS price_usd,
   'oracle' AS source
 FROM
   {{ ref('silver_terra__msg_events') }}
