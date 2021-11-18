@@ -26,10 +26,10 @@ WITH prices AS (
 SELECT
   DATE,
   b.address,
-  address_labels.l1_label AS address_label_type,
-  address_labels.l2_label AS address_label_subtype,
-  address_labels.project_name AS address_label,
-  address_labels.address AS address_name,
+  l.l1_label AS address_label_type,
+  l.l2_label AS address_label_subtype,
+  l.project_name AS address_label,
+  l.address AS address_name,
   balance,
   balance * p.price AS balance_usd,
   b.balance_type,
@@ -40,8 +40,9 @@ FROM
   LEFT OUTER JOIN prices p
   ON p.symbol = b.currency
   AND p.day = b.date
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS address_labels
-  ON b.address = address_labels.address
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+  ON b.address = l.address
+  AND l.project_name = 'terra'
 WHERE
   1 = 1
 
