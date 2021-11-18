@@ -1,1 +1,0 @@
-{{ date_gaps(ref("consoles__terra_daily_total_fees_USD"), [], "block_date") }}
