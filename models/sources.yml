@@ -69,7 +69,7 @@ sources:
     tables:
       - name: flow_delegator_addresses
   - name: thorchain_midgard
-    schema: BRONZE_MIDGARD_20211108_MIDGARD
+    schema: BRONZE_MIDGARD_20211112_MIDGARD
     tables:
       - name: active_vault_events
       - name: add_events
