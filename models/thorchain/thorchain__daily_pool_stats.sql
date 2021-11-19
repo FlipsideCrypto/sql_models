@@ -6,24 +6,14 @@
   )
 }}
 
-WITH max_daily_block AS (
-  SELECT 
-    max(block_id) AS block_id,
-    date_trunc('day', block_timestamp) AS day
-  FROM {{ ref('thorchain__prices') }}
-  GROUP BY day
-),
-
-daily_rune_price AS (
+WITH daily_rune_price AS (
   SELECT
-    p.block_id,
     pool_name,
-    day,
-    rune_usd,
-    asset_usd
+    block_timestamp::date AS day,
+    AVG(rune_usd) AS rune_usd,
+    AVG(asset_usd) AS asset_usd
   FROM {{ ref('thorchain__prices') }} p
-  JOIN max_daily_block mdb 
-  WHERE p.block_id = mdb.block_id
+  GROUP BY pool_name, day
 ),
 
 pool_fees AS (
@@ -42,7 +32,7 @@ pool_fees AS (
 
 SELECT
   pbs.day,
-  pf.pool_name,
+  pbs.asset AS pool_name,
   COALESCE(system_rewards, 0) AS system_rewards,
   COALESCE(system_rewards_usd, 0) AS system_rewards_usd,
   COALESCE(asset_depth / POW(10, 8), 0) AS asset_liquidity,
@@ -82,7 +72,7 @@ SELECT
   COALESCE(units, 0) AS liquidity_units
 FROM {{ ref('thorchain__pool_block_statistics') }} pbs
 
-LEFT JOIN daily_rune_price drp 
+JOIN daily_rune_price drp 
 ON pbs.day = drp.day AND pbs.asset = drp.pool_name
 
 LEFT JOIN pool_fees pf 
