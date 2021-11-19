@@ -170,4 +170,4 @@ FROM
   AND e.return_currency = r.currency
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   l
-  ON pool_address = address
+  ON pool_address = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'

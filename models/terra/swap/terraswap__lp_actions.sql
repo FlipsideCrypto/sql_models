@@ -51,7 +51,7 @@ provide_msgs AS (
     {{ ref('silver_terra__msgs') }}
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :contract :: STRING = l.address
+    ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   WHERE
     msg_value :execute_msg :provide_liquidity IS NOT NULL
     AND tx_status = 'SUCCEEDED'
@@ -95,9 +95,9 @@ provide_events AS (
     {{ ref('silver_terra__msg_events') }}
     t
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON event_attributes :"2_contract_address" :: STRING = l.address
+    ON event_attributes :"2_contract_address" :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS r
-    ON event_attributes :"4_contract_address" :: STRING = r.address
+    ON event_attributes :"4_contract_address" :: STRING = r.address AND r.blockchain = 'terra' AND r.creator = 'flipside'
     LEFT OUTER JOIN prices o
     ON DATE_TRUNC(
       'hour',
@@ -148,9 +148,9 @@ withdraw_msgs AS (
     {{ ref('silver_terra__msgs') }}
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS p
-    ON msg_value :contract :: STRING = p.address
+    ON msg_value :contract :: STRING = p.address AND p.blockchain = 'terra' AND p.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :execute_msg :send :contract :: STRING = l.address
+    ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   WHERE
     msg_value :execute_msg :send :msg :withdraw_liquidity IS NOT NULL
     AND tx_status = 'SUCCEEDED'

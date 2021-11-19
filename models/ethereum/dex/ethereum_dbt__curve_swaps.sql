@@ -83,7 +83,7 @@ curve_swaps_raw s
   -- Info for the pool --
 LEFT JOIN
 {{ref('silver_crosschain__address_labels')}} l
-    ON s.pool_address = l.address
+    ON s.pool_address = l.address AND l.blockchain = 'ethereum' AND l.creator = 'flipside'
 LEFT JOIN
 {{ref('ethereum_dbt__curve_liquidity_pools')}} lp
     ON s.pool_address = lp.pool_address

@@ -97,7 +97,7 @@ FROM
     t.msg_value :proposer,
     '\"',
     ''
-  ) = proposer_labels.address
+  ) = proposer_labels.address AND proposer_labels.blockchain = 'terra' AND proposer_labels.creator = 'flipside'
   LEFT OUTER JOIN proposal_id p
   ON t.tx_id = p.tx_id
 WHERE

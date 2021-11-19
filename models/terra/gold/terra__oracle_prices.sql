@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "CONCAT_WS('-', block_timestamp)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'terra', 'oracle']
+  tags = ['snowflake', 'terra', 'oracle', 'terra_oracle']
 ) }}
 
 WITH prices AS (
@@ -59,7 +59,7 @@ luna_rate AS (
       '\"',
       ''
     ) AS currency,
-    event_attributes :exchange_rate AS exchange_rate
+    event_attributes :exchange_rate :: FLOAT AS exchange_rate
   FROM
     {{ ref('silver_terra__transitions') }}
   WHERE
@@ -79,13 +79,13 @@ massets AS(
     m.block_id,
     m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
     p.address AS symbol,
-    m.msg_value :execute_msg :feed_price :prices [0] [1] AS price
+    m.msg_value :execute_msg :feed_price :prices [0] [1] :: FLOAT AS price
   FROM
     {{ ref('silver_terra__msgs') }}
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
     p
-    ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address
+    ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address AND p.blockchain = 'terra' and p.creator = 'flipside'
   WHERE
     msg_value :contract = 'terra1t6xe0txzywdg85n6k8c960cuwgh6l8esw6lau9' --Mirror Oracle Feeder
     AND msg_value :sender = 'terra128968w0r6cche4pmf4xn5358kx2gth6tr3n0qs' -- Make sure we are pulling right events
@@ -120,7 +120,11 @@ SELECT
     ELSE l.currency
   END AS symbol,
   exchange_rate AS luna_exchange_rate,
-  price / exchange_rate AS price_usd,
+  CASE
+  WHEN (price/exchange_rate) IS NULL 
+  THEN (last_value(price ignore nulls) over (partition by symbol order by l.block_timestamp asc rows between unbounded preceding and current row))/exchange_rate
+  else price/exchange_rate 
+  END AS price_usd,
   'oracle' AS source
 FROM
   luna_rate l
@@ -182,14 +186,14 @@ SELECT
   ee.block_timestamp,
   ee.event_attributes :asset :: STRING AS currency,
   l.address AS symbol,
-  pp.price / ee.event_attributes :price AS luna_exchange_rate,
-  ee.event_attributes :price AS price_usd,
+  pp.price / ee.event_attributes :price :: FLOAT AS luna_exchange_rate,
+  ee.event_attributes :price :: FLOAT AS price_usd,
   'oracle' AS source
 FROM
   {{ ref('silver_terra__msg_events') }}
   ee
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON ee.event_attributes :asset :: STRING = l.address
+  ON ee.event_attributes :asset :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   LEFT OUTER JOIN prices pp
   ON DATE_TRUNC(
     'hour',

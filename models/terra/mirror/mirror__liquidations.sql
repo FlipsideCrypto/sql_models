@@ -155,7 +155,7 @@ FROM
   JOIN events e
   ON m.tx_id = e.tx_id
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS g
-  ON m.contract_address = g.address
+  ON m.contract_address = g.address AND g.blockchain = 'terra' AND g.creator = 'flipside'
   LEFT OUTER JOIN prices t
   ON DATE_TRUNC(
     'hour',

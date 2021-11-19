@@ -63,7 +63,7 @@ stake_msgs AS (
     ) = o.hour
     AND msg_value :contract :: STRING = o.currency
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :execute_msg :send :contract :: STRING = l.address
+    ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   WHERE
     msg_value :execute_msg :send :msg :stake_voting_tokens IS NOT NULL
     AND msg_value :execute_msg :send :contract :: STRING = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
@@ -164,7 +164,7 @@ FROM
   ) = o.hour
   AND 'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' = o.currency
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON msg_value :contract :: STRING = l.address
+  ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 WHERE
   msg_value :execute_msg :withdraw_voting_tokens IS NOT NULL
   AND msg_value :contract :: STRING = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'

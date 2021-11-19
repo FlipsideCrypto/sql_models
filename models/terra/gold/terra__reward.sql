@@ -101,7 +101,7 @@ FROM
   )
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   delegator_labels
-  ON A.delegator = delegator_labels.address
+  ON A.delegator = delegator_labels.address AND delegator_labels.blockchain = 'terra' AND delegator_labels.creator = 'flipside'
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   validator_labels
-  ON A.validator = validator_labels.address
+  ON A.validator = validator_labels.address AND validator_labels.blockchain = 'terra' AND validator_labels.creator = 'flipside'

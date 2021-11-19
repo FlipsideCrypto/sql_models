@@ -72,7 +72,7 @@ SELECT
   COALESCE(units, 0) AS liquidity_units
 FROM {{ ref('thorchain__pool_block_statistics') }} pbs
 
-JOIN daily_rune_price drp 
+LEFT JOIN daily_rune_price drp 
 ON pbs.day = drp.day AND pbs.asset = drp.pool_name
 
 LEFT JOIN pool_fees pf 
