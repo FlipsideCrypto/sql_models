@@ -37,8 +37,7 @@ GROUP BY
 SELECT
     date as metric_date,
     avg(tax_rate) * 100 as metric_value,
-    -- Default Tax Rate
-    avg(effective_tax_rate) * 100 as metric_value_2 -- Effective Tax Rate
+    avg(effective_tax_rate) * 100 as metric_value_2 
 FROM
     (
         SELECT

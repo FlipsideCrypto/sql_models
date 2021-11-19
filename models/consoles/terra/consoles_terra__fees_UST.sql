@@ -2,7 +2,6 @@
   materialized = 'view',
   tags = ['snowflake', 'terra', 'console', 'terra_fees_UST']
 ) }}
---queryId: 0c56d097-8b37-49b3-8014-40121d5f75ee
 with rawfees as (
   SELECT 
   block_timestamp::date as metric_date,

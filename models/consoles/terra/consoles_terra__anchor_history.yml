@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__anchor_history
+  - name: consoles_terra__anchor_history
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

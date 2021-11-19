@@ -1,4 +1,3 @@
--- Velocity: 320abd12-4abf-4c05-a64a-a541f49e8c5c
 {{ config(
     materialized = 'view',
     unique_key = 'date',

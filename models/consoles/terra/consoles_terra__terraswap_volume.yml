@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__terraswap_volume
+  - name: consoles_terra__terraswap_volume
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

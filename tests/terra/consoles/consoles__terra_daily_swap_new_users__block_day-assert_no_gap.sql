@@ -1,1 +1,0 @@
-{{ date_gaps(ref("consoles__terra_daily_swap_new_users"), [], "block_day") }}

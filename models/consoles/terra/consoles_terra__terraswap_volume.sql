@@ -2,7 +2,6 @@
   materialized = 'view',
   tags = ['snowflake', 'terra', 'console', 'terraswap_volume']
 ) }}
--- queryId: 09c665d2-86d5-457d-babf-180880012d87
 with prices as (
     SELECT
         date_trunc('day', block_timestamp) AS dayz,

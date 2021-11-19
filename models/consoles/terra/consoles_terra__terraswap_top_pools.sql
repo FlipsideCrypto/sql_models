@@ -2,7 +2,6 @@
   materialized = 'view',
   tags = ['snowflake', 'terra', 'console', 'terraswap_top_pools']
 ) }}
---queryId: 25f05359-e828-49e1-887c-ac75fe384c53
 
 SELECT
   

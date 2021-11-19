@@ -1,13 +1,12 @@
 version: 2
 models:
-  - name: consoles__circulating_supply
+  - name: consoles_terra__circulating_supply
     description: Total circulating supply of LUNA 
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - METRIC_DATE
             - CURRENCY
-            - TOTAL_BALANCE
     columns:
       - name: METRIC_DATE
         description: Date that corresponds to amount of circulating supply

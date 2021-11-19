@@ -2,7 +2,6 @@
   materialized = 'view',
   tags = ['snowflake', 'terra', 'console', 'terraswap_top_swaps']
 ) }}
---queryId: c3b3482b-2aa0-4797-8143-ec80c4eac043
 
 with native as (
 select 
