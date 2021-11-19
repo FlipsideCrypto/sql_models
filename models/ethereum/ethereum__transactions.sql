@@ -102,8 +102,8 @@ SELECT
   LEFT OUTER JOIN
     {{ ref('silver_crosschain__address_labels') }} as from_labels
   ON
-    from_address = from_labels.address
+    from_address = from_labels.address AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
   LEFT OUTER JOIN
     {{ ref('silver_crosschain__address_labels') }} as to_labels
   ON
-    to_address = to_labels.address
+    to_address = to_labels.address AND to_labels.blockchain = 'ethereum' AND to_labels.creator = 'flipside'

@@ -79,8 +79,8 @@ FROM
   msgs m
   JOIN events e
   ON m.tx_id = e.tx_id
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
-  ON contract_address = address
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 
+  ON contract_address = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 UNION
   -- stake
 SELECT
@@ -100,8 +100,8 @@ SELECT
 FROM
   {{ ref('silver_terra__msgs') }}
   m
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
-  ON msg_value :contract :: STRING = address
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 
+  ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 WHERE
   msg_value :execute_msg :send :msg :bond IS NOT NULL
   AND tx_status = 'SUCCEEDED'

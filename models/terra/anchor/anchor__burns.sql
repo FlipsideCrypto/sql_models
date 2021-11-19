@@ -61,7 +61,7 @@ FROM
   ) = o.hour
   AND msg_value :contract :: STRING = o.currency
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON msg_value :execute_msg :send :contract :: STRING = l.address
+  ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 WHERE
   msg_value :execute_msg :send :msg :unbond IS NOT NULL
   AND tx_status = 'SUCCEEDED'

@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "CONCAT_WS('-', block_timestamp)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'terra', 'oracle']
+  tags = ['snowflake', 'terra', 'oracle', 'terra_oracle']
 ) }}
 
 WITH prices AS (
@@ -85,7 +85,7 @@ massets AS(
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
     p
-    ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address
+    ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address AND p.blockchain = 'terra' and p.creator = 'flipside'
   WHERE
     msg_value :contract = 'terra1t6xe0txzywdg85n6k8c960cuwgh6l8esw6lau9' --Mirror Oracle Feeder
     AND msg_value :sender = 'terra128968w0r6cche4pmf4xn5358kx2gth6tr3n0qs' -- Make sure we are pulling right events
@@ -193,7 +193,7 @@ FROM
   {{ ref('silver_terra__msg_events') }}
   ee
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON ee.event_attributes :asset :: STRING = l.address
+  ON ee.event_attributes :asset :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   LEFT OUTER JOIN prices pp
   ON DATE_TRUNC(
     'hour',

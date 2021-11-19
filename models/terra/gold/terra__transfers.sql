@@ -187,6 +187,6 @@ FROM
   LEFT OUTER JOIN symbol s
   ON t.event_currency = s.currency
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
-  ON event_from = from_labels.address
+  ON event_from = from_labels.address AND from_labels.blockchain = 'terra' AND from_labels.creator = 'flipside'
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS to_labels
-  ON event_to = to_labels.address
+  ON event_to = to_labels.address AND to_labels.blockchain = 'terra' AND to_labels.creator = 'flipside'

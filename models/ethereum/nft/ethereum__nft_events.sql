@@ -325,4 +325,4 @@ FROM
   LEFT OUTER JOIN {{ ref( 
   'silver_crosschain__address_labels'
   ) }} AS contract_labels
-  ON nft.contract_address = contract_labels.address
+  ON nft.contract_address = contract_labels.address AND contract_labels.blockchain = 'ethereum' AND contract_labels.creator = 'flipside'
