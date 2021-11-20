@@ -8,13 +8,19 @@
 
 SELECT
   DATE,
+  node_id,
+  delegator_id,
   address,
+  address_label_type,
+  address_label_subtype,
+  address_label,
+  address_address_name,
   balance,
   currency,
   balance_type
 FROM
   {{ ref(
-    'silver_flow__daily_balances'
+    'gold__flow_daily_balances'
   ) }}
 WHERE
   1 = 1
