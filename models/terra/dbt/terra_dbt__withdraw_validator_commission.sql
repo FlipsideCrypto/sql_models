@@ -27,7 +27,7 @@ WITH rewards_event AS (
       6
     ) AS event_rewards_amount,
     VALUE :denom :: STRING AS event_rewards_currency,
-    event_attributes :validator :: STRING AS validator_address
+     event_attributes :receiver :: STRING AS delegator_address
   FROM
     {{ ref('silver_terra__msg_events') }},
     LATERAL FLATTEN(
@@ -36,7 +36,7 @@ WITH rewards_event AS (
   WHERE
     msg_module = 'distribution'
     AND msg_type = 'distribution/MsgWithdrawValidatorCommission'
-    AND event_type = 'withdraw_commission'
+    AND event_type = 'coin_received'
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
@@ -53,11 +53,6 @@ rewards AS (
     tx_id,
     msg_type,
     msg_index,
-    REGEXP_REPLACE(
-      msg_value :delegator_address,
-      '\"',
-      ''
-    ) AS delegator_address,
     REGEXP_REPLACE(
       msg_value :validator_address,
       '\"',
@@ -91,7 +86,8 @@ rewards_event_base AS (
     msg_type,
     msg_index,
     event_rewards_amount,
-    event_rewards_currency
+    event_rewards_currency,
+    delegator_address
   FROM
     rewards_event
 )
@@ -109,7 +105,7 @@ SELECT
   'withdraw_validator_commission' AS action,
   'distribution' AS module,
   rewards.validator_address AS validator_address,
-  rewards.delegator_address AS delegator_address
+  rewards_event_base.delegator_address AS delegator_address
 FROM
   rewards_event_base
   LEFT JOIN rewards
