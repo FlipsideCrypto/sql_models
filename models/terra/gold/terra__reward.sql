@@ -45,7 +45,7 @@ withdraw_validator_commission AS (
 prices AS (
   SELECT
     DATE_TRUNC(
-      'day',
+      'hour',
       block_timestamp
     ) AS HOUR,
     currency,
@@ -96,7 +96,7 @@ FROM
   LEFT OUTER JOIN prices p
   ON p.currency = A.currency
   AND p.hour = DATE_TRUNC(
-    'day',
+    'hour',
     A.block_timestamp
   )
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
