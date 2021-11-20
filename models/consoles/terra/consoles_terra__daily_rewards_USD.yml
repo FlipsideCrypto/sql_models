@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__daily_rewards_USD
+  - name: consoles_terra__daily_rewards_USD
     description: Total amount of LUNA staking rewards in USDT
     tests:
       - dbt_utils.unique_combination_of_columns:

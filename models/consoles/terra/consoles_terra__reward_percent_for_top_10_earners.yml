@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__reward_percent_for_top_10_earners
+  - name: consoles_terra__reward_percent_for_top_10_earners
     description: Total amount of LUNA rewards top 10 earners account for
     tests:
       - dbt_utils.unique_combination_of_columns:

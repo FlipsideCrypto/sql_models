@@ -1,1 +1,0 @@
-{{ date_gaps(ref("consoles__circulating_supply"), [], "metric_date") }}

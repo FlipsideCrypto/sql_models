@@ -1,13 +1,13 @@
 version: 2
 models:
-  - name: consoles__ust_peg_variance
+  - name: consoles_terra__ust_peg_variance
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - DATE
+            - METRIC_DATE
             - CURRENCY
     columns:
-      - name: DATE
+      - name: METRIC_DATE
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
@@ -24,20 +24,8 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - varchar
-      - name: oracle_exchange
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - float
-      - name: swap_exchange
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - float     
-      - name: percent_of_peg
+                - varchar  
+      - name: AVG
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:

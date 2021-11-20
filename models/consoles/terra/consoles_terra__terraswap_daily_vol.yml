@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__terraswap_daily_vol
+  - name: consoles_terra__terraswap_daily_vol
     description: Terraswap Daily Volume
     tests:
       - dbt_utils.unique_combination_of_columns:

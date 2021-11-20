@@ -2,7 +2,6 @@
   materialized = 'view',
   tags = ['snowflake', 'terra', 'console', 'terra_daily_total_fees_USD']
 ) }}
---queryId: 4256e816-ab9a-4acd-9ac6-a892f4630f5b
 
 with rawfees as (
   SELECT 

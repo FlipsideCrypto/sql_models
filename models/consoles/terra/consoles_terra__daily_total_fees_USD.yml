@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: consoles__terra_daily_total_fees_USD
+  - name: consoles_terra__daily_total_fees_USD
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

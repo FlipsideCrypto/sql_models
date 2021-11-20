@@ -1,1 +1,0 @@
-{{ date_gaps(ref("consoles__terra_total_transactions"), [], "day") }}
