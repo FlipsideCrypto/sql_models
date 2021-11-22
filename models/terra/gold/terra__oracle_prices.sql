@@ -55,7 +55,7 @@ luna_rate AS (
     event = 'exchange_rate_update'
 
 {% if is_incremental() %}
-  AND m.block_timestamp >= getdate() - INTERVAL '1 days'
+  AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 
 ),
@@ -72,7 +72,7 @@ massets AS(
   FROM
     {{ ref('silver_terra__msgs') }} m
   
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}p
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} p
     ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address 
     AND p.blockchain = 'terra' 
     AND p.creator = 'flipside'
@@ -193,6 +193,6 @@ LEFT OUTER JOIN prices pp
 
 WHERE
   event_type = 'from_contract'
-  AND tx_id IN( SELECT tx_id FROM{{ ref('silver_terra__msgs') }}
+  AND tx_id IN( SELECT tx_id FROM {{ ref('silver_terra__msgs') }}
                 WHERE msg_value :contract :: STRING = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t'
                   AND msg_value :execute_msg :feed_price IS NOT NULL)
