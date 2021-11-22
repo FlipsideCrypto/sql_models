@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: gold__flow_daily_balances_dedupped
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DATE
+            - CURRENCY
+            - ADDRESS
+            - BALANCE_TYPE
+    columns:
+      - name: "BALANCE"
+      - name: "DATE"
+        tests:
+          - not_null
+      - name: "ADDRESS"
+      - name: "CURRENCY"
+      - name: "ADDRESS_LABEL_SUBTYPE"

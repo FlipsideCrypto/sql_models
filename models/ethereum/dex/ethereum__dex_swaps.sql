@@ -295,6 +295,6 @@ SELECT
 FROM 
 swaps s
 LEFT JOIN
-silver_crosschain.address_labels l
-ON s.from_address = l.address
+{{ref('silver_crosschain__address_labels')}} l
+ON s.from_address = l.address AND l.blockchain = 'ethereum' AND l.creator = 'flipside'
 WHERE s.pool_name IS NOT NULL

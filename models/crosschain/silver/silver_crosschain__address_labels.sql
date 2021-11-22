@@ -14,11 +14,11 @@ SELECT
   creator,
   l1_label,
   l2_label,
+  address_name, 
   project_name
 FROM
   {{ ref('silver_dbt__address_labels') }}
-WHERE
-  1 = 1
+WHERE blockchain <> 'ethereum' OR (blockchain = 'ethereum' AND insert_date > '2021-11-01')
 
 {% if is_incremental() %}
 AND system_created_at :: DATE >= (
@@ -31,4 +31,4 @@ AND system_created_at :: DATE >= (
 
 qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
 ORDER BY
-  system_created_at DESC)) = 1
+  insert_date DESC)) = 1

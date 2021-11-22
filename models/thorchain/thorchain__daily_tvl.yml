@@ -1,0 +1,29 @@
+version: 2
+models:
+  - name: thorchain__daily_tvl
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DAY
+    columns:
+      - name: DAY
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_POOLED
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_POOLED_USD
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_BONDED
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_BONDED_USD
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_LOCKED
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_LOCKED_USD
+        tests:
+          - not_null

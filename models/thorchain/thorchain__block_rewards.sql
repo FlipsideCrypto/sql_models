@@ -46,7 +46,7 @@ all_block_with_nodes AS (
 
 all_block_with_nodes_date AS (
   SELECT 
-    date(block_timestamp) AS day,
+    block_timestamp::date AS day,
     AVG(avg_nodes) AS avg_nodes
   FROM all_block_with_nodes
   GROUP BY 1
@@ -55,7 +55,7 @@ all_block_with_nodes_date AS (
 liquidity_fee_tbl AS (
   SELECT 
     date(block_timestamp) AS day,
-    SUM(LIQ_FEE_IN_RUNE_E8) AS liquidity_fee
+    COALESCE(SUM(LIQ_FEE_IN_RUNE_E8), 0) AS liquidity_fee
   FROM {{ ref('thorchain__swap_events') }} 
   GROUP BY 1 
 ),
@@ -78,11 +78,11 @@ total_pool_rewards_tbl AS (
 
 SELECT
   all_block_with_nodes_date.day,
-  (liquidity_fee_tbl.liquidity_fee / POWER(10, 8)) AS liquidity_fee,
-  ((total_pool_rewards_tbl.total_pool_rewards + bond_earnings_tbl.bond_earnings)) / POWER(10, 8) AS block_rewards,
-  ((total_pool_rewards_tbl.total_pool_rewards + liquidity_fee_tbl.liquidity_fee + bond_earnings_tbl.bond_earnings)) / POWER(10, 8) AS earnings,
-  (bond_earnings_tbl.bond_earnings / POWER(10, 8)) AS bonding_earnings,
-  ((total_pool_rewards_tbl.total_pool_rewards + liquidity_fee_tbl.liquidity_fee)) / POWER(10, 8) AS liquidity_earnings,
+  COALESCE((liquidity_fee_tbl.liquidity_fee / POWER(10, 8)), 0) AS liquidity_fee,
+  ((COALESCE(total_pool_rewards_tbl.total_pool_rewards, 0) + COALESCE(bond_earnings_tbl.bond_earnings, 0))) / POWER(10, 8) AS block_rewards,
+  ((COALESCE(total_pool_rewards_tbl.total_pool_rewards, 0) + COALESCE(liquidity_fee_tbl.liquidity_fee, 0) + COALESCE(bond_earnings_tbl.bond_earnings, 0))) / POWER(10, 8) AS earnings,
+  COALESCE((bond_earnings_tbl.bond_earnings / POWER(10, 8)), 0) AS bonding_earnings,
+  ((COALESCE(total_pool_rewards_tbl.total_pool_rewards, 0) + COALESCE(liquidity_fee_tbl.liquidity_fee, 0))) / POWER(10, 8) AS liquidity_earnings,
   all_block_with_nodes_date.avg_nodes + 2 AS avg_node_count 
 FROM all_block_with_nodes_date
 

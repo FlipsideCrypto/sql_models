@@ -41,11 +41,12 @@ sources:
       - name: sha256_function_signatures
       - name: nft_metadata
   - name: flow
-    schema: silver
+    schema: redshift
     tables:
       - name: daily_flow_staked_balances
       - name: udm_daily_balances_flow
       - name: udm_events_flow
+
   - name: uniswapv3_eth
     schema: silver
     tables:
@@ -63,14 +64,18 @@ sources:
     schema: ethereum
     tables:
       - name: token_prices_hourly_v2
+  - name: gold
+    schema: gold
+    tables:
+      - name: flow_delegator_addresses
   - name: thorchain_midgard
-    schema: thorchain_midgard_public
+    schema: BRONZE_MIDGARD_20211112_MIDGARD
     tables:
       - name: active_vault_events
       - name: add_events
       - name: asgard_fund_yggdrasil_events
-      - name: block_pool_depths
       - name: block_log
+      - name: block_pool_depths
       - name: bond_events
       - name: constants
       - name: errata_events
@@ -85,8 +90,8 @@ sources:
       - name: pool_events
       - name: refund_events
       - name: reserve_events
-      - name: rewards_events
       - name: rewards_event_entries
+      - name: rewards_events
       - name: set_ip_address_events
       - name: set_mimir_events
       - name: set_node_keys_events
@@ -95,6 +100,7 @@ sources:
       - name: stake_events
       - name: swap_events
       - name: switch_events
+      - name: thorname_change_events
       - name: transfer_events
       - name: unstake_events
       - name: update_node_account_status_events
@@ -104,7 +110,7 @@ sources:
     tables:
       - name: udm_daily_balances_terra
       - name: terra_validator_voting_power
-      - name: udm_custom_fields_terra_tax_rate
+      - name: udm_custom_fields_terra_tax_rate # TODO: drop table as it is not being referenced in dbt anymore.
   - name: bronze
     schema: bronze
     tables:
@@ -113,11 +119,18 @@ sources:
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
       - name: JIM_TEST_REST_PROXY_1507016047
-  - name: gold
-    schema: gold
-    tables:
-      - name: flow_daily_balances
   - name: crosschain
     schema: silver_crosschain
     tables:
       - name: address_labels
+  - name: near
+    schema: redshift
+    tables:
+      - name: near_validators
+      - name: near_daily_reward_flow
+      - name: near_delegator_counts
+      - name: udm_events_near
+  - name: near_silver
+    schema: silver_near
+    tables:
+      - name: daily_balances

@@ -31,12 +31,13 @@ WITH token_prices AS (
    {% endif %}
   GROUP BY p.symbol, day, token_address
 ), 
+
 balances AS (
   SELECT   
     balance_date,
     b.address as user_address,
     labels.project_name as label,
-    labels.address as address_name,
+    labels.address_name as address_name,
     labels.l1_label as label_type,
     labels.l2_label as label_subtype,
     b.contract_address,
@@ -53,12 +54,12 @@ balances AS (
   LEFT OUTER JOIN
     -- Labels for addresses
     {{ ref('silver_crosschain__address_labels') }} as labels
-      ON b.address = labels.address
+      ON b.address = labels.address AND labels.blockchain = 'ethereum' AND labels.creator = 'flipside'
 
   LEFT OUTER JOIN
     -- Labels for contracts
     {{ ref('silver_crosschain__address_labels') }} as contract_labels
-      ON contract_labels.address = b.contract_address
+      ON contract_labels.address = b.contract_address AND contract_labels.blockchain = 'ethereum' AND contract_labels.creator = 'flipside'
 
   LEFT OUTER JOIN
     token_prices

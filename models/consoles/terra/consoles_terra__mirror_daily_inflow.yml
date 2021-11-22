@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: consoles_terra__mirror_daily_inflow
+    description: Mirror Daily Inflow
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - JOIN_DATE
+    columns:
+      - name: JOIN_DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: NEW_MIRROR_USERS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - number
+      

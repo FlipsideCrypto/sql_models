@@ -261,4 +261,4 @@ FROM
     LEFT JOIN decimals_backup AS decimals_backup_debt
         ON LOWER(liquidation.debt_asset) = LOWER(decimals_backup_debt.token_address)
     LEFT OUTER JOIN
-    {{ref('silver_crosschain__address_labels')}} l ON LOWER(underlying.aave_token) = l.address
+    {{ref('silver_crosschain__address_labels')}} l ON LOWER(underlying.aave_token) = l.address AND l.blockchain = 'ethereum' AND l.creator = 'flipside'

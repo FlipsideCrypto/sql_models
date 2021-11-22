@@ -48,13 +48,13 @@ events AS (
     "from" AS from_address,
     from_labels.l1_label AS from_label_type,
     from_labels.l2_label AS from_label_subtype,
-    from_labels.address AS from_label,
-    from_labels.project_name AS from_address_name,
+    from_labels.project_name AS from_label,
+    from_labels.address_name AS from_address_name,
     "to" AS to_address,
     to_labels.l1_label AS to_label_type,
     to_labels.l2_label AS to_label_subtype,
-    to_labels.address AS to_label,
-    to_labels.project_name AS to_address_name,
+    to_labels.project_name AS to_label,
+    to_labels.address_name AS to_address_name,
     log_method AS event_name,
     NULL AS event_type,
     log_index AS event_id,
@@ -72,13 +72,13 @@ events AS (
     e
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
      }} AS from_labels
-    ON e."from" = from_labels.address
+    ON e."from" = from_labels.address AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')                 
      }} AS to_labels
-    ON e."to" = to_labels.address
+    ON e."to" = to_labels.address AND to_labels.blockchain = 'ethereum' AND to_labels.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
      }} AS contract_labels
-    ON e.contract_address = contract_labels.address
+    ON e.contract_address = contract_labels.address AND contract_labels.blockchain = 'ethereum' AND contract_labels.creator = 'flipside'
   WHERE
     1 = 1
 
@@ -93,7 +93,7 @@ originator AS (
     from_labels.l1_label AS origin_label_type,
     from_labels.l2_label AS origin_label_subtype,
     from_labels.project_name AS origin_label,
-    from_labels.address AS origin_address_name,
+    from_labels.address_name AS origin_address_name,
     t.input_method AS origin_function_signature,
     f.text_signature AS origin_function_name
   FROM
@@ -105,8 +105,9 @@ originator AS (
     ) }} AS f
     ON t.input_method = f.hex_signature
     AND f.importance = 1
-    LEFT OUTER JOIN silver_crosschain.address_labels  AS from_labels
-    ON t.from_address = from_labels.address
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
+     }}  AS from_labels
+    ON t.from_address = from_labels.address AND AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
 ),
 full_events AS (
   SELECT

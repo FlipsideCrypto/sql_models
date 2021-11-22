@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='table', 
-    unique_key='day || asset', 
+    unique_key="CONCAT_WS('-', day, asset)", 
     tags=['snowflake', 'thorchain', 'thorchain_pool_block_statistics']
   )
 }}
@@ -50,7 +50,8 @@ add_liquidity_tbl AS (
     pool_name,
     COUNT(*) AS add_liquidity_count,
     SUM(rune_e8) AS add_rune_liquidity_volume,
-    SUM(asset_e8) AS add_asset_liquidity_volume 
+    SUM(asset_e8) AS add_asset_liquidity_volume,
+    SUM(stake_units) AS added_stake 
   FROM {{ ref("thorchain__stake_events") }}
   GROUP BY 1,2
 ),
@@ -61,7 +62,8 @@ withdraw_tbl AS (
     pool_name,
     COUNT(*) AS withdraw_count,
     SUM(emit_rune_e8) AS withdraw_rune_volume,
-    SUM(emit_asset_e8) AS withdraw_asset_volume, 
+    SUM(emit_asset_e8) AS withdraw_asset_volume,
+    SUM(stake_units) AS withdrawn_stake,
     SUM(IMP_LOSS_PROTECTION_E8) AS impermanent_loss_protection_paid
   FROM {{ ref("thorchain__unstake_events") }}
   GROUP BY 1,2
@@ -226,24 +228,94 @@ asset_price_usd_tbl AS (
     FROM {{ ref("thorchain__prices") }}
   )
   WHERE block_id = max_block_id
-)
+),
 
+joined AS (
+  SELECT 
+    pool_depth.day AS day,
+    COALESCE(add_asset_liquidity_volume, 0) AS add_asset_liquidity_volume,
+    COALESCE(add_liquidity_count, 0) AS add_liquidity_count,
+    COALESCE((add_asset_liquidity_volume + add_rune_liquidity_volume), 0) AS add_liquidity_volume,
+    COALESCE(add_rune_liquidity_volume, 0) AS add_rune_liquidity_volume,
+    pool_depth.pool_name AS asset,
+    asset_depth,
+    COALESCE(asset_price, 0) AS asset_price,
+    COALESCE(asset_price_usd, 0) AS asset_price_usd,
+    COALESCE(average_slip, 0) AS average_slip,
+    COALESCE(impermanent_loss_protection_paid, 0) AS impermanent_loss_protection_paid,
+    COALESCE(rune_depth, 0) AS rune_depth,
+    COALESCE(status, 'no status') AS status,
+    COALESCE((to_rune_count + to_asset_count), 0) AS swap_count,
+    COALESCE(swap_volume, 0) AS swap_volume,
+    COALESCE(to_asset_average_slip, 0) AS to_asset_average_slip,
+    COALESCE(to_asset_count, 0) AS to_asset_count,
+    COALESCE(to_asset_fees, 0) AS to_asset_fees,
+    COALESCE(to_asset_volume, 0) AS to_asset_volume,
+    COALESCE(to_rune_average_slip, 0) AS to_rune_average_slip,
+    COALESCE(to_rune_count, 0) AS to_rune_count,
+    COALESCE(to_rune_fees, 0) AS to_rune_fees,
+    COALESCE(to_rune_volume, 0) AS to_rune_volume,
+    COALESCE((to_rune_fees + to_asset_fees), 0) AS totalFees,
+    COALESCE(unique_member_count, 0) AS unique_member_count,
+    COALESCE(unique_swapper_count, 0) AS unique_swapper_count,
+    COALESCE(units, 0) AS units,
+    COALESCE(withdraw_asset_volume, 0) AS withdraw_asset_volume,
+    COALESCE(withdraw_count, 0) AS withdraw_count,
+    COALESCE(withdraw_rune_volume, 0) AS withdraw_rune_volume,
+    COALESCE((withdraw_rune_volume + withdraw_asset_volume), 0) AS withdraw_volume,
+    SUM( COALESCE(added_stake, 0) - COALESCE(withdrawn_stake, 0) ) OVER (PARTITION BY pool_depth.pool_name ORDER BY pool_depth.day ASC) AS total_stake,
+    asset_depth * COALESCE(rune_depth, 0) AS depth_product,
+    CASE WHEN total_stake = 0 THEN 0 ELSE sqrt(depth_product) / total_stake END AS liquidity_unit_value_index
+  FROM pool_depth
+
+  LEFT JOIN pool_status
+  ON pool_depth.pool_name = pool_status.pool_name AND pool_depth.day = pool_status.day
+
+  LEFT JOIN add_liquidity_tbl
+  ON pool_depth.pool_name = add_liquidity_tbl.pool_name AND pool_depth.day = add_liquidity_tbl.day
+
+  LEFT JOIN withdraw_tbl
+  ON pool_depth.pool_name = withdraw_tbl.pool_name AND pool_depth.day = withdraw_tbl.day
+
+  LEFT JOIN swap_total_tbl
+  ON pool_depth.pool_name = swap_total_tbl.pool_name AND pool_depth.day = swap_total_tbl.day
+
+  LEFT JOIN swap_to_asset_tbl
+  ON pool_depth.pool_name = swap_to_asset_tbl.pool_name AND pool_depth.day = swap_to_asset_tbl.day
+
+  LEFT JOIN swap_to_rune_tbl
+  ON pool_depth.pool_name = swap_to_rune_tbl.pool_name AND pool_depth.day = swap_to_rune_tbl.day
+
+  LEFT JOIN unique_swapper_tbl
+  ON pool_depth.pool_name = unique_swapper_tbl.pool_name AND pool_depth.day = unique_swapper_tbl.day
+
+  LEFT JOIN stake_amount
+  ON pool_depth.pool_name = stake_amount.pool_name AND pool_depth.day = stake_amount.day
+
+  LEFT JOIN average_slip_tbl
+  ON pool_depth.pool_name = average_slip_tbl.pool_name AND pool_depth.day = average_slip_tbl.day
+
+  LEFT JOIN unique_member_count
+  ON pool_depth.pool_name = unique_member_count.pool_name AND pool_depth.day = unique_member_count.day
+
+  LEFT JOIN asset_price_usd_tbl
+  ON pool_depth.pool_name = asset_price_usd_tbl.pool_name AND pool_depth.day = asset_price_usd_tbl.day
+)
 SELECT 
-  pool_depth.day AS day,
+  day,
   add_asset_liquidity_volume,
   add_liquidity_count,
-  (add_asset_liquidity_volume + add_rune_liquidity_volume) AS add_liquidity_volume,
+  add_liquidity_volume,
   add_rune_liquidity_volume,
-  pool_depth.pool_name AS asset,
+  asset,
   asset_depth,
   asset_price,
   asset_price_usd,
   average_slip,
   impermanent_loss_protection_paid,
--- //  poolAPY,
   rune_depth,
   status,
-  (to_rune_count + to_asset_count) AS swap_count,
+  swap_count,
   swap_volume,
   to_asset_average_slip,
   to_asset_count,
@@ -253,45 +325,16 @@ SELECT
   to_rune_count,
   to_rune_fees,
   to_rune_volume,
-  (to_rune_fees + to_asset_fees) AS totalFees,
+  totalFees,
   unique_member_count,
   unique_swapper_count,
   units,
   withdraw_asset_volume,
   withdraw_count,
   withdraw_rune_volume,
-  (withdraw_rune_volume + withdraw_asset_volume) AS withdraw_volume
-FROM pool_depth
-
-LEFT JOIN pool_status
-ON pool_depth.pool_name = pool_status.pool_name AND pool_depth.day = pool_status.day
-
-LEFT JOIN add_liquidity_tbl
-ON pool_depth.pool_name = add_liquidity_tbl.pool_name AND pool_depth.day = add_liquidity_tbl.day
-
-LEFT JOIN withdraw_tbl
-ON pool_depth.pool_name = withdraw_tbl.pool_name AND pool_depth.day = withdraw_tbl.day
-
-LEFT JOIN swap_total_tbl
-ON pool_depth.pool_name = swap_total_tbl.pool_name AND pool_depth.day = swap_total_tbl.day
-
-LEFT JOIN swap_to_asset_tbl
-ON pool_depth.pool_name = swap_to_asset_tbl.pool_name AND pool_depth.day = swap_to_asset_tbl.day
-
-LEFT JOIN swap_to_rune_tbl
-ON pool_depth.pool_name = swap_to_rune_tbl.pool_name AND pool_depth.day = swap_to_rune_tbl.day
-
-LEFT JOIN unique_swapper_tbl
-ON pool_depth.pool_name = unique_swapper_tbl.pool_name AND pool_depth.day = unique_swapper_tbl.day
-
-LEFT JOIN stake_amount
-ON pool_depth.pool_name = stake_amount.pool_name AND pool_depth.day = stake_amount.day
-
-LEFT JOIN average_slip_tbl
-ON pool_depth.pool_name = average_slip_tbl.pool_name AND pool_depth.day = average_slip_tbl.day
-
-LEFT JOIN unique_member_count
-ON pool_depth.pool_name = unique_member_count.pool_name AND pool_depth.day = unique_member_count.day
-
-LEFT JOIN asset_price_usd_tbl
-ON pool_depth.pool_name = asset_price_usd_tbl.pool_name AND pool_depth.day = asset_price_usd_tbl.day
+  withdraw_volume,
+  total_stake,
+  depth_product,
+  liquidity_unit_value_index,
+  LAG(liquidity_unit_value_index, 1) OVER (PARTITION BY asset ORDER BY day ASC) AS prev_liquidity_unit_value_index
+FROM joined

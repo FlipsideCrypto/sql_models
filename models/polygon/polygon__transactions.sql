@@ -56,6 +56,7 @@ poly_labels AS (
     l1_label,
     l2_label,
     project_name, 
+    address_name, 
     address
   FROM
     {{ ref('silver_crosschain__address_labels') }}
@@ -120,12 +121,12 @@ SELECT
   from_labels.l1_label AS from_label_type,
   from_labels.l2_label AS from_label_subtype,
   from_labels.project_name AS from_label,
-  from_labels.address AS from_address_name,
+  from_labels.address_name AS from_address_name,
   to_address,
   to_labels.l1_label AS to_label_type,
   to_labels.l2_label AS to_label_subtype,
   to_labels.project_name AS to_label,
-  to_labels.address AS to_address_name,
+  to_labels.address_name AS to_address_name,
   C.symbol,
   t.input_method AS function_signature,
   f.text_signature AS function_name,

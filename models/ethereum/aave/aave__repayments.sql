@@ -221,4 +221,4 @@ FROM
     LEFT JOIN decimals_backup
         ON LOWER(repay.aave_market) = LOWER(decimals_backup.token_address)
     LEFT OUTER JOIN
-    {{ref('silver_crosschain__address_labels')}} l ON LOWER(underlying.aave_token) = l.address
+    {{ref('silver_crosschain__address_labels')}} l ON LOWER(underlying.aave_token) = l.address AND l.blockchain = 'ethereum' AND l.creator = 'flipside'

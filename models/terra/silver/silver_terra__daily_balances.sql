@@ -69,9 +69,9 @@ eth_balances AS (
       'shared',
       'terra_balances'
     ) }}
-    qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type, blockchain
+    qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
   ORDER BY
-    block_timestamp DESC)) = 1
+    balance DESC)) = 1
 ),
 balance_tmp AS (
   SELECT

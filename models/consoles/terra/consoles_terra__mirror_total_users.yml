@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: consoles_terra__mirror_total_users
+    description: Mirror Total Users
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_DATE
+    columns:
+      - name: BLOCK_DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: TOTAL_USERS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - number
+      

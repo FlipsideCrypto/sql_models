@@ -1,0 +1,25 @@
+version: 2
+models:
+  - name: consoles_terra__circulating_supply
+    description: Total circulating supply of LUNA 
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - METRIC_DATE
+            - CURRENCY
+    columns:
+      - name: METRIC_DATE
+        description: Date that corresponds to amount of circulating supply
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: CURRENCY
+        description: Type of currency
+        tests:
+          - not_null
+      - name: TOTAL_BALANCE
+        description: Total circulating supply of currency type
+        tests:
+          - not_null

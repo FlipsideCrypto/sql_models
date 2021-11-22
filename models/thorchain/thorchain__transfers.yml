@@ -1,0 +1,38 @@
+version: 2
+models:
+  - name: thorchain__transfers
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - EVENT_ID
+    columns:
+      - name: BLOCK_TIMESTAMP::DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: EVENT_ID
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: ASSET
+      - name: FROM_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: thor[0-9a-zA-Z]{39}
+      - name: TO_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: thor[0-9a-zA-Z]{39}
+      - name: RUNE_AMOUNT
+        tests:
+          - not_null
+      - name: RUNE_AMOUNT_USD
+        tests:
+          - not_null:
+              where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'

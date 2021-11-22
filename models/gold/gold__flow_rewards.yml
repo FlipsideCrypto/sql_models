@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: gold__flow_rewards
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - "EVENT_FROM"
+            - EVENT_TO
+    columns:
+      - name: "EVENT_FROM_LABEL_TYPE"
+      - name: "EVENT_TO"
+      - name: "EVENT_AMOUNT"
+      - name: "EVENT_TYPE"
+      - name: "EVENT_CURRENCY"
+      - name: "EVENT_FROM"
+      - name: "BLOCKCHAIN"
+      - name: "EVENT_FROM_LABEL_SUBTYPE"
+      - name: "EVENT_TO_LABEL_SUBTYPE"
+      - name: "EVENT_FROM_LABEL"
+      - name: "BLOCK_TIMESTAMP"
+        tests:
+          - not_null
+      - name: "EVENT_TO_LABEL_TYPE"
+      - name: "EVENT_AMOUNT_USD"
+      - name: "BLOCK_NUMBER"
+      - name: "TX_ID"
+      - name: "EVENT_FROM_ADDRESS_NAME"
+      - name: "EVENT_TO_ADDRESS_NAME"
+      - name: "EVENT_TO_LABEL"

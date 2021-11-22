@@ -1,0 +1,9 @@
+version: 2
+models:
+  - name: gold__near_delegator_counts
+    description: Daily delegate counts by address
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DATE
+            - VALIDATOR_ADDRESS
