@@ -27,12 +27,6 @@ models:
       - name: SENDER
         tests:
           - not_null
-      - name: TAX_AMOUNT
-        tests:
-          - not_null
-      - name: COMMISSION_AMOUNT
-        tests:
-          - not_null
       - name: OFFER_AMOUNT
         tests:
           - not_null

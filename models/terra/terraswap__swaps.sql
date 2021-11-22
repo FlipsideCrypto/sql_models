@@ -73,8 +73,6 @@ events AS (
 SELECT
   msg_index,
   tx_id,
-  coalesce(AS_NUMBER(event_attributes :tax_amount), event_attributes:tax_amount :: numeric) / pow(10,6) AS tax_amount, 
-  event_attributes :commission_amount :: numeric / pow(10,6) AS commission_amount,
   event_attributes :offer_amount :: numeric / pow(10,6) AS offer_amount,
   event_attributes :offer_asset :: STRING AS offer_currency,
   event_attributes :return_amount :: numeric / pow(10,6) AS return_amount,
@@ -87,7 +85,9 @@ WHERE event_type = 'from_contract'
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
 {% endif %}
-)
+), 
+
+swaps AS (
 
 SELECT
   m.blockchain,
@@ -97,8 +97,6 @@ SELECT
   block_timestamp,
   m.tx_id,
   sender,
-  tax_amount,
-  commission_amount,
   offer_amount,
   offer_amount * o.price AS offer_amount_usd,
   offer_currency,
@@ -124,3 +122,8 @@ LEFT OUTER JOIN prices r
   
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l
   ON pool_address = address
+)
+
+SELECT 
+  DISTINCT * 
+FROM swaps
