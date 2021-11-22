@@ -107,7 +107,7 @@ originator AS (
     AND f.importance = 1
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
      }}  AS from_labels
-    ON t.from_address = from_labels.address AND AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
+    ON t.from_address = from_labels.address AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
 ),
 full_events AS (
   SELECT
