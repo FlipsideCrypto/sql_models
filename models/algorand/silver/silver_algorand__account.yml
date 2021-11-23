@@ -1,0 +1,31 @@
+version: 2
+models:
+  - name: silver_algorand__account
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: ACCOUNT_CLOSED
+        tests:
+          - not_null
+      - name: REWARDSBASE
+        tests:
+          - not_null
+      - name: BALANCE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: CREATED_AT
+        tests:
+          - not_null
+      - name: WALLET_TYPE
+        tests:
+          - accepted_values:
+              values: ['sig', 'msig', 'lsig', null]

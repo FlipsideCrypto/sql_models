@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: silver_algorand__app
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - APP_ID
+    columns:
+      - name: APP_ID
+        tests:
+          - not_null
+      - name: CREATOR_ADDRESS
+        tests:
+          - not_null
+      - name: APP_CLOSED
+        tests:
+          - not_null
+      - name: CREATED_AT
+        tests:
+          - not_null          

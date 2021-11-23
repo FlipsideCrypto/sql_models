@@ -134,3 +134,15 @@ sources:
     schema: silver_near
     tables:
       - name: daily_balances
+  - name: algorand
+    schema: BRONZE_ALGORAND_2_6_4_PUBLIC
+    tables:
+      - name: ACCOUNT
+      - name: ACCOUNT_APP
+      - name: ACCOUNT_ASSET
+      - name: APP
+      - name: ASSET
+      - name: BLOCK_HEADER
+      - name: METASTATE
+      - name: TXN
+      - name: TXN_PARTICIPATION 
