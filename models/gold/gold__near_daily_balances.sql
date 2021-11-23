@@ -1,12 +1,12 @@
 {{ config(
-  materialized='incremental', 
+  materialized='incremental',
   unique_key = "CONCAT_WS('-', date, address, balance_type)",
   incremental_strategy='delete+insert',
   cluster_by=['date', 'currency'],
   tags=['snowflake', 'gold', 'near', 'gold__near_daily_balances'],
 )}}
 WITH near_labels AS (
-  SELECT 
+  SELECT
     l1_label,
     l2_label,
     project_name,
@@ -38,7 +38,7 @@ SELECT
   balance / POWER(10, COALESCE(adj.decimal_adjustment, 0)) * p.price as balance_usd,
   balance_type,
   currency
-FROM {{ source('near_silver', 'daily_balances') }} b
+FROM {{ ref('silver_near__daily_balances') }} b
 LEFT OUTER JOIN near_decimals adj ON b.currency = adj.token_identifier
 LEFT OUTER JOIN near_prices p ON p.symbol = b.currency AND p.day = b.date
 LEFT OUTER JOIN near_labels as address_labels ON b.address = address_labels.address

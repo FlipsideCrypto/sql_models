@@ -63,5 +63,5 @@ SELECT
     n.tokens
 FROM names_final n
 LEFT JOIN {{ref('silver_crosschain__address_labels')}} l
-    ON n.pool_address = l.address
+    ON n.pool_address = l.address AND l.blockchain = 'ethereum' AND l.creator = 'flipside'
     QUALIFY (row_number() OVER (partition by pool_name order by factory desc)) = 1

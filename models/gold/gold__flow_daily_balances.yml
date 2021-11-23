@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: gold__flow_daily_balances
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - node_id
+            - address
+            - delegator_id
+    columns:
+      - name: "BALANCE"
+      - name: "DATE"
+      - name: "DELEGATOR_ID"
+      - name: "ADDRESS"
+      - name: "ADDRESS_LABEL_SUBTYPE"
+      - name: "ADDRESS_LABEL"
+      - name: "ADDRESS_LABEL_TYPE"
+      - name: "BALANCE_TYPE"
+      - name: "ADDRESS_ADDRESS_NAME"
+      - name: "CURRENCY"
+      - name: "NODE_ID"

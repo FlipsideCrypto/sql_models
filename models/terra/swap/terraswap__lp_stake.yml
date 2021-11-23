@@ -5,9 +5,11 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
+            - CHAIN_ID
             - TX_ID
-            - CONTRACT_ADDRESS
+            - SENDER
             - AMOUNT
+            - CONTRACT_ADDRESS
     columns:
       - name: BLOCKCHAIN
         tests:

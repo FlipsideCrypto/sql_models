@@ -25,7 +25,7 @@ FROM
   {{ ref('silver_terra__msgs') }}
   m
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON msg_value :contract :: STRING = l.address
+  ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 WHERE
   msg_value :contract :: STRING = 'terra1f32xyep306hhcxxxf7mlyh0ucggc00rm2s9da5' -- ANC Governance
   AND msg_value :execute_msg :cast_vote IS NOT NULL

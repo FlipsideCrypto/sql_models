@@ -41,11 +41,12 @@ sources:
       - name: sha256_function_signatures
       - name: nft_metadata
   - name: flow
-    schema: silver
+    schema: redshift
     tables:
       - name: daily_flow_staked_balances
       - name: udm_daily_balances_flow
       - name: udm_events_flow
+
   - name: uniswapv3_eth
     schema: silver
     tables:
@@ -63,8 +64,12 @@ sources:
     schema: ethereum
     tables:
       - name: token_prices_hourly_v2
+  - name: gold
+    schema: gold
+    tables:
+      - name: flow_delegator_addresses
   - name: thorchain_midgard
-    schema: BRONZE_MIDGARD_20211108_MIDGARD
+    schema: BRONZE_MIDGARD_20211112_MIDGARD
     tables:
       - name: active_vault_events
       - name: add_events
@@ -114,10 +119,6 @@ sources:
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
       - name: JIM_TEST_REST_PROXY_1507016047
-  - name: gold
-    schema: gold
-    tables:
-      - name: flow_daily_balances
   - name: crosschain
     schema: silver_crosschain
     tables:

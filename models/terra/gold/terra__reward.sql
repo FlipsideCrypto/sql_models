@@ -71,12 +71,12 @@ SELECT
   validator_labels.l1_label AS validator_label_type,
   validator_labels.l2_label AS validator_label_subtype,
   validator_labels.project_name AS validator_address_label,
-  validator_labels.address AS validator_address_name,
+  validator_labels.address_name AS validator_address_name,
   A.delegator,
   delegator_labels.l1_label AS delegator_label_type,
   delegator_labels.l2_label AS delegator_label_subtype,
   delegator_labels.project_name AS delegator_address_label,
-  delegator_labels.address AS delegator_address_name,
+  delegator_labels.address_name AS delegator_address_name,
   A.amount AS event_amount,
   price_usd,
   A.amount * price_usd AS event_amount_usd,
@@ -101,7 +101,7 @@ FROM
   )
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   delegator_labels
-  ON A.delegator = delegator_labels.address
+  ON A.delegator = delegator_labels.address AND delegator_labels.blockchain = 'terra' AND delegator_labels.creator = 'flipside'
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   validator_labels
-  ON A.validator = validator_labels.address
+  ON A.validator = validator_labels.address AND validator_labels.blockchain = 'terra' AND validator_labels.creator = 'flipside'

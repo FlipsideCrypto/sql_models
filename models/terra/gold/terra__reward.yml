@@ -5,6 +5,10 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
+            - TX_ID
+            - VALIDATOR
+            - CURRENCY
+            - EVENT_AMOUNT
     columns:
       - name: ACTION
         tests:
@@ -32,16 +36,12 @@ models:
           - not_null
       - name: DELEGATOR_ADDRESS_LABEL
         tests:
-          - not_null
       - name: DELEGATOR_ADDRESS_NAME
         tests:
-          - not_null
       - name: DELEGATOR_LABEL_SUBTYPE
         tests:
-          - not_null
       - name: DELEGATOR_LABEL_TYPE
         tests:
-          - not_null
       - name: EVENT_AMOUNT
         tests:
           - not_null
@@ -77,13 +77,9 @@ models:
           - not_null
       - name: VALIDATOR_ADDRESS_LABEL
         tests:
-          - not_null
       - name: VALIDATOR_ADDRESS_NAME
         tests:
-          - not_null
       - name: VALIDATOR_LABEL_SUBTYPE
         tests:
-          - not_null
       - name: VALIDATOR_LABEL_TYPE
         tests:
-          - not_null

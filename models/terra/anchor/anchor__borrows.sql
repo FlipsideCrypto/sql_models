@@ -61,7 +61,7 @@ FROM
   ) = o.hour
   AND 'uusd' = o.currency
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON msg_value :contract :: STRING = l.address
+  ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 WHERE
   msg_value :execute_msg :borrow_stable IS NOT NULL -- Anchor Borrow
   AND msg_value :contract :: STRING = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s' -- Anchor Market Contract

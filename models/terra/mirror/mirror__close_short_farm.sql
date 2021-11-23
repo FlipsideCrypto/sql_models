@@ -132,7 +132,7 @@ msgs AS (
   FROM
     tx t
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :execute_msg :send :contract :: STRING = l.address
+    ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
 ),
 withdraw_events AS (
   SELECT

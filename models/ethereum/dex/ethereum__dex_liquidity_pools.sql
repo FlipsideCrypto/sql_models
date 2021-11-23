@@ -51,7 +51,7 @@ WITH v3_pools AS ( -- uni v3
       ON REGEXP_REPLACE(p.event_inputs:token0,'\"','')        = aa.token_address
 
     LEFT JOIN {{ref('silver_crosschain__address_labels')}} aaa 
-      ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = aaa.address
+      ON REGEXP_REPLACE(p.event_inputs:token0,'\"','') = aaa.address AND aaa.blockchain = 'ethereum' AND aaa.creator = 'flipside'
 
     LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
       ON REGEXP_REPLACE(p.event_inputs:token1,'\"','') = b.address
@@ -60,7 +60,7 @@ WITH v3_pools AS ( -- uni v3
       ON REGEXP_REPLACE(p.event_inputs:token1,'\"','')        = bb.token_address
 
     LEFT JOIN {{ref('silver_crosschain__address_labels')}} bbb 
-      ON REGEXP_REPLACE(p.event_inputs:token1,'\"','') = bbb.address
+      ON REGEXP_REPLACE(p.event_inputs:token1,'\"','') = bbb.address AND bbb.blockchain = 'ethereum' AND bbb.creator = 'flipside'
 
     WHERE p.event_name    = 'PairCreated'
     {% if is_incremental() %}
@@ -95,7 +95,7 @@ WITH v3_pools AS ( -- uni v3
       ON token0 = aa.token_address
 
     LEFT JOIN {{ref('silver_crosschain__address_labels')}} aaa 
-      ON token0 = aaa.address
+      ON token0 = aaa.address AND aaa.blockchain = 'ethereum' AND aaa.creator = 'flipside'
 
     LEFT JOIN {{ref('silver_ethereum__contracts')}}  b 
       ON token1 = b.address
@@ -104,7 +104,7 @@ WITH v3_pools AS ( -- uni v3
       ON token1 = bb.token_address
 
     LEFT JOIN {{ref('silver_crosschain__address_labels')}} bbb 
-      ON token1 = bbb.address
+      ON token1 = bbb.address AND bbb.blockchain = 'ethereum' AND bbb.creator = 'flipside'
 ), sushi_write_in AS (
   -- adding a few major sushi pools that were created before we have eth data (this gives us data on swaps with these pools)
   -- edit now uses a table of sushiswap tables 

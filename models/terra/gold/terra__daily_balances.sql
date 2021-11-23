@@ -1,10 +1,10 @@
 {{ config(
   materialized = 'incremental',
   sort = ['date', 'currency'],
-  unique_key = "CONCAT_WS('-', date, address)",
+  unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
-  tags = ['snowflake', 'terra', 'balances']
+  tags = ['snowflake', 'terra', 'balances', 'terra_daily_balances']
 ) }}
 
 WITH prices AS (
@@ -23,6 +23,7 @@ WITH prices AS (
     p.symbol,
     DAY
 )
+
 SELECT
   DATE,
   b.address,
@@ -41,7 +42,7 @@ FROM
   ON p.symbol = b.currency
   AND p.day = b.date
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS address_labels
-  ON b.address = address_labels.address
+  ON b.address = address_labels.address AND address_labels.blockchain = 'terra' AND address_labels.creator = 'flipside'
 WHERE
   1 = 1
 
