@@ -19,7 +19,7 @@ WITH prices AS (
     1 = 1
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
+AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}
 
 GROUP BY
@@ -44,7 +44,7 @@ WHERE msg_value :execute_msg :swap IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
+  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}
 
 UNION
@@ -64,7 +64,7 @@ WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
+  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}
 ),
 
@@ -83,7 +83,7 @@ WHERE event_type = 'from_contract'
   AND event_attributes :offer_amount IS NOT NULL
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE)FROM{{ ref('silver_terra__msgs') }})
+  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}
 ), 
 

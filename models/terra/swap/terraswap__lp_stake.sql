@@ -26,7 +26,7 @@ WITH msgs AS (
     AND tx_status = 'SUCCEEDED'
 
   {% if is_incremental() %}
-    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM{{ ref('silver_terra__msgs') }})
+    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %}
 ),
 
@@ -40,7 +40,7 @@ events AS (
     AND event_type = 'execute_contract'
 
   {% if is_incremental() %}
-    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM{{ ref('silver_terra__msgs') }})
+    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %}
 
 ) 
@@ -94,5 +94,5 @@ WHERE msg_value :execute_msg :send :msg :bond IS NOT NULL
   AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM{{ ref('silver_terra__msgs') }})
+  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}
