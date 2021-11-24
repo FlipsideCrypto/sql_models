@@ -1,10 +1,9 @@
 {{ 
   config(
     materialized='incremental', 
-    sort='CREATED_AT', 
-    unique_key='ADDRESS || ASSET_ID', 
+    unique_key="CONCAT_WS('-', ADDRESS, ASSET_ID)", 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'algorand', 'account_asset']
+    tags=['snowflake', 'algorand', 'asset_id']
   )
 }}
 
@@ -22,7 +21,22 @@ SELECT
   CREATED_AT as ASSET_ADDED_AT,
   CLOSED_AT as ASSET_LAST_REMOVED,
   DELETED as ASSET_CLOSED,
-  FROZEN as FROZEN
+  FROZEN as FROZEN,
+  _FIVETRAN_SYNCED
+
+  
 FROM {{source('algorand','ACCOUNT_ASSET')}} aa
 left join asset_name an on aa.ASSETID = an.INDEX
 
+where
+1=1 
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _FIVETRAN_SYNCED
+    )
+  FROM
+    {{ this }} 
+)
+{% endif %}

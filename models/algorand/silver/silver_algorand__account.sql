@@ -1,8 +1,7 @@
 {{ 
   config(
-    materialized='incremental', 
-    sort='CREATED_AT', 
-    unique_key='ADDRESS', 
+    materialized='incremental',  
+    unique_key="CONCAT_WS('-', ADDRESS)", 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'algorand', 'account']
   )
@@ -16,7 +15,20 @@ SELECT
   CLOSED_AT as CLOSED_AT,
   CREATED_AT as CREATED_AT,
   KEYTYPE as WALLET_TYPE,
-  ACCOUNT_DATA as ACCOUNT_DATA
+  ACCOUNT_DATA as ACCOUNT_DATA,
+  _FIVETRAN_SYNCED
 
 FROM {{source('algorand','ACCOUNT')}}
 
+where
+1=1 
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _FIVETRAN_SYNCED
+    )
+  FROM
+    {{ this }} 
+)
+{% endif %}

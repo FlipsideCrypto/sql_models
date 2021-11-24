@@ -1,10 +1,9 @@
 {{ 
   config(
     materialized='incremental', 
-    sort='BLOCK_ID', 
-    unique_key='BLOCK_ID || INTRA', 
+    unique_key="CONCAT_WS('-', BLOCK_ID, INTRA)", 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'algorand', 'block']
+    tags=['snowflake', 'algorand', 'application_call']
   )
 }}
 
@@ -21,10 +20,21 @@ csv.type as TX_TYPE,
 csv.name as TX_TYPE_NAME,
 txn:txn:gh :: STRING as GENISIS_HASH,
 txn as TX_MESSAGE,
-EXTRA
-
+EXTRA,
+_FIVETRAN_SYNCED
 
 
 FROM {{source('algorand','TXN')}} b
 left join {{ref('silver_algorand__transaction_types')}} csv on b.TYPEENUM = csv.TYPEENUM
 where b.TYPEENUM = 6
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _FIVETRAN_SYNCED
+    )
+  FROM
+    {{ this }} 
+)
+{% endif %}

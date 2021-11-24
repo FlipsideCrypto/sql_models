@@ -1,9 +1,8 @@
 {{ 
   config(
     materialized='incremental', 
-    sort='CREATED_AT', 
-    unique_key='ADDRESS || APP_ID', 
-    incremental_strategy='delete+insert',
+    unique_key='unique_key', 
+    incremental_strategy='merge',
     tags=['snowflake', 'algorand', 'account_app']
   )
 }}
@@ -15,8 +14,24 @@ SELECT
   DELETED as APP_CLOSED,
   CLOSED_AT as CLOSED_AT,
   CREATED_AT as CREATED_AT,
-  LOCALSTATE as APP_INFO
+  LOCALSTATE as APP_INFO,
+  CONCAT_WS('-', ADDR:: STRING , APP :: STRING) as unique_key,
+  _FIVETRAN_SYNCED
 
 
-FROM {{source('algorand','ACCOUNT_APP')}}
+FROM {{source('algorand','ACCOUNT_APP')}} 
 
+
+
+where
+1=1 
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _FIVETRAN_SYNCED
+    )
+  FROM
+    {{ this }} 
+)
+{% endif %}

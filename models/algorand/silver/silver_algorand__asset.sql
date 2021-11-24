@@ -1,8 +1,7 @@
 {{ 
   config(
     materialized='incremental', 
-    sort='CREATED_AT', 
-    unique_key='ASSET_ID', 
+    unique_key="CONCAT_WS('-', ASSET_ID)", 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'algorand', 'asset']
   )
@@ -19,8 +18,21 @@ params:au :: STRING as ASSET_URL,
 params:dc as DECIMALS,
 DELETED as ASSET_DELETED,
 CLOSED_AT as CLOSED_AT,
-CREATED_AT as CREATED_AT
+CREATED_AT as CREATED_AT,
+_FIVETRAN_SYNCED
 
 FROM {{source('algorand','ASSET')}}
 
+where
+1=1
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _FIVETRAN_SYNCED
+    )
+  FROM
+    {{ this }} 
+)
+{% endif %}
 
