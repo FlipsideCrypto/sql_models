@@ -2,10 +2,12 @@ version: 2
 models:
   - name: terra__daily_balances
     tests:
-      # - dbt_utils.unique_combination_of_columns:
-      #     combination_of_columns:
-      #       - ADDRESS
-      #       - DATE
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+            - DATE
+            - CURRENCY
+            - BALANCE_TYPE
     columns:
       - name: ADDRESS
         tests:
@@ -24,21 +26,21 @@ models:
       # - name: ADDRESS_NAME
       #   tests:
       #     - not_null
-      # - name: BALANCE
-      #   tests:
-      #     - not_null
-      # - name: BALANCE_TYPE
-      #   tests:
-      #     - not_null
-      # - name: BALANCE_USD
-      #   tests:
-      #     - not_null
-      # - name: CURRENCY
-      #   tests:
-      #     - not_null
-      # - name: DATE
-      #   tests:
-      #     - not_null
-      #     - dbt_expectations.expect_row_values_to_have_recent_data:
-      #         datepart: day
-      #         interval: 1
+      - name: BALANCE
+        tests:
+          - not_null
+      - name: BALANCE_TYPE
+        tests:
+          - not_null
+      - name: BALANCE_USD
+        tests:
+          - not_null
+      - name: CURRENCY
+        tests:
+          - not_null
+      - name: DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
