@@ -20,9 +20,9 @@
     pool_txs as (
         SELECT 
             tx_id,
-            ee.contract_addr as pool_address
+            ee.contract_address as pool_address
         FROM {{ src_events_emitted_table }} ee
-        INNER JOIN pools p ON p.pool_address = ee.contract_addr
+        INNER JOIN pools p ON p.pool_address = ee.contract_address
         WHERE 
             event_name = 'Collect' 
             {% if is_incremental() %}
@@ -53,13 +53,13 @@
     nf_positions as (
         SELECT 
             tx_id,
-            contract_addr as nf_position_manager,
+            contract_address as nf_position_manager,
             event_inputs:tokenId as token_id,
             REGEXP_REPLACE(ee.event_inputs:recipient,'\"','') as recipient
         FROM {{ src_events_emitted_table }} ee
         WHERE 
             tx_id IN (SELECT tx_id FROM pool_txs) 
-            AND contract_addr NOT IN (SELECT pool_address FROM pool_txs)
+            AND contract_address NOT IN (SELECT pool_address FROM pool_txs)
             AND event_inputs:tokenId is not null 
             AND event_name = 'Collect'
             {% if is_incremental() %}
@@ -90,7 +90,7 @@
         ee.block_id,
         ee.block_timestamp,
         ee.tx_id,
-        contract_addr as pool_address,
+        contract_address as pool_address,
         p.pool_name,
         coalesce(
             lp_providers.liquidity_provider,
@@ -130,14 +130,14 @@
         {{ multiply("price_upper", "prices_1.price")}} as price_upper_usd
     FROM {{ src_events_emitted_table }} ee
     -- Limit collect events to uniswap v3 pools only
-    INNER JOIN pools p ON p.pool_address = ee.contract_addr
+    INNER JOIN pools p ON p.pool_address = ee.contract_address
     -- get nf positions in this txs
     LEFT OUTER JOIN nf_positions ON ee.tx_id = nf_positions.tx_id
     -- get lp info in this txs
     LEFT OUTER JOIN 
         lp_providers ON lp_providers.nf_token_id = nf_positions.token_id and 
         lp_providers.nf_position_manager_address = nf_positions.nf_position_manager and 
-        lp_providers.pool_address = ee.contract_addr
+        lp_providers.pool_address = ee.contract_address
     -- get pool burns in this tx
     LEFT OUTER JOIN burns b ON ee.tx_id = b.tx_id and ee.event_inputs:tickLower = b.tick_lower and ee.event_inputs:tickUpper = b.tick_upper
     -- get USD prices
