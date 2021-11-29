@@ -88,7 +88,8 @@ models:
                 - float
       - name: LP_POOL_ADDRESS
         tests:
-          - not_null
+          - not_null:
+              where: POOL_ADDRESS <> 'terra1zw0kfxrxgrs5l087mjm79hcmj3y8z6tljuhpmc'
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-z]{39,39}
       - name: LP_POOL_NAME

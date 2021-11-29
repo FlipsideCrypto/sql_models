@@ -41,6 +41,7 @@ models:
                 - float
       - name: EVENT_CURRENCY
         tests:
+          - not_null
       - name: EVENT_FROM
         tests:
           - not_null

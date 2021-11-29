@@ -79,7 +79,6 @@ models:
                 - float
       - name: LIQUIDATED_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -96,7 +95,6 @@ models:
                 - float
       - name: RETURN_COLLATERAL_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
