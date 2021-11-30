@@ -14,4 +14,4 @@ max(CASE WHEN address_name = 'vp_address' then address else NULL end) as vp_addr
 FROM {{ref('silver_crosschain__address_labels')}} 
 WHERE blockchain = 'terra'
   AND l1_label = 'operator'
-GROUP BY 1
+GROUP BY label
