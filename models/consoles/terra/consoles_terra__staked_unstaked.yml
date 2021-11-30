@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: consoles_terra__staked_unstaked
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DAYZZ
+            - BALANCE_TYPE
+    columns:
+      - name: DAYZZ
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: BALANCE_TYPE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - varchar 
+      - name: BAL
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - float
+      - name: BALUS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - float
