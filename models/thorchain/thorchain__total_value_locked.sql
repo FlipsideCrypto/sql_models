@@ -12,7 +12,7 @@ WITH bond_type_day AS (
     bond_type, 
     (SUM(e8) / POW(10, 8)) AS rune_amount
   FROM {{ ref('thorchain__bond_events') }} 
-  GROUP BY 1,2
+  GROUP BY day, bond_type
 ),
 
 bond_type_day_direction AS (
