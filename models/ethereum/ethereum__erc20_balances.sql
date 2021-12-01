@@ -5,7 +5,7 @@
     unique_key='balance_date || user_address', 
     incremental_strategy='delete+insert',
     cluster_by=['balance_date', 'user_address', 'contract_address'],
-    tags=['snowflake', 'ethereum', 'balances', 'erc20_balances']
+    tags=['snowflake', 'ethereum', 'balances', 'erc20_balances', 'address_labels']
   )
 }}
 

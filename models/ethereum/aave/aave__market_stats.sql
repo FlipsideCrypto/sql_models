@@ -3,7 +3,7 @@
     materialized='incremental',
     unique_key='block_hour || aave_version || aave_market',
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'aave', 'aave_market_stats']
+    tags=['snowflake', 'ethereum', 'aave', 'aave_market_stats', 'address_labels']
   )
 }}
 

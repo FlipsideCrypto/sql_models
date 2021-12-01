@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'blockchain || address || creator',
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'crosschain', 'silver_dbt__address_labels']
+  tags = ['snowflake', 'crosschain', 'address_labels', 'silver_crosschain__address_labels']
 ) }}
 
 WITH base_tables AS (
@@ -39,12 +39,12 @@ SELECT
   ) :: TIMESTAMP AS system_created_at,
   insert_date,
   blockchain,
-  LOWER(last_value(t.value :address :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC)) AS address,
-  last_value(t.value :creator :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS creator,
-  last_value(t.value :l1_label :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS l1_label,
-  last_value(t.value :l2_label :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS l2_label,
-  last_value(t.value :address_name :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS address_name, 
-  last_value(t.value :project_name :: STRING) OVER (PARTITION BY t.value :address, blockchain ORDER BY insert_date DESC) AS project_name
+  LOWER(t.value :address :: STRING)AS address,
+  t.value :creator :: STRING AS creator,
+  t.value :l1_label :: STRING AS l1_label,
+  t.value :l2_label :: STRING AS l2_label,
+  t.value :address_name :: STRING AS address_name, 
+  t.value :project_name :: STRING AS project_name
 FROM
   base_tables,
   LATERAL FLATTEN(

@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "CONCAT_WS('-', block_timestamp)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'terra', 'oracle', 'terra_oracle']
+  tags = ['snowflake', 'terra', 'oracle', 'terra_oracle', 'address_labels']
 ) }}
 
 WITH prices AS (

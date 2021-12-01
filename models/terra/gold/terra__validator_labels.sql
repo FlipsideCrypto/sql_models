@@ -2,7 +2,7 @@
   config(
     materialized='table', 
     unique_key='label', 
-    tags=['snowflake', 'terra', 'labels']
+    tags=['snowflake', 'terra', 'labels', 'address_labels']
   )
 }}
 

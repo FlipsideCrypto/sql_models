@@ -4,7 +4,7 @@
     sort='block_timestamp', 
     unique_key= 'tx_id || event_index', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex', 'curve_swaps']
+    tags=['snowflake', 'ethereum', 'dex', 'curve_swaps', 'address_labels']
   )
 }}
 
