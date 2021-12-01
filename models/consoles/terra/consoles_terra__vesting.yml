@@ -1,28 +1,27 @@
 version: 2
 models:
-  - name: consoles_terra__eut_peg_variance
+  - name: consoles_terra__vesting
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - DATE
+            - METRIC_DATE
             - CURRENCY
     columns:
+      - name: METRIC_DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
       - name: CURRENCY
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - varchar
-      - name: SYMBOL
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - varchar  
-      - name: PEG
+                - varchar 
+      - name: PERCENT_VEST
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - float
-     
