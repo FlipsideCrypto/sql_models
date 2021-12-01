@@ -7,18 +7,12 @@
 }}
 
 WITH bond_type_day AS (
-  SELECT
-    day,
-    bond_type,
-    SUM(rune_amount) OVER (PARTITION BY bond_type ORDER BY day ASC) AS rune_amount
-  FROM (
-    SELECT 
-      date(block_timestamp) AS day,
-      bond_type, 
-      (SUM(e8) / POW(10, 8)) AS rune_amount
-    FROM {{ ref('thorchain__bond_events') }} 
-    GROUP BY 1,2
-  )
+  SELECT 
+    date(block_timestamp) AS day,
+    bond_type, 
+    (SUM(e8) / POW(10, 8)) AS rune_amount
+  FROM {{ ref('thorchain__bond_events') }} 
+  GROUP BY 1,2
 ),
 
 bond_type_day_direction AS (
