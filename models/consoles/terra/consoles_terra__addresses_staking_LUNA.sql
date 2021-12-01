@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='view', 
-    unique_key = "CONCAT_WS('-', date, address)",
+    unique_key = "CONCAT_WS('-', date, addresses)",
     tags=['snowflake', 'console', 'terra', 'addresses_staking_LUNA']
   )
 }}
@@ -19,8 +19,8 @@ AND date::date >= CURRENT_DATE - 60
   
 SELECT 
   date, 
-  address, 
-  balance
+  count(distinct address) as addresses 
 FROM tmp
 WHERE balance > 0
-ORDER BY date, address DESC
+group by date
+ORDER BY date desc

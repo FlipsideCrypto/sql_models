@@ -1,1 +1,0 @@
-{{ date_gaps(ref("consoles_terra__krt_peg_variance"), ["currency"], "METRIC_DATE") }}

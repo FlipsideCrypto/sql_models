@@ -68,6 +68,7 @@ sources:
     schema: gold
     tables:
       - name: flow_delegator_addresses
+      - name: terra_vesting_schedule
   - name: thorchain_midgard
     schema: BRONZE_MIDGARD_20211112_MIDGARD
     tables:
