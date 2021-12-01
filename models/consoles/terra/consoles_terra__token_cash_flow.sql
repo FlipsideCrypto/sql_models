@@ -4,33 +4,54 @@
     tags = ['snowflake', 'terra', 'console']
 ) }}
 
-with tmp as (
-select date,
-currency,
-sum(balance_usd) as staked_balance
-from {{ ref('terra__daily_balances') }}
-where date >= CURRENT_DATE - 60
-and balance_type = 'staked'
-and balance > 0
-group by date,currency
-order by date,currency
-),
-tmp_2 as (
-select block_timestamp::date as metric_date,
-currency as event_currency,
-sum(event_amount_usd) as volume
-from {{ ref('terra__reward') }}
-where block_timestamp::date >= CURRENT_DATE - 60
-and currency IN('KRT',
-                'LUNA',
-                'SDT',
-                'UST')
-group by metric_date,event_currency
-)
+WITH tmp AS (
 
-select t2.metric_date,
-t2.event_currency,
-(t2.volume / t.staked_balance) * 100 as volume
-from tmp_2 t2
-left join tmp t on t2.metric_date = t.date
-order by metric_date,event_currency
+    SELECT
+        DATE,
+        currency,
+        SUM(balance_usd) AS staked_balance
+    FROM
+        {{ ref('terra__daily_balances') }}
+    WHERE
+        DATE >= CURRENT_DATE - 60
+        AND balance_type = 'staked'
+        AND balance > 0
+    GROUP BY
+        DATE,
+        currency
+    ORDER BY
+        DATE,
+        currency
+),
+tmp_2 AS (
+    SELECT
+        block_timestamp :: DATE AS metric_date,
+        currency AS event_currency,
+        SUM(event_amount_usd) AS volume
+    FROM
+        {{ ref('terra__reward') }}
+    WHERE
+        block_timestamp :: DATE >= CURRENT_DATE - 60
+        AND currency IN(
+            'KRT',
+            'LUNA',
+            'SDT',
+            'UST'
+        )
+    GROUP BY
+        metric_date,
+        event_currency
+)
+SELECT
+    t2.metric_date,
+    t2.event_currency,
+    (
+        t2.volume / t.staked_balance
+    ) * 100 AS volume
+FROM
+    tmp_2 t2
+    LEFT JOIN tmp t
+    ON t2.metric_date = t.date
+ORDER BY
+    metric_date,
+    event_currency

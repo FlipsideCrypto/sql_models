@@ -12,7 +12,7 @@ FROM
 WHERE
     currency = 'LUNA'
     AND balance_type = 'staked'
-    and address <> 'terra1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3nln0mh'
+    AND address <> 'terra1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3nln0mh' -- excluding terra foundation address
 GROUP BY
     DATE
 ORDER BY

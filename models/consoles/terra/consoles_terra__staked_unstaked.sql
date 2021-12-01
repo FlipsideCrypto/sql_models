@@ -4,19 +4,22 @@
     tags = ['snowflake', 'terra', 'console']
 ) }}
 
-select
-    date_trunc('day', date) AS dayzz,
-    sum(BALANCE) as bal,
-    sum(BALANCE_USD) as balus,
-    BALANCE_TYPE
-from
+SELECT
+    DATE_TRUNC(
+        'day',
+        DATE
+    ) AS dayzz,
+    SUM(balance) AS bal,
+    SUM(balance_usd) AS balus,
+    balance_type
+FROM
     {{ ref('terra__daily_balances') }}
-where
-    dayzz >= CURRENT_DATE - interval '365 days'
-    and CURRENCY = 'LUNA'
-    and address <> 'terra1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3nln0mh'
-group by
+WHERE
+    dayzz >= CURRENT_DATE - INTERVAL '365 days'
+    AND currency = 'LUNA'
+    AND address <> 'terra1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3nln0mh'
+GROUP BY
     dayzz,
-    BALANCE_TYPE 
-order by
-    dayzz desc
+    balance_type
+ORDER BY
+    dayzz DESC

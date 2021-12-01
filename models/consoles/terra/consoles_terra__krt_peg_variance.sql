@@ -1,40 +1,74 @@
 {{ config(
-    materialized = 'view',
-    unique_key = "CONCAT_WS('-', date, currency)",
-    tags = ['snowflake', 'terra', 'console']
+  materialized = 'view',
+  unique_key = "CONCAT_WS('-', date, currency)",
+  tags = ['snowflake', 'terra', 'console']
 ) }}
 
-with oracle as (
-select 
-  date_trunc('day', block_timestamp) as date,
-  currency,
-  symbol,
-  avg(luna_exchange_rate) as oracle_exchange,
-  avg(price_usd) as oracle_usd
-from {{ ref('terra__oracle_prices') }}
-where block_timestamp > getdate() - interval '6 month'
-  and symbol = 'KRT'
-group by date, currency, symbol
+WITH ORACLE AS (
+
+  SELECT
+    DATE_TRUNC(
+      'day',
+      block_timestamp
+    ) AS DATE,
+    currency,
+    symbol,
+    AVG(luna_exchange_rate) AS oracle_exchange,
+    AVG(price_usd) AS oracle_usd
+  FROM
+    {{ ref('terra__oracle_prices') }}
+  WHERE
+    block_timestamp > getdate() - INTERVAL '6 month'
+    AND symbol = 'KRT'
+  GROUP BY
+    DATE,
+    currency,
+    symbol
 ),
-
-swaps as (
-SELECT
-  date_trunc('day', block_timestamp) as date,
-  sum(iff(token_0_currency = 'LUNA', token_0_amount, token_1_amount)) as LUNA,
-  sum(iff(token_0_currency = 'KRT', token_0_amount, token_1_amount)) as KRT,
-  KRT / LUNA as swap_exchange
-from {{ ref('terra__swaps') }}
-where swap_pair in ('KRT to LUNA', 'LUNA to KRT')
-and block_timestamp > getdate() - interval '6 month'
-group by date
+swaps AS (
+  SELECT
+    DATE_TRUNC(
+      'day',
+      block_timestamp
+    ) AS DATE,
+    SUM(
+      IFF(
+        token_0_currency = 'LUNA',
+        token_0_amount,
+        token_1_amount
+      )
+    ) AS luna,
+    SUM(
+      IFF(
+        token_0_currency = 'KRT',
+        token_0_amount,
+        token_1_amount
+      )
+    ) AS krt,
+    krt / luna AS swap_exchange
+  FROM
+    {{ ref('terra__swaps') }}
+  WHERE
+    swap_pair IN (
+      'KRT to LUNA',
+      'LUNA to KRT'
+    )
+    AND block_timestamp > getdate() - INTERVAL '6 month'
+  GROUP BY
+    DATE
 )
-
-select 
+SELECT
   o.date,
   o.currency,
   o.symbol,
   o.oracle_exchange,
   s.swap_exchange,
-  swap_exchange / oracle_exchange as peg
-from oracle o inner join swaps s on (o.date = s.date)
-order by date desc
+  swap_exchange / oracle_exchange AS peg
+FROM
+  ORACLE o
+  INNER JOIN swaps s
+  ON (
+    o.date = s.date
+  )
+ORDER BY
+  DATE DESC
