@@ -4,7 +4,7 @@
   unique_key = "block_id",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'anchor_dbt', 'stake']
+  tags = ['snowflake', 'terra', 'anchor_dbt', 'stake', 'address_labels']
 ) }}
 
 WITH prices AS (
