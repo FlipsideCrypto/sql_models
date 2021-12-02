@@ -1,8 +1,7 @@
 {% macro date_gaps(
         table,
         partition_by,
-        column,
-        exclude ={}
+        column
     ) %}
     {%- set partition_sql = partition_by | join(", ") -%}
     {%- set previous_column = "prev_" ~ column -%}
@@ -32,20 +31,28 @@ SELECT
     ) - 1 AS gap
 FROM
     source
+    {% if varargs -%}
+LEFT JOIN (
+        {% for x in varargs %}
+            (
+            {{ dbt_utils.date_spine(
+                datepart = "day",
+                start_date = x.start_date,
+                end_date = x.end_date
+            ) }}
+            )
+            {{- "UNION ALL" if not loop.last -}}
+        {% endfor %}
+) exclude
+    ON source.day = exclude.date_day
+    {%- endif %}
 WHERE
     DATEDIFF(
         days,
         {{ previous_column }},
         {{ column }}
-    ) > 1 {% if exclude -%}
-        AND {{ column }} NOT IN (
-            {{ dbt_utils.date_spine(
-                datepart = "day",
-                start_date = exclude.start_date,
-                end_date = exclude.end_date
-            ) }}
-        )
-    {%- endif -%}
+    ) > 1 
+    {{ "AND source.day != exclude.date_day" if varargs }}
 ORDER BY
     gap DESC
 {% endmacro %}
