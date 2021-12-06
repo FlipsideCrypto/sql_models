@@ -1,23 +1,23 @@
-{{ 
-  config(
-    materialized='incremental', 
-    unique_key="CONCAT_WS('-', BLOCK_ID, INTRA, ADDRESS)", 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'algorand', 'transaction_participation']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', BLOCK_ID, INTRA, ADDRESS)",
+  incremental_strategy = 'merge',
+  tags = ['snowflake', 'algorand', 'transaction_participation']
+) }}
 
-Select 
-ROUND as BLOCK_ID,
-INTRA,
-ADDR :: STRING as ADDRESS,
-_FIVETRAN_SYNCED
+SELECT
+  ROUND AS block_id,
+  intra,
+  addr :: STRING AS address,
+  _FIVETRAN_SYNCED
+FROM
+  {{ source(
+    'algorand',
+    'TXN_PARTICIPATION'
+  ) }}
+WHERE
+  1 = 1
 
-FROM {{source('algorand','TXN_PARTICIPATION')}}
-
-where 
-
-1=1
 {% if is_incremental() %}
 AND _FIVETRAN_SYNCED >= (
   SELECT
@@ -25,6 +25,6 @@ AND _FIVETRAN_SYNCED >= (
       _FIVETRAN_SYNCED
     )
   FROM
-    {{ this }} 
+    {{ this }}
 )
 {% endif %}

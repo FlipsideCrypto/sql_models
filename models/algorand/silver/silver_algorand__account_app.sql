@@ -1,30 +1,31 @@
-{{ 
-  config(
-    materialized='incremental', 
-    unique_key='unique_key', 
-    incremental_strategy='merge',
-    tags=['snowflake', 'algorand', 'account_app']
-  )
-}}
-
+{{ config(
+  materialized = 'incremental',
+  unique_key = '_unique_key',
+  incremental_strategy = 'merge',
+  tags = ['snowflake', 'algorand', 'account_app']
+) }}
 
 SELECT
-  ADDR :: STRING as ADDRESS,
-  APP as APP_ID,
-  DELETED as APP_CLOSED,
-  CLOSED_AT as CLOSED_AT,
-  CREATED_AT as CREATED_AT,
-  LOCALSTATE as APP_INFO,
-  CONCAT_WS('-', ADDR:: STRING , APP :: STRING) as unique_key,
+  addr :: STRING AS address,
+  app AS app_id,
+  deleted AS app_closed,
+  closed_at AS closed_at,
+  created_at AS created_at,
+  localstate AS app_info,
+  concat_ws(
+    '-',
+    addr :: STRING,
+    app :: STRING
+  ) AS _unique_key,
   _FIVETRAN_SYNCED
+FROM
+  {{ source(
+    'algorand',
+    'ACCOUNT_APP'
+  ) }}
+WHERE
+  1 = 1
 
-
-FROM {{source('algorand','ACCOUNT_APP')}} 
-
-
-
-where
-1=1 
 {% if is_incremental() %}
 AND _FIVETRAN_SYNCED >= (
   SELECT
@@ -32,6 +33,6 @@ AND _FIVETRAN_SYNCED >= (
       _FIVETRAN_SYNCED
     )
   FROM
-    {{ this }} 
+    {{ this }}
 )
 {% endif %}

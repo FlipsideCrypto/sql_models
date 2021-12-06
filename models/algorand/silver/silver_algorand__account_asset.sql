@@ -1,35 +1,42 @@
-{{ 
-  config(
-    materialized='incremental', 
-    unique_key="CONCAT_WS('-', ADDRESS, ASSET_ID)", 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'algorand', 'asset_id']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', ADDRESS, ASSET_ID)",
+  incremental_strategy = 'merge',
+  tags = ['snowflake', 'algorand', 'asset_id' ]
+) }}
 
-WITH asset_name as (
-SELECT distinct(INDEX) as INDEX, 
-params:an::STRING as name
-FROM {{source('algorand','ASSET')}}
+WITH asset_name AS (
+
+  SELECT
+    DISTINCT(INDEX) AS INDEX,
+    params :an :: STRING AS NAME
+  FROM
+    {{ source(
+      'algorand',
+      'ASSET'
+    ) }}
 )
-
 SELECT
-  ADDR :: STRING as ADDRESS,
-  ASSETID as ASSET_ID,
-  an.name :: STRING as ASSET_NAME,
-  AMOUNT as AMOUNT,
-  CREATED_AT as ASSET_ADDED_AT,
-  CLOSED_AT as ASSET_LAST_REMOVED,
-  DELETED as ASSET_CLOSED,
-  FROZEN as FROZEN,
+  addr :: STRING AS address,
+  assetid AS asset_id,
+  an.name :: STRING AS asset_name,
+  amount AS amount,
+  created_at AS asset_added_at,
+  closed_at AS asset_last_removed,
+  deleted AS asset_closed,
+  frozen AS frozen,
   _FIVETRAN_SYNCED
+FROM
+  {{ source(
+    'algorand',
+    'ACCOUNT_ASSET'
+  ) }}
+  aa
+  LEFT JOIN asset_name an
+  ON aa.assetid = an.index
+WHERE
+  1 = 1
 
-  
-FROM {{source('algorand','ACCOUNT_ASSET')}} aa
-left join asset_name an on aa.ASSETID = an.INDEX
-
-where
-1=1 
 {% if is_incremental() %}
 AND _FIVETRAN_SYNCED >= (
   SELECT
@@ -37,6 +44,6 @@ AND _FIVETRAN_SYNCED >= (
       _FIVETRAN_SYNCED
     )
   FROM
-    {{ this }} 
+    {{ this }}
 )
 {% endif %}

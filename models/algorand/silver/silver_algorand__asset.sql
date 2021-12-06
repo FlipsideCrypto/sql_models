@@ -1,30 +1,29 @@
-{{ 
-  config(
-    materialized='incremental', 
-    unique_key="CONCAT_WS('-', ASSET_ID)", 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'algorand', 'asset']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', ASSET_ID)",
+  incremental_strategy = 'merge',
+  tags = ['snowflake', 'algorand', 'asset']
+) }}
 
+SELECT
+  INDEX AS asset_id,
+  creator_addr :: STRING AS creator_address,
+  params :t :: NUMBER AS total_supply,
+  params :an :: STRING AS asset_name,
+  params :au :: STRING AS asset_url,
+  params :dc AS decimals,
+  deleted AS asset_deleted,
+  closed_at AS closed_at,
+  created_at AS created_at,
+  _FIVETRAN_SYNCED
+FROM
+  {{ source(
+    'algorand',
+    'ASSET'
+  ) }}
+WHERE
+  1 = 1
 
-
-select 
-INDEX as ASSET_ID,
-CREATOR_ADDR :: STRING as CREATOR_ADDRESS,
-params:t :: NUMBER as TOTAL_SUPPLY,
-params:an :: STRING as ASSET_NAME,
-params:au :: STRING as ASSET_URL,
-params:dc as DECIMALS,
-DELETED as ASSET_DELETED,
-CLOSED_AT as CLOSED_AT,
-CREATED_AT as CREATED_AT,
-_FIVETRAN_SYNCED
-
-FROM {{source('algorand','ASSET')}}
-
-where
-1=1
 {% if is_incremental() %}
 AND _FIVETRAN_SYNCED >= (
   SELECT
@@ -32,7 +31,6 @@ AND _FIVETRAN_SYNCED >= (
       _FIVETRAN_SYNCED
     )
   FROM
-    {{ this }} 
+    {{ this }}
 )
 {% endif %}
-

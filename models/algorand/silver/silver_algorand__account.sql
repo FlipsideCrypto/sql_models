@@ -1,27 +1,34 @@
-{{ 
-  config(
-    materialized='incremental',  
-    unique_key="CONCAT_WS('-', ADDRESS)", 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'algorand', 'account']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = 'ADDRESS',
+  incremental_strategy = 'merge',
+  tags = ['snowflake', 'algorand', 'account']
+) }}
 
 SELECT
-  ADDR :: STRING as ADDRESS,
-  DELETED as ACCOUNT_CLOSED,
-  REWARDSBASE * POW(10,6) as REWARDSBASE,
-  MICROALGOS * POW(10,6)  as BALANCE,
-  CLOSED_AT as CLOSED_AT,
-  CREATED_AT as CREATED_AT,
-  KEYTYPE as WALLET_TYPE,
-  ACCOUNT_DATA as ACCOUNT_DATA,
+  addr :: STRING AS address,
+  deleted AS account_closed,
+  rewardsbase * pow(
+    10,
+    6
+  ) AS rewardsbase,
+  microalgos * pow(
+    10,
+    6
+  ) AS balance,
+  closed_at AS closed_at,
+  created_at AS created_at,
+  keytype AS wallet_type,
+  account_data AS account_data,
   _FIVETRAN_SYNCED
+FROM
+  {{ source(
+    'algorand',
+    'ACCOUNT'
+  ) }}
+WHERE
+  1 = 1
 
-FROM {{source('algorand','ACCOUNT')}}
-
-where
-1=1 
 {% if is_incremental() %}
 AND _FIVETRAN_SYNCED >= (
   SELECT
@@ -29,6 +36,6 @@ AND _FIVETRAN_SYNCED >= (
       _FIVETRAN_SYNCED
     )
   FROM
-    {{ this }} 
+    {{ this }}
 )
 {% endif %}
