@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', ADDRESS, ASSET_ID)",
+  unique_key = '_unique_key',
   incremental_strategy = 'merge',
   tags = ['snowflake', 'algorand', 'asset_id' ]
 ) }}
@@ -25,6 +25,11 @@ SELECT
   closed_at AS asset_last_removed,
   deleted AS asset_closed,
   frozen AS frozen,
+  concat_ws(
+    '-',
+    address :: STRING,
+    asset_id :: STRING
+  ) AS _unique_key,
   _FIVETRAN_SYNCED
 FROM
   {{ source(
