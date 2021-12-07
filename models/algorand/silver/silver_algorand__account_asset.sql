@@ -17,7 +17,7 @@ WITH asset_name AS (
     ) }}
 )
 SELECT
-  addr :: STRING AS address,
+  aa.addr :: STRING AS address,
   assetid AS asset_id,
   an.name :: STRING AS asset_name,
   amount AS amount,
