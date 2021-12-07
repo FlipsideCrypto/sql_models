@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', ASSET_ID)",
+  unique_key = 'asset_id',
   incremental_strategy = 'merge',
   tags = ['snowflake', 'algorand', 'asset']
 ) }}
