@@ -7,7 +7,7 @@
 
 SELECT
   intra,
-  ROUND AS block_id,
+  b.round AS block_id,
   txn :txn :grp :: STRING AS tx_group_id,
   txid :: STRING AS tx_id,
   asset AS asset_id,
