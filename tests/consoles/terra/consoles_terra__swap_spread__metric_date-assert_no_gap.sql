@@ -1,0 +1,1 @@
+{{ date_gaps(ref("consoles_terra__swap_spread"), [], "metric_date") }}
