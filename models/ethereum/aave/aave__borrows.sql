@@ -3,7 +3,7 @@
     materialized='incremental',
     unique_key='tx_id || event_index',
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'aave', 'aave_borrows']
+    tags=['snowflake', 'ethereum', 'aave', 'aave_borrows', 'address_labels']
   )
 }}
 

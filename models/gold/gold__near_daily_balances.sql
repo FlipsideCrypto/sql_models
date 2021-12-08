@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', date, address, balance_type)",
   incremental_strategy='delete+insert',
   cluster_by=['date', 'currency'],
-  tags=['snowflake', 'gold', 'near', 'gold__near_daily_balances'],
+  tags=['snowflake', 'gold', 'near', 'gold__near_daily_balances', 'address_labels'],
 )}}
 WITH near_labels AS (
   SELECT

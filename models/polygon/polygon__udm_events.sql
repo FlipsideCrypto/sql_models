@@ -3,7 +3,7 @@
     unique_key = 'block_id || tx_id || event_id',
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp', 'block_id'],
-    tags = ['snowflake', 'polygon', 'polygon_udm_events_gold']
+    tags = ['snowflake', 'polygon', 'polygon_udm_events_gold', 'address_labels']
 ) }}
 
 WITH token_prices AS (

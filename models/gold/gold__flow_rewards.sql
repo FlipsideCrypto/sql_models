@@ -3,7 +3,7 @@
   incremental_strategy = 'delete+insert',
   unique_key = "CONCAT_WS('-',tx_id, event_from, event_to)",
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['events', 'flow', 'rewards','snowflake','gold']
+  tags = ['events', 'flow', 'rewards','snowflake','gold', 'address_labels']
 ) }}
 
 WITH event_to_labels AS (

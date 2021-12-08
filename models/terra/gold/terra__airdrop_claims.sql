@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'airdrops', 'claims']
+  tags = ['snowflake', 'terra', 'airdrops', 'claims', 'address_labels']
 ) }}
 
 SELECT

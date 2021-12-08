@@ -3,7 +3,7 @@
   incremental_strategy = 'delete+insert',
   unique_key = "CONCAT_WS('-',block_number, tx_id)",
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'gold_flow', 'gold', 'gold__flow_staking']
+  tags = ['snowflake', 'gold_flow', 'gold', 'gold__flow_staking', 'address_labels']
 ) }}
 -- delegator_tokens_committed
 --

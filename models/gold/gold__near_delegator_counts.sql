@@ -2,7 +2,7 @@
   materialized='table',
   unique_key = "CONCAT_WS('-', date, validator_address)",
   cluster_by=['date'],
-  tags=['snowflake', 'gold', 'near', 'gold__near_delegator_counts'],
+  tags=['snowflake', 'gold', 'near', 'gold__near_delegator_counts', 'address_labels'],
 )}}
 WITH near_labels AS (
     SELECT 

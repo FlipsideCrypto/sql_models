@@ -1,1 +1,0 @@
-{{ date_gaps(ref("consoles_terra__luna_staked_supplyUSD"), [], "date") }}

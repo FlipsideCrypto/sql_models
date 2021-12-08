@@ -4,7 +4,7 @@
     sort='pool_address', 
     unique_key='pool_address || factory', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools', 'curve_liquidity_pools']
+    tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools', 'curve_liquidity_pools', 'address_labels']
   )
 }}
 WITH pool_tokens AS (

@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'tx_id',
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'ethereum', 'nft', 'ethereum_nft_events']
+  tags = ['snowflake', 'ethereum', 'nft', 'ethereum_nft_events', 'address_labels']
 ) }}
 
 WITH nft AS (

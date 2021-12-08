@@ -1,0 +1,49 @@
+version: 2
+models:
+  - name: consoles_terra__token_breakdown
+    description: Daily token inflow/outflow from major address segments
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - metric_date
+            - currency
+            - segment
+    columns:
+      - name: metric_date
+        description: Date that corresponds to the inflow/outflow
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: CURRENCY
+        description: currency
+        tests: 
+          - not_null
+      - name: SEGMENT
+        description: address grouping
+        tests: 
+          - not_null
+      - name: INFLOW
+        description: daily token inflow
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - float
+      - name: OUTFLOW
+        description: daily token outflow
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - float
+      - name: DAILY_CHANGE
+        description: inflow - outflow
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - float
+
+      

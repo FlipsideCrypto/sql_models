@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "CONCAT_WS('-', block_timestamp)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'terra', 'oracle', 'terra_oracle']
+  tags = ['snowflake', 'terra', 'oracle', 'terra_oracle', 'address_labels']
 ) }}
 
 WITH prices AS (
@@ -109,6 +109,8 @@ SELECT
     WHEN l.currency = 'usdr' THEN 'SDT'
     WHEN l.currency = 'uchf' THEN 'CHT'
     WHEN l.currency = 'uaud' THEN 'AUT'
+    WHEN l.currency = 'uidr' THEN 'IDT'
+    WHEN l.currency = 'uphp' THEN 'PHT'
     ELSE l.currency
   END AS symbol,
   exchange_rate AS luna_exchange_rate,
@@ -177,7 +179,7 @@ SELECT
   ee.blockchain,
   ee.block_timestamp,
   ee.event_attributes :asset :: STRING AS currency,
-  l.address AS symbol,
+  l.address_name AS symbol,
   pp.price / ee.event_attributes :price :: FLOAT AS luna_exchange_rate,
   ee.event_attributes :price :: FLOAT AS price_usd,
   'oracle' AS source

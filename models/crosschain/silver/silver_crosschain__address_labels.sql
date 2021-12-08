@@ -3,7 +3,7 @@
   unique_key = 'blockchain || address || creator',
   incremental_strategy = 'delete+insert',
   cluster_by = ['blockchain', 'address'],
-  tags = ['snowflake', 'crosschain', 'silver_crosschain__address_labels']
+  tags = ['snowflake', 'crosschain', 'address_labels', 'silver_crosschain__address_labels']
 ) }}
 
 SELECT

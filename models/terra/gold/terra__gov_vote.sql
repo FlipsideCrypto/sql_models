@@ -4,7 +4,7 @@
   unique_key = "block_id",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'gov']
+  tags = ['snowflake', 'terra', 'gov', 'address_labels']
 ) }}
 
 WITH balances AS (

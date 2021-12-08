@@ -1,17 +1,26 @@
 {{ config(
-    materialized = 'view',
-    unique_key = "CONCAT_WS('-', METRIC_DATE, currency)",
-    tags = ['snowflake', 'terra', 'console']
+  materialized = 'view',
+  unique_key = "CONCAT_WS('-', METRIC_DATE, currency)",
+  tags = ['snowflake', 'terra', 'console']
 ) }}
 
-select 
-  date_trunc('day', block_timestamp) as metric_date,
+SELECT
+  DATE_TRUNC(
+    'day',
+    block_timestamp
+  ) AS metric_date,
   currency,
   symbol,
-  avg(price_usd) as "AVG"
-from {{ ref('terra__oracle_prices') }}
-where block_timestamp::date > current_date - 180
-  and symbol = 'UST'
-  and price_usd > 0
-group by metric_date,currency,symbol
-order by metric_date desc 
+  AVG(price_usd) AS "AVG"
+FROM
+  {{ ref('terra__oracle_prices') }}
+WHERE
+  block_timestamp :: DATE > CURRENT_DATE - 180
+  AND symbol = 'UST'
+  AND price_usd > 0
+GROUP BY
+  metric_date,
+  currency,
+  symbol
+ORDER BY
+  metric_date DESC

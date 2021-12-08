@@ -4,7 +4,7 @@
     sort='creation_time', 
     unique_key='pool_address', 
     incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools']
+    tags=['snowflake', 'ethereum', 'dex','dex_liquidity_pools', 'address_labels']
   )
 }}
 WITH v3_pools AS ( -- uni v3

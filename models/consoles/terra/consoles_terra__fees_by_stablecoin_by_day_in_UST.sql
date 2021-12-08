@@ -4,40 +4,74 @@
   tags = ['snowflake', 'terra', 'console']
 ) }}
 
+WITH rawfees AS (
 
-with rawfees as (
-  SELECT 
-  block_timestamp::date as metric_date,
-  case when chain_id = 'columbus-5' then UPPER(SUBSTRING(fee[0]:amount[0]:denom::string, 2, 2)) 
-       else UPPER(SUBSTRING(fee[0]:denom::string, 2, 2)) end as fee_denom,
-  sum(case when chain_id = 'columbus-5' then fee[0]:amount[0]:amount
-       else fee[0]:amount end)/POW(10,6)  as amount
-FROM  {{ ref('terra__transactions') }}
-WHERE fee_denom IS NOT NULL 
-  AND block_timestamp::date >= CURRENT_DATE - 90
-GROUP BY metric_date, fee_denom
-ORDER BY metric_date, fee_denom
+  SELECT
+    block_timestamp :: DATE AS metric_date,
+    CASE
+      WHEN chain_id = 'columbus-5' THEN UPPER(SUBSTRING(fee [0] :amount [0] :denom :: STRING, 2, 2))
+      ELSE UPPER(SUBSTRING(fee [0] :denom :: STRING, 2, 2))
+    END AS fee_denom,
+    SUM(
+      CASE
+        WHEN chain_id = 'columbus-5' THEN fee [0] :amount [0] :amount
+        ELSE fee [0] :amount
+      END
+    ) / pow(
+      10,
+      6
+    ) AS amount
+  FROM
+    {{ ref('terra__transactions') }}
+  WHERE
+    fee_denom IS NOT NULL
+    AND block_timestamp :: DATE >= CURRENT_DATE - 90
+  GROUP BY
+    metric_date,
+    fee_denom
+  ORDER BY
+    metric_date,
+    fee_denom
 ),
-
-prices as (
-  select
-  block_timestamp::date as metric_date,
-  symbol,
-  SUBSTRING(symbol,1,2) as fee_denom,
-  avg(price_usd) as price
-  from {{ ref('terra__oracle_prices') }}
-  where block_timestamp::date > CURRENT_DATE - 90
-  and symbol in ('UST', 'SDT', 'AUT', 'CAT', 'EUT', 'JPT', 'KRT', 'LUNA', 'MNT')
-  group by metric_date, symbol, fee_denom
+prices AS (
+  SELECT
+    block_timestamp :: DATE AS metric_date,
+    symbol,
+    SUBSTRING(
+      symbol,
+      1,
+      2
+    ) AS fee_denom,
+    AVG(price_usd) AS price
+  FROM
+    {{ ref('terra__oracle_prices') }}
+  WHERE
+    block_timestamp :: DATE > CURRENT_DATE - 90
+    AND symbol IN (
+      'UST',
+      'SDT',
+      'AUT',
+      'CAT',
+      'EUT',
+      'JPT',
+      'KRT',
+      'LUNA',
+      'MNT'
+    )
+  GROUP BY
+    metric_date,
+    symbol,
+    fee_denom
 )
-
-select 
-r.metric_date as BLOCK_DATE,
-symbol as currency,
-amount * price as fee
-from rawfees r join prices p 
-on r.metric_date = p.metric_date 
-and r.fee_denom = p.fee_denom
-order by BLOCK_DATE desc, currency
-
-
+SELECT
+  r.metric_date AS block_date,
+  symbol AS currency,
+  amount * price AS fee
+FROM
+  rawfees r
+  JOIN prices p
+  ON r.metric_date = p.metric_date
+  AND r.fee_denom = p.fee_denom
+ORDER BY
+  block_date DESC,
+  currency

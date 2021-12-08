@@ -4,7 +4,7 @@
   unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
-  tags = ['snowflake', 'terra', 'balances', 'terra_daily_balances']
+  tags = ['snowflake', 'terra', 'balances', 'terra_daily_balances', 'address_labels']
 ) }}
 
 WITH prices AS (
@@ -36,15 +36,18 @@ SELECT
   b.balance_type,
   currency
 FROM
-  {{ ref('silver_terra__daily_balances') }}
-  b
+  {{ ref('silver_terra__daily_balances') }} b
   LEFT OUTER JOIN prices p
-  ON p.symbol = b.currency
+  ON p.symbol = case when b.currency = 'USD' then 'UST'
+            when len(b.currency) = 3 then upper(concat(substring(b.currency,1,2),'T'))
+            when substring(b.currency,1,1) = 'U' then upper(concat(substring(b.currency,2,2),'T'))
+            else b.currency end
   AND p.day = b.date
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS address_labels
   ON b.address = address_labels.address AND address_labels.blockchain = 'terra' AND address_labels.creator = 'flipside'
 WHERE
-  1 = 1
+  lower(b.currency) not like 'ibc%'
+  and b.currency <> 'UNOK'
 
 {% if is_incremental() %}
 AND DATE >= getdate() - INTERVAL '3 days'
