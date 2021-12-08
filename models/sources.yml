@@ -135,3 +135,7 @@ sources:
     schema: silver_near
     tables:
       - name: daily_balances
+  - name: bronze_chainwalkers
+    schema: bronze_chainwalkers
+    tables: 
+      - name: solana_blocks

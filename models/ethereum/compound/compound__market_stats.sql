@@ -245,18 +245,18 @@ SELECT
   a.reserves_usd,
   a.borrows_usd,
   b.comp_speed,
-  supply.apy AS supply_apy,
+  supply.apy  AS supply_apy,
   borrow.apy AS borrow_apy,
   b.comp_price,
   b.comp_speed_usd,
   case 
     when borrows_usd != 0
-    then POWER((1 + ((b.comp_speed_usd * 24) / borrows_usd)),365)-1
+    then POWER((1 + ((b.comp_speed_usd * 24) / borrows_usd)),365)-1 
     else null
   end as comp_apy_borrow,
   case 
     when supply_usd != 0
-    then POWER((1 + ((b.comp_speed_usd * 24) / supply_usd)),365)-1
+    then POWER((1 + ((b.comp_speed_usd * 24) / supply_usd)),365)-1 
     else null
   end as comp_apy_supply
 FROM markets a 
@@ -266,4 +266,5 @@ LEFT JOIN supply
   ON a.ctoken_address = supply.ctoken_address AND a.block_hour = supply.blockhour
 LEFT JOIN borrow
   ON a.ctoken_address = borrow.ctoken_address AND a.block_hour = borrow.blockhour
+WHERE comp_apy_borrow < 100000 AND comp_apy_supply < 100000
 ORDER BY block_hour DESC, a.contract_name
