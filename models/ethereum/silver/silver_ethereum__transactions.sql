@@ -6,8 +6,9 @@
   tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__transactions']
 ) }}
 
-
-SELECT
+SELECT * 
+FROM (
+SELECT 
   system_created_at,
   block_id,
   block_timestamp,
@@ -37,11 +38,11 @@ AND block_timestamp :: DATE >= (
 
 union
 
-SELECT
-  '2000-01-01'::timestamp as system_created_at,
+SELECT 
+ '2000-01-01'::timestamp as system_created_at,
   block_id,
   block_timestamp,
-  tx_hash,
+  tx_hash, 
   tx_position,
   nonce,
   from_address,
@@ -65,7 +66,10 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 
-qualify(ROW_NUMBER() over(PARTITION BY tx_hash
+QUALIFY(rank() over(partition by tx_hash order by block_id desc)) = 1
+) a
+
+qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_hash
 ORDER BY
     block_id, 
     system_created_at DESC)) = 1
