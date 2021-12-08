@@ -1,0 +1,30 @@
+version: 2
+models:
+  - name: silver_algorand__block
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: REWARDSLEVEL
+        tests:
+          - not_null
+      - name: NETWORK
+        tests:
+          - not_null
+      - name: GENISIS_HASH
+        tests:
+          - not_null
+      - name: PREV_BLOCK_HASH
+        tests:
+          - not_null:
+              where: BLOCK_ID <> 0
+      - name: HEADER
+        tests:
+          - not_null
