@@ -8,7 +8,7 @@ with recent_events as
   (
 select *
 from {{ ref('terra__transfers') }}
-where block_timestamp >= CURRENT_DATE - 360
+where block_timestamp >= CURRENT_DATE - 180
 
 ),
 
@@ -32,8 +32,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
        END AS to_segment,
        event_currency,
        sum(event_amount) as volume,
-       count(distinct tx_id) AS tx_count,
-      count(distinct event_from) AS address_count
+       count(distinct tx_id) AS tx_count
 FROM recent_events
 WHERE (from_segment = 'dApps' or to_segment = 'dApps')
   AND from_segment != to_segment
@@ -62,8 +61,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
        END AS to_segment,
        event_currency,
        sum(event_amount) as volume,
-       count(distinct tx_id) AS tx_count,
-      count(distinct event_from) AS address_count
+       count(distinct tx_id) AS tx_count
 FROM recent_events
 WHERE (from_segment = 'dApps' or to_segment = 'dApps')
   AND from_segment != to_segment
@@ -92,8 +90,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
        END AS to_segment,
        event_currency,
        sum(event_amount) as volume,
-       count(distinct tx_id) AS tx_count,
-      count(distinct event_from) AS address_count
+       count(distinct tx_id) AS tx_count
 FROM recent_events
 WHERE (from_segment = 'dApps' or to_segment = 'dApps')
   AND from_segment != to_segment
@@ -121,8 +118,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
        END AS to_segment,
        event_currency,
        sum(event_amount) as volume,
-       count(distinct tx_id) AS tx_count,
-      count(distinct event_from) AS address_count
+       count(distinct tx_id) AS tx_count
 FROM recent_events
 WHERE (from_segment = 'dApps' or to_segment = 'dApps')
   AND from_segment != to_segment
@@ -138,22 +134,18 @@ to_segment,
 event_currency as currency,
 CASE
     WHEN from_segment = 'dApps' THEN -(volume)
-    WHEN to_segment = 'dApps' THEN volume
-    END AS volume,
+    ELSE 0
+    END AS volume_outflow,
 CASE
-    WHEN from_segment = 'dApps' then tx_count
+    WHEN to_segment = 'dApps' THEN volume
+    ELSE 0
+    END AS volume_inflow,
+CASE
+    WHEN from_segment = 'dApps' then -(tx_count)
     ELSE 0
     END AS tx_outflow,
 CASE
     WHEN to_segment = 'dApps' then tx_count
     ELSE 0
-    END AS tx_inflow,
-CASE
-    WHEN from_segment = 'dApps' then address_count
-    ELSE 0
-    END AS address_outflow,
-CASE
-    WHEN to_segment = 'dApps' then address_count
-    ELSE 0
-    END AS address_inflow
+    END AS tx_inflow
 from dapp_flows
