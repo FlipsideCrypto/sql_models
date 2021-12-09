@@ -127,3 +127,4 @@ models:
               regex: terra[0-9a-zA-Z]{39,40}
       - name: CONTRACT_LABEL
         tests:
+          - not_null
