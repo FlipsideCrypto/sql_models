@@ -1,0 +1,39 @@
+version: 2
+models:
+  - name: silver_algorand__asset_configuration_transaction
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - INTRA
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: INTRA
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: SENDER
+        tests:
+          - not_null   
+      - name: FEE
+        tests:
+          - not_null      
+      - name: TX_TYPE
+        tests:
+          - not_null
+      - name: TX_TYPE_NAME
+        tests:
+          - not_null
+      - name: GENISIS_HASH
+        tests:
+          - not_null          
+      - name: TX_MESSAGE
+        tests:
+          - not_null
