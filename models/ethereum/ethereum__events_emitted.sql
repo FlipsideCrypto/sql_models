@@ -1,48 +1,87 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='block_timestamp', 
-    unique_key='block_id', 
-    incremental_strategy='delete+insert',
-    cluster_by=['block_timestamp', 'contract_address'],
-    tags=['snowflake', 'ethereum', 'events_emitted', 'address_labels']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  sort = 'block_timestamp',
+  unique_key = 'block_id',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['block_timestamp', 'contract_address'],
+  tags = ['snowflake', 'ethereum', 'events_emitted', 'address_labels', 'ab_test']
+) }}
 
-SELECT 
-  DISTINCT
-  BLOCK_ID AS block_id,
-  BLOCK_TIMESTAMP AS block_timestamp,
-  TX_ID AS tx_id,
-  EVENT_INDEX AS event_index,
-  EVENT_INPUTS AS event_inputs,
-  EVENT_NAME AS event_name,
-  EVENT_REMOVED AS event_removed,
-  TX_FROM_ADDR AS tx_from_address,
-  from_labels.l1_label as tx_from_label_type,
-  from_labels.l2_label as tx_from_label_subtype,
-  from_labels.project_name as tx_from_label,
-  from_labels.address_name as tx_from_address_name,
-  TX_TO_ADDR AS tx_to_address,
-  to_labels.l1_label as tx_to_label_type,
-  to_labels.l2_label as tx_to_label_subtype,
-  to_labels.project_name as tx_to_label,
-  to_labels.address_name as tx_to_address_name,
-  CONTRACT_ADDR AS contract_address,
-  COALESCE(contract_labels.address,CONTRACT_NAME) AS contract_name,
-  TX_SUCCEEDED AS tx_succeeded
-FROM {{ ref('silver_ethereum__events_emitted') }} b
+WITH eth_labels AS (
 
-LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} as from_labels
- ON b.TX_FROM_ADDR = from_labels.address AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
- 
-LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} as to_labels
- ON b.TX_TO_ADDR = to_labels.address AND to_labels.blockchain = 'ethereum' AND to_labels.creator = 'flipside'
- 
-LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} as contract_labels
- ON b.CONTRACT_ADDR = contract_labels.address AND contract_labels.blockchain = 'ethereum' AND contract_labels.creator = 'flipside'
+  SELECT
+    l1_label,
+    l2_label,
+    project_name,
+    address_name,
+    address
+  FROM
+    {{ ref('silver_crosschain__address_labels') }}
+  WHERE
+    blockchain = 'ethereum'
+    AND creator = 'flipside'
+)
+SELECT
+  DISTINCT block_id AS block_id,
+  block_timestamp AS block_timestamp,
+  tx_id AS tx_id,
+  event_index AS event_index,
+  event_inputs AS event_inputs,
+  event_name AS event_name,
+  event_removed AS event_removed,
+  tx_from_addr AS tx_from_address,
+  COALESCE(
+    from_labels.l1_label,
+    'unlabeled'
+  ) AS tx_from_label_type,
+  COALESCE(
+    from_labels.l2_label,
+    'unlabled'
+  ) AS tx_from_label_subtype,
+  COALESCE(
+    from_labels.project_name,
+    'unlabeled'
+  ) AS tx_from_label,
+  COALESCE(
+    from_labels.address_name,
+    'unlabeled'
+  ) AS tx_from_address_name,
+  tx_to_addr AS tx_to_address,
+  COALESCE(
+    to_labels.l1_label,
+    'unlabeled'
+  ) AS tx_to_label_type,
+  COALESCE(
+    to_labels.l2_label,
+    'unlabeled'
+  ) AS tx_to_label_subtype,
+  COALESCE(
+    to_labels.project_name,
+    'unlabeled'
+  ) AS tx_to_label,
+  COALESCE(
+    to_labels.address_name,
+    'unlabeled'
+  ) AS tx_to_address_name,
+  contract_addr AS contract_address,
+  COALESCE(
+    contract_labels.address_name,
+    contract_name,
+    'unlabeled'
+  ) AS contract_name,
+  tx_succeeded AS tx_succeeded
+FROM
+  {{ ref('silver_ethereum__events_emitted') }}
+  b
+  LEFT OUTER JOIN eth_labels AS from_labels
+  ON b.tx_from_addr = from_labels.address
+  LEFT OUTER JOIN eth_labels AS to_labels
+  ON b.tx_to_addr = to_labels.address
+  LEFT OUTER JOIN eth_labels AS contract_labels
+  ON b.contract_addr = contract_labels.address
+WHERE
+  1 = 1
 
-WHERE 1=1
 {% if is_incremental() %}
-AND  b.block_timestamp >= getdate() - interval '40 hours'
+AND b.block_timestamp >= getdate() - INTERVAL '40 hours'
 {% endif %}
