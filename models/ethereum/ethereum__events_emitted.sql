@@ -4,7 +4,7 @@
   unique_key = 'block_id',
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp', 'contract_address'],
-  tags = ['snowflake', 'ethereum', 'events_emitted', 'address_labels', 'ab_test']
+  tags = ['snowflake', 'ethereum', 'events_emitted', 'address_labels']
 ) }}
 
 WITH eth_labels AS (

@@ -3,7 +3,7 @@
   unique_key = 'block_id || tx_id || event_index',
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
-  tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__events_emitted', 'ab_test']
+  tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__events_emitted']
 ) }}
 
 SELECT
