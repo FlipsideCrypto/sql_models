@@ -29,8 +29,15 @@ models:
         description: address grouping
         tests: 
           - not_null
-      - name: VOLUME
-        description: daily token inflow/outflow
+      - name: VOLUME_INFLOW
+        description: daily token inflow
+        tests: 
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - float
+      - name: VOLUME_OUTFLOW
+        description: daily token outflow
         tests: 
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -42,13 +49,5 @@ models:
           - not_null
       - name: TX_INFLOW
         description: daily tx inflow
-        tests: 
-          - not_null
-      - name: ADDRESS_OUTFLOW
-        description: daily ADDRESS outflow
-        tests: 
-          - not_null
-      - name: ADDRESS_INFLOW
-        description: daily ADDRESS inflow
         tests: 
           - not_null

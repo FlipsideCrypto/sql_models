@@ -16,7 +16,7 @@ FROM
        swap_fee_amount_usd as swap_fee_usd,
        swap_pair
 FROM terra.swaps
-where metric_date >= current_date - 360
+where metric_date >= current_date - 180
 and from_currency IN('KRT', 'LUNA', 'UST', 'SDT')
 and to_currency IN('KRT', 'LUNA', 'UST', 'SDT')
 and swap_pair is not null
