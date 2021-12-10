@@ -75,7 +75,7 @@ msgs AS (
     msg_value :execute_msg :send :msg :burn :position_idx AS collateral_id,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m

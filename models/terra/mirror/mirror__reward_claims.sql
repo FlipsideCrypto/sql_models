@@ -106,7 +106,7 @@ events AS (
     ON m.tx_id = e.tx_id
   WHERE
     event_attributes :"0_action" = 'withdraw'
-
+    AND event_type = 'from_contract'
 {% if is_incremental() %}
 AND e.block_timestamp :: DATE >= (
   SELECT
@@ -132,7 +132,7 @@ SELECT
   ) AS claim_amount_usd,
   claim_currency,
   contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
   msgs m
   JOIN events e

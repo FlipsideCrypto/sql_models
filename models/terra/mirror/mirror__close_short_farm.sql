@@ -128,7 +128,7 @@ msgs AS (
     msg_value :execute_msg :send :msg :burn :position_idx AS collateral_id,
     msg_value :sender :: STRING AS sender,
     msg_value :execute_msg :send :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     tx t
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
