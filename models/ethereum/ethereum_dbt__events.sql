@@ -15,9 +15,7 @@ WITH base_tables AS (
       'prod_ethereum_sink_407559501'
     ) }}
   WHERE
-    record_content :model :name :: STRING IN (
-      'udm_events'
-    )
+    record_content :model :name :: STRING IN ('udm_events')
 
 {% if is_incremental() %}
 AND (
@@ -38,16 +36,16 @@ SELECT
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
   t.value :tx_hash :: STRING AS tx_hash,
   t.value :input_method :: STRING AS input_method,
-  t.value :from :: STRING AS "from",
+  t.value :from_ :: STRING AS "from",
   t.value :to :: STRING AS "to",
-  t.value :name :: STRING AS name,
+  t.value :name :: STRING AS NAME,
   t.value :symbol :: STRING AS symbol,
   t.value :contract_address :: STRING AS contract_address,
   t.value :eth_value :: FLOAT AS eth_value,
   t.value :fee :: FLOAT AS fee,
   t.value :log_index :: INTEGER AS log_index,
   t.value :log_method :: STRING AS log_method,
-  t.value :token_value :: FLOAT as token_value
+  t.value :token_value :: FLOAT AS token_value
 FROM
   base_tables,
   LATERAL FLATTEN(

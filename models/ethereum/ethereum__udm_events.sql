@@ -70,15 +70,18 @@ events AS (
   FROM
     {{ ref('silver_ethereum__events') }}
     e
-    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
-     }} AS from_labels
-    ON e."from" = from_labels.address AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
-    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')                 
-     }} AS to_labels
-    ON e."to" = to_labels.address AND to_labels.blockchain = 'ethereum' AND to_labels.creator = 'flipside'
-    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
-     }} AS contract_labels
-    ON e.contract_address = contract_labels.address AND contract_labels.blockchain = 'ethereum' AND contract_labels.creator = 'flipside'
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
+    ON e."from" = from_labels.address
+    AND from_labels.blockchain = 'ethereum'
+    AND from_labels.creator = 'flipside'
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS to_labels
+    ON e."to" = to_labels.address
+    AND to_labels.blockchain = 'ethereum'
+    AND to_labels.creator = 'flipside'
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS contract_labels
+    ON e.contract_address = contract_labels.address
+    AND contract_labels.blockchain = 'ethereum'
+    AND contract_labels.creator = 'flipside'
   WHERE
     1 = 1
 
@@ -105,9 +108,10 @@ originator AS (
     ) }} AS f
     ON t.input_method = f.hex_signature
     AND f.importance = 1
-    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels')
-     }}  AS from_labels
-    ON t.from_address = from_labels.address AND from_labels.blockchain = 'ethereum' AND from_labels.creator = 'flipside'
+    LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
+    ON t.from_address = from_labels.address
+    AND from_labels.blockchain = 'ethereum'
+    AND from_labels.creator = 'flipside'
 ),
 full_events AS (
   SELECT
