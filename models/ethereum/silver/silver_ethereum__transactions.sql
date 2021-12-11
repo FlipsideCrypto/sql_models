@@ -69,6 +69,6 @@ AND block_timestamp :: DATE >= (
     {{ this }} AS transactions
 )
 {% endif %}
-) A qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_hash
+) A qualify(ROW_NUMBER() over(PARTITION BY tx_hash
 ORDER BY
-  block_id, system_created_at DESC)) = 1
+  block_id desc, system_created_at DESC)) = 1
