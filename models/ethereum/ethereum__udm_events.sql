@@ -174,14 +174,17 @@ token_transfers AS (
       e.symbol,
       p.symbol
     ) AS symbol,
-    token_value / pow(
-      10,
-      de.decimals
-    ) AS amount,
-    token_value * p.price / pow(
-      10,
-      de.decimals
-    ) AS amount_usd
+    CASE
+      WHEN de.decimals IS NULL THEN token_value
+      ELSE token_value / pow(
+        10,
+        de.decimals
+      )
+    END AS amount,
+    CASE
+      WHEN de.decimals IS NULL THEN NULL
+      ELSE amount * p.price
+    END AS amount_usd
   FROM
     full_events e
     LEFT OUTER JOIN token_prices p
