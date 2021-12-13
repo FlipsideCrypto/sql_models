@@ -18,7 +18,7 @@ SELECT
   project_name
 FROM
   {{ ref('silver_dbt__address_labels') }}
-WHERE blockchain <> 'ethereum' OR (blockchain = 'ethereum' AND insert_date > '2021-11-01' AND address LIKE '0x' OR address LIKE '0X')
+WHERE blockchain <> 'ethereum' OR (blockchain = 'ethereum' AND insert_date > '2021-11-01' AND (address LIKE '0x' OR address LIKE '0X'))
 
 {% if is_incremental() %}
 AND system_created_at :: DATE >= (
