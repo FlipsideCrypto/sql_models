@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_id',
+  unique_key = "CONCAT('-', block_id, tx_id, event_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
   tags = ['snowflake', 'ethereum', 'events', 'ethereum_udm_events', 'address_labels']
@@ -28,7 +28,7 @@ WITH token_prices AS (
       'shared',
       'cmc_assets'
     ) }} A
-    ON p.asset_id = A.asset_id
+    ON p.asset_id :: STRING = A.asset_id :: STRING
   WHERE
     A.platform_id = 1027
 
@@ -177,8 +177,14 @@ token_transfers AS (
       e.symbol,
       p.symbol
     ) AS symbol,
-    token_value AS amount,
-    token_value * p.price AS amount_usd
+    token_value / pow(
+      10,
+      de.decimals
+    ) AS amount,
+    token_value * p.price / pow(
+      10,
+      de.decimals
+    ) AS amount_usd
   FROM
     full_events e
     LEFT OUTER JOIN token_prices p
@@ -187,6 +193,13 @@ token_transfers AS (
       'hour',
       e.block_timestamp
     ) = p.hour
+    LEFT OUTER JOIN {{ ref('ethereum_dbt__decimals') }}
+    de
+    ON LOWER(
+      de.token_id
+    ) = LOWER(
+      e.contract_address
+    )
   WHERE
     event_name = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 ),
