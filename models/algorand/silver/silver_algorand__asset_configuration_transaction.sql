@@ -9,7 +9,9 @@ SELECT
   intra,
   b.round AS block_id,
   txn :txn :grp :: STRING AS tx_group_id,
-  txid :: STRING AS tx_id,
+  HEX_DECODE_STRING(
+    txid :: text
+  ) AS tx_id,
   asset AS asset_id,
   txn :txn :apar :t AS asset_supply,
   txn :txn :snd :: STRING AS sender,
