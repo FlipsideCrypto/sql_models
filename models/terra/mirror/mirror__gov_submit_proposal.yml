@@ -20,6 +20,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
       - name: TX_ID
         tests:
           - not_null
@@ -47,13 +50,14 @@ models:
                 - float
       - name: TITLE
         tests:
-          - not_null
-      - name: LINK
+          - not_null:
+              where: CHAIN_ID = 'COLUMBUS-4' #Col-5 does not have this field
+      - name: LINK #Not all proposals have a link
         tests:
-          - not_null
       - name: DESCRIPTION
         tests:
-          - not_null
+          - not_null:
+              where: CHAIN_ID = 'COLUMBUS-4' #Col-5 does not have this field
       - name: MSG
         tests:
           - not_null

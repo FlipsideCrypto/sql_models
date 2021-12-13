@@ -16,7 +16,7 @@ SELECT
   msg_value :sender :: STRING AS claimer,
   msg_value :execute_msg :claim :amount / pow(10,6) AS amount,
   msg_value :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM {{ ref('silver_terra__msgs') }} m
   
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l

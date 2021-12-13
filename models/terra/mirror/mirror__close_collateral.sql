@@ -72,17 +72,18 @@ msgs AS (
     block_id,
     block_timestamp,
     tx_id,
-    msg_value :execute_msg :send :msg :burn :position_idx AS collateral_id,
+    msg_value :execute_msg :withdraw :position_idx ::STRING AS collateral_id,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
     ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   WHERE
-    msg_value :execute_msg :send :msg :burn IS NOT NULL
+    msg_value :contract :: STRING = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj' -- Mirror Mint Contract
+    and msg_value :execute_msg :withdraw :collateral IS NOT NULL
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
@@ -148,6 +149,7 @@ burns AS (
         msgs
     )
     AND tx_status = 'SUCCEEDED'
+    AND event_type = 'from_contract'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
@@ -221,8 +223,8 @@ withdraw AS (
     ) = f_b.day
     AND t.event_attributes :protocol_fee [0] :denom :: STRING = f_b.currency
   WHERE
-    event_attributes :withdraw_amount IS NOT NULL
-    AND event_attributes :"2_action" != 'release_shorting_funds'
+    event_attributes :withdraw_amount[0] IS NOT NULL
+    AND (event_attributes :"2_action" IS NULL OR event_attributes :"2_action" != 'release_shorting_funds')
     AND tx_id IN(
       SELECT
         DISTINCT tx_id
@@ -230,6 +232,7 @@ withdraw AS (
         msgs
     )
     AND tx_status = 'SUCCEEDED'
+    AND event_type = 'from_contract'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (

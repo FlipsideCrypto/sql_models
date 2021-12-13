@@ -76,7 +76,7 @@ tx AS (
   FROM
     {{ ref('silver_terra__msgs') }}
   WHERE
-    msg_value :execute_msg :send :msg :burn IS NOT NULL
+    msg_value :execute_msg :send :msg IS NOT NULL
     AND msg_value :execute_msg :send :contract :: STRING = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj'
     AND tx_status = 'SUCCEEDED'
 
@@ -125,10 +125,9 @@ msgs AS (
     block_id,
     block_timestamp,
     tx_id,
-    msg_value :execute_msg :send :msg :burn :position_idx AS collateral_id,
     msg_value :sender :: STRING AS sender,
     msg_value :execute_msg :send :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     tx t
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
@@ -137,6 +136,7 @@ msgs AS (
 withdraw_events AS (
   SELECT
     tx_id,
+    event_attributes :"0_position_idx" AS collateral_id,
     event_attributes :withdraw_amount [0] :amount / pow(
       10,
       6
@@ -205,28 +205,23 @@ withdraw_events AS (
     ) = a_b.day
     AND t.event_attributes :"0_tax_amount" [0] :denom :: STRING = a_b.currency
   WHERE
-    event_attributes :withdraw_amount IS NOT NULL
+    event_attributes :withdraw_amount[0] IS NOT NULL
 ),
 burn_events AS (
   SELECT
     tx_id,
+     event_attributes :position_idx as collateral_id,
     event_attributes :burn_amount [0] :amount / pow(
       10,
       6
     ) AS burn_amount,
-    burn_amount * COALESCE(
-      o.price,
-      o_b.price
-    ) AS burn_amount_usd,
+    burn_amount * o.price AS burn_amount_usd,
     event_attributes :burn_amount [0] :denom :: STRING AS burn_currency,
     event_attributes :protocol_fee [0] :amount / pow(
       10,
       6
     ) AS protocol_fee_amount,
-    protocol_fee_amount * COALESCE(
-      i.price,
-      i_b.price
-    ) AS protocol_fee_amount_usd,
+    protocol_fee_amount * i.price AS protocol_fee_amount_usd,
     event_attributes :protocol_fee [0] :denom :: STRING AS protocol_fee_currency
   FROM
     event_tx t
@@ -242,18 +237,6 @@ burn_events AS (
       t.block_timestamp
     ) = i.hour
     AND t.event_attributes :protocol_fee [0] :denom :: STRING = i.currency
-    LEFT OUTER JOIN prices_backup o_b
-    ON DATE_TRUNC(
-      'day',
-      t.block_timestamp
-    ) = o_b.day
-    AND t.event_attributes :burn_amount [0] :denom :: STRING = o_b.currency
-    LEFT OUTER JOIN prices_backup i_b
-    ON DATE_TRUNC(
-      'day',
-      t.block_timestamp
-    ) = i_b.day
-    AND t.event_attributes :protocol_fee [0] :denom :: STRING = i_b.currency
   WHERE
     event_attributes :burn_amount IS NOT NULL
 )
@@ -263,7 +246,10 @@ SELECT
   block_id,
   block_timestamp,
   m.tx_id,
-  collateral_id,
+  COALESCE(
+    w.collateral_id,
+    b.collateral_id
+  ) AS collateral_id,
   sender,
   tax_amount,
   tax_amount_usd,

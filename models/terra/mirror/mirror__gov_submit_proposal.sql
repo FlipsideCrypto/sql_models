@@ -88,7 +88,7 @@ SELECT
   description,
   msg,
   contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
   msgs m
   JOIN events e
