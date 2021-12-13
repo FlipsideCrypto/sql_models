@@ -52,9 +52,3 @@ models:
       - name: token_name
         # tests:
         #   - not_null
-
-
-
-
-        #   - not_null:
-        #     - where: contract_name <> 'Galactic Punks'
