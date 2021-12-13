@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'contract_address || token_id',
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'ethereum', 'nft', 'ethereum__nft_metadata']
+  tags = ['snowflake', 'ethereum', 'nft', 'ethereum__nft_metadata','gold_eth_nft']
 ) }}
 
 SELECT
