@@ -1,0 +1,34 @@
+
+name: 'dbt_expectations_integration_tests'
+version: '1.0'
+
+profile: 'integration_tests'
+
+config-version: 2
+
+source-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+data-paths: ["data"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_modules", "dbt_packages"]
+
+dispatch:
+  - macro_namespace: dbt_expectations
+    search_order: ['dbt_expectations_integration_tests', 'dbt_expectations']
+  - macro_namespace: dbt_utils
+    search_order: ['dbt_expectations', 'dbt_utils']
+vars:
+    'dbt_date:time_zone': 'America/Los_Angeles'
+
+quoting:
+    database: false
+    identifier: false
+    schema: false
+
+models:
+  dbt_expectations_integration_tests:
+    +schema: dbt_expectations_integration_tests
+    +materialized: table
