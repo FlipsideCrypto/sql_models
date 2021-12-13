@@ -59,10 +59,7 @@ events AS (
     NULL AS event_type,
     log_index AS event_id,
     contract_address,
-    COALESCE(
-      e.symbol,
-      contract_labels.address
-    ) AS symbol,
+    e.symbol AS symbol,
     input_method,
     eth_value,
     token_value,
