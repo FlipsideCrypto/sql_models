@@ -135,3 +135,4 @@ sources:
     schema: silver_near
     tables:
       - name: daily_balances
+  
