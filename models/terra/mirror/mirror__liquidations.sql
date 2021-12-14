@@ -99,8 +99,8 @@ events AS (
     ) AS unlocked_amount,
     event_attributes :unlocked_amount [0] :denom :: STRING AS unlocked_currency,
     COALESCE(
-    event_attributes :position_idx,
-    event_attributes :"0_position_idx"
+    event_attributes :position_idx :: INTEGER,
+    event_attributes :"0_position_idx" :: INTEGER
     ) AS collateral_id,
     event_attributes :owner :: STRING AS owner
   FROM

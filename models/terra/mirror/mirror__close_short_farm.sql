@@ -136,7 +136,7 @@ msgs AS (
 withdraw_events AS (
   SELECT
     tx_id,
-    event_attributes :"0_position_idx" AS collateral_id,
+    event_attributes :"0_position_idx" :: INTEGER AS collateral_id,
     event_attributes :withdraw_amount [0] :amount / pow(
       10,
       6
@@ -210,7 +210,7 @@ withdraw_events AS (
 burn_events AS (
   SELECT
     tx_id,
-     event_attributes :position_idx as collateral_id,
+    event_attributes :position_idx :: INTEGER as collateral_id,
     event_attributes :burn_amount [0] :amount / pow(
       10,
       6
