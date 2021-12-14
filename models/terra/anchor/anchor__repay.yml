@@ -8,39 +8,52 @@ models:
             - BLOCK_ID
     columns:
       - name: BLOCKCHAIN
+        description: the blockchain this transaction sit on
         tests:
           - not_null
       - name: CHAIN_ID
+        description: the blockchain id for this transaction, in Terra, there are columbus-4 and columbus-5
         tests:
           - not_null
       - name: BLOCK_ID
+        description: the block number for this transaction
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
+        description: the timestamp this transaction get generated
         tests:
           - not_null
       - name: TX_ID
+        description: the unique identifier to find this transaction 
+        tests:
+          - not_null
+      - name: SENDER
+        description: the sender address for this transaction
         tests:
           - not_null
       - name: AMOUNT
+        description: the repay amount in the currency listed in the CURRENCY column
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: AMOUNT_USD
+        description: the repay amount in USD currency
         tests:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: CURRENCY
+        description: the repay amount currency 
         tests:
           - not_null
-      - name: SENDER
+      - name: CONTRACT_ADDRESS
+        description: Anchor contract address
         tests:
           - not_null 
-      - name: CONTRACT_ADDRESS
+      - name: CONTRACT_LABEL
+        description: Anchor contract address in the label
         tests:
-          - not_null  
+          - not_null 

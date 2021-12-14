@@ -116,7 +116,7 @@ SELECT
   amount,
   amount_usd,
   currency,
-  shares,
+  COALESCE(shares, 0) AS shares,
   contract_address,
   contract_label
 FROM

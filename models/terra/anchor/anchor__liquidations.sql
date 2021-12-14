@@ -70,24 +70,30 @@ AND block_timestamp :: DATE >= (
 events AS (
   SELECT
     tx_id,
-    event_attributes :liquidator :: STRING AS liquidator,
-    event_attributes :collateral_amount / pow(
+    COALESCE(event_attributes :liquidator :: STRING, event_attributes :"0_liquidator" :: STRING) AS liquidator,
+    COALESCE(event_attributes :collateral_amount / pow(
       10,
       6
-    ) AS liquidated_amount,
+    ), event_attributes :"0_collateral_amount" / pow(
+      10,
+      6
+    )) AS liquidated_amount,
     liquidated_amount * l.price AS liquidated_amount_usd,
-    event_attributes :collateral_token :: STRING AS liquidated_currency,
+    COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"0_collateral_token" :: STRING) AS liquidated_currency,
     event_attributes :"1_repay_amount" / pow(
       10,
       6
     ) AS repay_amount,
     event_attributes :"1_borrower" :: STRING AS borrower,
     repay_amount * r.price AS repay_amount_usd,
-    event_attributes :stable_denom :: STRING AS repay_currency,
-    event_attributes :bid_fee / pow(
+    COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"0_stable_denom" :: STRING) AS repay_currency,
+    COALESCE(event_attributes :bid_fee / pow(
       10,
       6
-    ) AS bid_fee
+    ), event_attributes :"0_bid_fee" / pow(
+      10,
+      6
+    )) AS bid_fee
   FROM
     {{ ref('silver_terra__msg_events') }}
     LEFT OUTER JOIN prices l

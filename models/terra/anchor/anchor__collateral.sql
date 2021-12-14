@@ -118,8 +118,8 @@ SELECT
   amount,
   amount_usd,
   currency,
-  contract_address,
-  contract_label
+  COALESCE(contract_address, ''),
+  COALESCE(contract_label, '')
 FROM
   msgs m
   JOIN events e
@@ -139,8 +139,8 @@ SELECT
   ) AS amount,
   amount * price AS amount_usd,
   msg_value :contract :: STRING AS currency,
-  msg_value :execute_msg :send :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  COALESCE(msg_value :execute_msg :send :contract :: STRING, '') AS contract_address,
+  COALESCE(l.address, '') AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m
