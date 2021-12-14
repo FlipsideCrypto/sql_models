@@ -58,7 +58,7 @@ FROM
     'ethereum_events_emitted'
   ) }}
 WHERE
-  block_timestamp :: DATE < '2020-01-13'
+  block_id < 9265469
   AND 1 = 1
 
 {% if is_incremental() %}
