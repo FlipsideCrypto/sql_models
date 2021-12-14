@@ -12,9 +12,9 @@ WITH token_prices AS (
   SELECT
     p.symbol,
     DATE_TRUNC(
-      'hour',
+      'day',
       recorded_at
-    ) AS HOUR,
+    ) AS DAY,
     LOWER(
       A.token_address
     ) AS token_address,
