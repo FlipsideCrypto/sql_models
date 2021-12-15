@@ -50,7 +50,7 @@ SELECT
   amount * price AS amount_usd,
   msg_value :coins [0] :denom :: STRING AS currency,
   COALESCE(msg_value :contract :: STRING, '') AS contract_address,
-  COALESCE(l.address, '') AS contract_label
+  COALESCE(l.address_name, '') AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m
