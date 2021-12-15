@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT('-', block_id, tx_id)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp', 'block_id'],
   tags = ['snowflake', 'polygon', 'polygon_transactions_gold', 'address_labels']
@@ -55,8 +55,8 @@ poly_labels AS (
   SELECT
     l1_label,
     l2_label,
-    project_name, 
-    address_name, 
+    project_name,
+    address_name,
     address
   FROM
     {{ ref('silver_crosschain__address_labels') }}

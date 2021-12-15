@@ -1,36 +1,54 @@
-{{ 
-  config(
-    materialized='incremental',
-    unique_key="CONCAT('-', chain_id, block_id, tx_id)", 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'polygon_silver', 'polygon_dbt_transactions','polygon']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', chain_id, block_id, tx_id)",
+  incremental_strategy = 'delete+insert',
+  tags = ['snowflake', 'polygon_silver', 'polygon_dbt_transactions','polygon']
+) }}
 
-with base_tables as (
-  select *
-  from {{source('bronze', 'prod_matic_sink_510901820')}}
-  where record_content:model:name::string = 'polygon_txs_model'
-  {% if is_incremental() %}
-        AND (record_metadata:CreateTime::int/1000)::timestamp::date >= (select dateadd('day',-1,max(system_created_at::date)) from {{ this }})
-  {% endif %}
-  )
+WITH base_tables AS (
 
-select (record_metadata:CreateTime::int/1000)::timestamp as system_created_at
-, record_content:model:blockchain::string as chain_id
-, a.value:block_id::int as block_id
-, a.value:block_timestamp::timestamp as block_timestamp
-, a.value:fee::float as fee
-, a.value:from_address::string as from_address
-, a.value:gas_limit::int as gas_limit
-, a.value:gas_price::int as gas_price
-, a.value:gas_used::int as gas_used
-, a.value:input_method::string as input_method
-, a.value:native_value::float as native_value
-, a.value:nonce::int as nonce
-, a.value:success::boolean as success
-, a.value:to_address::string as to_address
-, a.value:tx_id::string as tx_id
-, a.value:tx_position::int as tx_position
-from base_tables
-,lateral flatten(input => record_content:results) a
+  SELECT
+    *
+  FROM
+    {{ source(
+      'bronze',
+      'prod_matic_sink_510901820'
+    ) }}
+  WHERE
+    record_content :model :name :: STRING = 'polygon_txs_model'
+
+{% if is_incremental() %}
+AND (
+  record_metadata :CreateTime :: INT / 1000
+) :: TIMESTAMP :: DATE >= (
+  SELECT
+    DATEADD('day', -1, MAX(system_created_at :: DATE))
+  FROM
+    {{ this }}
+)
+{% endif %}
+)
+SELECT
+  (
+    record_metadata :CreateTime :: INT / 1000
+  ) :: TIMESTAMP AS system_created_at,
+  record_content :model :blockchain :: STRING AS chain_id,
+  A.value :block_id :: INT AS block_id,
+  A.value :block_timestamp :: TIMESTAMP AS block_timestamp,
+  A.value :fee :: FLOAT AS fee,
+  A.value :from_address :: STRING AS from_address,
+  A.value :gas_limit :: INT AS gas_limit,
+  A.value :gas_price :: INT AS gas_price,
+  A.value :gas_used :: INT AS gas_used,
+  A.value :input_method :: STRING AS input_method,
+  A.value :native_value :: FLOAT AS native_value,
+  A.value :nonce :: INT AS nonce,
+  A.value :success :: BOOLEAN AS success,
+  A.value :to_address :: STRING AS to_address,
+  A.value :tx_id :: STRING AS tx_id,
+  A.value :tx_position :: INT AS tx_position
+FROM
+  base_tables,
+  LATERAL FLATTEN(
+    input => record_content :results
+  ) A
