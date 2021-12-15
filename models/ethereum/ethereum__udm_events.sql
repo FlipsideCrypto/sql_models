@@ -9,34 +9,50 @@
 WITH token_prices AS (
 
   SELECT
-    p.symbol,
-    DATE_TRUNC(
-      'hour',
-      recorded_at
-    ) AS HOUR,
-    LOWER(
-      A.token_address
-    ) AS token_address,
+    symbol,
+    HOUR,
+    token_address,
     AVG(price) AS price
-  FROM
-    {{ source(
-      'shared',
-      'prices'
-    ) }}
-    p
-    JOIN {{ source(
-      'shared',
-      'cmc_assets'
-    ) }} A
-    ON p.asset_id :: STRING = A.asset_id :: STRING
-  WHERE
-    A.platform_id = 1027
+  FROM(
+      SELECT
+        p.symbol,
+        DATE_TRUNC(
+          'hour',
+          recorded_at
+        ) AS HOUR,
+        LOWER(
+          A.token_address
+        ) AS token_address,
+        AVG(price) AS price
+      FROM
+        {{ source(
+          'shared',
+          'prices_v2'
+        ) }}
+        p
+        JOIN {{ source(
+          'shared',
+          'market_asset_metadata'
+        ) }} A
+        ON p.asset_id = A.asset_id
+      WHERE
+        (
+          A.platform_id = '1027'
+          OR A.asset_id = '1027'
+          OR A.platform_id = 'ethereum'
+        )
 
 {% if is_incremental() %}
 AND recorded_at >= getdate() - INTERVAL '2 days'
+{% else %}
 {% endif %}
 GROUP BY
   p.symbol,
+  HOUR,
+  token_address
+)
+GROUP BY
+  symbol,
   HOUR,
   token_address
 ),
@@ -174,29 +190,30 @@ token_transfers AS (
       e.symbol,
       p.symbol
     ) AS symbol,
+    token_value AS amount,
     CASE
-      WHEN de.decimals IS NULL THEN token_value
-      ELSE token_value / pow(
-        10,
-        de.decimals
-      )
-    END AS amount,
-    CASE
-      WHEN de.decimals IS NULL THEN NULL
-      ELSE amount * p.price
+      WHEN de.decimals IS NOT NULL THEN amount * p.price
+      ELSE NULL
     END AS amount_usd
   FROM
     full_events e
     LEFT OUTER JOIN token_prices p
-    ON p.token_address = e.contract_address
+    ON LOWER(
+      p.token_address
+    ) = LOWER(
+      e.contract_address
+    )
     AND DATE_TRUNC(
       'hour',
       e.block_timestamp
     ) = p.hour
-    LEFT OUTER JOIN {{ ref('ethereum_dbt__decimals') }}
+    LEFT OUTER JOIN {{ source(
+      'ethereum',
+      'ethereum_contract_decimal_adjustments'
+    ) }}
     de
     ON LOWER(
-      de.token_id
+      de.address
     ) = LOWER(
       e.contract_address
     )
@@ -214,19 +231,20 @@ eth_prices AS (
   FROM
     {{ source(
       'shared',
-      'prices'
+      'prices_v2'
     ) }}
     p
     JOIN {{ source(
       'shared',
-      'cmc_assets'
+      'market_asset_metadata'
     ) }} A
     ON p.asset_id = A.asset_id
   WHERE
-    A.asset_id = 1027
+    A.asset_id = '1027'
 
 {% if is_incremental() %}
 AND recorded_at >= getdate() - INTERVAL '2 days'
+{% else %}
 {% endif %}
 GROUP BY
   p.symbol,

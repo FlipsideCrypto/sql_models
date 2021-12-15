@@ -11,23 +11,41 @@ SELECT
 FROM
   (
     SELECT
-      system_created_at,
+      system_created_at AS system_created_at,
       block_id,
       block_timestamp,
       tx_hash,
       input_method,
       "from",
       "to",
-      NAME,
-      symbol,
+      e.name AS NAME,
+      e.symbol AS symbol,
       contract_address,
       eth_value,
       fee,
       log_index,
       log_method,
-      token_value
+      CASE
+        WHEN LOWER(log_method) = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+        AND de.decimals IS NOT NULL THEN token_value / pow(
+          10,
+          de.decimals
+        )
+        ELSE token_value
+      END AS token_value
     FROM
       {{ ref('ethereum_dbt__events') }}
+      e
+      LEFT OUTER JOIN {{ source(
+        'ethereum',
+        'ethereum_contract_decimal_adjustments'
+      ) }}
+      de
+      ON LOWER(
+        de.address
+      ) = LOWER(
+        e.contract_address
+      )
     WHERE
       1 = 1
 
