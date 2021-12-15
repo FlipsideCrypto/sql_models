@@ -1,7 +1,7 @@
 {{ 
   config(
     materialized='incremental',
-    unique_key="CONCAT_WS('-', chain_id, block_id, tx_id, event_index)", 
+    unique_key="CONCAT_WS('-', chain_id, block_id, tx_id, coalesce(event_index,-1))", 
     incremental_strategy='delete+insert',
     tags=['snowflake', 'polygon_silver', 'polygon_dbt_events_emitted','polygon']
   )
