@@ -55,10 +55,6 @@ models:
         description: proposal description
         tests:
           - not_null
-      - name: MSG
-        description: message about this proposal
-        tests:
-          - not_null
       - name: CONTRACT_ADDRESS
         description: Anchor contract address
         tests:

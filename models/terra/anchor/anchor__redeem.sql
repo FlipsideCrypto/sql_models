@@ -49,8 +49,8 @@ SELECT
   ) AS amount,
   amount * price AS amount_usd,
   msg_value :contract :: STRING AS currency,
-  msg_value :execute_msg :send :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  COALESCE(msg_value :execute_msg :send :contract :: STRING, '') AS contract_address,
+  COALESCE(l.address, '') AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m

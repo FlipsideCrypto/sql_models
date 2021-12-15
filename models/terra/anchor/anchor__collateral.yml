@@ -55,11 +55,3 @@ models:
         description: the burned amount currency 
         tests:
           - not_null
-      - name: CONTRACT_ADDRESS
-        description: Anchor contract address
-        tests:
-          - not_null 
-      - name: CONTRACT_LABEL
-        description: Anchor contract address in the label
-        tests:
-          - not_null 

@@ -53,10 +53,6 @@ models:
         description: the burned amount currency 
         tests:
           - not_null
-      - name: SHARES
-        description: the amount of shares for the government staking
-        tests:
-          - not_null
       - name: CONTRACT_ADDRESS
         description: Anchor contract address
         tests:

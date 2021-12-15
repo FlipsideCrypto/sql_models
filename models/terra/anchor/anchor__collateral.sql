@@ -118,8 +118,8 @@ SELECT
   amount,
   amount_usd,
   currency,
-  COALESCE(contract_address, ''),
-  COALESCE(contract_label, '')
+  COALESCE(contract_address, '') AS contract_address,
+  COALESCE(contract_label, '') AS contract_label
 FROM
   msgs m
   JOIN events e
