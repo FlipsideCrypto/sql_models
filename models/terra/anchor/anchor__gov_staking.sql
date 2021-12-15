@@ -93,6 +93,7 @@ stake_events AS (
         stake_msgs
     )
     AND event_type = 'from_contract'
+    AND event_attributes :share IS NOT NULL
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (

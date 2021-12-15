@@ -116,7 +116,7 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 )
-SELECT
+SELECT DISTINCT
   blockchain,
   chain_id,
   block_id,
@@ -127,8 +127,8 @@ SELECT
   bonded_amount_usd,
   bonded_currency,
   validator,
-  contract_address,
-  contract_label
+  COALESCE(contract_address, '') AS contract_address,
+  COALESCE(contract_label, '') AS contract_label
 FROM
   msgs m
   JOIN events e

@@ -34,14 +34,8 @@ models:
               column_type_list:
                 - decimal
                 - float
-      - name: BONDED_CURRENCY
-        tests:
-          - not_null
       - name: SENDER
         tests:
-          - not_null
-      - name: VALIDATOR
-        tests: 
           - not_null
       - name: CONTRACT_ADDRESS
         tests: 
