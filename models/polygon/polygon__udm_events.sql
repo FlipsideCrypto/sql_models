@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT('-', block_id, tx_id, event_id)",
+    unique_key = "CONCAT_WS('-', block_id, tx_id, event_id)",
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp', 'block_id'],
     tags = ['snowflake', 'polygon', 'polygon_udm_events_gold', 'address_labels']
