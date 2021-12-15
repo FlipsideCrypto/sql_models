@@ -44,7 +44,6 @@ WITH token_prices AS (
 
 {% if is_incremental() %}
 AND recorded_at >= getdate() - INTERVAL '2 days'
-{% else %}
 {% endif %}
 GROUP BY
   p.symbol,
