@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT('-', block_id, tx_id, event_id)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, coalesce(event_id,-1), coalesce(from_address,''), coalesce(to_address,''), coalesce(contract_address,''))",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
   tags = ['snowflake', 'ethereum', 'events', 'ethereum_udm_events', 'address_labels']
@@ -9,51 +9,19 @@
 WITH token_prices AS (
 
   SELECT
-    symbol,
     HOUR,
+    symbol,
     token_address,
-    AVG(price) AS price
-  FROM(
-      SELECT
-        p.symbol,
-        DATE_TRUNC(
-          'hour',
-          recorded_at
-        ) AS HOUR,
-        LOWER(
-          A.token_address
-        ) AS token_address,
-        AVG(price) AS price
-      FROM
-        {{ source(
-          'shared',
-          'prices_v2'
-        ) }}
-        p
-        JOIN {{ source(
-          'shared',
-          'market_asset_metadata'
-        ) }} A
-        ON p.asset_id = A.asset_id
-      WHERE
-        (
-          A.platform_id = '1027'
-          OR A.asset_id = '1027'
-          OR A.platform_id = 'ethereum'
-        )
+    price,
+    decimals
+  FROM
+    {{ ref('silver_ethereum__prices') }}
+  WHERE
+    1 = 1
 
 {% if is_incremental() %}
-AND recorded_at >= getdate() - INTERVAL '2 days'
+AND HOUR >= getdate() - INTERVAL '2 days'
 {% endif %}
-GROUP BY
-  p.symbol,
-  HOUR,
-  token_address
-)
-GROUP BY
-  symbol,
-  HOUR,
-  token_address
 ),
 events AS (
   SELECT
@@ -83,15 +51,27 @@ events AS (
     {{ ref('silver_ethereum__events') }}
     e
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
-    ON e."from" = from_labels.address
+    ON LOWER(
+      e."from"
+    ) = LOWER(
+      from_labels.address
+    )
     AND from_labels.blockchain = 'ethereum'
     AND from_labels.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS to_labels
-    ON e."to" = to_labels.address
+    ON LOWER(
+      e."to"
+    ) = LOWER(
+      to_labels.address
+    )
     AND to_labels.blockchain = 'ethereum'
     AND to_labels.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS contract_labels
-    ON e.contract_address = contract_labels.address
+    ON LOWER(
+      e.contract_address
+    ) = LOWER(
+      contract_labels.address
+    )
     AND contract_labels.blockchain = 'ethereum'
     AND contract_labels.creator = 'flipside'
   WHERE
@@ -121,7 +101,11 @@ originator AS (
     ON t.input_method = f.hex_signature
     AND f.importance = 1
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
-    ON t.from_address = from_labels.address
+    ON LOWER(
+      t.from_address
+    ) = LOWER(
+      from_labels.address
+    )
     AND from_labels.blockchain = 'ethereum'
     AND from_labels.creator = 'flipside'
 ),
@@ -185,13 +169,10 @@ token_transfers AS (
     'erc20_transfer' AS event_type,
     event_id,
     e.contract_address,
-    COALESCE(
-      e.symbol,
-      p.symbol
-    ) AS symbol,
+    p.symbol AS symbol,
     token_value AS amount,
     CASE
-      WHEN de.decimals IS NOT NULL THEN amount * p.price
+      WHEN p.decimals IS NOT NULL THEN amount * p.price
       ELSE NULL
     END AS amount_usd
   FROM
@@ -206,16 +187,6 @@ token_transfers AS (
       'hour',
       e.block_timestamp
     ) = p.hour
-    LEFT OUTER JOIN {{ source(
-      'ethereum',
-      'ethereum_contract_decimal_adjustments'
-    ) }}
-    de
-    ON LOWER(
-      de.address
-    ) = LOWER(
-      e.contract_address
-    )
   WHERE
     event_name = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 ),

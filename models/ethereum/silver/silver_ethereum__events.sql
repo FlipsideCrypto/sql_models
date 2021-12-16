@@ -1,13 +1,29 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_id || tx_hash || log_index',
+  unique_key = "CONCAT_WS('-', block_id, tx_hash, coalesce(log_index,-1), from_uk, to_uk)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
   tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__events']
 ) }}
 
 SELECT
-  *
+  system_created_at,
+        block_id,
+      block_timestamp,
+      tx_hash,
+      input_method,
+      "from",
+      "to",
+      name,
+      symbol,
+      contract_address,
+      eth_value,
+      fee,
+      log_index,
+      log_method,
+      token_value,
+      coalesce("from", '') as from_uk,
+      coalesce("to", '') as to_uk
 FROM
   (
     SELECT
