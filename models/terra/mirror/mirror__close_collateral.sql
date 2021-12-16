@@ -72,7 +72,7 @@ msgs AS (
     block_id,
     block_timestamp,
     tx_id,
-    msg_value :execute_msg :withdraw :position_idx ::STRING AS collateral_id,
+    msg_value :execute_msg :withdraw :position_idx :: INTEGER AS collateral_id,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS contract_address,
     l.address_name AS contract_label

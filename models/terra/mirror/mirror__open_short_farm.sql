@@ -44,7 +44,7 @@ msgs AS(
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
-    msg_value :execute_msg :open_position :collateral_ratio AS collateral_ratio,
+    msg_value :execute_msg :open_position :collateral_ratio :: FLOAT AS collateral_ratio,
     msg_value :contract :: STRING AS contract_address,
     l.address_name AS contract_label
   FROM
@@ -71,7 +71,7 @@ AND block_timestamp :: DATE >= (
 events AS (
   SELECT
     tx_id,
-    event_attributes :"0_position_idx" AS collateral_id,
+    event_attributes :"0_position_idx" :: INTEGER AS collateral_id,
     event_attributes :collateral_amount [0] :amount / pow(
       10,
       6
