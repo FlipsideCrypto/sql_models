@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'asset_id' ]
+  tags = ['snowflake', 'algorand', 'asset_id','silver_algorand']
 ) }}
 
 WITH asset_name AS (
@@ -17,7 +17,9 @@ WITH asset_name AS (
     ) }}
 )
 SELECT
-  aa.addr :: STRING AS address,
+  algorand_decode_hex_addr(
+    aa.addr :: text
+  ) AS address,
   assetid AS asset_id,
   an.name :: STRING AS asset_name,
   amount AS amount,

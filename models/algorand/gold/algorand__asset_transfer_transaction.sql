@@ -12,7 +12,7 @@ SELECT
     sender,
     fee,
     asset_sender,
-    asset_reciever,
+    asset_receiver,
     asset_amount,
     tx_type,
     tx_type_name,

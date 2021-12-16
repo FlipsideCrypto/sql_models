@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'key_registration']
+  tags = ['snowflake', 'algorand', 'key_registration', 'silver_algorand']
 ) }}
 
 SELECT
@@ -13,13 +13,19 @@ SELECT
     txid :: text
   ) AS tx_id,
   asset AS asset_id,
-  txn :txn :snd :: STRING AS sender,
-  txn :txn :fee * pow(
+  algorand_decode_b64_addr(
+    txn :txn :snd :: text
+  ) AS sender,
+  txn :txn :fee / pow(
     10,
     6
   ) AS fee,
-  txn :txn :votekey :: STRING AS participation_key,
-  txn :txn :selkey :: STRING AS vrf_public_key,
+  algorand_decode_b64_addr(
+    txn :txn :votekey :: text
+  ) AS participation_key,
+  algorand_decode_b64_addr(
+    txn :txn :selkey :: text
+  ) AS vrf_public_key,
   txn :txn :votefst AS vote_first,
   txn :txn :votelst AS vote_last,
   txn :txn :votekd AS vote_keydilution,

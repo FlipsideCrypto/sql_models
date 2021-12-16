@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'asset_transfer']
+  tags = ['snowflake', 'algorand', 'asset_transfer', 'silver_algorand']
 ) }}
 
 SELECT
@@ -13,17 +13,23 @@ SELECT
     txid :: text
   ) AS tx_id,
   asset AS asset_id,
-  txn :txn :snd :: STRING AS sender,
-  txn :txn :fee * pow(
+  algorand_decode_b64_addr(
+    txn :txn :snd :: text
+  ) AS sender,
+  txn :txn :fee / pow(
     10,
     6
   ) AS fee,
-  txn :txn :asnd :: STRING AS asset_sender,
-  txn :txn :arcv :: STRING AS asset_reciever,
+  algorand_decode_b64_addr(
+    txn :txn :asnd :: text
+  ) AS asset_sender,
+  algorand_decode_b64_addr(
+    txn :txn :arcv :: text
+  ) AS asset_receiver,
   txn :txn :aamt AS asset_amount,
   csv.type AS tx_type,
   csv.name AS tx_type_name,
-  txn :TXN :GH :: STRING AS genisis_hash,
+  txn :txn :gh :: STRING AS genisis_hash,
   txn AS tx_message,
   extra,
   concat_ws(

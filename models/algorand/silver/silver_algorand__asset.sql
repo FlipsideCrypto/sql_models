@@ -2,12 +2,14 @@
   materialized = 'incremental',
   unique_key = 'asset_id',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'asset']
+  tags = ['snowflake', 'algorand', 'asset', 'silver_algorand']
 ) }}
 
 SELECT
   INDEX AS asset_id,
-  creator_addr :: STRING AS creator_address,
+  algorand_decode_hex_addr(
+    creator_addr :: text
+  ) AS creator_address,
   params :t :: NUMBER AS total_supply,
   params :an :: STRING AS asset_name,
   params :au :: STRING AS asset_url,

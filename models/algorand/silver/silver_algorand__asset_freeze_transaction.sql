@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'asset_freeze']
+  tags = ['snowflake', 'algorand', 'asset_freeze', 'silver_algorand']
 ) }}
 
 SELECT
@@ -13,10 +13,14 @@ SELECT
     txid :: text
   ) AS tx_id,
   asset AS asset_id,
-  txn :txn :fadd :: STRING AS asset_address,
+  algorand_decode_b64_addr(
+    txn :txn :fadd :: text
+  ) AS asset_address,
   txn :txn :afrz AS asset_freeze,
-  txn :txn :snd :: STRING AS sender,
-  txn :txn :fee * pow(
+  algorand_decode_b64_addr(
+    txn :txn :snd :: text
+  ) AS sender,
+  txn :txn :fee / pow(
     10,
     6
   ) AS fee,
