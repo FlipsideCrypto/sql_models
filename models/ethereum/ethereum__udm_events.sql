@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id, event_id)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, coalesce(event_id,-1), coalesce(from_address,''), coalesce(to_address,''), coalesce(contract_address,''))",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
   tags = ['snowflake', 'ethereum', 'events', 'ethereum_udm_events', 'address_labels']
@@ -9,36 +9,19 @@
 WITH token_prices AS (
 
   SELECT
-    p.symbol,
-    DATE_TRUNC(
-      'hour',
-      recorded_at
-    ) AS HOUR,
-    LOWER(
-      A.token_address
-    ) AS token_address,
-    AVG(price) AS price
+    HOUR,
+    symbol,
+    token_address,
+    price,
+    decimals
   FROM
-    {{ source(
-      'shared',
-      'prices'
-    ) }}
-    p
-    JOIN {{ source(
-      'shared',
-      'cmc_assets'
-    ) }} A
-    ON p.asset_id :: STRING = A.asset_id :: STRING
+    {{ ref('silver_ethereum__prices') }}
   WHERE
-    A.platform_id = 1027
+    1 = 1
 
 {% if is_incremental() %}
-AND recorded_at >= getdate() - INTERVAL '2 days'
+AND HOUR >= getdate() - INTERVAL '2 days'
 {% endif %}
-GROUP BY
-  p.symbol,
-  HOUR,
-  token_address
 ),
 events AS (
   SELECT
@@ -68,15 +51,27 @@ events AS (
     {{ ref('silver_ethereum__events') }}
     e
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
-    ON e."from" = from_labels.address
+    ON LOWER(
+      e."from"
+    ) = LOWER(
+      from_labels.address
+    )
     AND from_labels.blockchain = 'ethereum'
     AND from_labels.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS to_labels
-    ON e."to" = to_labels.address
+    ON LOWER(
+      e."to"
+    ) = LOWER(
+      to_labels.address
+    )
     AND to_labels.blockchain = 'ethereum'
     AND to_labels.creator = 'flipside'
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS contract_labels
-    ON e.contract_address = contract_labels.address
+    ON LOWER(
+      e.contract_address
+    ) = LOWER(
+      contract_labels.address
+    )
     AND contract_labels.blockchain = 'ethereum'
     AND contract_labels.creator = 'flipside'
   WHERE
@@ -106,7 +101,11 @@ originator AS (
     ON t.input_method = f.hex_signature
     AND f.importance = 1
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS from_labels
-    ON t.from_address = from_labels.address
+    ON LOWER(
+      t.from_address
+    ) = LOWER(
+      from_labels.address
+    )
     AND from_labels.blockchain = 'ethereum'
     AND from_labels.creator = 'flipside'
 ),
@@ -170,36 +169,24 @@ token_transfers AS (
     'erc20_transfer' AS event_type,
     event_id,
     e.contract_address,
-    COALESCE(
-      e.symbol,
-      p.symbol
-    ) AS symbol,
+    p.symbol AS symbol,
+    token_value AS amount,
     CASE
-      WHEN de.decimals IS NULL THEN token_value
-      ELSE token_value / pow(
-        10,
-        de.decimals
-      )
-    END AS amount,
-    CASE
-      WHEN de.decimals IS NULL THEN NULL
-      ELSE amount * p.price
+      WHEN p.decimals IS NOT NULL THEN amount * p.price
+      ELSE NULL
     END AS amount_usd
   FROM
     full_events e
     LEFT OUTER JOIN token_prices p
-    ON p.token_address = e.contract_address
+    ON LOWER(
+      p.token_address
+    ) = LOWER(
+      e.contract_address
+    )
     AND DATE_TRUNC(
       'hour',
       e.block_timestamp
     ) = p.hour
-    LEFT OUTER JOIN {{ ref('ethereum_dbt__decimals') }}
-    de
-    ON LOWER(
-      de.token_id
-    ) = LOWER(
-      e.contract_address
-    )
   WHERE
     event_name = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 ),
@@ -214,16 +201,16 @@ eth_prices AS (
   FROM
     {{ source(
       'shared',
-      'prices'
+      'prices_v2'
     ) }}
     p
     JOIN {{ source(
       'shared',
-      'cmc_assets'
+      'market_asset_metadata'
     ) }} A
     ON p.asset_id = A.asset_id
   WHERE
-    A.asset_id = 1027
+    A.asset_id = '1027'
 
 {% if is_incremental() %}
 AND recorded_at >= getdate() - INTERVAL '2 days'
