@@ -2,13 +2,15 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'transaction_participation']
+  tags = ['snowflake', 'algorand', 'transaction_participation', 'silver_algorand']
 ) }}
 
 SELECT
   ROUND AS block_id,
   intra,
-  addr :: STRING AS address,
+  algorand_decode_hex_addr(
+    addr :: text
+  ) AS address,
   concat_ws(
     '-',
     block_id :: STRING,

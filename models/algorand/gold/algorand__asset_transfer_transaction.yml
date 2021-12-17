@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_algorand__asset_transfer_transaction
+  - name: algorand__asset_transfer_transaction
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -21,7 +21,7 @@ models:
           - not_null
       - name: SENDER
         tests:
-          - not_null    
+          - not_null     
       - name: TX_TYPE
         tests:
           - not_null

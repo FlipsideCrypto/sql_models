@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_algorand__asset_transfer_transaction
+  - name: algorand__asset_freeze_transaction
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -19,7 +19,13 @@ models:
       - name: ASSET_ID
         tests:
           - not_null
+      - name: ASSET_ADDRESS
+        tests:
+          - not_null
       - name: SENDER
+        tests:
+          - not_null   
+      - name: FEE
         tests:
           - not_null    
       - name: TX_TYPE

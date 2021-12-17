@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'block_id',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'block']
+  tags = ['snowflake', 'algorand', 'block', 'silver_algorand']
 ) }}
 
 SELECT

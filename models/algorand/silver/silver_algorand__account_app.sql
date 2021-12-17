@@ -2,11 +2,13 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'account_app']
+  tags = ['snowflake', 'algorand', 'account_app','silver_algorand']
 ) }}
 
 SELECT
-  addr :: STRING AS address,
+  algorand_decode_hex_addr(
+    addr :: text
+  ) AS address,
   app AS app_id,
   deleted AS app_closed,
   closed_at AS closed_at,
