@@ -51,7 +51,7 @@ stake_msgs AS (
     amount * o.price AS amount_usd,
     msg_value :contract :: STRING AS currency,
     msg_value :execute_msg :send :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     t
@@ -82,6 +82,7 @@ AND block_timestamp :: DATE >= (
 stake_events AS (
   SELECT
     tx_id,
+    msg_index,
     event_attributes :share AS shares
   FROM
     {{ ref('silver_terra__msg_events') }}
@@ -93,6 +94,7 @@ stake_events AS (
         stake_msgs
     )
     AND event_type = 'from_contract'
+    AND event_attributes :share IS NOT NULL
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
@@ -111,6 +113,7 @@ SELECT
   block_id,
   block_timestamp,
   m.tx_id,
+  msg_index,
   'stake' AS event_type,
   sender,
   amount,
@@ -131,6 +134,7 @@ SELECT
   block_id,
   block_timestamp,
   tx_id,
+  null AS msg_index,
   'unstake' AS event_type,
   msg_value :sender :: STRING AS sender,
   msg_value :execute_msg :withdraw_voting_tokens :amount / pow(
@@ -141,7 +145,7 @@ SELECT
   'terra14z56l0fp2lsf86zy3hty2z47ezkhnthtr9yq76' AS currency,
   NULL AS shares,
   msg_value :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   t

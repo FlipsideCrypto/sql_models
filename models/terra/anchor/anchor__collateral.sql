@@ -45,13 +45,13 @@ msgs AS (
     tx_id,
     'withdraw' AS action,
     msg_value :sender :: STRING AS sender,
-    msg_value :execute_msg :send :contract :: STRING AS contract_address,
+    COALESCE(msg_value :execute_msg :send :contract :: STRING, msg_value :contract :: STRING) AS contract_address,
     l.address AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
+    ON COALESCE(msg_value :execute_msg :send :contract :: STRING, msg_value :contract :: STRING) = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   WHERE
     msg_value :execute_msg :withdraw_collateral IS NOT NULL
     AND tx_status = 'SUCCEEDED'
@@ -118,8 +118,8 @@ SELECT
   amount,
   amount_usd,
   currency,
-  contract_address,
-  contract_label
+  contract_address AS contract_address,
+  COALESCE(contract_label, '') AS contract_label
 FROM
   msgs m
   JOIN events e
@@ -139,13 +139,13 @@ SELECT
   ) AS amount,
   amount * price AS amount_usd,
   msg_value :contract :: STRING AS currency,
-  msg_value :execute_msg :send :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  COALESCE(msg_value :execute_msg :send :contract :: STRING, msg_value :contract :: STRING) AS contract_address,
+  COALESCE(l.address_name, '') AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
+  ON COALESCE(msg_value :execute_msg :send :contract :: STRING, msg_value :contract :: STRING) = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   LEFT OUTER JOIN prices o
   ON DATE_TRUNC(
     'hour',
