@@ -1,0 +1,25 @@
+version: 2
+models:
+  - name: silver_algorand__account_app
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+            - APP_ID
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: APP_ID
+        tests:
+          - not_null
+      - name: APP_CLOSED
+        tests:
+          - not_null
+      - name: CREATED_AT
+        tests:
+          - not_null
+      - name: APP_INFO
+        tests:
+          - not_null:
+              where: APP_CLOSED = FALSE

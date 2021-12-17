@@ -44,12 +44,11 @@ msgs AS (
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
-    msg_value :execute_msg :send :msg :auction :position_idx AS collateral_id,
     msg_value :execute_msg :send :contract :: STRING AS contract_address
   FROM
     {{ ref('silver_terra__msgs') }}
   WHERE
-    msg_value :execute_msg :send :msg :auction IS NOT NULL
+    msg_value :execute_msg :send :contract :: STRING = 'terra1wfz7h3aqf4cjmjcvc6s8lxdhh7k30nkczyf0mj' -- Mirror Mint Contract
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
@@ -99,6 +98,10 @@ events AS (
       6
     ) AS unlocked_amount,
     event_attributes :unlocked_amount [0] :denom :: STRING AS unlocked_currency,
+    COALESCE(
+    event_attributes :position_idx :: INTEGER,
+    event_attributes :"0_position_idx" :: INTEGER
+    ) AS collateral_id,
     event_attributes :owner :: STRING AS owner
   FROM
     {{ ref('silver_terra__msg_events') }}
@@ -129,7 +132,7 @@ SELECT
   chain_id,
   block_id,
   block_timestamp,
-  m.tx_id,
+  e.tx_id,
   collateral_id,
   sender AS buyer,
   owner,
@@ -149,11 +152,11 @@ SELECT
   unlocked_amount * u.price AS unlocked_amount_usd,
   unlocked_currency,
   contract_address,
-  g.address AS contract_label
+  g.address_name AS contract_label
 FROM
-  msgs m
-  JOIN events e
-  ON m.tx_id = e.tx_id
+  events e
+  JOIN msgs m
+  ON e.tx_id = m.tx_id
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS g
   ON m.contract_address = g.address AND g.blockchain = 'terra' AND g.creator = 'flipside'
   LEFT OUTER JOIN prices t
