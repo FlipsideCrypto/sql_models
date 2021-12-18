@@ -100,7 +100,7 @@ WITH metadata AS (
 coinmarketcap AS (
     SELECT
         m.symbol,
-        m.token_address,
+        lower(m.token_address) as token_address,
         DATE_TRUNC(
             'hour',
             recorded_at
@@ -122,7 +122,7 @@ AND recorded_at >= getdate() - INTERVAL '2 days'
 {% endif %}
 GROUP BY
     m.symbol,
-    m.token_address,
+    lower(m.token_address),
     HOUR
 ),
 coingecko AS (
