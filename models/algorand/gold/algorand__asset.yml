@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: algorand__asset
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ASSET_ID
+    columns:
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: CREATOR_ADDRESS
+        tests:
+          - not_null
+      - name: ASSET_DELETED
+        tests:
+          - not_null          
+      - name: CREATED_AT
+        tests:
+          - not_null   

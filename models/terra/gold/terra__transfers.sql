@@ -175,7 +175,7 @@ SELECT
   to_labels.address_name AS event_to_address_name,
   t.event_amount,
   t.event_amount * price_usd AS event_amount_usd,
-  s.symbol AS event_currency
+  coalesce(s.symbol, t.event_currency) AS event_currency
 FROM
   transfers t
   LEFT OUTER JOIN prices o

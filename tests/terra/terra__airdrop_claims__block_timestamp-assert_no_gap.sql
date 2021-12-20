@@ -1,0 +1,1 @@
+{{ date_gaps(ref("terra__airdrop_claims"), [], "block_timestamp") }}

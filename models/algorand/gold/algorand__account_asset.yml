@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: algorand__account_asset
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+            - ASSET_ID
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: AMOUNT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+      - name: ASSET_ADDED_AT
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+      - name: FROZEN
+        tests:
+          - not_null
+      - name: ASSET_CLOSED
+        tests:
+          - not_null

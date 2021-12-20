@@ -1,1 +1,0 @@
-{{ sequence_gaps(ref("ethereum__udm_events"), ["block_id", "tx_id",], "event_id") }}

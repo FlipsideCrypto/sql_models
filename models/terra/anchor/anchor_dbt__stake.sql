@@ -51,7 +51,7 @@ msgs AS (
       6
     ) AS amount,
     msg_value :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m
@@ -141,7 +141,7 @@ SELECT
   amount * price AS amount_usd,
   msg_value :contract :: STRING AS currency,
   msg_value :execute_msg :send :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m

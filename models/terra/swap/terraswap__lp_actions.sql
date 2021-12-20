@@ -39,7 +39,7 @@ provide_msgs AS (
     'provide_liquidity' AS event_type,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS pool_address,
-    l.address AS pool_name
+    l.address_name AS pool_name
   FROM
     {{ ref('silver_terra__msgs') }} m
   
@@ -71,7 +71,7 @@ provide_events AS (
       WHEN event_attributes :"2_contract_address" :: STRING = 'terra17yap3mhph35pcwvhza38c2lkj7gzywzy05h7l0' THEN event_attributes :"4_contract_address" :: STRING
       ELSE coalesce(event_attributes :"2_contract_address" :: STRING, event_attributes :"1_contract_address" :: STRING)
     END AS lp_pool_address,
-    l.address AS lp_pool_name
+    l.address_name AS lp_pool_name
   FROM {{ ref('silver_terra__msg_events') }} t
     
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
@@ -112,19 +112,19 @@ withdraw_msgs AS (
     'withdraw_liquidity' AS event_type,
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS lp_pool_address,
-    l.address AS lp_pool_name,
+    l.address_name AS lp_pool_name,
     msg_value :execute_msg :send :contract :: STRING AS pool_address,
-    p.address AS pool_name
+    p.address_name AS pool_name
   FROM
     {{ ref('silver_terra__msgs') }} m
 
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS p
-    ON msg_value :contract :: STRING = p.address 
+    ON msg_value :execute_msg :send :contract :: STRING = p.address 
     AND p.blockchain = 'terra' 
     AND p.creator = 'flipside'
     
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-    ON msg_value :execute_msg :send :contract :: STRING = l.address 
+    ON msg_value :contract :: STRING = l.address 
     AND l.blockchain = 'terra' 
     AND l.creator = 'flipside'
   
@@ -180,7 +180,7 @@ SELECT
   token_1_amount,
   token_1_amount_usd,
   token_1_currency,
-  pool_address,
+  m.pool_address,
   pool_name,
   lp_share_amount,
   lp_pool_address,

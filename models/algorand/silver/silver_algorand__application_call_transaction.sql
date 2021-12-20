@@ -2,17 +2,21 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'application_call']
+  tags = ['snowflake', 'algorand', 'application_call', 'silver_algorand']
 ) }}
 
 SELECT
   intra,
   b.round AS block_id,
   txn :txn :grp :: STRING AS tx_group_id,
-  txid :: STRING AS tx_id,
+  HEX_DECODE_STRING(
+    txid :: text
+  ) AS tx_id,
   asset AS asset_id,
-  txn :txn :snd :: STRING AS sender,
-  txn :txn :fee * pow(
+  algorand_decode_b64_addr(
+    txn :txn :snd :: text
+  ) AS sender,
+  txn :txn :fee / pow(
     10,
     6
   ) AS fee,

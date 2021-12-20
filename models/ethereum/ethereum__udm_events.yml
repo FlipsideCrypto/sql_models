@@ -7,21 +7,24 @@ models:
             - BLOCK_ID
             - EVENT_ID
             - TX_ID
+            - FROM_ADDRESS
+            - TO_ADDRESS
+            - SYMBOL
     columns:
-      - name: AMOUNT
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: AMOUNT_USD
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
+      # - name: AMOUNT
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_be_in_type_list:
+      #         column_type_list:
+      #           - decimal
+      #           - float
+      # - name: AMOUNT_USD
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_be_in_type_list:
+      #         column_type_list:
+      #           - decimal
+      #           - float
       - name: BLOCK_ID
         tests:
           - not_null
@@ -31,80 +34,80 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: CONTRACT_ADDRESS
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-      - name: EVENT_ID
-        tests:
-          - not_null
-      - name: EVENT_NAME
-        tests:
-          - not_null
-      - name: EVENT_TYPE
-        tests:
-          - not_null
-      - name: FROM_ADDRESS
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-      - name: FROM_ADDRESS_NAME
-        tests:
-          - not_null
-      - name: FROM_LABEL
-        tests:
-          - not_null
-      - name: FROM_LABEL_SUBTYPE
-        tests:
-          - not_null
-      - name: FROM_LABEL_TYPE
-        tests:
-          - not_null
-      - name: ORIGIN_ADDRESS
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-      - name: ORIGIN_ADDRESS_NAME
-        tests:
-          - not_null
-      - name: ORIGIN_FUNCTION_NAME
-        tests:
-          - not_null
-      - name: ORIGIN_FUNCTION_SIGNATURE
-        tests:
-          - not_null
-      - name: ORIGIN_LABEL
-        tests:
-          - not_null
-      - name: ORIGIN_LABEL_SUBTYPE
-        tests:
-          - not_null
-      - name: ORIGIN_LABEL_TYPE
-        tests:
-          - not_null
-      - name: SYMBOL
-        tests:
-          - not_null
-      - name: TO_ADDRESS
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
-      - name: TO_ADDRESS_NAME
-        tests:
-          - not_null
-      - name: TO_LABEL
-        tests:
-          - not_null
-      - name: TO_LABEL_SUBTYPE
-        tests:
-          - not_null
-      - name: TO_LABEL_TYPE
-        tests:
-          - not_null
-      - name: TX_ID
-        tests:
-          - not_null
+      # - name: CONTRACT_ADDRESS
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_match_regex:
+      #         regex: 0[xX][0-9a-fA-F]+
+      # - name: EVENT_ID
+      #   tests:
+      #     - not_null
+      # - name: EVENT_NAME
+      #   tests:
+      #     - not_null
+      # - name: EVENT_TYPE
+      #   tests:
+      #     - not_null
+      # - name: FROM_ADDRESS
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_match_regex:
+      #         regex: 0[xX][0-9a-fA-F]+
+      # - name: FROM_ADDRESS_NAME
+      #   tests:
+      #     - not_null
+      # - name: FROM_LABEL
+      #   tests:
+      #     - not_null
+      # - name: FROM_LABEL_SUBTYPE
+      #   tests:
+      #     - not_null
+      # - name: FROM_LABEL_TYPE
+      #   tests:
+      #     - not_null
+      # - name: ORIGIN_ADDRESS
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_match_regex:
+      #         regex: 0[xX][0-9a-fA-F]+
+      # - name: ORIGIN_ADDRESS_NAME
+      #   tests:
+      #     - not_null
+      # - name: ORIGIN_FUNCTION_NAME
+      #   tests:
+      #     - not_null
+      # - name: ORIGIN_FUNCTION_SIGNATURE
+      #   tests:
+      #     - not_null
+      # - name: ORIGIN_LABEL
+      #   tests:
+      #     - not_null
+      # - name: ORIGIN_LABEL_SUBTYPE
+      #   tests:
+      #     - not_null
+      # - name: ORIGIN_LABEL_TYPE
+      #   tests:
+      #     - not_null
+      # - name: SYMBOL
+      #   tests:
+      #     - not_null
+      # - name: TO_ADDRESS
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_match_regex:
+      #         regex: 0[xX][0-9a-fA-F]+
+      # - name: TO_ADDRESS_NAME
+      #   tests:
+      #     - not_null
+      # - name: TO_LABEL
+      #   tests:
+      #     - not_null
+      # - name: TO_LABEL_SUBTYPE
+      #   tests:
+      #     - not_null
+      # - name: TO_LABEL_TYPE
+      #   tests:
+      #     - not_null
+      # - name: TX_ID
+      #   tests:
+      #     - not_null

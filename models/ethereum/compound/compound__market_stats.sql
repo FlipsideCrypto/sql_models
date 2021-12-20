@@ -266,4 +266,5 @@ LEFT JOIN supply
   ON a.ctoken_address = supply.ctoken_address AND a.block_hour = supply.blockhour
 LEFT JOIN borrow
   ON a.ctoken_address = borrow.ctoken_address AND a.block_hour = borrow.blockhour
+WHERE comp_apy_borrow < 1000000 AND comp_apy_supply < 1000000
 ORDER BY block_hour DESC, a.contract_name
