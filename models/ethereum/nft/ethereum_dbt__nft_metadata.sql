@@ -64,7 +64,7 @@ SELECT
   t.value :commission_rate :: FLOAT AS commission_rate,
   t.value :contract_address :: STRING AS contract_address,
   t.value :contract_name :: STRING AS contract_name,
-  t.value :created_at_block_id :: INTEGER AS created_at_block_id,
+  t.value :created_at_block_id :: bigint AS created_at_block_id,
   t.value :created_at_timestamp :: TIMESTAMP AS created_at_timestamp,
   t.value :created_at_tx_id :: STRING AS created_at_tx_id,
   t.value :creator_address :: STRING AS creator_address,

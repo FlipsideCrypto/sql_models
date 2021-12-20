@@ -119,7 +119,7 @@ SELECT
     commission_rate,
     contract_address,
     contract_name,
-    created_at_block_id,
+    created_at_block_id :: bigint created_at_block_id,
     created_at_timestamp,
     created_at_tx_id,
     creator_address,
