@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'blockchain || address || creator',
+  unique_key = "CONCAT_WS('-', blockchain, address, creator)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'crosschain', 'address_labels', 'silver_crosschain__address_labels']
 ) }}
