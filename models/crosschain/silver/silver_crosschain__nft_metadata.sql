@@ -27,7 +27,10 @@ WITH silver AS (
     FROM
         {{ ref('ethereum_dbt__nft_metadata') }}
     WHERE
-        1 = 1
+        contract_name IS NOT NULL
+        AND token_name IS NOT NULL
+        AND image_url IS NOT NULL
+        AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
 AND created_at_timestamp :: DATE >= (
@@ -61,7 +64,10 @@ FROM
         'nft_metadata'
     ) }}
 WHERE
-    1 = 1
+    contract_name IS NOT NULL
+    AND token_name IS NOT NULL
+    AND image_url IS NOT NULL
+    AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
 AND created_at_timestamp :: DATE >= (
@@ -94,7 +100,10 @@ SELECT
 FROM
     {{ ref('terra_dbt__nft_metadata_galactic_punks') }}
 WHERE
-    1 = 1
+    contract_name IS NOT NULL
+    AND token_name IS NOT NULL
+    AND image_url IS NOT NULL
+    AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
 AND created_at_timestamp :: DATE >= (
@@ -124,4 +133,4 @@ SELECT
 FROM
     silver qualify(ROW_NUMBER() over(PARTITION BY blockchain, contract_address, token_id
 ORDER BY
-    created_at_timestamp DESC)) = 1
+    system_created_at DESC)) = 1
