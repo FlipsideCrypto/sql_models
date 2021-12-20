@@ -19,7 +19,6 @@ WITH base_tables AS (
 )
 
 SELECT
-    record_id :: VARCHAR AS record_id, 
     offset_id :: INTEGER AS offset_id, 
     block_id :: INTEGER AS block_id, 
     block_timestamp :: TIMESTAMP AS block_timestamp, 

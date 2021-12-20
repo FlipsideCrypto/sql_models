@@ -1,0 +1,1 @@
+{{ sequence_gaps(ref('silver_solana__blocks'), ["blockchain"], "block_id") }}

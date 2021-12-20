@@ -5,21 +5,8 @@
   tags = ['snowflake', 'silver_solana', 'solana_transactions']
 ) }}
 
-WITH base_tables AS (
-  SELECT  
-      *
-  FROM 
-  (
-      SELECT 
-          *, 
-          row_number() OVER (PARTITION BY block_id, tx_id ORDER BY ingested_at DESC) AS rn
-      FROM {{ source('bronze_solana', 'solana_txs') }}
-  ) sq
-  WHERE 
-    sq.rn = 1 
-)
-
-SELECT 
+WITH base_table as (
+  SELECT 
     block_timestamp :: TIMESTAMP AS block_timestamp, 
     block_id :: INTEGER AS block_id,
     tx :transaction:message:recentBlockhash :: STRING AS recent_blockhash, 
@@ -32,7 +19,7 @@ SELECT
     tx :meta:status:Err :: ARRAY AS error, -- Need some sort of coalesce statement here 
     ins.value :programId :: STRING AS program_id, 
     ingested_at :: TIMESTAMP AS ingested_at
-FROM base_tables, 
+FROM "FLIPSIDE_DEV_DB"."BRONZE_SOLANA"."SOLANA_TXS",  
     LATERAL FLATTEN (
         input => tx :meta:preTokenBalances
     ) pre, 
@@ -45,6 +32,31 @@ FROM base_tables,
 
 WHERE 
   1 = 1
+AND program_id <> 'Vote111111111111111111111111111111111111111'
+)
+ 
+
+SELECT  
+  block_timestamp, 
+  block_id, 
+  recent_blockhash, 
+  tx_id,
+  pre_mint,
+  post_mint, 
+  tx_from_address, 
+  tx_to_address, 
+  fee, 
+  error, 
+  program_id, 
+  ingested_at
+  FROM (
+    SELECT 
+        *, 
+        row_number() OVER (PARTITION BY block_id, tx_id ORDER BY ingested_at DESC) AS rn
+    FROM base_table
+  ) sq
+  WHERE 
+    sq.rn = 1 
   
 {% if is_incremental() %}
 AND ingested_at >= (
