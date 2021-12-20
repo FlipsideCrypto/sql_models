@@ -19,6 +19,7 @@ WITH prices AS (
     ) }}
   WHERE
     asset_id = '4172'
+    and provider is not null
   GROUP BY
     1,
     2
