@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view', 
-    tags = ['snowflake', 'gold_solana', 'solana_transactions']
+    tags = ['snowflake', 'solana', 'gold_solana', 'solana_transactions']
 ) }}
 
 SELECT 
@@ -15,6 +15,7 @@ SELECT
     fee, 
     error, 
     program_id, 
-    ingested_at
+    ingested_at, 
+    transfer_tx_flag
 FROM 
     {{ ref('silver_solana__transactions') }}

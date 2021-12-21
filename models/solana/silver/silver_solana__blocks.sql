@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = "block_id",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'silver_solana', 'solana_blocks']
+  tags = ['snowflake', 'solana', 'silver_solana', 'solana_blocks']
 ) }}
 
 WITH base_tables AS (
@@ -16,6 +16,17 @@ WITH base_tables AS (
       FROM {{ source('bronze_solana', 'solana_blocks') }}
   ) sq
   WHERE sq.rn = 1 
+
+  {% if is_incremental() %}
+    AND ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+    {% endif %}
 )
 
 SELECT
@@ -35,14 +46,3 @@ FROM
    base_tables 
 WHERE 
   1 = 1
-
-{% if is_incremental() %}
-AND ingested_at >= (
-  SELECT
-    MAX(
-      ingested_at
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}

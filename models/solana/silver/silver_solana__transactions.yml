@@ -24,19 +24,24 @@ models:
           - not_null
       - name: PRE_MINT
         tests:
-          - not_null
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
       - name: POST_MINT
         tests:
-          - not_null
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
       - name: TX_FROM_ADDRESS
         tests: 
-          - not_null
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
       - name: TX_TO_ADDRESS
         tests: 
-          - not_null
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
       - name: FEE
         tests: 
-          - not_null
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
       - name: PROGRAM_ID
         tests: 
           - not_null
