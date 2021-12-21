@@ -9,23 +9,86 @@ models:
             - BORROWER
     columns:
       - name: BLOCKCHAIN
+        description: the blockchain this transaction sit on
         tests:
           - not_null
       - name: CHAIN_ID
+        description: the blockchain id for this transaction, in Terra, there are columbus-4 and columbus-5
         tests:
           - not_null
       - name: BLOCK_ID
+        description: the block number for this transaction
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
+        description: the timestamp this transaction get generated
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 4
       - name: TX_ID
+        description: the unique identifier to find this transaction 
         tests:
           - not_null
+      - name: BID_FEE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
       - name: BORROWER
+        description: the borrower address
+        tests:
+          - not_null
+      - name: LIQUIDATOR
+        description: the liquidator address
+        tests:
+          - not_null
+      - name: LIQUIDATED_AMOUNT
+        description: the liquidated amount in the currency listed in the CURRENCY column 
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: LIQUIDATED_AMOUNT_USD
+        description: the liquidated amount in USD
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: LIQUIDATED_CURRENCY
+        description: the liquidated currency
+        tests:
+          - not_null
+      - name: REPAY_AMOUNT
+        description: the repay amount in the currency listed in the CURRENCY column 
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: REPAY_AMOUNT_USD
+        description: the repay amount in USD 
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: REPAY_CURRENCY
+        description: the repay currency
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        description: Anchor contract address
         tests:
           - not_null 
-      - name: CONTRACT_ADDRESS
+      - name: CONTRACT_LABEL
+        description: Anchor contract address in the label
         tests:
           - not_null 

@@ -30,6 +30,31 @@ AND (
     {{ this }}
 )
 {% endif %}
+UNION ALL
+SELECT
+  *
+FROM
+  {{ source(
+    'bronze',
+    'prod_nft_metadata_uploads_1828572827'
+  ) }}
+WHERE
+  SPLIT(
+    record_content :model :sinks [0] :destination :: STRING,
+    '.'
+  ) [2] :: STRING = 'nft_metadata'
+  AND record_content :model :blockchain :: STRING = 'ethereum'
+
+{% if is_incremental() %}
+AND (
+  record_metadata :CreateTime :: INT / 1000
+) :: TIMESTAMP :: DATE >= (
+  SELECT
+    DATEADD('day', -1, MAX(system_created_at :: DATE))
+  FROM
+    {{ this }}
+)
+{% endif %}
 )
 SELECT
   (
@@ -39,7 +64,7 @@ SELECT
   t.value :commission_rate :: FLOAT AS commission_rate,
   t.value :contract_address :: STRING AS contract_address,
   t.value :contract_name :: STRING AS contract_name,
-  t.value :created_at_block_id :: INTEGER AS created_at_block_id,
+  t.value :created_at_block_id :: bigint AS created_at_block_id,
   t.value :created_at_timestamp :: TIMESTAMP AS created_at_timestamp,
   t.value :created_at_tx_id :: STRING AS created_at_tx_id,
   t.value :creator_address :: STRING AS creator_address,

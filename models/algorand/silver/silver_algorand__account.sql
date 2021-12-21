@@ -2,17 +2,19 @@
   materialized = 'incremental',
   unique_key = 'ADDRESS',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'algorand', 'account']
+  tags = ['snowflake', 'algorand', 'account','silver_algorand']
 ) }}
 
 SELECT
-  addr :: STRING AS address,
+  algorand_decode_hex_addr(
+    addr :: text
+  ) AS address,
   deleted AS account_closed,
-  rewardsbase * pow(
+  rewardsbase / pow(
     10,
     6
   ) AS rewardsbase,
-  microalgos * pow(
+  microalgos / pow(
     10,
     6
   ) AS balance,

@@ -20,7 +20,7 @@ SELECT
     6
   ) AS balance,
   msg_value :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m
