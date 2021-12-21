@@ -33,9 +33,9 @@ WITH silver AS (
         AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
-AND created_at_timestamp :: DATE >= (
+AND system_created_at :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
     FROM
         {{ this }}
 )
@@ -70,9 +70,9 @@ WHERE
     AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
-AND created_at_timestamp :: DATE >= (
+AND system_created_at :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
     FROM
         {{ this }}
 )
@@ -106,15 +106,16 @@ WHERE
     AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
-AND created_at_timestamp :: DATE >= (
+AND system_created_at :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
     FROM
         {{ this }}
 )
 {% endif %}
 )
 SELECT
+    system_created_at,
     blockchain,
     commission_rate,
     contract_address,
