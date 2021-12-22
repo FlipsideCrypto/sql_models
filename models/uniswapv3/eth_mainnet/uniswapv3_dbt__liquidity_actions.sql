@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'tx_id || nf_token_id',
+  unique_key = 'tx_id || block_id || nf_token_id',
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'uniswapv3_silver', 'uniswapv3_dbt__liquidity_actions']
 ) }}
