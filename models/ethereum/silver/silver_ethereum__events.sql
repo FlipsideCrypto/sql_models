@@ -113,4 +113,4 @@ ORDER BY
   block_id DESC)) = 1
 ) A qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_hash, log_index, "to"
 ORDER BY
-  system_created_at DESC)) = 1
+  ingested_at DESC)) = 1

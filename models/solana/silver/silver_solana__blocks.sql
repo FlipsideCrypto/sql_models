@@ -9,13 +9,13 @@ WITH base_tables AS (
   SELECT  
       *
   FROM 
-  (
-      SELECT 
-          *, 
-          row_number() OVER (PARTITION BY block_id ORDER BY ingested_at DESC) AS rn
-      FROM {{ source('bronze_solana', 'solana_blocks') }}
-  ) sq
-  WHERE sq.rn = 1 
+    {{ source('bronze_solana', 'solana_blocks') }}
+  WHERE 
+    1 = 1
+  
+    qualify(ROW_NUMBER() over(PARTITION BY block_id
+  ORDER BY
+    ingested_at DESC)) = 1
 
   {% if is_incremental() %}
     AND ingested_at >= (

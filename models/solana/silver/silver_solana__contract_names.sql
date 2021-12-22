@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', blockchain, program_id, creator)",
+  unique_key = "CONCAT_WS('-', blockchain, address, creator)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_contract_names']
 ) }}
@@ -51,3 +51,7 @@ FROM
   LATERAL FLATTEN(
     input => record_content 
   ) t
+
+  qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
+ORDER BY
+  insert_date DESC)) = 1

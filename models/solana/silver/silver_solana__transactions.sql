@@ -53,14 +53,15 @@ SELECT
   program_id, 
   ingested_at, 
   transfer_tx_flag
-  FROM (
-    SELECT 
-        *, 
-        row_number() OVER (PARTITION BY block_id, tx_id ORDER BY ingested_at DESC) AS rn
-    FROM base_table
-  ) sq
-  WHERE 
-    sq.rn = 1 
+
+FROM base_table
+
+WHERE 
+  1 = 1
+
+qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
+ORDER BY
+  ingested_at DESC)) = 1
   
 
   

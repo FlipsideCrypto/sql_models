@@ -6,7 +6,7 @@ models:
           combination_of_columns:
             - BLOCKCHAIN
             - CREATOR
-            - PROGRAM_ID
+            - ADDRESS
     columns:
       - name: BLOCKCHAIN
         tests:
