@@ -56,9 +56,6 @@ SELECT
 
 FROM base_table
 
-WHERE 
-  1 = 1
-
 qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
 ORDER BY
   ingested_at DESC)) = 1
