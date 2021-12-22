@@ -54,4 +54,4 @@ FROM
 
   qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
 ORDER BY
-  insert_date DESC)) = 1
+  system_created_at DESC)) = 1
