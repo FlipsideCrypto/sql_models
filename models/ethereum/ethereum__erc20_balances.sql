@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-',balance_date, user_address, contract_address)",
+  unique_key = "CONCAT_WS('-',balance_date, user_address, coalesce(contract_address,''))",
   incremental_strategy = 'delete+insert',
   cluster_by = ['balance_date', 'user_address', 'contract_address'],
   tags = ['snowflake', 'ethereum', 'balances', 'erc20_balances', 'address_labels']
