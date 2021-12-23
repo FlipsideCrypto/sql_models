@@ -70,20 +70,31 @@ wide_format AS (
         *
     FROM
         long_format pivot(MAX(VALUE) for field_name IN ('emissionpersecond', 'index', 'lastupdatetimestamp'))
+),
+FINAL AS (
+    SELECT
+        DISTINCT DATE_TRUNC(
+            'hour',
+            block_timestamp
+        ) AS blockhour,
+        token_address,
+        (
+            "'emissionpersecond'" :: numeric
+        ) / power(
+            10,
+            18
+        ) AS emissionpersecond
+    FROM
+        wide_format w
+    WHERE
+        "'emissionpersecond'" :: numeric > 0
 )
 SELECT
-    DISTINCT DATE_TRUNC(
-        'hour',
-        block_timestamp
-    ) AS blockhour,
+    blockhour,
     token_address,
-    (
-        "'emissionpersecond'" :: numeric
-    ) / power(
-        10,
-        18
-    ) AS emissionpersecond
+    AVG(emissionpersecond) AS emissionpersecond
 FROM
-    wide_format w
-WHERE
-    "'emissionpersecond'" :: numeric > 0
+    FINAL
+GROUP BY
+    blockhour,
+    token_address
