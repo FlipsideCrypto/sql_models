@@ -9,7 +9,7 @@ WITH base_tables AS (
   SELECT  
       *
   FROM 
-    {{ source('bronze_solana', 'solana_blocks') }}
+    {{ ref('bronze_solana__blocks') }}
 
   WHERE 
     1 = 1
@@ -26,8 +26,7 @@ WITH base_tables AS (
 )
 
 SELECT
-    offset_id :: INTEGER AS offset_id, 
-    block_id :: INTEGER AS block_id, 
+    offset_id :: INTEGER AS block_id,  
     block_timestamp :: TIMESTAMP AS block_timestamp, 
     network :: STRING AS network, 
     chain_id :: STRING AS blockchain, 
@@ -35,7 +34,7 @@ SELECT
     header :blockHeight :: INTEGER AS block_height, 
     header :blockTime :: INTEGER AS block_time, 
     header :blockhash :: VARCHAR AS blockhash, 
-    header :parentSlot :: INTEGER AS parent_slot, 
+    header :parentSlot :: INTEGER AS previous_block_id, 
     header :previousBlockhash :: VARCHAR AS previous_blockhash,  
     ingested_at :: TIMESTAMP AS ingested_at
 FROM 

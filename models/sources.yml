@@ -153,3 +153,9 @@ sources:
       - name: METASTATE
       - name: TXN
       - name: TXN_PARTICIPATION 
+  - name: prod
+    database: chainwalkers
+    schema: prod
+    tables:
+      - name: solana_blocks
+      - name: solana_txs
