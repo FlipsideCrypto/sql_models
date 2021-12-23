@@ -6,9 +6,6 @@ models:
           combination_of_columns:
             - BLOCK_ID
     columns:
-      - name: OFFSET_ID
-        tests: 
-          - not_null
       - name: BLOCK_ID
         tests:
           - not_null
@@ -36,7 +33,7 @@ models:
       - name: BLOCKHASH
         tests: 
           - not_null
-      - name: PARENT_SLOT
+      - name: PREVIOUS_BLOCK_ID
         tests: 
           - not_null
       - name: PREVIOUS_BLOCKHASH

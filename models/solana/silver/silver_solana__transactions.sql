@@ -8,7 +8,7 @@
 WITH base_table as (
   SELECT 
     block_timestamp :: TIMESTAMP AS block_timestamp, 
-    block_id :: INTEGER AS block_id,
+    offset_id :: INTEGER AS block_id,
     tx :transaction:message:recentBlockhash :: STRING AS recent_blockhash, 
     tx_id :: STRING AS tx_id,
     tx :meta:preTokenBalances[0]:mint :: STRING as pre_mint,

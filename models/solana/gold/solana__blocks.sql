@@ -4,7 +4,6 @@
 ) }}
 
 SELECT
-    offset_id, 
     block_id, 
     block_timestamp, 
     network, 
@@ -13,7 +12,7 @@ SELECT
     block_height, 
     block_time, 
     blockhash, 
-    parent_slot, 
+    previous_block_id, 
     previous_blockhash, 
     ingested_at
 FROM 
