@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'tx_id || nf_token_id',
+  unique_key = "CONCAT_WS('-', tx_id, block_id, COALESCE(nf_token_id, 0))",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp', 'block_id'],
   tags = ['snowflake', 'uniswapv3_silver', 'silver_uniswapv3__positions']
