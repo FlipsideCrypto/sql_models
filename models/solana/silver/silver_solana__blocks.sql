@@ -9,7 +9,7 @@ WITH base_tables AS (
   SELECT  
       *
   FROM 
-    {{ source('bronze_solana', 'solana_blocks') }}
+    {{ ref('bronze_solana__blocks') }}
 
   WHERE 
     1 = 1

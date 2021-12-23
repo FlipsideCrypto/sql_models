@@ -21,7 +21,7 @@ WITH base_table as (
     tx :transaction:message:instructions[0]:programId :: STRING AS program_id, 
     ingested_at :: TIMESTAMP AS ingested_at, 
     CASE WHEN len(tx :meta:postTokenBalances[0]) > 0 AND len(tx :meta:preTokenBalances[0]) > 0 THEN TRUE ELSE FALSE END AS transfer_tx_flag
-FROM {{ source('bronze_solana', 'solana_txs') }}
+FROM {{ ref('bronze_solana__transactions') }}
 WHERE 
   1 = 1
 AND program_id <> 'Vote111111111111111111111111111111111111111'
