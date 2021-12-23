@@ -1,8 +1,8 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'blockhour || token_address',
+    unique_key = "CONCAT_WS('-', blockhour, token_address)",
     incremental_strategy = 'delete+insert',
-    tags = ['snowflake', 'ethereum', 'aave', 'aave_liquidity_mining', 'atb_test']
+    tags = ['snowflake', 'ethereum', 'aave', 'aave_liquidity_mining']
 ) }}
 
 WITH aave_base AS (

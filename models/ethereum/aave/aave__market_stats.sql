@@ -1,8 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_hour || aave_version || aave_market',
+  unique_key = "CONCAT_WS('-', block_hour, aave_version, aave_market)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'ethereum', 'aave', 'aave_market_stats', 'address_labels', 'atb_test']
+  tags = ['snowflake', 'ethereum', 'aave', 'aave_market_stats', 'address_labels']
 ) }}
 -- first grab the contract reads from the lending pool (V1,V2 and AMM) and data provider contracts (V2,AMM)
 -- they are all as one concatonated string so we need to parse them out

@@ -1,8 +1,8 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'balance_date || address_name',
+    unique_key = "CONCAT_WS('-', balance_date, address_name)",
     incremental_strategy = 'delete+insert',
-    tags = ['snowflake', 'ethereum', 'aave', 'aave_safety_module', 'atb_test']
+    tags = ['snowflake', 'ethereum', 'aave', 'aave_safety_module']
 ) }}
 
 WITH safety_module AS (
