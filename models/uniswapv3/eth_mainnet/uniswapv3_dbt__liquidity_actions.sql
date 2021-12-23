@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', tx_id, block_id, COALESCE(nf_token_id, 0))",
+  unique_key = "CONCAT_WS('-', tx_id, block_id, COALESCE(nf_token_id, -1))",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'uniswapv3_silver', 'uniswapv3_dbt__liquidity_actions']
 ) }}
