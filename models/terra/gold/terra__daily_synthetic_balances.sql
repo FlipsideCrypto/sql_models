@@ -32,7 +32,7 @@ SELECT
 FROM {{ ref('silver_terra__block_synthetic_balances') }}
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
+AND date_trunc('day', block_timestamp) >= getdate() - INTERVAL '3 days'
 {% endif %}
 
 )
