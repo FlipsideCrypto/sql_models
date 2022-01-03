@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', chain_id, block_id, tx_id, msg_index)",
+  unique_key = "CONCAT_WS('-', chain_id, block_id, inputs, value_obj)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'terra_silver', 'terra_balances']
 ) }}
@@ -14,9 +14,9 @@ WITH base_tables AS (
   WHERE
     record_content:model:class = 'terra.balances.terra_synthetic_balances_model.Terra5SyntheticBalancesModel'
 
-  {% if is_incremental() %}
-    AND (record_metadata :CreateTime :: INT / 1000) :: TIMESTAMP :: DATE >= (SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM{{ this }})
-  {% endif %}
+{% if is_incremental() %}
+AND (record_metadata :CreateTime :: INT / 1000) :: TIMESTAMP :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
+{% endif %}
 
 )
 
