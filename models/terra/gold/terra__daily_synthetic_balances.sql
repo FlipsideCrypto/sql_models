@@ -60,7 +60,3 @@ LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS address_labels
 
 WHERE rn = 1
   AND balance > 0
-
-{% if is_incremental() %}
-AND date_trunc('day', b.block_timestamp) >= getdate() - INTERVAL '3 days'
-{% endif %}
