@@ -1,8 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
+  unique_key = "CONCAT_WS('-', block_timestamp, address, currency)",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['date'],
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'silver_terra', 'silver_terra__synthetic_balances']
 ) }}
 
@@ -16,8 +16,9 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
+AND system_created_at :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
 {% endif %}
+
 )
 
 SELECT 
