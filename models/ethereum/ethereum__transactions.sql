@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_id || tx_id',
+  unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp'],
   tags = ['snowflake', 'ethereum', 'events', 'transactions', 'ethereum_transactions', 'address_labels']
@@ -63,16 +63,16 @@ eth_prices AS (
   FROM
     {{ source(
       'shared',
-      'prices'
+      'prices_v2'
     ) }}
     p
     JOIN {{ source(
       'shared',
-      'cmc_assets'
+      'market_asset_metadata'
     ) }} A
     ON p.asset_id = A.asset_id
   WHERE
-    A.asset_id = 1027
+    A.asset_id = '1027'
 
 {% if is_incremental() %}
 AND recorded_at >= getdate() - INTERVAL '2 days'
