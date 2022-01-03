@@ -16,8 +16,8 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND system_created_at :: DATE >= (SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }} AS balance
-
+AND (record_metadata :CreateTime :: INT / 1000) :: TIMESTAMP :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
+{% endif %}
 )
 
 SELECT 
