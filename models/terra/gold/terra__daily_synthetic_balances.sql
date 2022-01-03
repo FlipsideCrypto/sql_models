@@ -31,6 +31,10 @@ SELECT
     row_number() OVER (PARTITION BY date_trunc('day', block_timestamp), address, currency, chain_id ORDER BY block_timestamp DESC, block_id DESC) as rn
 FROM {{ ref('silver_terra__block_synthetic_balances') }}
 
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
+{% endif %}
+
 )
 
 SELECT

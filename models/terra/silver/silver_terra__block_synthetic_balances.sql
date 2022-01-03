@@ -16,7 +16,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND (record_metadata :CreateTime :: INT / 1000) :: TIMESTAMP :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
+AND block_timestamp :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
 {% endif %}
 )
 
