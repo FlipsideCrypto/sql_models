@@ -31,6 +31,8 @@ SELECT
     row_number() OVER (PARTITION BY date_trunc('day', block_timestamp), address, currency, chain_id ORDER BY block_timestamp DESC, block_id DESC) as rn
 FROM {{ ref('silver_terra__block_synthetic_balances') }}
 
+WHERE 1=1
+
 {% if is_incremental() %}
 AND date_trunc('day', block_timestamp) >= getdate() - INTERVAL '3 days'
 {% endif %}
