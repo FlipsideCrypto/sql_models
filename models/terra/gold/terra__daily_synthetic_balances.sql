@@ -1,9 +1,9 @@
 {{ config(
   materialized = 'incremental',
   sort = ['date', 'currency'],
-  unique_key = "CONCAT_WS('-', block_timestamp, address, currency)",
+  unique_key = "CONCAT_WS('-', date, address, currency)",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp::DATE'],
+  cluster_by = ['date'],
   tags = ['snowflake', 'terra', 'balances', 'terra_daily_synthetic_balances', 'address_labels']
 ) }}
 
