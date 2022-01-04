@@ -16,6 +16,9 @@ models:
       - name: TX_ID
         tests:
           - not_null
+      - name: INNER_TX
+        tests:
+          - not_null
       - name: ASSET_ID
         tests:
           - not_null

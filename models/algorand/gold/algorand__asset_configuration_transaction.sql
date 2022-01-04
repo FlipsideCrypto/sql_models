@@ -8,6 +8,7 @@ SELECT
     block_id,
     tx_group_id,
     tx_id,
+    inner_tx,
     asset_id,
     asset_supply,
     sender,
