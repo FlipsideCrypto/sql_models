@@ -13,7 +13,10 @@ WITH outerTXN AS (
     txn :txn :grp :: STRING AS tx_group_id,
     txid :: text AS tx_id,
     'false' AS inner_tx,
-    asset AS asset_id,
+    CASE
+      WHEN txn :txn :type :: STRING = 'appl' THEN NULL
+      ELSE asset
+    END AS asset_id,
     txn :txn :snd :: text AS sender,
     txn :txn :fee / pow(
       10,
@@ -38,7 +41,12 @@ innerTXN AS(
     txn :txn :grp :: STRING AS tx_group_id,
     txid :: text AS tx_id,
     'true' AS inner_tx,
-    asset AS asset_id,
+    CASE
+      WHEN flat.value :txn :type :: STRING = 'pay' THEN 0
+      WHEN flat.value :txn :type :: STRING = 'acfg' THEN NULL
+      WHEN flat.value :txn :type :: STRING = 'axfer' THEN flat.value :txn :xaid
+      ELSE asset
+    END AS asset_id,
     flat.value :txn :snd :: text AS sender,
     flat.value :txn :fee / pow(
       10,

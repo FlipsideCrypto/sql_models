@@ -13,7 +13,6 @@ WITH outerTXN AS (
     txn :txn :grp :: STRING AS tx_group_id,
     txid :: text AS tx_id,
     'false' AS inner_tx,
-    asset AS asset_id,
     txn :txn :snd :: text AS sender,
     txn :txn :fee / pow(
       10,
@@ -41,7 +40,6 @@ innerTXN AS (
     txn :txn :grp :: STRING AS tx_group_id,
     txid :: text AS tx_id,
     'true' AS inner_tx,
-    asset AS asset_id,
     flat.value :txn :snd :: text AS sender,
     flat.value :txn :fee / pow(
       10,
@@ -85,7 +83,7 @@ SELECT
     tx_id
   ) AS tx_id,
   TO_BOOLEAN(inner_tx) AS inner_tx,
-  asset_id,
+  NULL AS asset_id,
   algorand_decode_b64_addr(
     sender
   ) AS sender,
