@@ -119,7 +119,8 @@ FROM
   csv
   ON b.tx_type = csv.type
 WHERE
-  1 = 1
+  genisis_hash IS NOT NULL
+  AND 1 = 1
 
 {% if is_incremental() %}
 AND _FIVETRAN_SYNCED >= (

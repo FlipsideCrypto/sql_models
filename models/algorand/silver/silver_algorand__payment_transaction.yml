@@ -2,10 +2,6 @@ version: 2
 models:
   - name: silver_algorand__payment_transaction
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - BLOCK_ID
-            - INTRA
     columns:
       - name: BLOCK_ID
         tests:
