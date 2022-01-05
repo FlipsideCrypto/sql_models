@@ -6,27 +6,28 @@
   tags = ['snowflake', 'silver_terra', 'silver_terra__synthetic_balances']
 ) }}
 
-WITH dbt_balances AS(
+
+with dedupe as (
 
 SELECT
-  *
-FROM
-  {{ ref('terra_dbt__synthetic_balances') }}
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND system_created_at :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
-{% endif %}
-
-)
-
-SELECT 
+  system_created_at,
   block_id,
   block_timestamp,
   chain_id,
   SUBSTRING(inputs,25,44) as address,
   b.value:denom::string as currency,
-  b.value:amount as balance
-FROM dbt_balances,
+  'liquid' as balance_type,
+  false as is_native,
+  b.value:amount::FLOAT as balance,
+  row_number() OVER (PARTITION BY date_trunc('day', block_timestamp), address, currency, chain_id ORDER BY block_timestamp DESC, block_id DESC) as rn
+FROM {{ ref('terra_dbt__synthetic_balances') }},
 LATERAL FLATTEN(input => value_obj :balances) b
+WHERE 1 = 1
+)
+
+SELECT * FROM dedupe
+WHERE rn = 1
+
+{% if is_incremental() %}
+AND system_created_at :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
+{% endif %}

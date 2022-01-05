@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', chain_id, block_id, inputs, value_obj)",
+  unique_key = "CONCAT_WS('-', block_timestamp, chain_id, block_id, inputs)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'terra_silver', 'terra_balances']
 ) }}
@@ -10,7 +10,10 @@ WITH base_tables AS (
   SELECT
     *
   FROM
-    "FLIPSIDE_DEV_DB"."BRONZE"."PROD_TERRA_SINK_645110886"
+     {{ source(
+      'bronze',
+      'prod_terra_sink_645110886'
+    ) }}
   WHERE
     record_content:model:class = 'terra.balances.terra_synthetic_balances_model.Terra5SyntheticBalancesModel'
 
