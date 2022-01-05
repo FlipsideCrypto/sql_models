@@ -20,7 +20,7 @@ WITH outerTXN AS (
       10,
       6
     ) AS fee,
-    txn :txn :apar AS asset_paramaters,
+    txn :txn :apar AS asset_parameters,
     txn :txn :type :: STRING AS tx_type,
     txn :txn :gh :: STRING AS genisis_hash,
     txn AS tx_message,
@@ -42,14 +42,14 @@ innerTXN AS (
     txn :txn :grp :: STRING AS tx_group_id,
     txid :: text AS tx_id,
     'true' AS inner_tx,
-    asset AS asset_id,
+    NULL AS asset_id,
     flat.value :txn :apar :t AS asset_supply,
     flat.value :txn :snd :: text AS sender,
     flat.value :txn :fee / pow(
       10,
       6
     ) AS fee,
-    flat.value :txn :apar AS asset_paramaters,
+    flat.value :txn :apar AS asset_parameters,
     flat.value :txn :type :: STRING AS tx_type,
     txn :txn :gh :: STRING AS genisis_hash,
     flat.value :txn AS tx_message,
@@ -93,7 +93,7 @@ SELECT
     sender
   ) AS sender,
   fee,
-  asset_paramaters,
+  asset_parameters,
   csv.type AS tx_type,
   csv.name AS tx_type_name,
   genisis_hash,

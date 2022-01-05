@@ -13,7 +13,7 @@ SELECT
     asset_supply,
     sender,
     fee,
-    asset_paramaters,
+    asset_parameters,
     tx_type,
     tx_type_name,
     genisis_hash,
