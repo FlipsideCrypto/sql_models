@@ -22,7 +22,7 @@ models:
       - name: ASSET_ID
         tests:
           - not_null:
-              where: inner_tx = 'true'    
+              where: inner_tx = 'false'    
       - name: SENDER
         tests:
           - not_null   
