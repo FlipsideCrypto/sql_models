@@ -120,5 +120,5 @@ WHERE
 A.block_timestamp >= getdate() - INTERVAL '7 days'
 {% else %}
   A.block_timestamp >= getdate() - INTERVAL '9 months'
-{% endif %}
+{% endif %} 
 {%- endmacro %}
