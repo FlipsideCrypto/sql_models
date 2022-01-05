@@ -47,12 +47,16 @@ SELECT
   prices_0.price AS token0_price,
   prices_1.price AS token1_price,
   A.liquidity AS liquidity_raw,
-  A.liquidity_adjusted,
   CASE
     WHEN token0_decimals <> 0
-    AND token1_decimals <> 0 THEN SQRT((virtual_reserves_token0 / pow(10, token0_decimals)) * virtual_reserves_token1 / pow(10, token1_decimals))
+    AND token1_decimals <> 0 THEN SQRT(
+      (virtual_reserves_token0 / pow(10, token0_decimals)) * virtual_reserves_token1 / pow(
+        10,
+        token1_decimals
+      )
+    )
     ELSE 0
-  END AS liquidity_adjusted_new,
+  END AS liquidity_adjusted,
   A.liquidity_provider,
   A.nf_position_manager_address,
   A.nf_token_id,
