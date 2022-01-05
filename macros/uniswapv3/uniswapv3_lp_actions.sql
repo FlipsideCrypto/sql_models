@@ -1,15 +1,15 @@
-% macro uniswapv3_lp_actions(
-  src_liquidity_actions_table,
-  src_pools_table,
-  src_prices_table
-) -%}
-WITH prices AS (
-  {{ safe_ethereum_prices(
-    src_prices_table,
-    '30 days',
-    '9 months'
-  ) }}
-)
+{% macro uniswapv3_lp_actions(
+    src_liquidity_actions_table,
+    src_pools_table,
+    src_prices_table
+  ) -%}
+  WITH prices AS (
+    {{ safe_ethereum_prices(
+      src_prices_table,
+      '30 days',
+      '9 months'
+    ) }}
+  )
 SELECT
   A.blockchain,
   A.block_id,
