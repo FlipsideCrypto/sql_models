@@ -44,7 +44,7 @@ innerTXN AS (
     txn :txn :grp :: STRING AS tx_group_id,
     txid :: text AS tx_id,
     'true' AS inner_tx,
-    asset AS asset_id,
+    flat.value :txn :xaid AS asset_id,
     flat.value :txn :snd :: text AS sender,
     flat.value :txn :fee / pow(
       10,
