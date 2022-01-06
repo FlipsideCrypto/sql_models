@@ -5,14 +5,51 @@
   tags = ['snowflake', 'algorand', 'payment', 'silver_algorand_tx']
 ) }}
 
-WITH outerTXN AS (
+WITH innerRefTX AS (
 
   SELECT
     intra,
+    ROUND,
+    txn :txn :gh :: STRING AS gh,
+    CASE
+      WHEN txid :: STRING = '' THEN NULL
+      ELSE txid
+    END AS txid
+  FROM
+    {{ source(
+      'algorand',
+      'TXN'
+    ) }}
+),
+filledTX AS(
+  SELECT
+    COALESCE(gh, LAST_VALUE(gh ignore nulls) over (PARTITION BY ROUND
+  ORDER BY
+    intra rows BETWEEN unbounded preceding
+    AND CURRENT ROW)) AS filled_gh,
+    COALESCE(txid, LAST_VALUE(txid ignore nulls) over (PARTITION BY ROUND
+  ORDER BY
+    intra rows BETWEEN unbounded preceding
+    AND CURRENT ROW)) AS filled_tx,*
+  FROM
+    innerRefTX
+  ORDER BY
+    ROUND ASC,
+    intra ASC
+),
+allTXN AS (
+  SELECT
+    b.intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
-    txid :: text AS tx_id,
-    'false' AS inner_tx,
+    CASE
+      WHEN b.txid :: STRING = '' THEN ft.filled_tx :: text
+      ELSE b.txid :: text
+    END AS tx_id,
+    CASE
+      WHEN b.txid :: STRING = '' THEN 'true'
+      ELSE 'false'
+    END AS inner_tx,
     asset AS asset_id,
     txn :txn :snd :: text AS sender,
     txn :txn :rcv :: text AS receiver,
@@ -25,7 +62,10 @@ WITH outerTXN AS (
       6
     ) AS fee,
     txn :txn :type :: STRING AS tx_type,
-    txn :txn :gh :: STRING AS genisis_hash,
+    CASE
+      WHEN b.txid :: STRING = '' THEN ft.filled_gh :: text
+      ELSE txn :txn :gh :: STRING
+    END AS genisis_hash,
     txn AS tx_message,
     extra,
     _FIVETRAN_SYNCED
@@ -35,55 +75,11 @@ WITH outerTXN AS (
       'TXN'
     ) }}
     b
+    LEFT JOIN filledTX ft
+    ON b.round = ft.round
+    AND b.intra = ft.intra
   WHERE
     tx_type = 'pay'
-),
-innerTXN AS (
-  SELECT
-    intra,
-    b.round AS block_id,
-    txn :txn :grp :: STRING AS tx_group_id,
-    txid :: text AS tx_id,
-    'true' AS inner_tx,
-    0 AS asset_id,
-    flat.value :txn :snd :: text AS sender,
-    flat.value :txn :rcv :: text AS receiver,
-    flat.value :txn :amt / pow(
-      10,
-      6
-    ) AS amount,
-    flat.value :txn :fee / pow(
-      10,
-      6
-    ) AS fee,
-    flat.value :txn :type :: STRING AS tx_type,
-    txn :txn :gh :: STRING AS genisis_hash,
-    flat.value :txn AS tx_message,
-    extra,
-    _FIVETRAN_SYNCED
-  FROM
-    {{ source(
-      'algorand',
-      'TXN'
-    ) }}
-    b,
-    LATERAL FLATTEN(
-      input => txn :dt :itx
-    ) flat
-  WHERE
-    txn :dt :itx IS NOT NULL
-    AND flat.value :txn :type :: STRING = 'pay'
-),
-all_txn AS (
-  SELECT
-    *
-  FROM
-    outerTXN
-  UNION ALL
-  SELECT
-    *
-  FROM
-    innerTXN
 )
 SELECT
   intra,
@@ -114,7 +110,7 @@ SELECT
   ) AS _unique_key,
   _FIVETRAN_SYNCED
 FROM
-  all_txn b
+  allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
