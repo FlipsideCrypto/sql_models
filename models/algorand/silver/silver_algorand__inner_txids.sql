@@ -10,7 +10,8 @@ WITH emptyROUNDS AS (
   SELECT
     ROUND,
     intra,
-    txn
+    txn,
+    _FIVETRAN_SYNCED
   FROM
     {{ source(
       'algorand',
@@ -52,7 +53,8 @@ SELECT
     '-',
     er.round :: STRING,
     er.intra :: STRING
-  ) AS _unique_key
+  ) AS _unique_key,
+  _FIVETRAN_SYNCED
 FROM
   emptyROUNDS er
   LEFT JOIN fulljson f
@@ -60,3 +62,14 @@ FROM
   AND er.round = f.round
 WHERE
   f.round IS NOT NULL
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _FIVETRAN_SYNCED
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
