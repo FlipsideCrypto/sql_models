@@ -5,45 +5,14 @@
   tags = ['snowflake', 'algorand', 'transactions', 'silver_algorand_tx']
 ) }}
 
-WITH innerRefTX AS (
+WITH allTXN AS (
 
-  SELECT
-    intra,
-    ROUND,
-    txn :txn :gh :: STRING AS gh,
-    CASE
-      WHEN txid :: STRING = '' THEN NULL
-      ELSE txid
-    END AS txid
-  FROM
-    {{ source(
-      'algorand',
-      'TXN'
-    ) }}
-),
-filledTX AS(
-  SELECT
-    COALESCE(gh, LAST_VALUE(gh ignore nulls) over (PARTITION BY ROUND
-  ORDER BY
-    intra rows BETWEEN unbounded preceding
-    AND CURRENT ROW)) AS filled_gh,
-    COALESCE(txid, LAST_VALUE(txid ignore nulls) over (PARTITION BY ROUND
-  ORDER BY
-    intra rows BETWEEN unbounded preceding
-    AND CURRENT ROW)) AS filled_tx,*
-  FROM
-    innerRefTX
-  ORDER BY
-    ROUND ASC,
-    intra ASC
-),
-allTXN AS (
   SELECT
     b.intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
     CASE
-      WHEN b.txid :: STRING = '' THEN ft.filled_tx :: text
+      WHEN b.txid :: STRING = '' THEN ft.txn_txn_id :: text
       ELSE b.txid :: text
     END AS tx_id,
     CASE
@@ -61,7 +30,7 @@ allTXN AS (
     ) AS fee,
     txn :txn :type :: STRING AS tx_type,
     CASE
-      WHEN b.txid :: STRING = '' THEN ft.filled_gh :: text
+      WHEN b.txid :: STRING = '' THEN ft.genisis_hash :: text
       ELSE txn :txn :gh :: STRING
     END AS genisis_hash,
     txn AS tx_message,
@@ -73,9 +42,10 @@ allTXN AS (
       'TXN'
     ) }}
     b
-    LEFT JOIN filledTX ft
-    ON b.round = ft.round
-    AND b.intra = ft.intra
+    LEFT JOIN {{ ref('silver_algorand__inner_txids') }}
+    ft
+    ON b.round = ft.inner_round
+    AND b.intra = ft.inner_intra
 )
 SELECT
   intra,

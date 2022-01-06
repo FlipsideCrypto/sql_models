@@ -1,0 +1,36 @@
+version: 2
+models:
+  - name: silver_algorand__inner_txids
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - INTRA
+    columns:
+      - name: txn_round
+        tests:
+          - not_null
+      - name: inner_round
+        tests:
+          - not_null
+      - name: txn_txn_id
+        tests:
+          - not_null
+      - name: txn_body
+        tests:
+          - not_null
+      - name: txn_inner_txn
+        tests:
+          - not_null
+      - name: inner_message
+        tests:
+          - not_null
+      - name: inner_intra
+        tests:
+          - not_null
+      - name: txn_intra
+        tests:
+          - not_null
+      - name: genisis_hash
+        tests:
+          - not_null
