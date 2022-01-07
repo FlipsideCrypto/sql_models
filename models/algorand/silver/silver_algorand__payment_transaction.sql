@@ -37,7 +37,7 @@ WITH allTXN AS (
     END AS genisis_hash,
     txn AS tx_message,
     extra,
-    _FIVETRAN_SYNCED
+    b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
   FROM
     {{ source(
       'algorand',
@@ -78,7 +78,7 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
+  _FIVETRAN_SYNCED
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
