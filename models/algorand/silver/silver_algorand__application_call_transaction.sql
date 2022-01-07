@@ -32,7 +32,7 @@ WITH allTXN AS (
     END AS genisis_hash,
     txn AS tx_message,
     extra,
-    _FIVETRAN_SYNCED
+    b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
   FROM
     {{ source(
       'algorand',

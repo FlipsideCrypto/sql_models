@@ -81,7 +81,7 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
