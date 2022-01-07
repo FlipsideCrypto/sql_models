@@ -9,7 +9,6 @@ SELECT
     tx_group_id,
     tx_id,
     inner_tx,
-    asset_id,
     sender,
     fee,
     app_id,
