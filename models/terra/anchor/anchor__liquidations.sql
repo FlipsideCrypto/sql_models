@@ -80,10 +80,19 @@ events AS (
     )) AS liquidated_amount,
     liquidated_amount * l.price AS liquidated_amount_usd,
     COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"0_collateral_token" :: STRING) AS liquidated_currency,
-    event_attributes :"1_repay_amount" / pow(
-      10,
-      6
-    ) AS repay_amount,
+    CASE WHEN 
+      event_attributes :"2_repay_amount" IS NULL 
+    THEN
+      event_attributes :"1_repay_amount" / pow(
+        10,
+        6
+      ) 
+    ELSE
+      event_attributes :"2_repay_amount" / pow(
+        10,
+        6
+      )
+    END AS repay_amount,
     event_attributes :"1_borrower" :: STRING AS borrower,
     repay_amount * r.price AS repay_amount_usd,
     COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"0_stable_denom" :: STRING) AS repay_currency,
@@ -101,13 +110,13 @@ events AS (
       'hour',
       block_timestamp
     ) = l.hour
-    AND event_attributes :collateral_token :: STRING = l.currency
+    AND COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"0_collateral_token" :: STRING) = l.currency
     LEFT OUTER JOIN prices r
     ON DATE_TRUNC(
       'hour',
       block_timestamp
     ) = r.hour
-    AND event_attributes :stable_denom :: STRING = r.currency
+    AND COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"0_stable_denom" :: STRING) = r.currency
   WHERE
     event_type = 'from_contract'
     AND tx_id IN(
