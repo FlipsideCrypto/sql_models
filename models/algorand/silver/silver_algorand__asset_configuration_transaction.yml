@@ -16,15 +16,20 @@ models:
       - name: TX_ID
         tests:
           - not_null
-      - name: ASSET_ID
+      - name: INNER_TX
         tests:
           - not_null
+      - name: ASSET_ID
+        tests:
+          - not_null:
+              where: inner_tx = 'false'    
       - name: SENDER
         tests:
           - not_null   
       - name: FEE
         tests:
-          - not_null      
+          - not_null:
+              where: inner_tx = 'true'       
       - name: TX_TYPE
         tests:
           - not_null
