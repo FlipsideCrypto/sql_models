@@ -31,10 +31,10 @@ FROM
     {{ ref('silver_solana__transactions') }} 
 
 LEFT OUTER JOIN {{ ref('silver_solana__contract_names') }} AS contract_labels
-ON program_id = contract_labels.address AND contract_labels.blockchain = 'solana'
+ON program_id COLLATE 'en-ci' = contract_labels.address AND contract_labels.blockchain = 'solana'
 
 LEFT OUTER JOIN {{ ref('silver_solana__contract_names') }} AS to_labels
-ON tx_to_address = to_labels.address AND to_labels.blockchain = 'solana'
+ON tx_to_address COLLATE 'en-ci' = to_labels.address AND to_labels.blockchain = 'solana'
 
 LEFT OUTER JOIN {{ ref('silver_solana__contract_names') }} AS from_labels
-ON tx_from_address = from_labels.address AND from_labels.blockchain = 'solana'
+ON tx_from_address COLLATE 'en-ci' = from_labels.address AND from_labels.blockchain = 'solana'
