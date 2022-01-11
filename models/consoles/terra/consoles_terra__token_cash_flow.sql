@@ -52,6 +52,7 @@ FROM
     tmp_2 t2
     LEFT JOIN tmp t
     ON t2.metric_date = t.date
+WHERE t2.metric_date <> current_date
 ORDER BY
     metric_date,
     event_currency
