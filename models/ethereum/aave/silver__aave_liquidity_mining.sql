@@ -37,11 +37,7 @@ aave_reads AS (
         t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
         t.value :contract_address :: STRING AS contract_address,
         LOWER(
-            SUBSTRING(
-                t.value :inputs :: STRING,
-                13,
-                42
-            )
+            t.value :inputs :: STRING
         ) AS token_address,
         t.value :value_string :: STRING AS value_string,
         (SPLIT(LOWER(t.value :value_string :: STRING), '^')) AS aave_read
@@ -77,7 +73,16 @@ FINAL AS (
             'hour',
             block_timestamp
         ) AS blockhour,
-        token_address,
+        CASE
+            WHEN LOWER(token_address) LIKE '%input%' THEN LOWER(
+                SUBSTRING(
+                    token_address,
+                    13,
+                    42
+                )
+            )
+            ELSE LOWER(token_address)
+        END AS token_address,
         (
             "'emissionpersecond'" :: numeric
         ) / power(
