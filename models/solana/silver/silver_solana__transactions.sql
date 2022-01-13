@@ -2,6 +2,7 @@
   materialized = 'incremental',
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_transactions']
 ) }}
 
@@ -25,6 +26,7 @@ FROM {{ ref('bronze_solana__transactions') }}
 WHERE 
   1 = 1
 AND program_id <> 'Vote111111111111111111111111111111111111111'
+AND tx :meta:preTokenBalances[0]:owner :: STRING IS NOT NULL OR tx :meta:postTokenBalances[0]:owner :: STRING IS NOT NULL
 
 {% if is_incremental() %}
 AND ingested_at >= (
