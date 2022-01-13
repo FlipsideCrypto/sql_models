@@ -66,6 +66,7 @@ FROM
   LEFT JOIN lb
   ON t2.block_date = lb.date
   AND t2.event_currency = lb.currency
+  where metric_date <> current_date
 ORDER BY
   metric_date,
   currency

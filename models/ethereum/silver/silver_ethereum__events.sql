@@ -6,24 +6,44 @@
   tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__events']
 ) }}
 
+WITH decimals AS (
+
+  SELECT
+    LOWER(address) AS contract_address,
+    meta :name :: STRING AS NAME,
+    meta :symbol :: STRING AS symbol,
+    meta :decimals :: INT AS decimals
+  FROM
+    {{ ref('silver_ethereum__contracts') }}
+  WHERE
+    meta :decimals NOT LIKE '%00%' qualify(ROW_NUMBER() over(PARTITION BY contract_address, NAME, symbol --need the %00% filter to exclude messy data
+  ORDER BY
+    decimals DESC) = 1)
+)
 SELECT
   system_created_at,
-        block_id,
-      block_timestamp,
-      tx_hash,
-      input_method,
-      "from",
-      "to",
-      name,
-      symbol,
-      contract_address,
-      eth_value,
-      fee,
-      log_index,
-      log_method,
-      token_value,
-      coalesce("from", '') as from_uk,
-      coalesce("to", '') as to_uk
+  block_id,
+  block_timestamp,
+  tx_hash,
+  input_method,
+  "from",
+  "to",
+  NAME,
+  symbol,
+  contract_address,
+  eth_value,
+  fee,
+  log_index,
+  log_method,
+  token_value,
+  COALESCE(
+    "from",
+    ''
+  ) AS from_uk,
+  COALESCE(
+    "to",
+    ''
+  ) AS to_uk
 FROM
   (
     SELECT
@@ -36,22 +56,34 @@ FROM
       "to",
       e.name AS NAME,
       e.symbol AS symbol,
-      contract_address,
+      e.contract_address,
       eth_value,
       fee,
       log_index,
       log_method,
       CASE
         WHEN LOWER(log_method) = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
-        AND de.decimals IS NOT NULL THEN token_value / pow(
-          10,
+        AND COALESCE(
+          fde.decimals,
           de.decimals
+        ) IS NOT NULL THEN token_value / pow(
+          10,
+          COALESCE(
+            fde.decimals,
+            de.decimals
+          )
         )
         ELSE token_value
       END AS token_value
     FROM
       {{ ref('ethereum_dbt__events') }}
       e
+      LEFT OUTER JOIN decimals fde
+      ON LOWER(
+        fde.contract_address
+      ) = LOWER(
+        e.contract_address
+      )
       LEFT OUTER JOIN {{ source(
         'ethereum',
         'ethereum_contract_decimal_adjustments'

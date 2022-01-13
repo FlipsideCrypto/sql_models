@@ -22,6 +22,23 @@ WITH token_prices AS (
 {% if is_incremental() %}
 AND HOUR >= getdate() - INTERVAL '2 days'
 {% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY HOUR, token_address
+ORDER BY
+  symbol DESC) = 1)
+),
+full_decimals AS (
+  SELECT
+    LOWER(address) AS contract_address,
+    meta :name :: STRING AS NAME,
+    meta :symbol :: STRING AS symbol,
+    meta :decimals :: INT AS decimals
+  FROM
+    {{ ref('silver_ethereum__contracts') }}
+  WHERE
+    meta :decimals NOT LIKE '%00%' qualify(ROW_NUMBER() over(PARTITION BY contract_address, NAME, symbol
+  ORDER BY
+    decimals DESC) = 1) --need the %00% filter to exclude messy data
 ),
 events AS (
   SELECT
@@ -169,10 +186,16 @@ token_transfers AS (
     'erc20_transfer' AS event_type,
     event_id,
     e.contract_address,
-    p.symbol AS symbol,
+    COALESCE(
+      fde.symbol,
+      p.symbol
+    ) AS symbol,
     token_value AS amount,
     CASE
-      WHEN p.decimals IS NOT NULL THEN amount * p.price
+      WHEN COALESCE(
+        fde.decimals,
+        p.decimals
+      ) IS NOT NULL THEN amount * p.price
       ELSE NULL
     END AS amount_usd
   FROM
@@ -187,6 +210,12 @@ token_transfers AS (
       'hour',
       e.block_timestamp
     ) = p.hour
+    LEFT OUTER JOIN full_decimals fde
+    ON LOWER(
+      e.contract_address
+    ) = LOWER(
+      fde.contract_address
+    )
   WHERE
     event_name = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
 ),
