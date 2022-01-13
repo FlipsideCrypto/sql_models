@@ -26,6 +26,7 @@ sources:
     tables:
       - name: ethereum_balances
       - name: ethereum_contracts
+      - name: ethereum_contracts_backfill
       - name: daily_ethereum_token_balances
       - name: ethereum_address_labels
       - name: ethereum_address_labels_updates
