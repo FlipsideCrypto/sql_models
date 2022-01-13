@@ -6,14 +6,13 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
-            - TX_TO_ADDRESS
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 3
       - name: BLOCK_ID
         tests:
           - not_null
