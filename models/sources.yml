@@ -138,7 +138,7 @@ sources:
     tables:
       - name: daily_balances
   - name: algorand
-    schema: BRONZE_ALGORAND_2_6_4_PUBLIC
+    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
     tables:
       - name: ACCOUNT
       - name: ACCOUNT_APP
