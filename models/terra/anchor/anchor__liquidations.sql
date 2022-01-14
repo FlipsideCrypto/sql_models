@@ -67,7 +67,7 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 ),
-events AS (
+events_first_token AS (
   SELECT
     tx_id,
     COALESCE(event_attributes :liquidator :: STRING, event_attributes :"0_liquidator" :: STRING) AS liquidator,
@@ -88,7 +88,7 @@ events AS (
         6
       ) 
     ELSE
-      event_attributes :"2_repay_amount" / pow(
+      event_attributes :"0_repay_amount" / pow(
         10,
         6
       )
@@ -138,6 +138,75 @@ AND block_timestamp :: DATE >= (
     {{ ref('silver_terra__msgs') }}
 )
 {% endif %}
+),
+events_second_tokens AS (
+  SELECT
+    tx_id,
+    COALESCE(event_attributes :liquidator :: STRING, event_attributes :"1_liquidator" :: STRING) AS liquidator,
+    COALESCE(event_attributes :collateral_amount / pow(
+      10,
+      6
+    ), event_attributes :"1_collateral_amount" / pow(
+      10,
+      6
+    )) AS liquidated_amount,
+    liquidated_amount * l.price AS liquidated_amount_usd,
+    COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"1_collateral_token" :: STRING) AS liquidated_currency,
+    event_attributes :"1_repay_amount" / pow(
+      10,
+      6
+    ) AS repay_amount,
+    event_attributes :"1_borrower" :: STRING AS borrower,
+    repay_amount * r.price AS repay_amount_usd,
+    COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"1_stable_denom" :: STRING) AS repay_currency,
+    COALESCE(event_attributes :bid_fee / pow(
+      10,
+      6
+    ), event_attributes :"1_bid_fee" / pow(
+      10,
+      6
+    )) AS bid_fee
+  FROM
+    {{ ref('silver_terra__msg_events') }}
+    LEFT OUTER JOIN prices l
+    ON DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) = l.hour
+    AND COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"0_collateral_token" :: STRING) = l.currency
+    LEFT OUTER JOIN prices r
+    ON DATE_TRUNC(
+      'hour',
+      block_timestamp
+    ) = r.hour
+    AND COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"0_stable_denom" :: STRING) = r.currency
+  WHERE
+    event_type = 'from_contract'
+    AND tx_id IN(
+      SELECT
+        tx_id
+      FROM
+        msgs
+    )
+    AND tx_status = 'SUCCEEDED'
+    AND event_attributes :"0_action" :: STRING = 'liquidate_collateral'
+    AND event_attributes :"2_repay_amount" IS NOT NULL 
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+),
+events AS (
+  SELECT * FROM events_first_token
+  UNION ALL 
+  SELECT * FROM events_second_tokens
 ),
 single_payment_tbl AS (
   SELECT DISTINCT
@@ -242,3 +311,5 @@ multiple_repay_tbl AS (
 SELECT * FROM single_payment_tbl
 UNION ALL
 SELECT * FROM multiple_repay_tbl
+
+
