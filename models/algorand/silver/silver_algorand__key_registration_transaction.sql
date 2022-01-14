@@ -12,11 +12,11 @@ WITH allTXN AS (
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
     CASE
-      WHEN b.txid :: STRING = '' THEN ft.txn_txn_id :: text
+      WHEN b.txid IS NULL THEN ft.txn_txn_id :: text
       ELSE b.txid :: text
     END AS tx_id,
     CASE
-      WHEN b.txid :: STRING = '' THEN 'true'
+      WHEN b.txid IS NULL THEN 'true'
       ELSE 'false'
     END AS inner_tx,
     asset AS asset_id,
@@ -32,7 +32,7 @@ WITH allTXN AS (
     txn :txn :votekd AS vote_keydilution,
     txn :txn :type :: STRING AS tx_type,
     CASE
-      WHEN b.txid :: STRING = '' THEN ft.genisis_hash :: text
+      WHEN b.txid IS NULL THEN ft.genisis_hash :: text
       ELSE txn :txn :gh :: STRING
     END AS genisis_hash,
     txn AS tx_message,
