@@ -41,7 +41,10 @@ SELECT
   blockchain,
   bond_type,
   COALESCE(e8 / pow(10, 8), 0) AS asset_amount,
-  COALESCE(rune_usd * asset_amount / pow(10, 8), 0) AS asset_usd
+  COALESCE(
+    rune_usd * asset_amount,
+    0
+  ) AS asset_usd
 FROM
   bond_events be
   LEFT JOIN block_prices p

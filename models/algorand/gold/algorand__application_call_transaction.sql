@@ -8,7 +8,7 @@ SELECT
     block_id,
     tx_group_id,
     tx_id,
-    asset_id,
+    inner_tx,
     sender,
     fee,
     app_id,

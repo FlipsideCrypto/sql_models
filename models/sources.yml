@@ -26,6 +26,7 @@ sources:
     tables:
       - name: ethereum_balances
       - name: ethereum_contracts
+      - name: ethereum_contracts_backfill
       - name: daily_ethereum_token_balances
       - name: ethereum_address_labels
       - name: ethereum_address_labels_updates
@@ -136,11 +137,6 @@ sources:
     schema: silver_near
     tables:
       - name: daily_balances
-  - name: bronze_solana
-    schema: bronze_solana
-    tables: 
-      - name: solana_blocks
-      - name: solana_txs
   - name: algorand
     schema: BRONZE_ALGORAND_2_6_4_PUBLIC
     tables:
