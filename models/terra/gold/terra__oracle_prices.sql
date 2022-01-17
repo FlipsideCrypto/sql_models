@@ -99,6 +99,11 @@ SELECT
 FROM {{ source('shared','prices_v2') }} p
 WHERE asset_id IN('pylon-protocol',
                   '10767')
+
+{% if is_incremental() %}
+AND recorded_at >= getdate() - INTERVAL '1 days'
+{% endif %}
+
 GROUP BY 1,
          2,
          3,
