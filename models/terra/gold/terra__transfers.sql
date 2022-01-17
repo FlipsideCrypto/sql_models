@@ -78,6 +78,74 @@ AND block_timestamp >= getdate() - INTERVAL '1 days'
 
 ),
 
+wormhole_native AS(
+  
+SELECT 
+  r.blockchain,
+  r.chain_id,
+  r.tx_status,
+  r.block_id,
+  r.block_timestamp,
+  r.tx_id,
+  r.msg_type,
+  COALESCE(REGEXP_SUBSTR(key,'^[0-9]+')::STRING,'0') AS index,
+  MAX(CASE WHEN key REGEXP '.*sender' THEN value::STRING ELSE NULL::STRING END) AS event_from,
+  MAX(CASE WHEN key REGEXP '.*recipient' THEN value::STRING ELSE NULL::STRING END) AS event_to,
+  MAX(CASE WHEN key REGEXP '.*amount' THEN value[0]:denom::STRING ELSE NULL::STRING END) AS event_currency,
+  MAX(CASE WHEN key REGEXP '.*amount' THEN value[0]:amount::NUMERIC ELSE NULL::NUMERIC END/POWER(10,6)) AS event_amount
+FROM {{ ref('silver_terra__msg_events') }} r,
+  LATERAL FLATTEN(input => r.event_attributes) a
+WHERE tx_id IN(SELECT tx_id 
+             FROM {{ ref('silver_terra__msg_events') }} 
+             WHERE event_type = 'from_contract' 
+               AND event_attributes:action::string = 'complete_transfer_terra_native'
+               AND event_attributes:contract_address::string = 'terra10nmmwe8r3g99a9newtqa7a75xfgs2e8z87r2sf'
+               AND tx_status = 'SUCCEEDED')
+AND r.event_type = 'transfer'
+AND tx_status = 'SUCCEEDED'
+
+{% if is_incremental() %}
+AND r.block_timestamp >= getdate() - INTERVAL '1 days'
+{% endif %}
+
+GROUP BY 1,
+         2,
+         3,
+         4,
+         5,
+         6,
+         7,
+         8
+
+),
+
+wormhole_wrapped AS(
+
+SELECT 
+  blockchain,
+  chain_id,
+  tx_status,
+  block_id,
+  block_timestamp,
+  tx_id,
+  msg_type,
+  msg_index,
+  event_attributes:"0_contract_address"::STRING as event_from,
+  event_attributes:recipient::STRING as event_to,
+  event_attributes:contract::STRING as event_currency,
+  event_attributes:"0_amount"::NUMERIC / POW(10,6) as event_amount
+FROM {{ ref('silver_terra__msg_events') }}
+WHERE event_type = 'from_contract' 
+AND event_attributes:"0_action"::string = 'complete_transfer_wrapped'
+AND event_attributes:"0_contract_address"::string = 'terra10nmmwe8r3g99a9newtqa7a75xfgs2e8z87r2sf'
+AND tx_status = 'SUCCEEDED'
+
+{% if is_incremental() %}
+AND block_timestamp >= getdate() - INTERVAL '1 days'
+{% endif %}
+
+),
+
 transfers AS(
 
 SELECT
@@ -142,6 +210,38 @@ WHERE msg_value :execute_msg :transfer IS NOT NULL
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
+
+UNION 
+
+SELECT
+  blockchain,
+  chain_id,
+  tx_status,
+  block_id,
+  block_timestamp,
+  tx_id,
+  msg_type,
+  event_from,
+  event_to,
+  event_amount,
+  event_currency
+FROM wormhole_native
+
+UNION
+
+SELECT
+  blockchain,
+  chain_id,
+  tx_status,
+  block_id,
+  block_timestamp,
+  tx_id,
+  msg_type,
+  event_from,
+  event_to,
+  event_amount,
+  event_currency
+FROM wormhole_wrapped
 
 )
 
