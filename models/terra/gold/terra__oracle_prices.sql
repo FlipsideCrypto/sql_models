@@ -85,6 +85,31 @@ massets AS(
 AND m.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 
+),
+
+polymine AS (
+
+SELECT
+    'terra' as blockchain,
+    DATE_TRUNC('minute', recorded_at) AS block_timestamp,
+    'terra1kcthelkax4j9x8d3ny6sdag0qmxxynl3qtcrpy' AS currency,
+    symbol,
+    AVG(p.price) AS price,
+    'coinmarketcap' as source
+FROM {{ source('shared','prices_v2') }} p
+WHERE asset_id IN('pylon-protocol',
+                  '10767')
+
+{% if is_incremental() %}
+AND recorded_at >= getdate() - INTERVAL '1 days'
+{% endif %}
+
+GROUP BY 1,
+         2,
+         3,
+         4,
+         6
+
 )
 
 SELECT
@@ -199,3 +224,18 @@ WHERE
   AND tx_id IN( SELECT tx_id FROM {{ ref('silver_terra__msgs') }}
                 WHERE msg_value :contract :: STRING = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t'
                   AND msg_value :execute_msg :feed_price IS NOT NULL)
+
+UNION
+
+SELECT
+    p.blockchain,
+    p.block_timestamp,
+    p.currency,
+    p.symbol,
+    l.price/ p.price as luna_exchange_rate,
+    p.price AS price_usd,
+    p.source
+FROM polymine p
+
+LEFT OUTER JOIN prices l
+  ON date_trunc('hour', p.block_timestamp) = l.block_timestamp
