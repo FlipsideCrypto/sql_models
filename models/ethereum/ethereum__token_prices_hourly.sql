@@ -34,17 +34,7 @@
 
 -- GROUP BY 1,2,3,4
 
-with hours as (
-    select dateadd(hour, -seq4(), date_trunc('hour',current_timestamp())) as day_hour
-    from 
-    -- get all hours since some date
-    {% if is_incremental() %}
-        table(generator(rowcount=>50*24))
-    {% else %}
-        table(generator(rowcount=>(select max(days_since) * 24 from {{ ref('ethereum_dbt__days_since_for_prices_hourly') }})))
-    {% endif %}              
-),
-hourly_prices as (
+with hourly_prices as (
     select
       p.symbol,
       date_trunc('hour', recorded_at) as hour,
@@ -68,29 +58,29 @@ hourly_prices as (
 )
 , hour_symbols_pair as (
     select *
-    from hours
+    from silver.hours
     cross join symbols
     {% if is_incremental() %}
-      where day_hour >= current_date - 45
+      where hour >= current_date - 45
     {% else %}
-      where day_hour >= '2018-02-21' -- first date with valid prices data for a symbol
+      where hour >= '2018-02-21' -- first date with valid prices data for a symbol
     {% endif %}  
 )
 , imputed as (
     select 
-        h.day_hour
+        h.hour
         , h.symbol
         , p.price as avg_price
         , p.token_address
         , p.decimals
-        , last_value(p.token_address) ignore nulls over (partition by h.symbol, h.token_address order by day_hour) as lag_token_address
-        , last_value(p.decimals) ignore nulls over (partition by h.symbol, h.token_address order by day_hour) as lag_decimals
-        , lag(p.price) ignore nulls over (partition by h.symbol, h.token_address order by day_hour) as imputed_price
+        , last_value(p.token_address) ignore nulls over (partition by h.symbol, h.token_address order by h.hour) as lag_token_address
+        , last_value(p.decimals) ignore nulls over (partition by h.symbol, h.token_address order by h.hour) as lag_decimals
+        , lag(p.price) ignore nulls over (partition by h.symbol, h.token_address order by h.hour) as imputed_price
     from hour_symbols_pair h 
-    left outer join hourly_prices p on p.hour = h.day_hour and p.symbol = h.symbol and p.token_address = h.token_address
+    left outer join hourly_prices p on p.hour = h.hour and p.symbol = h.symbol and p.token_address = h.token_address
 )
 select 
-    p.day_hour as hour
+    p.hour as hour
     , p.symbol
     , case when token_address is not null then token_address
       else lag_token_address end as token_address
