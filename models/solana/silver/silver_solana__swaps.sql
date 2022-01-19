@@ -23,6 +23,7 @@ WITH base_table AS (
         event_meta[0]:parsed:info:destination :: STRING, 
         event_meta[1]:parsed:info:destination :: STRING
         ) END AS token_sent_account,
+        
    CASE WHEN event_info[3]:programId :: STRING IN ('SSwpkEEcbUqx4vtoEByFjSkhKdCT862DNVb52nZg1UZ', 'SSwpMgqNDsyV7mAgN9ady4bDVu5ySjmmXejXvy2vLt1') -- SABER STABLE SWAP || STEP FINANCE
     THEN postTokenBalances[1]:mint :: STRING
     WHEN event_info[4]:programId :: STRING  = '82yxjeMsvaURa4MbZZ7WZZHfobirZYkH1zF8fmeGtyaQ' -- ORCA AQUAFARM
