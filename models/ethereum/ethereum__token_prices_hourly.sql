@@ -26,16 +26,17 @@ with hourly_prices as (
     {% endif %}  
     group by 1,2,3,4
 )
-, symbols as (
-    select distinct p.symbol, lower(a.token_address) as token_address
+, token_addresses as (
+    select distinct lower(a.token_address) as token_address
     from {{ source('shared', 'prices_v2') }} p
     left outer join {{ source('shared', 'market_asset_metadata') }} a on p.asset_id = a.asset_id 
     where (a.platform_id = '1027' or a.asset_id = '1027' or a.platform_id = 'ethereum')
+    and (token_address is not null or p.symbol = 'ETH')
 )
-, hour_symbols_pair as (
+, hour_token_addresses_pair as (
     select *
     from silver.hours
-    cross join symbols
+    cross join token_addresses
     {% if is_incremental() %}
       where hour >= current_date - 45
     {% else %}
@@ -45,20 +46,24 @@ with hourly_prices as (
 , imputed as (
     select 
         h.hour
-        , h.symbol
+        -- , h.symbol
         , h.token_address
+        , p.symbol
         , p.decimals
         , p.price as avg_price
         -- , last_value(p.token_address) ignore nulls over (partition by h.symbol, h.token_address order by h.hour) as lag_token_address
-        , lag(p.decimals) ignore nulls over (partition by h.symbol, h.token_address order by h.hour) as lag_decimals
-        , lag(p.price) ignore nulls over (partition by h.symbol, h.token_address order by h.hour) as imputed_price
-    from hour_symbols_pair h 
-    left outer join hourly_prices p on p.hour = h.hour and p.symbol = h.symbol and p.token_address = h.token_address
+        , lag(p.symbol) ignore nulls over (partition by h.token_address order by h.hour) as lag_symbol
+        , lag(p.decimals) ignore nulls over (partition by h.token_address order by h.hour) as lag_decimals
+        , lag(p.price) ignore nulls over (partition by h.token_address order by h.hour) as imputed_price
+    from hour_token_addresses_pair h 
+    left outer join hourly_prices p on p.hour = h.hour and p.token_address = h.token_address
 )
 select 
     p.hour as hour
-    , p.symbol
+    -- , p.symbol
     , p.token_address
+    , case when symbol is not null then symbol
+      else lag_symbol end as symbol
     , case when decimals is not null then decimals
       else lag_decimals end as decimals
     , case when avg_price is not null then avg_price
