@@ -46,12 +46,10 @@ with hourly_prices as (
 , imputed as (
     select 
         h.hour
-        -- , h.symbol
         , h.token_address
         , p.symbol
         , p.decimals
         , p.price as avg_price
-        -- , last_value(p.token_address) ignore nulls over (partition by h.symbol, h.token_address order by h.hour) as lag_token_address
         , lag(p.symbol) ignore nulls over (partition by h.token_address order by h.hour) as lag_symbol
         , lag(p.decimals) ignore nulls over (partition by h.token_address order by h.hour) as lag_decimals
         , lag(p.price) ignore nulls over (partition by h.token_address order by h.hour) as imputed_price
@@ -60,7 +58,6 @@ with hourly_prices as (
 )
 select 
     p.hour as hour
-    -- , p.symbol
     , p.token_address
     , case when symbol is not null then symbol
       else lag_symbol end as symbol
