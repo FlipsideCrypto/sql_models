@@ -29,8 +29,7 @@ WITH base_table as (
     CASE WHEN len(tx :meta:postTokenBalances[0]) > 0 AND len(tx :meta:preTokenBalances[0]) > 0 THEN TRUE ELSE FALSE END AS transfer_tx_flag
 FROM {{ ref('bronze_solana__transactions') }}
 WHERE 
-  1 = 1
-AND program_id <> 'Vote111111111111111111111111111111111111111'
+  program_id <> 'Vote111111111111111111111111111111111111111'
 AND COALESCE(
       tx :meta:preTokenBalances[0]:owner :: STRING, 
       tx: transaction:message:instructions[0]:parsed:info:source :: STRING
