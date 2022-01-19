@@ -41,7 +41,7 @@ SELECT
   f.txid AS txn_txn_id,
   er.intra AS inner_intra,
   f.intra AS txn_intra,
-  f.gh AS genisis_hash,
+  f.gh AS genesis_hash,
   concat_ws(
     '-',
     er.round :: STRING,

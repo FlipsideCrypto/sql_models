@@ -30,9 +30,9 @@ WITH allTXN AS (
     ) AS fee,
     txn :txn :type :: STRING AS tx_type,
     CASE
-      WHEN b.txid IS NULL THEN ft.genisis_hash :: text
+      WHEN b.txid IS NULL THEN ft.genesis_hash :: text
       ELSE txn :txn :gh :: STRING
-    END AS genisis_hash,
+    END AS genesis_hash,
     txn AS tx_message,
     extra,
     b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
@@ -62,7 +62,7 @@ SELECT
   fee,
   csv.type AS tx_type,
   csv.name AS tx_type_name,
-  genisis_hash,
+  genesis_hash,
   tx_message,
   extra,
   concat_ws(

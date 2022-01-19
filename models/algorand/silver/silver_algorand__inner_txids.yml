@@ -22,6 +22,6 @@ models:
       - name: txn_intra
         tests:
           - not_null
-      - name: genisis_hash
+      - name: genesis_hash
         tests:
           - not_null
