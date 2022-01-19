@@ -19,7 +19,7 @@ WITH base_table as (
       tx: transaction:message:instructions[0]:parsed:info:source :: STRING
     ) AS tx_from_address, 
     COALESCE (
-    tx :meta:postTokenBalances[0]:owner :: STRING,
+    tx :meta:postTokenBalances[1]:owner :: STRING,
     tx: transaction:message:instructions[0]:parsed:info:destination :: STRING
     ) AS tx_to_address,
     tx :meta:fee :: INTEGER AS fee,
@@ -35,7 +35,7 @@ AND COALESCE(
       tx: transaction:message:instructions[0]:parsed:info:source :: STRING
     ) IS NOT NULL 
 AND COALESCE (
-    tx :meta:postTokenBalances[0]:owner :: STRING,
+    tx :meta:postTokenBalances[1]:owner :: STRING,
     tx: transaction:message:instructions[0]:parsed:info:destination :: STRING
     ) IS NOT NULL
 
@@ -50,7 +50,6 @@ AND ingested_at >= (
 )
 {% endif %}
 )
- 
 
 SELECT  
   block_timestamp, 
