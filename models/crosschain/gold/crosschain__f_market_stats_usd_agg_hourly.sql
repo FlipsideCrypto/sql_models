@@ -35,6 +35,10 @@ SELECT
     MEDIAN(volume_24h) AS median_volume_24h,
     MIN(circulating_supply) AS min_circulating_supply,
     MIN(market_cap) AS min_market_cap,
+    MIN(max_supply) AS min_max_supply,
+    MIN(price) AS min_price,
+    MIN(total_supply) AS min_total_supply,
+    MIN(volume_24h) AS min_volume_24h,
     ARRAY_AGG(
         OBJECT_CONSTRUCT(
             'circulating_supply',
@@ -57,18 +61,14 @@ SELECT
             recorded_at
     ) AS DATA,
     DATA [0] :market_cap AS first_market_cap,
-    DATA [ARRAY_SIZE(data)-1] :market_cap AS last_market_cap,
-    MIN(max_supply) AS min_max_supply,
     DATA [0] :max_supply AS first_max_supply,
-    DATA [ARRAY_SIZE(data)-1] :max_supply AS last_max_supply,
-    MIN(price) AS min_price,
     DATA [0] :price AS first_price,
-    DATA [ARRAY_SIZE(data)-1] :price AS last_price,
-    MIN(total_supply) AS min_total_supply,
     DATA [0] :total_supply AS first_total_supply,
-    DATA [ARRAY_SIZE(data)-1] :total_supply AS last_total_supply,
-    MIN(volume_24h) AS min_volume_24h,
     DATA [0] :volume_24h AS first_volume_24h,
+    DATA [ARRAY_SIZE(data)-1] :market_cap AS last_market_cap,
+    DATA [ARRAY_SIZE(data)-1] :max_supply AS last_max_supply,
+    DATA [ARRAY_SIZE(data)-1] :price AS last_price,
+    DATA [ARRAY_SIZE(data)-1] :total_supply AS last_total_supply,
     DATA [ARRAY_SIZE(data)-1] :volume_24h AS last_volume_24h,
     SYSDATE() AS _updated_timestamp,
     concat_ws(
