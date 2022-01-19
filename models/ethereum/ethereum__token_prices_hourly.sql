@@ -27,8 +27,10 @@ with hourly_prices as (
     group by 1,2,3,4
 )
 , symbols as (
-    select distinct symbol, token_address
-    from {{ this }}
+    select distinct p.symbol, lower(a.token_address) as token_address
+    from {{ source('shared', 'prices_v2') }} p
+    left outer join {{ source('shared', 'market_asset_metadata') }} a on p.asset_id = a.asset_id 
+    where (a.platform_id = '1027' or a.asset_id = '1027' or a.platform_id = 'ethereum')
 )
 , hour_symbols_pair as (
     select *
