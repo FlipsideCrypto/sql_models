@@ -56,10 +56,11 @@ contract_address,
 balance
 from incremental
 {% else %}
-select block_timestamp
+select block_timestamp,
 address,
-contract_address
-{{ ref('silver_ethereum__balances') }}
+contract_address,
+balance
+from {{ ref('silver_ethereum__balances') }}
 {% endif %}
 ),
 address_ranges AS (
