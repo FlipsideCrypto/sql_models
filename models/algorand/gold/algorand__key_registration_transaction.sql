@@ -17,7 +17,7 @@ SELECT
     vote_first,
     vote_last,
     vote_keydilution,
-    tx_type,
+    tx_typxxe,
     tx_type_name,
     genisis_hash,
     tx_message,
