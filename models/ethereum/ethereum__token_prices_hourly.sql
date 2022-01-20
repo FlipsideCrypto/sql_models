@@ -47,9 +47,9 @@ hourly_prices as (
     from silver.hours
     cross join token_addresses
     {% if is_incremental() %}
-      where hour >= current_date - 45
+      where hour between current_date - 45 and date_trunc('hour',sysdate())
     {% else %}
-      where hour >= '2020-05-05' -- first date with valid prices data
+      where hour between '2020-05-05' and date_trunc('hour',sysdate())-- first date with valid prices data
     {% endif %}  
 )
 , imputed as (
