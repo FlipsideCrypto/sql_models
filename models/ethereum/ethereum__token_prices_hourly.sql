@@ -8,7 +8,16 @@
   )
 }}
 
-with hourly_prices as (
+with full_decimals as (
+  select
+    lower(address) as contract_address,
+    meta :decimals :: int as decimals
+  from
+    {{ ref('silver_ethereum__contracts') }}
+  where
+    meta :decimals not like '%00%' qualify(row_number() over(partition by contract_address order by decimals desc) = 1) --need the %00% filter to exclude messy data
+),
+hourly_prices as (
     select
       p.symbol,
       date_trunc('hour', recorded_at) as hour,
@@ -17,7 +26,7 @@ with hourly_prices as (
       avg(price) as price
     from {{ source('shared', 'prices_v2') }} p
     left outer join {{ source('shared', 'market_asset_metadata') }} a on p.asset_id = a.asset_id
-    left outer join {{ source('ethereum', 'ethereum_contract_decimal_adjustments') }} d on d.address = lower(a.token_address)
+    left outer join full_decimals d on d.contract_address = lower(a.token_address)
     where (a.platform_id = '1027' or a.asset_id = '1027' or a.platform_id = 'ethereum')
     {% if is_incremental() %}
         and recorded_at >= current_date - 45
@@ -54,7 +63,8 @@ with hourly_prices as (
         , lag(p.decimals) ignore nulls over (partition by h.token_address order by h.hour) as lag_decimals
         , lag(p.price) ignore nulls over (partition by h.token_address order by h.hour) as imputed_price
     from hour_token_addresses_pair h 
-    left outer join hourly_prices p on p.hour = h.hour and p.token_address = h.token_address
+    left outer join hourly_prices p on p.hour = h.hour 
+      and (p.token_address = h.token_address or (h.token_address is null and p.symbol = 'ETH'))
 )
 select 
     p.hour as hour
@@ -69,5 +79,3 @@ select
       else FALSE end as is_imputed
 from imputed p
 where price is not null
-
-
