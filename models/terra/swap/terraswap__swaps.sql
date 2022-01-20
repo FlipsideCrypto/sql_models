@@ -92,6 +92,7 @@ swaps AS (
     chain_id,
     block_id,
     m.msg_index,
+    0 AS tx_index,
     block_timestamp,
     m.tx_id,
     sender,
@@ -124,13 +125,14 @@ swaps AS (
     AND l.creator = 'flipside'
 ),
 
-msgs_multi_swaps AS (
+msgs_multi_swaps_raw AS (
   SELECT
     blockchain,
     chain_id,
     block_id,
     msg_index,
     index AS tx_index,
+    MAX(index) OVER (PARTITION BY tx_id) AS max_tx_index,
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
@@ -150,6 +152,7 @@ msgs_multi_swaps AS (
     block_id,
     msg_index,
     index AS tx_index,
+    MAX(index) OVER (PARTITION BY tx_id) AS max_tx_index,
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
@@ -169,16 +172,33 @@ msgs_multi_swaps AS (
     block_id,
     msg_index,
     index AS tx_index,
+    MAX(index) OVER (PARTITION BY tx_id) AS max_tx_index,
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
-    msg_value :contract :: STRING AS pool_address,
+    msg_value :execute_msg :send :contract :: STRING AS pool_address,
     msg_value
   FROM {{ ref('silver_terra__msgs') }}
   , lateral flatten ( msg_value :execute_msg :send :msg :execute_swap_operations :operations)
   WHERE
     msg_value :execute_msg :send :msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
+),
+
+msgs_multi_swaps AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    tx_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw
+  WHERE max_tx_index > 0
 ),
 
 events_multi_swaps_raw AS (
@@ -214,9 +234,9 @@ events_multi_swaps AS (
     tx_id,
     msg_index,
     tx_index,
-    offer_amount,
+    offer_amount :: numeric / pow(10,6) AS offer_amount,
     offer_currency,
-    return_amount,
+    return_amount :: numeric / pow(10,6) AS return_amount,
     return_currency
   FROM (
     SELECT 
@@ -243,6 +263,7 @@ swaps_multi_swaps AS (
     chain_id,
     block_id,
     m.msg_index,
+    m.tx_index,
     block_timestamp,
     m.tx_id,
     sender,
