@@ -65,10 +65,7 @@ eth_balances AS (
     'terra' AS blockchain,
     balance
   FROM
-    {{ source(
-      'shared',
-      'terra_balances'
-    ) }}
+    {{ ref( "terra_dbt__balances" ) }}
     qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
   ORDER BY
     balance DESC)) = 1
