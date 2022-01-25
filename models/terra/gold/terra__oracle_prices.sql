@@ -137,6 +137,8 @@ SELECT
     WHEN l.currency = 'uaud' THEN 'AUT'
     WHEN l.currency = 'uidr' THEN 'IDT'
     WHEN l.currency = 'uphp' THEN 'PHT'
+    WHEN l.currency = 'utwd' THEN 'TWT'
+    WHEN l.currency = 'umyr' THEN 'MYT'
     ELSE l.currency
   END AS symbol,
   exchange_rate AS luna_exchange_rate,
