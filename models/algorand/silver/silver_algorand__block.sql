@@ -10,7 +10,7 @@ SELECT
   realtime :: TIMESTAMP AS block_timestamp,
   rewardslevel AS rewardslevel,
   header :gen :: STRING AS network,
-  header :gh :: STRING AS genisis_hash,
+  header :gh :: STRING AS genesis_hash,
   header :prev :: STRING AS prev_block_hash,
   header :txn :: STRING AS txn_root,
   header,

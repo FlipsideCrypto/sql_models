@@ -5,11 +5,28 @@
   tags = ['snowflake', 'algorand', 'transaction_participation', 'silver_algorand']
 ) }}
 
+WITH inner_tx_individual AS(
+
+  SELECT
+    ROUND AS block_id,
+    intra,
+    addr :: text AS address,
+    MIN(_FIVETRAN_SYNCED) AS _FIVETRAN_SYNCED
+  FROM
+    {{ source(
+      'algorand',
+      'TXN_PARTICIPATION'
+    ) }}
+  GROUP BY
+    block_id,
+    intra,
+    address
+)
 SELECT
-  ROUND AS block_id,
+  block_id,
   intra,
   algorand_decode_hex_addr(
-    addr :: text
+    address :: text
   ) AS address,
   concat_ws(
     '-',
@@ -19,10 +36,7 @@ SELECT
   ) AS _unique_key,
   _FIVETRAN_SYNCED
 FROM
-  {{ source(
-    'algorand',
-    'TXN_PARTICIPATION'
-  ) }}
+  inner_tx_individual
 WHERE
   1 = 1
 
