@@ -46,7 +46,7 @@ msgs AS (
     'withdraw' AS action,
     msg_value :sender :: STRING AS sender,
     COALESCE(msg_value :execute_msg :send :contract :: STRING, msg_value :contract :: STRING) AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m
@@ -153,8 +153,9 @@ FROM
   ) = o.hour
   AND msg_value :contract :: STRING = o.currency
 WHERE
-  msg_value :execute_msg :send :msg :deposit_collateral IS NOT NULL
-  AND tx_status = 'SUCCEEDED'
+  tx_id in (select tx_id from silver_terra.msgs where msg_value:execute_msg:lock_collateral is not null)
+  and tx_status = 'SUCCEEDED'
+  and msg_value :execute_msg :send :contract::STRING IN ('terra1ptjp2vfjrwh0j0faj9r6katm640kgjxnwwq9kn', 'terra10cxuzggyvvv44magvrh3thpdnk9cmlgk93gmx2') --Anchor Custody Contracts
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
