@@ -8,7 +8,7 @@ SELECT
     block_timestamp,
     rewardslevel,
     network,
-    genisis_hash,
+    genesis_hash,
     prev_block_hash,
     txn_root,
     header

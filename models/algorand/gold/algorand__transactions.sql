@@ -14,7 +14,7 @@ SELECT
     fee,
     tx_type,
     tx_type_name,
-    genisis_hash,
+    genesis_hash,
     tx_message,
     extra
 FROM
