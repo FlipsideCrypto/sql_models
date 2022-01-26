@@ -15,7 +15,8 @@ WITH base_tables AS (
       'prod_terra_sink_645110886'
     ) }}
   WHERE
-    record_content:model:class = 'terra.balances.terra_synthetic_balances_model.Terra5SyntheticBalancesModel'
+    record_content:model:class in ('terra.balances.terra_synthetic_balances_model.TerraSyntheticBalancesModel',
+    'terra.balances.terra_synthetic_balances_model.Terra5SyntheticBalancesModel')
 
 {% if is_incremental() %}
 AND (record_metadata :CreateTime :: INT / 1000) :: TIMESTAMP :: DATE >= ( SELECT DATEADD('day', -1, MAX(system_created_at :: DATE)) FROM {{ this }})
