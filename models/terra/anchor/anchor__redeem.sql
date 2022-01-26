@@ -35,15 +35,26 @@ GROUP BY
   1,
   2,
   3
+),
+
+redeem_events AS (
+  SELECT
+  *
+  FROM {{ ref('silver_terra__msg_events') }}
+  WHERE tx_id in (select tx_id from terra.msgs WHERE msg_value:contract::string = 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
+  AND event_type = 'from_contract'
+  AND event_attributes:redeem_amount is not null
+  AND tx_status = 'SUCCEEDED'
 )
+
 SELECT
-  m.blockchain,
-  chain_id,
-  block_id,
-  block_timestamp,
-  tx_id,
+  e.blockchain,
+  e.chain_id,
+  e.block_id,
+  e.block_timestamp,
+  e.tx_id,
   msg_value :sender :: STRING AS sender,
-  msg_value :execute_msg :send :amount / pow(
+  event_attributes:redeem_amount::FLOAT / pow(
     10,
     6
   ) AS amount,
@@ -51,20 +62,19 @@ SELECT
   msg_value :contract :: STRING AS currency,
   COALESCE(msg_value :execute_msg :send :contract :: STRING, '') AS contract_address,
   COALESCE(l.address_name, '') AS contract_label
-FROM
-  {{ ref('silver_terra__msgs') }}
-  m
+FROM redeem_events e
+JOIN {{ ref('silver_terra__msgs') }} m
+ON e.tx_id = m.tx_id
+AND e.msg_index = m.msg_index
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   LEFT OUTER JOIN prices r
   ON DATE_TRUNC(
     'hour',
-    block_timestamp
+    e.block_timestamp
   ) = HOUR
   AND msg_value :contract :: STRING = r.currency
-WHERE
-  msg_value :execute_msg :send :msg :redeem_stable IS NOT NULL
-  AND tx_status = 'SUCCEEDED'
+WHERE e.tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
