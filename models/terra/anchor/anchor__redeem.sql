@@ -77,7 +77,7 @@ AND e.msg_index = m.msg_index
 WHERE e.tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
+AND e.block_timestamp :: DATE >= (
   SELECT
     MAX(
       block_timestamp :: DATE
