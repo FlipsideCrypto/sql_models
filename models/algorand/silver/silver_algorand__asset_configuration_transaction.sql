@@ -12,11 +12,11 @@ WITH allTXN AS (
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
     CASE
-      WHEN b.txid :: STRING = '' THEN ft.txn_txn_id :: text
+      WHEN b.txid IS NULL THEN ft.txn_txn_id :: text
       ELSE b.txid :: text
     END AS tx_id,
     CASE
-      WHEN b.txid :: STRING = '' THEN 'true'
+      WHEN b.txid IS NULL THEN 'true'
       ELSE 'false'
     END AS inner_tx,
     asset AS asset_id,
@@ -29,9 +29,9 @@ WITH allTXN AS (
     txn :txn :apar AS asset_parameters,
     txn :txn :type :: STRING AS tx_type,
     CASE
-      WHEN b.txid :: STRING = '' THEN ft.genisis_hash :: text
+      WHEN b.txid IS NULL THEN ft.genesis_hash :: text
       ELSE txn :txn :gh :: STRING
-    END AS genisis_hash,
+    END AS genesis_hash,
     txn AS tx_message,
     extra,
     b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
@@ -65,7 +65,7 @@ SELECT
   asset_parameters,
   csv.type AS tx_type,
   csv.name AS tx_type_name,
-  genisis_hash,
+  genesis_hash,
   tx_message,
   extra,
   concat_ws(
