@@ -96,6 +96,7 @@ SELECT
   currency,
   balance_type,
   blockchain,
+  TRUE as is_native,
   LAST_VALUE(
     balance ignore nulls
   ) over(
