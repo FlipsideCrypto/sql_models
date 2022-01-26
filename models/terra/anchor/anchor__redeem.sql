@@ -39,7 +39,14 @@ GROUP BY
 
 redeem_events AS (
   SELECT
-  *
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  tx_id,
+  tx_status,
+  msg_index,
+  event_attributes
   FROM {{ ref('silver_terra__msg_events') }}
   WHERE tx_id in (select tx_id from terra.msgs WHERE msg_value:contract::string = 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu')
   AND event_type = 'from_contract'
