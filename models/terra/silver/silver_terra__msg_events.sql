@@ -45,12 +45,11 @@ silver_terra_raw_lateral AS (
     event_type,
     event_attributes,
     event_attributes_array_index,
-    array_insert(
-      array_agg(
-        object_construct(event_attributes_array_key, event_attributes_array_values)
+    object_insert(
+      object_agg(
+        event_attributes_array_key, event_attributes_array_values
       ),
-      0,
-      object_construct('array_index', event_attributes_array_index)
+      'array_index', event_attributes_array_index
     ) AS event_attributes_array
   FROM (
     SELECT
