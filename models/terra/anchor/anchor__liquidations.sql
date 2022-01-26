@@ -254,10 +254,136 @@ AND block_timestamp :: DATE >= (
 ),
 multiple_repay_tbl_raw AS (
   SELECT 
-    * 
+    *,
+    SPLIT_PART(key, '_', 0) AS key_index
   FROM multiple_repay_tbl_events_raw
   , lateral flatten ( input => event_attributes )
-  WHERE key LIKE '%_repay_amount' AND split(key, '_')[0]%2 = 1
+),
+multiple_repay_borrower_tbl_raw_index AS (
+  SELECT 
+    tx_id,
+    SPLIT_PART(key, '_', 0) AS key_index
+  FROM multiple_repay_tbl_raw
+  WHERE key LIKE '%_borrower'
+),
+multiple_repay_borrower_tbl_raw_value AS (
+  SELECT 
+    a.blockchain,
+    a.chain_id,
+    a.block_id,
+    a.block_timestamp,
+    a.tx_id,
+    a.key_index,
+//    key, 
+    SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key)) AS tx_subtype,
+    value
+  FROM multiple_repay_tbl_raw a
+  INNER JOIN multiple_repay_borrower_tbl_raw_index b
+  ON a.tx_id = b.tx_id AND a.key_index = b.key_index
+),
+multiple_repay_borrower_tbl AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    blockchain,
+    chain_id,
+    block_id,
+    key_index,
+    RANK() OVER (PARTITION BY tx_id ORDER BY key_index ASC) AS key_index_rank,
+    SUM(count_key_index-2) OVER (PARTITION BY tx_id ORDER BY key_index ASC) AS count_key_index,
+    borrower,
+    repay_amount
+  FROM (
+    SELECT
+      tx_id, 
+      block_timestamp,
+      blockchain,
+      chain_id,
+      block_id,
+      key_index,
+      MAX(key_index) OVER (PARTITION BY tx_id, borrower) AS max_key_index,
+      COUNT(DISTINCT key_index) OVER (PARTITION BY tx_id, borrower) AS count_key_index,
+      borrower,
+      repay_amount
+    FROM (
+      SELECT 
+        tx_id, 
+        block_timestamp,
+        blockchain,
+        chain_id,
+        block_id,
+        key_index,
+        "'borrower'"::STRING AS borrower,
+        "'repay_amount'" AS repay_amount
+      FROM multiple_repay_borrower_tbl_raw_value
+        pivot (max(value) for tx_subtype IN ('borrower', 'repay_amount')) p
+      )
+    )
+  WHERE key_index = max_key_index
+  ORDER BY 
+    tx_id, 
+    block_timestamp,
+    blockchain,
+    chain_id,
+    block_id,
+    key_index
+),
+multiple_repay_collateral_tbl_raw_index AS (
+  SELECT 
+    tx_id,
+    SPLIT_PART(key, '_', 0) AS key_index
+  FROM multiple_repay_tbl_raw
+  WHERE key LIKE '%_collateral_amount'
+),
+multiple_repay_collateral_tbl_raw_value AS (
+  SELECT 
+    a.blockchain,
+    a.chain_id,
+    a.block_id,
+    a.block_timestamp,
+    a.tx_id,
+    a.key_index,
+    -- key, 
+    SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key)) AS tx_subtype,
+    value
+  FROM multiple_repay_tbl_raw a
+  INNER JOIN multiple_repay_collateral_tbl_raw_index b
+  ON a.tx_id = b.tx_id AND a.key_index = b.key_index
+),
+multiple_repay_collateral_tbl AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    blockchain,
+    chain_id,
+    block_id,
+    key_index,
+    "'stable_denom'"::STRING AS stable_denom,
+    "'liquidator_fee'" AS liquidator_fee,
+    "'liquidator'"::STRING AS liquidator,
+    "'collateral_token'"::STRING AS collateral_token,
+    "'collateral_amount'" AS collateral_amount,
+    "'bid_fee'" AS bid_fee
+  FROM multiple_repay_collateral_tbl_raw_value
+    pivot (max(value) for tx_subtype IN ('stable_denom', 'liquidator_fee', 'liquidator', 'collateral_token', 'collateral_amount', 'bid_fee')) p
+),
+multiple_repay_tbl_borrower_collateral AS (
+  SELECT 
+    a.blockchain,
+    a.chain_id,
+    a.block_id,
+    a.block_timestamp,
+    a.tx_id, 
+    b.bid_fee,
+    a.borrower,
+    b.liquidator,
+    b.collateral_amount,
+    b.collateral_token,
+    a.repay_amount,
+    b.stable_denom
+  FROM multiple_repay_borrower_tbl a
+  LEFT JOIN multiple_repay_collateral_tbl b
+  ON a.tx_id = b.tx_id AND (a.key_index_rank-1) = b.key_index
 ),
 multiple_repay_tbl AS (
   SELECT 
@@ -266,50 +392,41 @@ multiple_repay_tbl AS (
     block_id,
     block_timestamp,
     tx_id,
-    COALESCE(this :bid_fee / pow(
+    bid_fee / pow(
         10,
         6
-      ), this :"0_bid_fee" / pow(
+      ) AS bid_fee,
+    borrower AS borrower,
+    liquidator AS liquidator,
+    collateral_amount / pow(
         10,
         6
-      )) AS bid_fee,
-  
-    this :"0_borrower" :: STRING AS borrower,
-    COALESCE(this :liquidator :: STRING, this :"0_liquidator" :: STRING) AS liquidator,
-    COALESCE(this :collateral_amount / pow(
-        10,
-        6
-      ), this :"0_collateral_amount" / pow(
-        10,
-        6
-      )) AS liquidated_amount,
+      ) AS liquidated_amount,
     liquidated_amount * l.price AS liquidated_amount_usd,
-    COALESCE(this :collateral_token :: STRING, this :"0_collateral_token" :: STRING) AS liquidated_currency,
-    value / pow(
+    collateral_token AS liquidated_currency,
+    repay_amount / pow(
         10,
         6
       ) AS repay_amount,
-    repay_amount * r.price AS repay_amount_usd,
-    COALESCE(this :stable_denom :: STRING, this :"0_stable_denom" :: STRING) AS repay_currency,
+    repay_amount / pow(10,6) * r.price AS repay_amount_usd,
+    stable_denom::STRING AS repay_currency,
     'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8' AS contract_address,
     'Overseer' AS contract_label
-  FROM multiple_repay_tbl_raw
+  FROM multiple_repay_tbl_borrower_collateral
   LEFT OUTER JOIN prices l
   ON DATE_TRUNC(
     'hour',
     block_timestamp
   ) = l.hour
-  AND COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"0_collateral_token" :: STRING) = l.currency
+  AND collateral_token = l.currency
   LEFT OUTER JOIN prices r
   ON DATE_TRUNC(
     'hour',
     block_timestamp
   ) = r.hour
-  AND COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"0_stable_denom" :: STRING) = r.currency
+  AND stable_denom = r.currency
 )
 
 SELECT * FROM single_payment_tbl
 UNION ALL
 SELECT * FROM multiple_repay_tbl
-
-
