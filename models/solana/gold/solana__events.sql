@@ -16,7 +16,6 @@ SELECT
     event_type, 
     instruction, 
     inner_instruction, 
-    ingested_at, 
-    transfer_tx_flag
+    ingested_at
 
 FROM {{ ref('silver_solana__events') }} 

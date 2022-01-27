@@ -16,33 +16,31 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: BLOCKCHAIN 
         tests: 
           - not_null
       - name: RECENT_BLOCK_HASH
         tests:
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: TX_ID
         tests:
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: SUCCEEDED
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: PROGRAM_TYPE
         tests: 
           - not_null:
-              where: TRANSFER_TX_FLAG = TRUE
-              where: "block_timestamp > current_date - 2"
+              where: TRANSFER_TX_FLAG = TRUE AND block_timestamp > current_date - 2
       - name: PROGRAM_ID
         tests: 
           - not_null:
-              where: TRANSFER_TX_FLAG = TRUE
-              where: "block_timestamp > current_date - 2"
+              where: TRANSFER_TX_FLAG = TRUE AND block_timestamp > current_date - 2
       - name: INGESTED_AT
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2

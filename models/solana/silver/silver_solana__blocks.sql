@@ -12,10 +12,8 @@ WITH base_tables AS (
   FROM 
     {{ ref('bronze_solana__blocks') }}
 
-  WHERE 
-    1 = 1
   {% if is_incremental() %}
-    AND ingested_at >= (
+    WHERE ingested_at >= (
       SELECT
         MAX(
           ingested_at
@@ -40,8 +38,6 @@ SELECT
     ingested_at :: TIMESTAMP AS ingested_at
 FROM 
    base_tables 
-WHERE 
-  1 = 1
 
  qualify(ROW_NUMBER() over(PARTITION BY block_id
   ORDER BY

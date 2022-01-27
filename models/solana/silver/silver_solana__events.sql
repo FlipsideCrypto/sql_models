@@ -16,10 +16,9 @@ SELECT
   CASE WHEN t.tx :meta:status:Err IS NULL THEN TRUE ELSE FALSE END AS succeeded, 
   t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
   t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances,   
-  CASE WHEN len(t.tx :meta:postTokenBalances[0]) > 0 AND len(t.tx :meta:preTokenBalances[0]) > 0  AND SUCCEEDED = TRUE THEN TRUE ELSE FALSE END AS transfer_tx_flag, 
   i.index :: INTEGER AS index, 
   i.event_type :: STRING AS event_type, 
-  i.value :: ARRAY AS instruction, 
+  i.value AS instruction, 
   ii.value as inner_instruction,
   t.ingested_at :: TIMESTAMP AS ingested_at
 FROM {{ ref('solana_dbt__instructions') }} i
@@ -33,10 +32,8 @@ LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
-WHERE 
-  1 = 1
    {% if is_incremental() %}
-    AND t.ingested_at >= (
+    WHERE t.ingested_at >= (
       SELECT
         MAX(
           ingested_at

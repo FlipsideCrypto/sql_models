@@ -17,36 +17,36 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: BLOCKCHAIN 
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: RECENT_BLOCK_HASH
         tests:
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: TX_ID
         tests:
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: SUCCEEDED
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: INDEX
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: EVENT_TYPE
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: INSTRUCTION
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2
       - name: INGESTED_AT
         tests: 
           - not_null: 
-              where: "block_timestamp > current_date - 2"
+              where: block_timestamp > current_date - 2

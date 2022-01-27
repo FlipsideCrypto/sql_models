@@ -23,9 +23,7 @@ WITH base_table as (
 
   FROM {{ ref('bronze_solana__transactions') }}
 
-  WHERE 
-    1 = 1
-  AND tx :transaction:message:instructions[0]:parsed:type :: STRING IS NOT NULL
+  WHERE tx :transaction:message:instructions[0]:parsed:type :: STRING IS NOT NULL
   AND tx :transaction:message:instructions[0]:programId :: STRING = 'Vote111111111111111111111111111111111111111'
   
   {% if is_incremental() %}
