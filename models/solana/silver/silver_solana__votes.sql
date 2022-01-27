@@ -9,9 +9,9 @@
 WITH base_table as (
   SELECT 
     block_timestamp :: TIMESTAMP AS block_timestamp, 
-    offset_id :: INTEGER AS block_id,
+    block_id :: INTEGER AS block_id,
     chain_id :: STRING AS blockchain, 
-    tx :transaction:message:recentBlockhash :: STRING AS recent_blockhash, 
+    tx :transaction:message:recentBlockhash :: STRING AS recent_block_hash, 
     tx_id :: STRING AS tx_id,
     CASE WHEN tx :meta:status:Err IS NULL THEN TRUE ELSE FALSE END AS succeeded,   
     tx :transaction:message:instructions[0]:program :: STRING AS program_type,
@@ -23,9 +23,7 @@ WITH base_table as (
 
   FROM {{ ref('bronze_solana__transactions') }}
 
-  WHERE 
-    1 = 1
-  AND tx :transaction:message:instructions[0]:parsed:type :: STRING IS NOT NULL
+  WHERE tx :transaction:message:instructions[0]:parsed:type :: STRING IS NOT NULL
   AND tx :transaction:message:instructions[0]:programId :: STRING = 'Vote111111111111111111111111111111111111111'
   
   {% if is_incremental() %}
@@ -44,7 +42,7 @@ SELECT
   block_timestamp, 
   block_id, 
   blockchain, 
-  recent_blockhash, 
+  recent_block_hash, 
   tx_id,  
   succeeded,   
   program_type,
