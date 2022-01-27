@@ -55,17 +55,26 @@ SELECT
   proposer_labels.address AS proposer_address_name,
   p.proposal_id,
   REGEXP_REPLACE(
-    msg_value :content :type,
+    COALESCE(
+      msg_value :content :type,
+      msg_value :"content"."@type" -- columbus-5
+    ),
     '\"',
     ''
   ) AS proposal_type,
   REGEXP_REPLACE(
-    msg_value :content :value :description,
+    COALESCE(
+      msg_value :content :value :description,
+      msg_value :content :description --columbus-5
+    ),
     '\"',
     ''
   ) AS description,
   REGEXP_REPLACE(
-    msg_value :content :value :title,
+    COALESCE(
+      msg_value :content :value :title,
+      msg_value :content :title --columbus-5
+    ),
     '\"',
     ''
   ) AS title,
@@ -97,7 +106,9 @@ FROM
     t.msg_value :proposer,
     '\"',
     ''
-  ) = proposer_labels.address AND proposer_labels.blockchain = 'terra' AND proposer_labels.creator = 'flipside'
+  ) = proposer_labels.address
+  AND proposer_labels.blockchain = 'terra'
+  AND proposer_labels.creator = 'flipside'
   LEFT OUTER JOIN proposal_id p
   ON t.tx_id = p.tx_id
 WHERE
