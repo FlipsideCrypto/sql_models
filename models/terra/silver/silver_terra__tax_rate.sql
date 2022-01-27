@@ -11,6 +11,7 @@ SELECT
   (
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
+  _inserted_timestamp,
   record_content :model :executor :chain_id :: VARCHAR(10) AS chain_id,
   t.value :block_number AS block_number,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
@@ -29,5 +30,10 @@ ORDER BY
   system_created_at DESC)) = 1
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+AND _inserted_timestamp >= (
+  SELECT
+    MAX(_inserted_timestamp)
+  FROM
+    {{ this }}
+)
 {% endif %}
