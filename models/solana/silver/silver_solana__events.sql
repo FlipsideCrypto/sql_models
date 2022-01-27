@@ -28,12 +28,23 @@ ON ii.block_id = i.block_id
 AND ii.tx_id = i.tx_id 
 AND ii.mapped_event_index = i.index
 
+{% if is_incremental() %}
+    AND ii.ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+    {% endif %}
+
 LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t 
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
    {% if is_incremental() %}
-    WHERE t.ingested_at >= (
+    AND t.ingested_at >= (
       SELECT
         MAX(
           ingested_at

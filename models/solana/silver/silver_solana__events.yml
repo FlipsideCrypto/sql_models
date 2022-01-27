@@ -16,25 +16,19 @@ models:
               interval: 1
       - name: BLOCK_ID
         tests:
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: BLOCKCHAIN 
         tests: 
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: RECENT_BLOCK_HASH
         tests:
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: TX_ID
         tests:
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: SUCCEEDED
         tests: 
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: INGESTED_AT
         tests: 
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null

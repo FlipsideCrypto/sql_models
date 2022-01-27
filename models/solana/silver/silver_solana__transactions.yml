@@ -15,45 +15,40 @@ models:
               interval: 1
       - name: BLOCK_ID
         tests:
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: RECENT_BLOCK_HASH
         tests:
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: TX_ID
         tests:
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: PRE_MINT
         tests:
           - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE AND block_timestamp > current_date - 2
+              where: TRANSFER_TX_FLAG = TRUE
               enabled: False # null values currently expected for some txs
       - name: POST_MINT
         tests:
           - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE AND block_timestamp > current_date - 2
+              where: TRANSFER_TX_FLAG = TRUE
               enabled: False # null values currently expected for some txs
       - name: TX_FROM_ADDRESS
         tests: 
           - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE AND block_timestamp > current_date - 2
+              where: TRANSFER_TX_FLAG = TRUE
               enabled: False # null values currently expected for some txs
       - name: TX_TO_ADDRESS
         tests: 
           - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE AND block_timestamp > current_date - 2
+              where: TRANSFER_TX_FLAG = TRUE
               enabled: False # null values currently expected for some txs
       - name: FEE
         tests: 
           - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE AND block_timestamp > current_date - 2
+              where: TRANSFER_TX_FLAG = TRUE
       - name: PROGRAM_ID
         tests: 
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
       - name: INGESTED_AT
         tests: 
-          - not_null: 
-              where: block_timestamp > current_date - 2
+          - not_null
