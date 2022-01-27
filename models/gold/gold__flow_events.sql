@@ -3,7 +3,7 @@
   unique_key = 'block_number',
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'gold_flow', 'gold', 'gold__flow_events']
+  tags = ['snowflake', 'gold_flow', 'gold', 'gold__flow_events', 'address_labels']
 ) }}
 
 WITH flow_labels AS (

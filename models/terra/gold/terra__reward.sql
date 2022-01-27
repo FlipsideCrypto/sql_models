@@ -4,7 +4,7 @@
   unique_key = "block_id",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'reward']
+  tags = ['snowflake', 'terra', 'reward', 'address_labels']
 ) }}
 
 WITH withdraw_delegator_rewards AS (

@@ -4,7 +4,7 @@
   unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
-  tags = ['snowflake', 'terra', 'balances', 'terra_daily_balances']
+  tags = ['snowflake', 'terra', 'balances', 'terra_daily_balances', 'address_labels']
 ) }}
 
 WITH prices AS (
@@ -30,7 +30,7 @@ SELECT
   address_labels.l1_label AS address_label_type,
   address_labels.l2_label AS address_label_subtype,
   address_labels.project_name AS address_label,
-  address_labels.address AS address_name,
+  address_labels.address_name AS address_name,
   balance,
   balance * p.price AS balance_usd,
   b.balance_type,

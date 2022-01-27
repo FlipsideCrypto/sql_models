@@ -34,7 +34,8 @@ models:
           - not_null
       - name: BALANCE_USD
         tests:
-          - not_null
+          - not_null:
+              where: DATE > '2021-05-15'
       - name: CURRENCY
         tests:
           - not_null

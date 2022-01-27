@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'tx_id || log_index',
+  unique_key = "CONCAT_WS('-', tx_id, log_index)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'uniswapv3_silver', 'uniswapv3_dbt__swaps']
 ) }}

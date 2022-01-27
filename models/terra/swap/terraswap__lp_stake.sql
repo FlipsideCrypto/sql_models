@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'terraswap', 'lp']
+  tags = ['snowflake', 'terra', 'terraswap', 'lp', 'address_labels']
 ) }}
 
 -- LP Un-staking
@@ -38,6 +38,8 @@ events AS (
   FROM {{ ref('silver_terra__msg_events') }}
   WHERE tx_id IN(SELECT DISTINCT tx_id FROM msgs)
     AND event_type = 'execute_contract'
+    AND msg_index = 0
+    AND contract_address IS NOT NULL
 
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
@@ -56,7 +58,7 @@ SELECT
   sender,
   amount,
   contract_address,
-  address AS contract_label
+  l.address_name AS contract_label
 FROM
   msgs m
   
@@ -82,7 +84,7 @@ SELECT
   msg_value :sender :: STRING AS sender,
   msg_value :execute_msg :send :amount / pow(10,6) AS amount,
   msg_value :contract :: STRING AS contract_address,
-  address AS contract_label
+  address_name AS contract_label
 FROM {{ ref('silver_terra__msgs') }} m
   
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 

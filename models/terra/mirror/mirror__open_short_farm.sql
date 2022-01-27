@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'mirror', 'short_farm']
+  tags = ['snowflake', 'terra', 'mirror', 'short_farm', 'address_labels']
 ) }}
 
 WITH prices AS (
@@ -44,9 +44,9 @@ msgs AS(
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
-    msg_value :execute_msg :open_position :collateral_ratio AS collateral_ratio,
+    msg_value :execute_msg :open_position :collateral_ratio :: FLOAT AS collateral_ratio,
     msg_value :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m
@@ -71,7 +71,7 @@ AND block_timestamp :: DATE >= (
 events AS (
   SELECT
     tx_id,
-    event_attributes :"0_position_idx" AS collateral_id,
+    event_attributes :"0_position_idx" :: INTEGER AS collateral_id,
     event_attributes :collateral_amount [0] :amount / pow(
       10,
       6

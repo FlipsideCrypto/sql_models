@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'pool_address || block_id',
+  unique_key = "CONCAT_WS('-', pool_address, block_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp', 'block_id'],
   tags = ['snowflake', 'uniswapv3_silver', 'silver_uniswapv3__pool_stats']

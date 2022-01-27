@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'mirror', 'mirror_gov']
+  tags = ['snowflake', 'terra', 'mirror', 'mirror_gov', 'address_labels']
 ) }}
 
 SELECT
@@ -20,7 +20,7 @@ SELECT
     6
   ) AS balance,
   msg_value :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
   {{ ref('silver_terra__msgs') }}
   m

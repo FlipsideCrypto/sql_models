@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'airdrops', 'claims']
+  tags = ['snowflake', 'terra', 'airdrops', 'claims', 'address_labels']
 ) }}
 
 SELECT
@@ -16,7 +16,7 @@ SELECT
   msg_value :sender :: STRING AS claimer,
   msg_value :execute_msg :claim :amount / pow(10,6) AS amount,
   msg_value :contract :: STRING AS contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM {{ ref('silver_terra__msgs') }} m
   
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l

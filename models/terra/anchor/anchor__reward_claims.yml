@@ -17,8 +17,12 @@ models:
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
+        description: the timestamp this transaction get generated
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: TX_ID
         tests:
           - not_null

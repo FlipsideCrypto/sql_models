@@ -27,12 +27,15 @@ WITH silver AS (
     FROM
         {{ ref('ethereum_dbt__nft_metadata') }}
     WHERE
-        1 = 1
+        contract_name IS NOT NULL
+        AND token_name IS NOT NULL
+        AND image_url IS NOT NULL
+        AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
-AND created_at_timestamp :: DATE >= (
+AND system_created_at :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
     FROM
         {{ this }}
 )
@@ -61,12 +64,15 @@ FROM
         'nft_metadata'
     ) }}
 WHERE
-    1 = 1
+    contract_name IS NOT NULL
+    AND token_name IS NOT NULL
+    AND image_url IS NOT NULL
+    AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
-AND created_at_timestamp :: DATE >= (
+AND system_created_at :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
     FROM
         {{ this }}
 )
@@ -94,23 +100,27 @@ SELECT
 FROM
     {{ ref('terra_dbt__nft_metadata_galactic_punks') }}
 WHERE
-    1 = 1
+    contract_name IS NOT NULL
+    AND token_name IS NOT NULL
+    AND image_url IS NOT NULL
+    AND token_metadata IS NOT NULL
 
 {% if is_incremental() %}
-AND created_at_timestamp :: DATE >= (
+AND system_created_at :: DATE >= (
     SELECT
-        DATEADD('day', -1, MAX(created_at_timestamp :: DATE))
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
     FROM
         {{ this }}
 )
 {% endif %}
 )
 SELECT
+    system_created_at,
     blockchain,
     commission_rate,
     contract_address,
     contract_name,
-    created_at_block_id,
+    created_at_block_id :: bigint created_at_block_id,
     created_at_timestamp,
     created_at_tx_id,
     creator_address,
@@ -124,4 +134,4 @@ SELECT
 FROM
     silver qualify(ROW_NUMBER() over(PARTITION BY blockchain, contract_address, token_id
 ORDER BY
-    created_at_timestamp DESC)) = 1
+    system_created_at DESC)) = 1

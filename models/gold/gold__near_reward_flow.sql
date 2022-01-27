@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', blockchain, date, address, metric_slug)",
   incremental_strategy='delete+insert',
   cluster_by=['date'],
-  tags=['snowflake', 'gold', 'near', 'gold__near_reward_flow'],
+  tags=['snowflake', 'gold', 'near', 'gold__near_reward_flow', 'address_labels'],
 )}}
 WITH near_labels AS (
   SELECT 

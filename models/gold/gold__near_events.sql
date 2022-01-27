@@ -2,7 +2,7 @@
   materialized='incremental', 
   incremental_strategy='delete+insert',
   cluster_by=['block_timestamp::DATE'],
-  tags=['snowflake', 'gold', 'near', 'gold__near_events']
+  tags=['snowflake', 'gold', 'near', 'gold__near_events', 'address_labels']
 )}}
 WITH near_labels AS (
   SELECT 

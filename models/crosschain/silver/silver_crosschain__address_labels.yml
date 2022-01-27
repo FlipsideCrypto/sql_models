@@ -11,6 +11,8 @@ models:
       - name: BLOCKCHAIN
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana']
       - name: CREATOR
         tests:
           - not_null

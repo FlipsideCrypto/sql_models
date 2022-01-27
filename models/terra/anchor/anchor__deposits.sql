@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'anchor', 'deposits']
+  tags = ['snowflake', 'terra', 'anchor', 'deposits', 'address_labels']
 ) }}
 
 WITH prices AS (
@@ -52,7 +52,7 @@ msgs AS (
     deposit_amount * price AS deposit_amount_usd,
     msg_value :coins [0] :denom :: STRING AS deposit_currency,
     msg_value :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m

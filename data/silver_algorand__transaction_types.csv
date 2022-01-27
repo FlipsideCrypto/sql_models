@@ -1,0 +1,7 @@
+typeenum,type,name
+1,pay,payment
+2,keyreg,key registration
+3,acfg,asset configuration
+4,axfer,asset transfer
+5,afrz,asset freeze
+6,appl,application call

@@ -1,9 +1,9 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'block_id || tx_id || event_id',
+    unique_key = "CONCAT_WS('-', block_id, tx_id, coalesce(event_id,-1))",
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_timestamp', 'block_id'],
-    tags = ['snowflake', 'polygon', 'polygon_udm_events_gold']
+    tags = ['snowflake', 'polygon', 'polygon_udm_events_gold', 'address_labels']
 ) }}
 
 WITH token_prices AS (

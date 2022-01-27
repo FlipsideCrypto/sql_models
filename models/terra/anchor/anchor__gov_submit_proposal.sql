@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'anchor', 'anchor_gov']
+  tags = ['snowflake', 'terra', 'anchor', 'anchor_gov', 'address_labels']
 ) }}
 
 WITH msgs AS (
@@ -84,7 +84,7 @@ SELECT
   description,
   msg,
   contract_address,
-  l.address AS contract_label
+  l.address_name AS contract_label
 FROM
   msgs m
   JOIN events e

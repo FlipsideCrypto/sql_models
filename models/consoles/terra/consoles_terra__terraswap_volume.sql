@@ -1,61 +1,80 @@
 {{ config(
-  materialized = 'view',
-  tags = ['snowflake', 'terra', 'console', 'terraswap_volume']
+    materialized = 'view',
+    tags = ['snowflake', 'terra', 'console', 'terraswap_volume']
 ) }}
-with prices as (
+
+WITH prices AS (
+
     SELECT
-        date_trunc('day', block_timestamp) AS dayz,
+        DATE_TRUNC(
+            'day',
+            block_timestamp
+        ) AS dayz,
         currency,
-        avg(price_usd) * 1 as avgg
+        AVG(price_usd) * 1 AS avgg
     FROM
-       {{ ref('terra__oracle_prices') }}
+        {{ ref('terra__oracle_prices') }}
     WHERE
         dayz >= CURRENT_DATE - 90
-    group by
+    GROUP BY
         dayz,
         currency
-    order by
+    ORDER BY
         dayz DESC
-), nonnative as (
+),
+nonnative AS (
     SELECT
-        date_trunc('day', block_timestamp) AS dayzz,
-        COUNT(DISTINCT tx_id) AS n_trades,
-        COUNT(DISTINCT (msg_value :sender :: string)) as n_traders,
-        msg_value :execute_msg :swap :offer_asset :info :native_token :denom :: string as swap_currency,
-        sum(
-            msg_value :execute_msg :swap :offer_asset :amount / POW(10, 6)
-        ) as trading_vol_token0,
-        c.address as contract_label
+        DATE_TRUNC(
+            'day',
+            block_timestamp
+        ) AS dayzz,
+        COUNT(
+            DISTINCT tx_id
+        ) AS n_trades,
+        COUNT(DISTINCT (msg_value :sender :: STRING)) AS n_traders,
+        msg_value :execute_msg :swap :offer_asset :info :native_token :denom :: STRING AS swap_currency,
+        SUM(
+            msg_value :execute_msg :swap :offer_asset :amount / pow(
+                10,
+                6
+            )
+        ) AS trading_vol_token0,
+        C.address AS contract_label
     FROM
         {{ ref('terra__msgs') }}
-        LEFT OUTER JOIN {{ ref('terra__labels') }} c ON msg_value :contract :: string = c.address
+        LEFT OUTER JOIN {{ ref('terra__labels') }} C
+        ON msg_value :contract :: STRING = C.address
     WHERE
         msg_value :execute_msg :swap IS NOT NULL
-        and contract_label is not NULL
-  		and tx_status = 'SUCCEEDED'
-    group by
+        AND contract_label IS NOT NULL
+        AND tx_status = 'SUCCEEDED'
+    GROUP BY
         dayzz,
         swap_currency,
         contract_label
-    order by
+    ORDER BY
         dayzz DESC
-), combine as (
-    select
+),
+combine AS (
+    SELECT
         *
     FROM
         nonnative
-        left join prices on nonnative.dayzz = prices.dayz
-        and nonnative.swap_currency = prices.currency
+        LEFT JOIN prices
+        ON nonnative.dayzz = prices.dayz
+        AND nonnative.swap_currency = prices.currency
 )
-select
+SELECT
     dayzz,
     n_trades,
     n_traders,
     --currency,
     contract_label,
-    (avgg * TRADING_VOL_TOKEN0) as USDADJ
-from
+    (
+        avgg * trading_vol_token0
+    ) AS usdadj
+FROM
     combine
-where
-    USDADJ > 0
-    and dayz >= CURRENT_DATE - 90
+WHERE
+    usdadj > 0
+    AND dayz >= CURRENT_DATE - 90

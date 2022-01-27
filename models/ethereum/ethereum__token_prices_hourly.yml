@@ -1,0 +1,18 @@
+version: 2
+models:
+  - name: ethereum__token_prices_hourly
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - HOUR
+            - SYMBOL
+            - TOKEN_ADDRESS
+    columns:
+      - name: HOUR
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: PRICE
+        tests:
+          - not_null

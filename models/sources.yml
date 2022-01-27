@@ -61,14 +61,11 @@ sources:
       - name: uniswapv3_pool_stats
       - name: uniswapv3_positions
       - name: uniswapv3_swaps
-  - name: ethereum_nondbt
-    schema: ethereum
-    tables:
-      - name: token_prices_hourly_v2
   - name: gold
     schema: gold
     tables:
       - name: flow_delegator_addresses
+      - name: terra_vesting_schedule
   - name: thorchain_midgard
     schema: BRONZE_MIDGARD_20211112_MIDGARD
     tables:
@@ -120,6 +117,7 @@ sources:
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
       - name: JIM_TEST_REST_PROXY_1507016047
+      - name: prod_nft_metadata_uploads_1828572827
   - name: crosschain
     schema: silver_crosschain
     tables:
@@ -135,3 +133,21 @@ sources:
     schema: silver_near
     tables:
       - name: daily_balances
+  - name: algorand
+    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
+    tables:
+      - name: ACCOUNT
+      - name: ACCOUNT_APP
+      - name: ACCOUNT_ASSET
+      - name: APP
+      - name: ASSET
+      - name: BLOCK_HEADER
+      - name: METASTATE
+      - name: TXN
+      - name: TXN_PARTICIPATION 
+  - name: prod
+    database: chainwalkers
+    schema: prod
+    tables:
+      - name: solana_blocks
+      - name: solana_txs

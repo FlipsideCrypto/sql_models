@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'anchor', 'bonds', 'anchor_bonds']
+  tags = ['snowflake', 'terra', 'anchor', 'bonds', 'anchor_bonds', 'address_labels']
 ) }}
 
 WITH prices AS (
@@ -43,6 +43,7 @@ msgs AS (
     block_id,
     block_timestamp,
     tx_id,
+    msg_index,
     msg_value :sender :: STRING AS sender,
     msg_value :coins [0] :amount / pow(
       10,
@@ -52,7 +53,7 @@ msgs AS (
     msg_value :coins [0] :denom :: STRING AS bonded_currency,
     msg_value :execute_msg :bond :validator :: STRING AS validator,
     msg_value :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     m
@@ -116,7 +117,7 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 )
-SELECT
+SELECT DISTINCT
   blockchain,
   chain_id,
   block_id,
@@ -126,9 +127,10 @@ SELECT
   bonded_amount,
   bonded_amount_usd,
   bonded_currency,
+  msg_index,
   validator,
-  contract_address,
-  contract_label
+  COALESCE(contract_address, '') AS contract_address,
+  COALESCE(contract_label, '') AS contract_label
 FROM
   msgs m
   JOIN events e

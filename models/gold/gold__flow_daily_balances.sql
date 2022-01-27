@@ -3,7 +3,7 @@
     incremental_strategy = 'delete+insert',
     cluster_by = ['date'],
     unique_key = "CONCAT_WS('-', date, node_id, address, delegator_id)",
-    tags = ['gold','gold__flow_daily_balances','events', 'flow']
+    tags = ['gold','gold__flow_daily_balances','events', 'flow', 'address_labels']
 ) }}
 
 WITH labels AS (

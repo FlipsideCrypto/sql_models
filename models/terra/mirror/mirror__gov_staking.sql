@@ -3,16 +3,16 @@
   unique_key = "CONCAT_WS('-',block_id, tx_id, msg_index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'mirror', 'mirror_gov']
+  tags = ['snowflake', 'terra', 'mirror', 'mirror_gov', 'address_labels']
 ) }}
 
 WITH prices AS (
 
   SELECT
     DATE_TRUNC(
-      'hour',
+      'day',
       block_timestamp
-    ) AS HOUR,
+    ) AS DAY,
     currency,
     symbol,
     AVG(price_usd) AS price
@@ -52,20 +52,20 @@ stake_msgs AS (
     event_amount * o.price AS event_amount_usd,
     msg_value :contract :: STRING AS event_currency,
     msg_value :execute_msg :send :contract :: STRING AS contract_address,
-    l.address AS contract_label
+    l.address_name AS contract_label
   FROM
     {{ ref('silver_terra__msgs') }}
     t
     LEFT OUTER JOIN prices o
     ON DATE_TRUNC(
-      'hour',
+      'day',
       t.block_timestamp
-    ) = o.hour
+    ) = o.DAY
     AND msg_value :contract :: STRING = o.currency
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
     ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   WHERE
-    msg_value :execute_msg :send :msg :stake_voting_tokens IS NOT NULL
+    msg_value :execute_msg :send :amount IS NOT NULL
     AND msg_value :execute_msg :send :contract :: STRING = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
     AND tx_status = 'SUCCEEDED'
 
@@ -159,9 +159,9 @@ FROM
   AND q.event_type = 'from_contract'
   LEFT OUTER JOIN prices o
   ON DATE_TRUNC(
-    'hour',
+    'day',
     t.block_timestamp
-  ) = o.hour
+  ) = o.DAY
   AND 'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' = o.currency
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   ON msg_value :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
