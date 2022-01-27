@@ -10,6 +10,8 @@ SELECT
     recent_block_hash, 
     tx_id, 
     event_type, 
+    preTokenBalances, 
+    postTokenBalances, 
     instruction:parsed:info:destination :: STRING AS destination, 
     instruction:parsed:info:source :: STRING AS source, 
     instruction:parsed:info:authority :: STRING AS authority,
