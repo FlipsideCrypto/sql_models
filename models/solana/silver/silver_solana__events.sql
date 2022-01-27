@@ -56,4 +56,4 @@ AND t.tx_id = i.tx_id
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id, i.index
 ORDER BY
-  i.index DESC)) = 1
+  t.ingested_at DESC)) = 1
