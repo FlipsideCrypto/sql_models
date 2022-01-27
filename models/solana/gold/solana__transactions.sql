@@ -7,7 +7,7 @@ SELECT
     DISTINCT
     block_timestamp, 
     block_id, 
-    recent_blockhash, 
+    recent_block_hash, 
     tx_id, 
     pre_mint, 
     post_mint, 

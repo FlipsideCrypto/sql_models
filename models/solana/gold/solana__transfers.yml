@@ -15,32 +15,45 @@ models:
               interval: 1
       - name: BLOCK_ID
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCKCHAIN 
         tests: 
-          - not_null
-      - name: RECENT_BLOCKHASH
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
+      - name: RECENT_BLOCK_HASH
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: TX_ID
         tests:
-          - not_null
-      - name: TX_FROM_ADDRESS
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
+      - name: EVENT_TYPE
         tests: 
           - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
-      - name: TX_TO_ADDRESS
+              where: "block_timestamp > current_date - 2"
+      - name: DESTINATION
         tests: 
-          - not_null
-      - name: SOLANA_AMOUNT
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
+      - name: SOURCE
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
+      - name: AMOUNT
+        tests: 
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: SUCCEEDED
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: PROGRAM_ID
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: INGESTED_AT
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"

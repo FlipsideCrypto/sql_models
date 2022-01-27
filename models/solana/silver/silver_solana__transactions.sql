@@ -9,8 +9,8 @@
 WITH base_table as (
   SELECT 
     block_timestamp :: TIMESTAMP AS block_timestamp, 
-    offset_id :: INTEGER AS block_id,
-    tx :transaction:message:recentBlockhash :: STRING AS recent_blockhash, 
+    block_id :: INTEGER AS block_id,
+    tx :transaction:message:recentBlockhash :: STRING AS recent_block_hash, 
     tx_id :: STRING AS tx_id,
     tx :meta:preTokenBalances[0]:mint :: STRING as pre_mint,
     tx :meta:postTokenBalances[0]:mint :: STRING as post_mint,
@@ -44,7 +44,7 @@ AND ingested_at >= (
 SELECT  
   block_timestamp, 
   block_id, 
-  recent_blockhash, 
+  recent_block_hash, 
   tx_id,
   pre_mint,
   post_mint, 

@@ -7,19 +7,16 @@ SELECT
     block_timestamp, 
     block_id, 
     blockchain, 
-    recent_blockhash, 
+    recent_block_hash, 
     tx_id, 
-    tx_from_address, 
-    tx_to_address, 
     succeeded, 
-    event_meta, 
+    preTokenBalances,  
     postTokenBalances, 
-    event_info, 
+    index,
+    event_type, 
+    instruction, 
+    inner_instruction, 
     ingested_at, 
     transfer_tx_flag
 
 FROM {{ ref('silver_solana__events') }} 
-
-qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
-ORDER BY
-  ingested_at DESC)) = 1

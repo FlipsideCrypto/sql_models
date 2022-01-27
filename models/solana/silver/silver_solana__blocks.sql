@@ -27,16 +27,16 @@ WITH base_tables AS (
 )
 
 SELECT
-    offset_id :: INTEGER AS block_id,  
+    block_id :: INTEGER AS block_id,  
     block_timestamp :: TIMESTAMP AS block_timestamp, 
     network :: STRING AS network, 
     chain_id :: STRING AS blockchain, 
     tx_count :: INTEGER AS tx_count,
     header :blockHeight :: INTEGER AS block_height, 
     header :blockTime :: INTEGER AS block_time, 
-    header :blockhash :: VARCHAR AS blockhash, 
+    header :blockhash :: VARCHAR AS block_hash, 
     header :parentSlot :: INTEGER AS previous_block_id, 
-    header :previousBlockhash :: VARCHAR AS previous_blockhash,  
+    header :previousBlockhash :: VARCHAR AS previous_block_hash,  
     ingested_at :: TIMESTAMP AS ingested_at
 FROM 
    base_tables 

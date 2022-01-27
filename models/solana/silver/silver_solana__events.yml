@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+            - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
@@ -15,31 +16,25 @@ models:
               interval: 1
       - name: BLOCK_ID
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCKCHAIN 
         tests: 
-          - not_null
-      - name: RECENT_BLOCKHASH
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
+      - name: RECENT_BLOCK_HASH
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: TX_ID
         tests:
-          - not_null
-      - name: TX_FROM_ADDRESS
-        tests: 
           - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
-      - name: TX_TO_ADDRESS
-        tests: 
-          - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
+              where: "block_timestamp > current_date - 2"
       - name: SUCCEEDED
         tests: 
-          - not_null
-      - name: EVENT_INFO
-        tests: 
-          - not_null:
-              where: TRANSFER_TX_FLAG = TRUE
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: INGESTED_AT
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"

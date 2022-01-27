@@ -7,7 +7,7 @@ SELECT
     block_timestamp, 
     block_id, 
     blockchain, 
-    recent_blockhash, 
+    recent_block_hash, 
     tx_id, 
     succeeded,  
     program_type, 

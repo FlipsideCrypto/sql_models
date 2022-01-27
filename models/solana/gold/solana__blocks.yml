@@ -8,7 +8,8 @@ models:
     columns:
       - name: BLOCK_ID
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
@@ -17,28 +18,37 @@ models:
               interval: 1
       - name: NETWORK
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCKCHAIN
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: TX_COUNT
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCK_HEIGHT
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCK_TIME
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCKHASH
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: PREVIOUS_BLOCK_ID
         tests: 
-          - not_null
-      - name: PREVIOUS_BLOCKHASH
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
+      - name: PREVIOUS_BLOCK_HASH
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: INGESTED_AT
         tests: 
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
