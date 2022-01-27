@@ -12,14 +12,14 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 3
+              interval: 1
       - name: BLOCK_ID
         tests:
           - not_null
       - name: BLOCKCHAIN 
         tests: 
           - not_null
-      - name: RECENT_BLOCKHASH
+      - name: RECENT_BLOCK_HASH
         tests:
           - not_null
       - name: TX_ID
