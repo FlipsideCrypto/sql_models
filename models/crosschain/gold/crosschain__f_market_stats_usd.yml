@@ -1,0 +1,38 @@
+version: 2
+models:
+  - name: crosschain__f_market_stats_usd
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - NAME
+            - SYMBOL
+            - PROVIDER
+            - RECORDED_AT
+    columns:
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: PROVIDER
+        tests:
+          - not_null
+      - name: NAME
+        tests:
+          - not_null
+      - name: SYMBOL
+        tests:
+          - not_null
+      - name: RECORDED_AT
+        tests:
+          - not_null
+      - name: CIRCULATING_SUPPLY
+        tests:
+          - not_null
+      - name: PRICE
+        tests:
+          - not_null
+      - name: _UPDATED
+        tests:
+          - not_null
+      - name: _UNIQUE_KEY
+        tests:
+          - not_null
