@@ -12,7 +12,7 @@ address,
 contract_address,
 balance
 from {{ this }}
-where date = (select dateadd('day',-2,max(date)) from {{ this }})
+where date = (select dateadd('day',-0,max(date)) from {{ this }})
 ), 
 new as (
 select block_timestamp::date as date,
@@ -21,7 +21,7 @@ contract_address,
 balance,
 1 as rank
 from {{ ref('silver_ethereum__balances') }}
-where block_timestamp::date >= (select dateadd('day',-2,max(date)) from {{ this }})
+where block_timestamp::date >= (select dateadd('day',-0,max(date)) from {{ this }})
 qualify(row_number() over(partition by address, contract_address, block_timestamp::date order by block_timestamp desc)) = 1
 ), 
 incremental as (
@@ -118,7 +118,7 @@ eth_balances AS (
     base_balances
     qualify(ROW_NUMBER() over(PARTITION BY address, contract_address, block_timestamp :: DATE
   ORDER BY
-    balance DESC)) = 1
+    block_timestamp DESC)) = 1
 ),
 balance_tmp AS (
   SELECT
@@ -150,4 +150,4 @@ SELECT
       DATE ASC rows unbounded preceding
   ) AS balance
 FROM
-  balance_tmp
+  balance_tmp b
