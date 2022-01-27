@@ -4,7 +4,6 @@
 ) }}
 
 SELECT
-    DISTINCT
     block_timestamp, 
     block_id, 
     recent_block_hash, 
@@ -20,7 +19,3 @@ SELECT
     transfer_tx_flag
 FROM 
     {{ ref('silver_solana__transactions') }} 
-
-qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
-ORDER BY
-  ingested_at DESC)) = 1

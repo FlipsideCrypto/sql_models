@@ -10,15 +10,15 @@ SELECT
     recent_block_hash, 
     tx_id, 
     event_type, 
-    instruction[0]:parsed:info:destination :: STRING AS destination, 
-    instruction[0]:parsed:info:source :: STRING AS source, 
-    instruction[0]:parsed:info:authority :: STRING AS authority,
+    instruction:parsed:info:destination :: STRING AS destination, 
+    instruction:parsed:info:source :: STRING AS source, 
+    instruction:parsed:info:authority :: STRING AS authority,
     CASE 
-        WHEN event_type = 'transferChecked' THEN instruction[0]:parsed:info:tokenAmount:amount/POW(10,6)
-        WHEN event_type = 'transfer' AND instruction[0]:programId :: STRING = '11111111111111111111111111111111' THEN instruction[0]:parsed:info:lamports/POW(10,9)
-        ELSE instruction[0]:parsed:info:amount/POW(10,6) END
+        WHEN event_type = 'transferChecked' THEN instruction:parsed:info:tokenAmount:amount/POW(10,6)
+        WHEN event_type = 'transfer' AND instruction:programId :: STRING = '11111111111111111111111111111111' THEN instruction:parsed:info:lamports/POW(10,9)
+        ELSE instruction:parsed:info:amount/POW(10,6) END
     AS amount, 
-    instruction[0]:programId :: STRING AS program_id, 
+    instruction:programId :: STRING AS program_id, 
     succeeded, 
     ingested_at, 
     CASE WHEN program_id <> 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' THEN TRUE ELSE FALSE END AS transfer_tx_flag 

@@ -16,21 +16,12 @@ models:
       - name: txn_txn_id
         tests:
           - not_null
-      - name: txn_body
-        tests:
-          - not_null
-      - name: txn_inner_txn
-        tests:
-          - not_null
-      - name: inner_message
-        tests:
-          - not_null
       - name: inner_intra
         tests:
           - not_null
       - name: txn_intra
         tests:
           - not_null
-      - name: genisis_hash
+      - name: genesis_hash
         tests:
           - not_null
