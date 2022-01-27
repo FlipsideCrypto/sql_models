@@ -8,6 +8,7 @@
 WITH allTXN AS (
 
   SELECT
+    ab.block_timestamp AS block_timestamp,
     b.intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
@@ -48,10 +49,14 @@ WITH allTXN AS (
     ft
     ON b.round = ft.inner_round
     AND b.intra = ft.inner_intra
+    LEFT JOIN {{ ref('silver_algorand__block') }}
+    ab
+    ON b.round = ab.block_id
   WHERE
     tx_type = 'pay'
 )
 SELECT
+  block_timestamp,
   intra,
   block_id,
   tx_group_id,
