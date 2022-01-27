@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'all_algorand', 'transactions', 'all_algorand_tx']
+  tags = ['snowflake', 'algorand', 'transactions', 'all_algorand_tx']
 ) }}
 
 WITH emptyROUNDS AS (
