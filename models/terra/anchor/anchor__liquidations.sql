@@ -221,9 +221,9 @@ single_payment_tbl AS (
     liquidated_amount,
     liquidated_amount_usd,
     liquidated_currency,
-    repay_amount,
-    repay_amount_usd,
-    repay_currency,
+    -- repay_amount,
+    -- repay_amount_usd,
+    -- repay_currency,
     contract_address,
     contract_label
   FROM
@@ -274,7 +274,7 @@ multiple_repay_borrower_tbl_raw_value AS (
     a.block_timestamp,
     a.tx_id,
     a.key_index,
-//    key, 
+    -- key, 
     SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key)) AS tx_subtype,
     value
   FROM multiple_repay_tbl_raw a
@@ -302,6 +302,7 @@ multiple_repay_borrower_tbl AS (
       block_id,
       key_index,
       MAX(key_index) OVER (PARTITION BY tx_id, borrower) AS max_key_index,
+      MIN(key_index) OVER (PARTITION BY tx_id, borrower) AS min_key_index,
       COUNT(DISTINCT key_index) OVER (PARTITION BY tx_id, borrower) AS count_key_index,
       borrower,
       repay_amount
@@ -319,7 +320,7 @@ multiple_repay_borrower_tbl AS (
         pivot (max(value) for tx_subtype IN ('borrower', 'repay_amount')) p
       )
     )
-  WHERE key_index = max_key_index
+  WHERE key_index <> min_key_index
   ORDER BY 
     tx_id, 
     block_timestamp,
@@ -367,6 +368,7 @@ multiple_repay_collateral_tbl AS (
   FROM multiple_repay_collateral_tbl_raw_value
     pivot (max(value) for tx_subtype IN ('stable_denom', 'liquidator_fee', 'liquidator', 'collateral_token', 'collateral_amount', 'bid_fee')) p
 ),
+
 multiple_repay_tbl_borrower_collateral AS (
   SELECT 
     a.blockchain,
@@ -404,12 +406,12 @@ multiple_repay_tbl AS (
       ) AS liquidated_amount,
     liquidated_amount * l.price AS liquidated_amount_usd,
     collateral_token AS liquidated_currency,
-    repay_amount / pow(
-        10,
-        6
-      ) AS repay_amount,
-    repay_amount / pow(10,6) * r.price AS repay_amount_usd,
-    stable_denom::STRING AS repay_currency,
+    -- repay_amount / pow(
+    --     10,
+    --     6
+    --   ) AS repay_amount,
+    -- repay_amount / pow(10,6) * r.price AS repay_amount_usd,
+    -- stable_denom::STRING AS repay_currency,
     'terra1tmnqgvg567ypvsvk6rwsga3srp7e3lg6u0elp8' AS contract_address,
     'Overseer' AS contract_label
   FROM multiple_repay_tbl_borrower_collateral
@@ -430,3 +432,4 @@ multiple_repay_tbl AS (
 SELECT * FROM single_payment_tbl
 UNION ALL
 SELECT * FROM multiple_repay_tbl
+
