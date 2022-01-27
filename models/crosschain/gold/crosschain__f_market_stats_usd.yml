@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: crosschain__f_market_stats_usd_agg_daily
+  - name: crosschain__f_market_stats_usd
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

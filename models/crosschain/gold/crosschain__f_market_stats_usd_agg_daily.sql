@@ -2,14 +2,13 @@
     materialized = "incremental",
     unique_key = "_unique_key",
     incremental_strategy = "merge",
-    tags = ["snowflake", "market", "stats", "gold", "fact", "f_stats_usd", "daily"]
+    tags = ["crosschain", "gold", "fact", "f_stats_usd", "aggregate", "daily"]
 ) }}
 
 SELECT
     asset_id,
     provider,
-    NAME,
-    symbol,
+    platform,
     DATE_TRUNC(
         DAY,
         recorded_at
@@ -101,8 +100,7 @@ WHERE
 GROUP BY
     asset_id,
     provider,
-    NAME,
-    symbol,
+    platform,
     DATE_TRUNC(
         DAY,
         recorded_at

@@ -7,7 +7,10 @@
 ) }}
 
 SELECT
-    DISTINCT asset_id,
+    COALESCE(
+        asset_id,
+        '#UNKNOWN'
+    ) AS asset_id,
     provider,
     NAME,
     symbol,

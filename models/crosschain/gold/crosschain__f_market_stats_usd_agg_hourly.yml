@@ -27,19 +27,7 @@ models:
       - name: CIRCULATING_SUPPLY
         tests:
           - not_null
-      - name: MARKET_CAP
-        tests:
-          - not_null
       - name: PRICE
-        tests:
-          - not_null
-      - name: MAX_SUPPLY
-        tests:
-          - not_null
-      - name: TOTAL_SUPPLY
-        tests:
-          - not_null
-      - name: VOLUME_24H
         tests:
           - not_null
       - name: _UPDATED
