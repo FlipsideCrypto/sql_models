@@ -152,7 +152,7 @@ multiple_repay_borrower_tbl AS (
       key_index,
       MAX(key_index) OVER (PARTITION BY tx_id, borrower) AS max_key_index,
       COUNT(DISTINCT key_index) OVER (PARTITION BY tx_id, borrower) AS count_key_index,
-      sender,
+      last_value(sender ignore nulls) over (partition by tx_id order by sender) as sender,
       borrower,
       repay_amount AS amount,
       stable_denom AS currency,
@@ -190,7 +190,7 @@ multiple_payment_tbl AS (
     block_id,
     block_timestamp,
     tx_id,
-    last_value(sender ignore nulls) over (partition by tx_id order by sender) as sender,
+    sender,
     amount / pow(
       10,
       6
