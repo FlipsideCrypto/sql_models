@@ -15,6 +15,9 @@ models:
       - name: REWARDSBASE
         tests:
           - not_null
+      - name: REWARDS_TOTAL
+        tests:
+          - not_null
       - name: BALANCE
         tests:
           - not_null

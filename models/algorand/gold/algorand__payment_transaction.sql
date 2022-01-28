@@ -4,6 +4,7 @@
 ) }}
 
 SELECT
+    block_timestamp,
     intra,
     block_id,
     tx_group_id,

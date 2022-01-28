@@ -7,6 +7,9 @@ models:
             - block_id
             - INTRA
     columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
       - name: block_id
         tests:
           - not_null
