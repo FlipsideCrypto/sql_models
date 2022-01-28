@@ -54,6 +54,17 @@ AND t.tx_id = i.tx_id
     )
     {% endif %}
 
+{% if is_incremental() %}
+    WHERE i.ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+    {% endif %}
+
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id, i.index
 ORDER BY
   t.ingested_at DESC)) = 1
