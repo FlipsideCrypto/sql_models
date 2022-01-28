@@ -3,6 +3,9 @@ models:
   - name: algorand__transactions
     tests:
     columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null
