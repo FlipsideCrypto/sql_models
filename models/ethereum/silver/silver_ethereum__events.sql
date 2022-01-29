@@ -129,7 +129,6 @@ FROM
   ) }}
 WHERE
   block_id < 11832821
-  AND 1 = 1
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (

@@ -97,7 +97,10 @@ SELECT
   to_labels.l2_label AS to_label_subtype,
   to_labels.project_name AS to_label,
   to_labels.address_name AS to_address_name,
-  C.symbol,
+  COALESCE(
+    contracts.meta :symbol :: STRING,
+    contracts_old.symbol
+  ) AS symbol,
   t.input_method AS function_signature,
   f.text_signature AS function_name,
   gas_price,
@@ -124,8 +127,20 @@ FROM
   LEFT OUTER JOIN {{ source(
     'ethereum',
     'ethereum_token_contracts'
-  ) }} C
-  ON t.to_address = C.contract_address
+  ) }}
+  contracts_old
+  ON LOWER(
+    t.to_address
+  ) = LOWER(
+    contracts_old.contract_address
+  )
+  LEFT OUTER JOIN {{ ref('silver_ethereum__contracts') }}
+  contracts
+  ON LOWER(
+    t.to_address
+  ) = LOWER(
+    contracts.address
+  )
   LEFT OUTER JOIN eth_prices p
   ON DATE_TRUNC(
     'hour',
