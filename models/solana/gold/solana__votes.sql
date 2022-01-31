@@ -4,20 +4,11 @@
 ) }}
 
 SELECT 
-    block_timestamp, 
     block_id, 
-    blockchain, 
-    recent_block_hash, 
-    tx_id, 
-    succeeded,  
-    program_type, 
-    program_id, 
-    vote_account, 
-    vote_authority, 
-    ingested_at, 
-    transfer_tx_flag
+    block_timestamp, 
+    blockchain,
+    count(block_id) AS num_votes
 FROM {{ ref('silver_solana__votes') }} 
 
-qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
-ORDER BY
-  ingested_at DESC)) = 1
+GROUP BY block_id, block_timestamp, blockchain
+ORDER BY block_id DESC
