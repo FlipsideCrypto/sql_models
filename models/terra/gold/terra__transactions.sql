@@ -9,6 +9,8 @@ SELECT
   blockchain,
   chain_id,
   tx_id,
+  tx_from,
+  tx_to,
   tx_type,
   tx_status,
   tx_status_msg,

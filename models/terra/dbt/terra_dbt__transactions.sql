@@ -46,6 +46,8 @@ SELECT
     -- Post Columbus-4: txhash
     t.value :tx_id :: STRING
   ) AS tx_id,
+  t.value :tx_from as tx_from,
+  t.value :tx_to as tx_to,
   t.value :tx_type :: STRING AS tx_type,
   t.value :tx_module :: STRING AS tx_module,
   t.value :tx_status :: STRING AS tx_status,
