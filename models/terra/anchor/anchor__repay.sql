@@ -36,7 +36,7 @@ GROUP BY
   2,
   3
 ),
-single_payment_tbl AS (
+single_payment_tbl_raw AS (
   SELECT
     m.blockchain,
     chain_id,
@@ -77,6 +77,43 @@ single_payment_tbl AS (
       {{ ref('silver_terra__msgs') }}
   )
   {% endif %}
+),
+single_payment_tbl_borrower AS (
+  SELECT 
+    tx_id,
+    event_attributes:borrower::string AS borrower
+  FROM {{ ref('silver_terra__msg_events') }}
+  WHERE event_type = 'from_contract' 
+    AND event_attributes:borrower::string IS NOT NULL 
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (
+      SELECT
+        MAX(
+          block_timestamp :: DATE
+        )
+      FROM
+        {{ ref('silver_terra__msgs') }}
+    )
+  {% endif %}
+  GROUP BY 1,2
+),
+single_payment_tbl AS (
+  SELECT
+      blockchain,
+      chain_id,
+      block_id,
+      block_timestamp,
+      a.tx_id,
+      sender,
+      b.borrower,
+      amount,
+      amount_usd,
+      currency,
+      contract_address,
+      contract_label
+  FROM single_payment_tbl_raw a
+  LEFT JOIN single_payment_tbl_borrower b
+  ON a.tx_id = b.tx_id
 ),
 multiple_repay_tbl_events_raw AS (
   SELECT 
@@ -191,6 +228,7 @@ multiple_payment_tbl AS (
     block_timestamp,
     tx_id,
     sender,
+    borrower,
     amount / pow(
       10,
       6
