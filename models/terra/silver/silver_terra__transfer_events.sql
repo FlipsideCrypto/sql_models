@@ -10,21 +10,11 @@ WITH silver_terra_raw AS (
   SELECT
     *
   FROM
-  {{ ref('terra_dbt__msg_events') }}
-  WHERE
-  1 = 1
+  {{ ref('silver_terra__msg_events') }}
 
-  {% if is_incremental() %}
-  AND system_created_at :: DATE >= (
-  SELECT
-    DATEADD('day', -1, MAX(system_created_at :: DATE))
-  FROM
-    {{ this }} AS msg_events
-)
-{% endif %}
-
-  QUALIFY(ROW_NUMBER() OVER(PARTITION BY chain_id, block_id, tx_id, msg_index, event_index, event_type
-  ORDER BY system_created_at DESC)) = 1
+{% if is_incremental() %}
+  WHERE block_timestamp >= getdate() - INTERVAL '1 days'
+  {% endif %}
 ),
 
 silver_terra_raw_lateral AS (
