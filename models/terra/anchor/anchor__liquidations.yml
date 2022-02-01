@@ -7,6 +7,8 @@ models:
             - TX_ID
             - BLOCK_ID
             - BORROWER
+            - LIQUIDATED_AMOUNT
+            - LIQUIDATED_CURRENCY
     columns:
       - name: BLOCKCHAIN
         description: the blockchain this transaction sit on

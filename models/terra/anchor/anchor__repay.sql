@@ -105,7 +105,7 @@ single_payment_tbl AS (
       block_timestamp,
       a.tx_id,
       sender,
-      b.borrower,
+      COALESCE(b.borrower, '') AS borrower,
       amount,
       amount_usd,
       currency,
