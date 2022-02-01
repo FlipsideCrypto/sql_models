@@ -27,10 +27,8 @@ models:
           - not_null
       - name: INITIAL_ACTION
         tests:
-          - not_null
       - name: CURRENT_ACTION
         tests:
-          - not_null
       - name: SENDER
         tests:
           - not_null:
