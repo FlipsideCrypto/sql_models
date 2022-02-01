@@ -9,4 +9,3 @@ SELECT
     blockchain,
     num_votes
 FROM {{ ref('silver_solana__votes') }} 
-ORDER BY block_id DESC
