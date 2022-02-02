@@ -7,8 +7,6 @@ models:
             - BLOCK_ID
             - TX_ID
             - VALIDATOR
-            - CURRENCY
-            - EVENT_AMOUNT
             - EVENT_ATTRIBUTES_AMOUNT_INDEX
     columns:
       - name: ACTION
