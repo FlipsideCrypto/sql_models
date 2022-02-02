@@ -12,16 +12,9 @@ WITH base_tables AS (
   FROM 
     {{ ref('bronze_solana__blocks') }}
 
-  {% if is_incremental() %}
-    WHERE ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-    {% endif %}
+{% if is_incremental() %}
+     WHERE ingested_at >= getdate() - interval '2 days'
+{% endif %}
 )
 
 SELECT

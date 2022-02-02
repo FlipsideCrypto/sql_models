@@ -15,7 +15,7 @@ WITH base_table as (
   FROM {{ ref('bronze_solana__transactions') }}
 
   WHERE tx :transaction:message:instructions[0]:programId :: STRING = 'Vote111111111111111111111111111111111111111'
-  
+
   {% if is_incremental() %}
      AND ingested_at >= getdate() - interval '2 days'
    {% endif %}
@@ -26,7 +26,7 @@ WITH base_table as (
 ), 
 
 v AS (
-  SELECT
+  SELECT 
     block_id, 
     blockchain, 
     count(block_id) AS num_votes
