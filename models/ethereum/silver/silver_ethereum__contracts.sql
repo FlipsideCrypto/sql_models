@@ -6,6 +6,7 @@
   tags = ['snowflake', 'ethereum', 'silver_ethereum','silver_ethereum__contracts']
 ) }}
 
+with base as (
 SELECT
   system_created_at,
   address,
@@ -48,6 +49,17 @@ FROM
       CHECK_JSON(contract_meta) IS NULL
   )
 WHERE
-  address IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY address
+  address IS NOT NULL
+  qualify(ROW_NUMBER() over(PARTITION BY address
 ORDER BY
   system_created_at DESC)) = 1
+)
+
+select system_created_at,
+  address,
+  meta,
+  NAME
+from base
+where case when meta:decimals::string is not null and len(meta:decimals::string) >= 3 
+           then true
+           else false end = false

@@ -4,6 +4,7 @@
 ) }}
 
 SELECT
+    block_timestamp,
     intra,
     block_id,
     tx_group_id,
@@ -16,7 +17,7 @@ SELECT
     asset_parameters,
     tx_type,
     tx_type_name,
-    genisis_hash,
+    genesis_hash,
     tx_message,
     extra
 FROM

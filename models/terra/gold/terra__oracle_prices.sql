@@ -68,7 +68,7 @@ massets AS(
     m.block_timestamp,
     m.block_id,
     m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
-    p.address AS symbol,
+    p.address_name AS symbol,
     m.msg_value :execute_msg :feed_price :prices [0] [1] :: FLOAT AS price
   FROM
     {{ ref('silver_terra__msgs') }} m
@@ -137,6 +137,8 @@ SELECT
     WHEN l.currency = 'uaud' THEN 'AUT'
     WHEN l.currency = 'uidr' THEN 'IDT'
     WHEN l.currency = 'uphp' THEN 'PHT'
+    WHEN l.currency = 'utwd' THEN 'TWT'
+    WHEN l.currency = 'umyr' THEN 'MYT'
     ELSE l.currency
   END AS symbol,
   exchange_rate AS luna_exchange_rate,

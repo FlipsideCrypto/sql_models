@@ -12,11 +12,11 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 3
+              interval: 1
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: RECENT_BLOCKHASH
+      - name: RECENT_BLOCK_HASH
         tests:
           - not_null
       - name: TX_ID
@@ -26,18 +26,22 @@ models:
         tests:
           - not_null: 
               where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
       - name: POST_MINT
         tests:
           - not_null: 
               where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
       - name: TX_FROM_ADDRESS
         tests: 
           - not_null: 
               where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
       - name: TX_TO_ADDRESS
         tests: 
           - not_null: 
               where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
       - name: FEE
         tests: 
           - not_null: 
