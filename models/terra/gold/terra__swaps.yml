@@ -6,9 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
-            - ASK_CURRENCY
-            - OFFER_CURRENCY
-            - SWAP_FEE_AMOUNT
+            - MSG_INDEX
     columns:
       - name: BLOCKCHAIN
         tests:
