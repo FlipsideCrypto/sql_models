@@ -9,6 +9,7 @@ SELECT
     blockchain, 
     recent_block_hash, 
     tx_id, 
+    index, 
     event_type, 
     preTokenBalances, 
     postTokenBalances, 
