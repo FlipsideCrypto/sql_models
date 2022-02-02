@@ -12,7 +12,6 @@ SELECT
     succeeded, 
     preTokenBalances,  
     postTokenBalances, 
-    index,
     event_type, 
     instruction, 
     ingested_at
