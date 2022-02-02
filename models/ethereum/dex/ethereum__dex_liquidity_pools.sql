@@ -32,76 +32,80 @@ creation_time >= getdate() - INTERVAL '7 days'
   creation_time >= getdate() - INTERVAL '12 months'
 {% endif %}
 ),
-v2_pools AS (
-  -- uni v2 and sushiswap
+asset_metadata_deduped AS (
   SELECT
-    p.block_timestamp AS creation_time,
-    p.tx_id AS creation_tx,
-    p.contract_addr AS factory_address,
-    -- assign a liquidity pool name based on the two tokens in the pool in the format 'Token1-Token2 LP', i.e. 'WETH-DAI LP'
-    -- goes through a couple fallbacks,
-    ---- try ethereum_contracts
-    ---- if the above is null, try market_asset_metadata
-    ---- if the above is null, try to at least get a name instead of a symbol from ethereum_address_labels
-    ---- if all else fails then just use the token contract address to yield an informative name
-    COALESCE(
-      A.meta :symbol,
-      aa.symbol,
-      aaa.address,
-      p.event_inputs :token0 :: STRING
-    ) || '-' || COALESCE(
-      b.meta :symbol,
-      bb.symbol,
-      bbb.address,
-      p.event_inputs :token1 :: STRING
-    ) || ' LP' AS pool_name,
-    p.event_inputs :pair :: STRING AS pool_address,
-    p.event_inputs :token0 :: STRING AS token0,
-    p.event_inputs :token1 :: STRING AS token1,
-    CASE
-      WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap'
-      ELSE 'uniswap-v2'
-    END AS platform
+    LOWER(token_address) AS token_address,
+    symbol
   FROM
-    {{ ref('silver_ethereum__events_emitted') }}
-    p
-    LEFT JOIN {{ ref('silver_ethereum__contracts') }} A
-    ON p.event_inputs :token0 :: STRING = A.address
-    LEFT JOIN {{ source(
+    {{ source(
       'shared',
       'market_asset_metadata'
     ) }}
-    aa
-    ON LOWER(
-      p.event_inputs :token0 :: STRING
-    ) = LOWER(
-      aa.token_address
-    )
-    LEFT JOIN {{ ref('silver_crosschain__address_labels') }}
-    aaa
-    ON p.event_inputs :token0 :: STRING = aaa.address
-    AND aaa.blockchain = 'ethereum'
-    AND aaa.creator = 'flipside'
-    LEFT JOIN {{ ref('silver_ethereum__contracts') }}
-    b
-    ON p.event_inputs :token1 :: STRING = b.address
-    LEFT JOIN {{ source(
-      'shared',
-      'market_asset_metadata'
-    ) }}
-    bb
-    ON LOWER(
-      p.event_inputs :token1 :: STRING
-    ) = LOWER(
-      bb.token_address
-    )
-    LEFT JOIN {{ ref('silver_crosschain__address_labels') }}
-    bbb
-    ON p.event_inputs :token1 :: STRING = bbb.address
-    AND bbb.blockchain = 'ethereum'
-    AND bbb.creator = 'flipside'
-  WHERE
-    p.event_name = 'PairCreated'
+    qualify(ROW_NUMBER() over (PARTITION BY LOWER(token_address)
+  ORDER BY
+    platform_id)) = 1),
+    v2_pools AS (
+      -- uni v2 and sushiswap
+      SELECT
+        p.block_timestamp AS creation_time,
+        p.tx_id AS creation_tx,
+        p.contract_addr AS factory_address,
+        -- assign a liquidity pool name based on the two tokens in the pool in the format 'Token1-Token2 LP', i.e. 'WETH-DAI LP'
+        -- goes through a couple fallbacks,
+        ---- try ethereum_contracts
+        ---- if the above is null, try market_asset_metadata
+        ---- if the above is null, try to at least get a name instead of a symbol from ethereum_address_labels
+        ---- if all else fails then just use the token contract address to yield an informative name
+        COALESCE(
+          A.meta :symbol,
+          aa.symbol,
+          aaa.address,
+          p.event_inputs :token0 :: STRING
+        ) || '-' || COALESCE(
+          b.meta :symbol,
+          bb.symbol,
+          bbb.address,
+          p.event_inputs :token1 :: STRING
+        ) || ' LP' AS pool_name,
+        p.event_inputs :pair :: STRING AS pool_address,
+        p.event_inputs :token0 :: STRING AS token0,
+        p.event_inputs :token1 :: STRING AS token1,
+        CASE
+          WHEN factory_address = '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac' THEN 'sushiswap'
+          ELSE 'uniswap-v2'
+        END AS platform
+      FROM
+        {{ ref('silver_ethereum__events_emitted') }}
+        p
+        LEFT JOIN {{ ref('silver_ethereum__contracts') }} A
+        ON p.event_inputs :token0 :: STRING = A.address
+        LEFT JOIN asset_metadata_deduped aa
+        ON LOWER(
+          p.event_inputs :token0 :: STRING
+        ) = LOWER(
+          aa.token_address
+        )
+        LEFT JOIN {{ ref('silver_crosschain__address_labels') }}
+        aaa
+        ON p.event_inputs :token0 :: STRING = aaa.address
+        AND aaa.blockchain = 'ethereum'
+        AND aaa.creator = 'flipside'
+        LEFT JOIN {{ ref('silver_ethereum__contracts') }}
+        b
+        ON p.event_inputs :token1 :: STRING = b.address
+        LEFT JOIN asset_metadata_deduped bb
+        ON LOWER(
+          p.event_inputs :token1 :: STRING
+        ) = LOWER(
+          bb.token_address
+        )
+        LEFT JOIN {{ ref('silver_crosschain__address_labels') }}
+        bbb
+        ON p.event_inputs :token1 :: STRING = bbb.address
+        AND bbb.blockchain = 'ethereum'
+        AND bbb.creator = 'flipside'
+      WHERE
+        p.event_name = 'PairCreated'
 
 {% if is_incremental() %}
 AND creation_time >= getdate() - INTERVAL '7 days'
@@ -146,11 +150,7 @@ v2_redshift AS (
     p -- {{ref('ethereum__events_emitted')}} p
     LEFT JOIN {{ ref('silver_ethereum__contracts') }} A
     ON token0 = A.address
-    LEFT JOIN {{ source(
-      'shared',
-      'market_asset_metadata'
-    ) }}
-    aa
+    LEFT JOIN asset_metadata_deduped aa
     ON LOWER(token0) = LOWER(
       aa.token_address
     )
@@ -162,11 +162,7 @@ v2_redshift AS (
     LEFT JOIN {{ ref('silver_ethereum__contracts') }}
     b
     ON token1 = b.address
-    LEFT JOIN {{ source(
-      'shared',
-      'market_asset_metadata'
-    ) }}
-    bb
+    LEFT JOIN asset_metadata_deduped bb
     ON LOWER(token1) = LOWER(
       bb.token_address
     )
