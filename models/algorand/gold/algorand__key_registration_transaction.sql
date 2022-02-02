@@ -4,6 +4,7 @@
 ) }}
 
 SELECT
+    block_timestamp,
     intra,
     block_id,
     tx_group_id,
@@ -19,7 +20,7 @@ SELECT
     vote_keydilution,
     tx_type,
     tx_type_name,
-    genisis_hash,
+    genesis_hash,
     tx_message,
     extra
 FROM

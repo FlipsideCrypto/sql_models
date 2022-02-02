@@ -63,6 +63,7 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 )
+where balance is not null
 qualify(ROW_NUMBER() over(PARTITION BY address, block_id, contract_address
 ORDER BY
   system_created_at DESC)) = 1

@@ -1,11 +1,12 @@
 version: 2
 models:
-  - name: solana__transactions
+  - name: silver_solana__votes
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+          where: block_timestamp::date >= current_date - 2
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
@@ -16,33 +17,25 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: RECENT_BLOCKHASH
+      - name: BLOCKCHAIN 
+        tests: 
+          - not_null
+      - name: RECENT_BLOCK_HASH
         tests:
           - not_null
       - name: TX_ID
         tests:
           - not_null
-      - name: PRE_MINT
-        tests:
-          - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
-      - name: POST_MINT
-        tests:
-          - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
-      - name: TX_FROM_ADDRESS
+      - name: SUCCEEDED
         tests: 
-          - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
-      - name: TX_TO_ADDRESS
+          - not_null
+      - name: PROGRAM_TYPE
         tests: 
-          - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
-      - name: FEE
-        tests: 
-          - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
+          - not_null
       - name: PROGRAM_ID
+        tests: 
+          - not_null
+      - name: VOTE_ACCOUNT
         tests: 
           - not_null
       - name: INGESTED_AT

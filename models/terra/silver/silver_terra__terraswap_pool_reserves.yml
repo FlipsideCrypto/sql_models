@@ -1,0 +1,46 @@
+version: 2
+models:
+  - name: silver_terra__terraswap_pool_reserves
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - CHAIN_ID
+            - CONTRACT_ADDRESS
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: CHAIN_ID
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: TOTAL_SHARE
+        tests:
+          - not_null
+      - name: TOKEN_0_CURRENCY
+        tests:
+          - not_null
+      - name: TOKEN_0_AMOUNT
+        tests:
+          - not_null
+      - name: SYSTEM_CREATED_AT
+        tests:
+          - not_null
+      - name: TOKEN_1_CURRENCY
+        tests:
+          - not_null
+      - name: TOKEN_1_AMOUNT
+        tests:
+          - not_null

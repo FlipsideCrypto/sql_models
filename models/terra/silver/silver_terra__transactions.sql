@@ -10,16 +10,15 @@ SELECT
   *
 FROM
   {{ ref('terra_dbt__transactions') }}
-WHERE
-  1 = 1
 
 {% if is_incremental() %}
-AND system_created_at :: DATE >= (
-  SELECT
-    DATEADD('day', -1, MAX(system_created_at :: DATE))
-  FROM
-    {{ this }} AS transactions
-)
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp)
+    FROM
+      {{ this }}
+  )
 {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY chain_id, block_id, tx_id

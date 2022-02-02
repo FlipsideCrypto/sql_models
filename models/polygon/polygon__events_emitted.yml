@@ -24,7 +24,8 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: CONTRACT_NAME
         tests:
-          - not_null
+          - not_null:
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: EVENT_INDEX
         tests:
           - not_null
@@ -44,16 +45,20 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: TX_FROM_ADDRESS_NAME
         tests:
-          - not_null
+          - not_null: 
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: TX_FROM_LABEL
         tests:
-          - not_null
+          - not_null: 
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: TX_FROM_LABEL_SUBTYPE
         tests:
-          - not_null
+          - not_null: 
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: TX_FROM_LABEL_TYPE
         tests:
-          - not_null
+          - not_null: 
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: TX_ID
         tests:
           - not_null
@@ -67,13 +72,17 @@ models:
               regex: 0[xX][0-9a-fA-F]+
       - name: TX_TO_ADDRESS_NAME
         tests:
-          - not_null
+          - not_null:
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: TX_TO_LABEL
         tests:
-          - not_null
+          - not_null: 
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: TX_TO_LABEL_SUBTYPE
         tests:
-          - not_null
+          - not_null: 
+              enabled: False # Crosschain labels will not be available for all addresses
       - name: TX_TO_LABEL_TYPE
         tests:
-          - not_null
+          - not_null: 
+              enabled: False # Crosschain labels will not be available for all addresses

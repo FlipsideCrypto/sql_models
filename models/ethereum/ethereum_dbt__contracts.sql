@@ -34,8 +34,8 @@ SELECT
   (
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
-  t.value :address :: STRING AS address,
-  t.value :meta :: OBJECT AS meta,
+  coalesce(t.value :contract_address :: STRING, t.value :address :: STRING) AS address,
+  coalesce(t.value :contract_meta :: OBJECT, t.value :meta :: OBJECT) AS meta,
   t.value :name :: STRING AS name
 FROM
   base_tables,

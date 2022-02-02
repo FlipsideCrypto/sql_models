@@ -26,6 +26,7 @@ sources:
     tables:
       - name: ethereum_balances
       - name: ethereum_contracts
+      - name: ethereum_contracts_backfill
       - name: daily_ethereum_token_balances
       - name: ethereum_address_labels
       - name: ethereum_address_labels_updates
@@ -60,10 +61,6 @@ sources:
       - name: uniswapv3_pool_stats
       - name: uniswapv3_positions
       - name: uniswapv3_swaps
-  - name: ethereum_nondbt
-    schema: ethereum
-    tables:
-      - name: token_prices_hourly_v2
   - name: gold
     schema: gold
     tables:
@@ -136,13 +133,8 @@ sources:
     schema: silver_near
     tables:
       - name: daily_balances
-  - name: bronze_solana
-    schema: bronze_solana
-    tables: 
-      - name: solana_blocks
-      - name: solana_txs
   - name: algorand
-    schema: BRONZE_ALGORAND_2_6_4_PUBLIC
+    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
     tables:
       - name: ACCOUNT
       - name: ACCOUNT_APP
