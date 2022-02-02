@@ -9,6 +9,7 @@ models:
             - VALIDATOR
             - CURRENCY
             - EVENT_AMOUNT
+            - EVENT_ATTRIBUTES_AMOUNT_INDEX
     columns:
       - name: ACTION
         tests:
