@@ -14,7 +14,7 @@ WITH decimals AS (
     FROM
         {{ ref('silver_ethereum__contracts') }}
     WHERE
-        meta :decimals NOT LIKE '%00%' qualify(ROW_NUMBER() over(PARTITION BY contract_address, NAME, symbol --need the %00% filter to exclude messy data
+        meta :decimals NOT LIKE '%00%' qualify(ROW_NUMBER() over(PARTITION BY address
     ORDER BY
         decimals DESC) = 1)
 ),
