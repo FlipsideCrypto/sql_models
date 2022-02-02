@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+          where: block_timestamp::date >= current_date - 2
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
