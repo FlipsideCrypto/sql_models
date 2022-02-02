@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_solana__votes
+  - name: silver_solana__votes_daily_agg
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
