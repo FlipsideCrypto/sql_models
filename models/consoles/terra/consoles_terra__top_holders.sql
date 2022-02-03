@@ -1,18 +1,34 @@
 {{ config(
-  materialized = 'view',
-  unique_key = "CONCAT_WS('-', address, currency, avg_balance)",
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', address, currency)",
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['address'],
   tags = ['snowflake', 'console', 'terra', 'top_holders']
 ) }}
 
-with top_holders as (
+WITH recent_balances AS (
+  SELECT 
+  date,
+  address,
+  currency,
+  balance
+  FROM {{ ref('terra__daily_balances') }}
+  WHERE currency IN ('KRT', 'SDT', 'LUNA', 'UST')
+  AND date >= current_date - 30
+
+  {% if is_incremental() %}
+  AND DATE >= getdate() - INTERVAL '1 days'
+  {% endif %}
+),
+
+top_holders as (
 SELECT * from (
 SELECT 
 address,
 currency,
 AVG(balance) as avg_balance
-FROM {{ ref('terra__daily_balances') }}
+FROM recent_balances
 WHERE currency = 'KRT'
-AND date >= current_date - 30
 GROUP BY address, currency
 ORDER BY avg_balance desc
 LIMIT 1000
@@ -24,9 +40,8 @@ UNION
 address,
 currency,
 AVG(balance) as avg_balance
-FROM {{ ref('terra__daily_balances') }}
+FROM recent_balances
 WHERE currency = 'SDT'
-AND date >= current_date - 30
 GROUP BY address, currency
 ORDER BY avg_balance desc
 LIMIT 1000)
@@ -37,9 +52,8 @@ UNION
 address,
 currency,
 AVG(balance) as avg_balance
-FROM {{ ref('terra__daily_balances') }}
+FROM recent_balances
 WHERE currency = 'LUNA'
-AND date >= current_date - 30
 GROUP BY address, currency
 ORDER BY avg_balance desc
 LIMIT 1000)
@@ -50,9 +64,8 @@ UNION
 address,
 currency,
 AVG(balance) as avg_balance
-FROM {{ ref('terra__daily_balances') }}
+FROM recent_balances
 WHERE currency = 'UST'
-AND date >= current_date - 30
 GROUP BY address, currency
 ORDER BY avg_balance desc
 LIMIT 1000)
