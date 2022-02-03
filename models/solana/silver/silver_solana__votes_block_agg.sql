@@ -20,13 +20,13 @@ WITH v AS (
 )
 
 SELECT 
-  DISTINCT
-    t.block_timestamp,
-    v.block_id, 
-    v.blockchain, 
-    num_votes
+  t.block_timestamp,
+  v.block_id, 
+  v.blockchain, 
+  num_votes
 
 FROM v
 
-LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t
+LEFT OUTER JOIN (SELECT DISTINCT block_id, block_timestamp FROM {{ ref('bronze_solana__transactions') }}) t 
 ON v.block_id = t.block_id
+
