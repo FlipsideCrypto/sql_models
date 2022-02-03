@@ -19,7 +19,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_from IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_from_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_from_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_from IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'krt_top_holder' and blockchain = 'terra') AND event_from_label_type IS NULL THEN 'Top Holder'
+           WHEN event_from IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'KRT') AND event_from_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS from_segment,
        CASE
@@ -27,7 +27,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_to IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_to_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_to_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_to IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'krt_top_holder' and blockchain = 'terra') AND event_to_label_type IS NULL THEN 'Top Holder'
+           WHEN event_to IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'KRT') AND event_to_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS to_segment,
        event_currency,
@@ -48,7 +48,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_from IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_from_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_from_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_from IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'sdt_top_holder' and blockchain = 'terra') AND event_from_label_type IS NULL THEN 'Top Holder'
+           WHEN event_from IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'SDT') AND event_from_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS from_segment,
        CASE
@@ -56,7 +56,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_to IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_to_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_to_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_to IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'sdt_top_holder' and blockchain = 'terra') AND event_to_label_type IS NULL THEN 'Top Holder'
+           WHEN event_to IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'SDT') AND event_to_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS to_segment,
        event_currency,
@@ -77,7 +77,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_from IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_from_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_from_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_from IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'luna_top_holder' and blockchain = 'terra') AND event_from_label_type IS NULL THEN 'Top Holder'
+           WHEN event_from IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'LUNA') AND event_from_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS from_segment,
        CASE
@@ -85,7 +85,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_to IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_to_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_to_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_to IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'luna_top_holder' and blockchain = 'terra') AND event_to_label_type IS NULL THEN 'Top Holder'
+           WHEN event_to IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'LUNA') AND event_to_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS to_segment,
        event_currency,
@@ -105,7 +105,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_from IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_from_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_from_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_from IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'ust_top_holder' and blockchain = 'terra') AND event_from_label_type IS NULL THEN 'Top Holder'
+           WHEN event_from IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'UST') AND event_from_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS from_segment,
        CASE
@@ -113,7 +113,7 @@ SELECT date_trunc('day', block_timestamp) AS metric_date,
            WHEN event_to IN('terra1jv65s3grqf6v6jl3dp4t6c9t9rk99cd8pm7utl','terra1dp0taj85ruc299rkdvzp4z5pfg6z6swaed74e6') THEN 'Foundation'
            WHEN event_to_label_type IN('distributor','cex') THEN 'Exchanges'
            WHEN event_to_label_type IN('project', 'defi', 'dapp') THEN 'dApps'
-           WHEN event_to IN(select distinct address from {{ ref('silver_crosschain__address_tags') }} where tag_type = 'ust_top_holder' and blockchain = 'terra') AND event_to_label_type IS NULL THEN 'Top Holder'
+           WHEN event_to IN(SELECT address FROM {{ ref('consoles_terra__top_holders') }} WHERE currency = 'UST') AND event_to_label_type IS NULL THEN 'Top Holder'
            ELSE 'Smaller Wallets'
        END AS to_segment,
        event_currency,
