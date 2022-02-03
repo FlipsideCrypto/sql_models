@@ -13,20 +13,38 @@ SELECT
   t.tx :transaction:message:recentBlockhash :: STRING AS recent_block_hash, 
   t.tx_id :: STRING AS tx_id,
   CASE WHEN t.tx :meta:status:Err IS NULL THEN TRUE ELSE FALSE END AS succeeded, 
-  t.tx :meta:preTokenBalances AS preTokenBalances, 
-  t.tx :meta:postTokenBalances AS postTokenBalances,   
-  i.event_type :: STRING AS event_type, 
+  t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
+  t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances, 
+  t.tx :meta:postTokenBalances[0]:mint :: STRING AS token_sent, 
+  t.tx :meta:postTokenBalances[array_size(t.tx :meta:postTokenBalances :: ARRAY)-1]:mint ::STRING AS token_received, 
   i.value AS instruction, 
+  ii.value AS inner_instruction, 
   t.ingested_at :: TIMESTAMP AS ingested_at
 FROM {{ ref('solana_dbt__instructions') }} i
+
+LEFT OUTER JOIN {{ ref('solana_dbt__inner_instructions') }} ii 
+ON ii.block_id = i.block_id 
+AND ii.tx_id = i.tx_id 
+AND ii.mapped_event_index = i.index
+
+{% if is_incremental() %}
+    AND ii.ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+    {% endif %}
 
 LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t 
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
 WHERE i.event_type :: STRING = 'transfer'
-AND t.tx :meta:preTokenBalances IS NOT NULL
-AND t.block_timestamp :: TIMESTAMP >= '2022-01-28'
+AND array_size(t.tx :meta:postTokenBalances :: ARRAY) >= 2
+AND t.tx :meta:postTokenBalances[0]:mint :: STRING <> t.tx :meta:postTokenBalances[array_size(t.tx :meta:postTokenBalances :: ARRAY)-1]:mint :: STRING
 
    {% if is_incremental() %}
     AND t.ingested_at >= (

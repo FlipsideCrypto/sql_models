@@ -34,9 +34,12 @@ models:
       - name: POSTTOKENBALANCES
         tests: 
           - not_null
-      - name: EVENT_TYPE
+      - name: TOKEN_SENT
         tests: 
           - not_null
+      - name: TOKEN_RECEIVED
+        tests: 
+          - not_null 
       - name: INSTRUCTION
         tests: 
           - not_null
