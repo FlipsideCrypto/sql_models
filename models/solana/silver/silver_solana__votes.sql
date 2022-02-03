@@ -25,7 +25,8 @@ WITH base_table as (
 
   WHERE tx :transaction:message:instructions[0]:parsed:type :: STRING IS NOT NULL
   AND tx :transaction:message:instructions[0]:programId :: STRING = 'Vote111111111111111111111111111111111111111'
-  
+  AND block_timestamp :: TIMESTAMP >= '2022-01-29'
+
   {% if is_incremental() %}
   AND ingested_at >= (
     SELECT
