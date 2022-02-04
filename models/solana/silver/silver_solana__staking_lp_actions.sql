@@ -36,10 +36,8 @@ WHERE i.event_type :: STRING IN ('initialize', 'split', 'deactivate', 'delegate'
       FROM
         {{ this }}
     )
-    {% endif %}
 
-{% if is_incremental() %}
-    AND i.ingested_at >= (
+  AND i.ingested_at >= (
       SELECT
         MAX(
           ingested_at
@@ -47,6 +45,7 @@ WHERE i.event_type :: STRING IN ('initialize', 'split', 'deactivate', 'delegate'
       FROM
         {{ this }}
     )
+
     {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id
