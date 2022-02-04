@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_solana__lp_actions
+  - name: silver_solana__staking_lp_actions
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

@@ -16,4 +16,4 @@ SELECT
     instruction, 
     ingested_at
 
-FROM {{ ref('silver_solana__lp_actions') }} 
+FROM {{ ref('silver_solana__staking_lp_actions') }} 
