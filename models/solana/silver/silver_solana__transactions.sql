@@ -13,13 +13,13 @@ WITH base_table as (
     tx :transaction:message:recentBlockhash :: STRING AS recent_block_hash, 
     tx_id :: STRING AS tx_id,
     tx :meta:preTokenBalances[0]:mint :: STRING as pre_mint,
-    tx :meta:postTokenBalances[0]:mint :: STRING as post_mint,
+    tx :meta:postTokenBalances[1]:mint :: STRING as post_mint,
     COALESCE(
       tx :meta:preTokenBalances[0]:owner :: STRING, 
       tx: transaction:message:instructions[0]:parsed:info:source :: STRING
     ) AS tx_from_address, 
     COALESCE (
-    tx :meta:postTokenBalances[1]:owner :: STRING,
+    tx :meta:postTokenBalances[2]:owner :: STRING,
     tx: transaction:message:instructions[0]:parsed:info:destination :: STRING
     ) AS tx_to_address,
     tx :meta:fee :: INTEGER AS fee,
@@ -30,14 +30,6 @@ WITH base_table as (
 FROM {{ ref('bronze_solana__transactions') }}
 WHERE 
   program_id <> 'Vote111111111111111111111111111111111111111'
-AND COALESCE(
-      tx :meta:preTokenBalances[0]:owner :: STRING, 
-      tx: transaction:message:instructions[0]:parsed:info:source :: STRING
-    ) IS NOT NULL 
-AND COALESCE (
-    tx :meta:postTokenBalances[1]:owner :: STRING,
-    tx: transaction:message:instructions[0]:parsed:info:destination :: STRING
-    ) IS NOT NULL
 
 {% if is_incremental() %}
 AND ingested_at >= (

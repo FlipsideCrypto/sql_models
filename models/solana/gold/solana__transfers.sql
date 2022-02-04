@@ -28,7 +28,3 @@ FROM {{ ref('silver_solana__events') }}
 
 WHERE event_type = 'transfer' 
 OR event_type = 'transferChecked'
-
-qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
-ORDER BY
-  ingested_at DESC)) = 1
