@@ -281,6 +281,34 @@ multiple_repay_borrower_tbl_raw_value AS (
   INNER JOIN multiple_repay_borrower_tbl_raw_index b
   ON a.tx_id = b.tx_id AND a.key_index = b.key_index
 ),
+multiple_repay_borrower_pivot AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    blockchain,
+    chain_id,
+    block_id,
+    key_index,
+    "'borrower'"::STRING AS borrower,
+    "'repay_amount'" AS repay_amount
+  FROM multiple_repay_borrower_tbl_raw_value
+    pivot (max(value) for tx_subtype IN ('borrower', 'repay_amount')) p
+),
+multiple_repay_borrower_pivot_agg AS (
+  SELECT
+    tx_id, 
+    block_timestamp,
+    blockchain,
+    chain_id,
+    block_id,
+    key_index,
+    MAX(key_index) OVER (PARTITION BY tx_id, borrower) AS max_key_index,
+    MIN(key_index) OVER (PARTITION BY tx_id, borrower) AS min_key_index,
+    COUNT(DISTINCT key_index) OVER (PARTITION BY tx_id, borrower) AS count_key_index,
+    borrower,
+    repay_amount
+  FROM multiple_repay_borrower_pivot
+),
 multiple_repay_borrower_tbl AS (
   SELECT 
     tx_id, 
@@ -293,33 +321,7 @@ multiple_repay_borrower_tbl AS (
     SUM(count_key_index-2) OVER (PARTITION BY tx_id ORDER BY key_index ASC) AS count_key_index,
     borrower,
     repay_amount
-  FROM (
-    SELECT
-      tx_id, 
-      block_timestamp,
-      blockchain,
-      chain_id,
-      block_id,
-      key_index,
-      MAX(key_index) OVER (PARTITION BY tx_id, borrower) AS max_key_index,
-      MIN(key_index) OVER (PARTITION BY tx_id, borrower) AS min_key_index,
-      COUNT(DISTINCT key_index) OVER (PARTITION BY tx_id, borrower) AS count_key_index,
-      borrower,
-      repay_amount
-    FROM (
-      SELECT 
-        tx_id, 
-        block_timestamp,
-        blockchain,
-        chain_id,
-        block_id,
-        key_index,
-        "'borrower'"::STRING AS borrower,
-        "'repay_amount'" AS repay_amount
-      FROM multiple_repay_borrower_tbl_raw_value
-        pivot (max(value) for tx_subtype IN ('borrower', 'repay_amount')) p
-      )
-    )
+  FROM multiple_repay_borrower_pivot_agg
   WHERE key_index <> min_key_index
   ORDER BY 
     tx_id, 
