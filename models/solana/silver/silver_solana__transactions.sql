@@ -43,14 +43,6 @@ WITH base_table AS (
     {{ ref('bronze_solana__transactions') }}
   WHERE
     program_id <> 'Vote111111111111111111111111111111111111111'
-    AND COALESCE(
-      tx :meta :preTokenBalances [0] :owner :: STRING,
-      tx: TRANSACTION :message :instructions [0] :parsed :info :source :: STRING
-    ) IS NOT NULL
-    AND COALESCE (
-      tx :meta :postTokenBalances [1] :owner :: STRING,
-      tx: TRANSACTION :message :instructions [0] :parsed :info :destination :: STRING
-    ) IS NOT NULL
 
 {% if is_incremental() %}
 AND ingested_at >= (
