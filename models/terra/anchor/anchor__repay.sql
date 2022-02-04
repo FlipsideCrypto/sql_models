@@ -36,7 +36,7 @@ GROUP BY
   2,
   3
 ),
-single_payment_tbl AS (
+single_payment_tbl_raw AS (
   SELECT
     m.blockchain,
     chain_id,
@@ -77,6 +77,83 @@ single_payment_tbl AS (
       {{ ref('silver_terra__msgs') }}
   )
   {% endif %}
+),
+single_payment_tbl_borrower AS (
+  SELECT 
+    tx_id,
+    event_type AS from_contract_type,
+    MAX(event_attributes:borrower::string) AS borrower
+  FROM {{ ref('silver_terra__msg_events') }}
+  WHERE event_type = 'from_contract' 
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (
+      SELECT
+        MAX(
+          block_timestamp :: DATE
+        )
+      FROM
+        {{ ref('silver_terra__msgs') }}
+    )
+  {% endif %}
+  GROUP BY 1,2
+),
+single_payment_tbl_all AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    block_timestamp,
+    a.tx_id,
+    sender,
+    b.borrower,
+    amount,
+    amount_usd,
+    currency,
+    contract_address,
+    contract_label,
+    from_contract_type
+  FROM single_payment_tbl_raw a
+  LEFT JOIN single_payment_tbl_borrower b
+  ON a.tx_id = b.tx_id
+),
+single_payment_tbl_in_contract AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    block_timestamp,
+    tx_id,
+    sender,
+    borrower,
+    amount,
+    amount_usd,
+    currency,
+    contract_address,
+    contract_label
+  FROM single_payment_tbl_all
+  WHERE from_contract_type IS NOT NULL
+),
+single_payment_tbl_out_contract AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    block_timestamp,
+    tx_id,
+    sender,
+    COALESCE(borrower, '') AS borrower,
+    amount,
+    amount_usd,
+    currency,
+    contract_address,
+    contract_label
+  FROM single_payment_tbl_all
+  WHERE from_contract_type IS NULL
+),
+single_payment_tbl AS (
+  SELECT * FROM single_payment_tbl_in_contract
+  UNION ALL 
+  SELECT * FROM single_payment_tbl_out_contract
 ),
 multiple_repay_tbl_events_raw AS (
   SELECT 
@@ -127,6 +204,39 @@ multiple_repay_borrower_tbl_raw_value AS (
   INNER JOIN multiple_repay_borrower_tbl_raw_index b
   ON a.tx_id = b.tx_id AND a.key_index = b.key_index
 ),
+multiple_repay_borrower_pivot AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    blockchain,
+    chain_id,
+    block_id,
+    key_index,
+    "'liquidator'"::STRING AS sender,
+    "'borrower'"::STRING AS borrower,
+    "'repay_amount'" AS repay_amount,
+    "'stable_denom'"::STRING AS stable_denom,
+    "'contract_address'"::STRING AS contract_address
+  FROM multiple_repay_borrower_tbl_raw_value
+    pivot (max(value) for tx_subtype IN ('liquidator', 'borrower', 'repay_amount', 'stable_denom', 'contract_address')) p
+),
+multiple_repay_borrower_pivot_agg AS (
+  SELECT
+    tx_id, 
+    block_timestamp,
+    blockchain,
+    chain_id,
+    block_id,
+    key_index,
+    MAX(key_index) OVER (PARTITION BY tx_id, borrower) AS max_key_index,
+    COUNT(DISTINCT key_index) OVER (PARTITION BY tx_id, borrower) AS count_key_index,
+    last_value(sender ignore nulls) over (partition by tx_id order by sender) as sender,
+    borrower,
+    repay_amount AS amount,
+    stable_denom AS currency,
+    contract_address
+  FROM multiple_repay_borrower_pivot
+),
 multiple_repay_borrower_tbl AS (
   SELECT 
     tx_id, 
@@ -142,38 +252,7 @@ multiple_repay_borrower_tbl AS (
     amount,
     currency,
     contract_address
-  FROM (
-    SELECT
-      tx_id, 
-      block_timestamp,
-      blockchain,
-      chain_id,
-      block_id,
-      key_index,
-      MAX(key_index) OVER (PARTITION BY tx_id, borrower) AS max_key_index,
-      COUNT(DISTINCT key_index) OVER (PARTITION BY tx_id, borrower) AS count_key_index,
-      last_value(sender ignore nulls) over (partition by tx_id order by sender) as sender,
-      borrower,
-      repay_amount AS amount,
-      stable_denom AS currency,
-      contract_address
-    FROM (
-      SELECT 
-        tx_id, 
-        block_timestamp,
-        blockchain,
-        chain_id,
-        block_id,
-        key_index,
-        "'liquidator'"::STRING AS sender,
-        "'borrower'"::STRING AS borrower,
-        "'repay_amount'" AS repay_amount,
-        "'stable_denom'"::STRING AS stable_denom,
-        "'contract_address'"::STRING AS contract_address
-      FROM multiple_repay_borrower_tbl_raw_value
-        pivot (max(value) for tx_subtype IN ('liquidator', 'borrower', 'repay_amount', 'stable_denom', 'contract_address')) p
-      )
-    )
+  FROM multiple_repay_borrower_pivot_agg
   WHERE key_index = max_key_index
   ORDER BY 
     tx_id, 
@@ -191,6 +270,7 @@ multiple_payment_tbl AS (
     block_timestamp,
     tx_id,
     sender,
+    borrower,
     amount / pow(
       10,
       6
