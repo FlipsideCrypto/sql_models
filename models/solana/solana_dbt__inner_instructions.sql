@@ -16,7 +16,10 @@ SELECT
     ingested_at
 FROM {{ ref('bronze_solana__transactions') }} t,
 table(flatten(tx:meta:innerInstructions)) as e
-WHERE e.value:parsed:type:: STRING <> 'vote'
+WHERE COALESCE(
+  e.value:parsed:type:: STRING, 
+  '' 
+  ) <> 'vote'
     
 {% if is_incremental() %}
   AND ingested_at >= (
