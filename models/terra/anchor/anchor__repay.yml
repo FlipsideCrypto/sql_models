@@ -6,6 +6,9 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - BORROWER
+            - AMOUNT
+            - CURRENCY
     columns:
       - name: BLOCKCHAIN
         description: the blockchain this transaction sit on
@@ -31,6 +34,10 @@ models:
         tests:
           - not_null
       - name: SENDER
+        description: the sender address for this transaction
+        tests:
+          - not_null
+      - name: BORROWER
         description: the sender address for this transaction
         tests:
           - not_null

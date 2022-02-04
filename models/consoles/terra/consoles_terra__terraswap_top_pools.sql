@@ -4,10 +4,7 @@
 ) }}
 
 SELECT
-  REGEXP_SUBSTR(
-    address_name,
-    ' (.*) '
-  ) AS contract_label,
+  address_name AS contract_label,
   msg_value :contract :: STRING AS contract_address,
   COUNT(
     DISTINCT tx_id

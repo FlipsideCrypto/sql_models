@@ -4,10 +4,12 @@
 ) }}
 
 SELECT
+    block_timestamp,
     intra,
     block_id,
     tx_group_id,
     tx_id,
+    inner_tx,
     asset_id,
     asset_address,
     asset_freeze,
@@ -15,7 +17,7 @@ SELECT
     fee,
     tx_type,
     tx_type_name,
-    genisis_hash,
+    genesis_hash,
     tx_message,
     extra
 FROM

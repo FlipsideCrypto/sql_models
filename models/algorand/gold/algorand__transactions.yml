@@ -2,11 +2,10 @@ version: 2
 models:
   - name: algorand__transactions
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - BLOCK_ID
-            - INTRA
     columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null
@@ -16,13 +15,16 @@ models:
       - name: TX_ID
         tests:
           - not_null
-      - name: ASSET_ID
+      - name: INNER_TX
         tests:
           - not_null
       - name: TX_TYPE
         tests:
           - not_null
       - name: TX_TYPE_NAME
+        tests:
+          - not_null
+      - name: GENESIS_HASH
         tests:
           - not_null
       - name: TX_MESSAGE
