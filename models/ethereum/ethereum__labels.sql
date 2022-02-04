@@ -1,6 +1,6 @@
 {{ config(
       materialized='view',
-      tags=['snowflake', 'terra_views', 'labels', 'terra_labels', 'address_labels']  
+      tags=['snowflake', 'ethereum_views', 'labels', 'ethereum_labels', 'address_labels']  
     ) 
 }}
 
@@ -13,4 +13,4 @@ SELECT
   project_name as label, 
   address_name as address_name
 FROM {{ref('silver_crosschain__address_labels')}}
-WHERE blockchain = 'terra'
+WHERE blockchain = 'ethereum'
