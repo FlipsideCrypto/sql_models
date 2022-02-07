@@ -12,6 +12,7 @@ WITH v AS (
     blockchain, 
     count(block_id) AS num_votes
   FROM {{ ref('silver_solana__votes') }}
+  
   {% if is_incremental() %}
      WHERE ingested_at >= getdate() - interval '2 days'
   {% endif %}
