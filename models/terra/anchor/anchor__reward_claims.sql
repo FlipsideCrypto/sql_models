@@ -222,7 +222,7 @@ SELECT
   sender,
   0 as claim_0_amount,
   0 as claim_0_currency,
-  0 as claim_0_contract,
+  'terra1897an2xux840p9lrh6py3ryankc6mspw49xse3' as claim_0_contract,
   claim_1_amount,
   claim_1_currency,
   claim_1_contract
@@ -243,7 +243,7 @@ SELECT
   m.contract_address AS claim_0_contract,
   0 as claim_1_amount,
   0 as claim_1_currency,
-  0 as claim_1_contract
+  'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s' as claim_1_contract
 FROM {{ ref('silver_terra__msg_events') }} e
     
 JOIN single_withdraw_msgs m
@@ -271,12 +271,12 @@ SELECT
   claim_0_amount * p0.price AS claim_0_amount_usd,
   claim_0_currency,
   claim_0_contract,
-  l0.address AS claim_0_contract_label,
+  l0.address_name AS claim_0_contract_label,
   claim_1_amount,
   claim_1_amount * p1.price AS claim_1_amount_usd,
   claim_1_currency,
   claim_1_contract,
-  l1.address AS claim_1_contract_label
+  l1.address_name AS claim_1_contract_label
 FROM
   all_claims c
   
