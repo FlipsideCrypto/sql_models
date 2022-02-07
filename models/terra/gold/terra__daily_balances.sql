@@ -60,7 +60,7 @@ AND DATE >= getdate() - INTERVAL '3 days'
 UNION
 
 SELECT
-  date_trunc('day', b.block_timestamp) as DATE,
+  DATE,
   b.address,
   address_labels.l1_label AS address_label_type,
   address_labels.l2_label AS address_label_subtype,
@@ -75,19 +75,17 @@ FROM {{ ref('silver_terra__block_synthetic_balances') }} b
   
 LEFT OUTER JOIN prices p
   ON p.symbol = currency
-  AND p.day = date_trunc('day', b.block_timestamp)
+  AND p.day = b.date
 
 LEFT OUTER JOIN prices i
   ON i.address_name = currency
-  AND i.day = date_trunc('day', b.block_timestamp)
+  AND i.day = b.date
   
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS address_labels
   ON b.address = address_labels.address 
   AND address_labels.blockchain = 'terra' 
   AND address_labels.creator = 'flipside'
 
-WHERE balance > 0
-
 {% if is_incremental() %}
-AND date_trunc('day', block_timestamp) >= getdate() - INTERVAL '3 days'
+WHERE date_trunc('day', block_timestamp) >= getdate() - INTERVAL '3 days'
 {% endif %}

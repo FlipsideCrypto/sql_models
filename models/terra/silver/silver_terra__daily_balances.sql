@@ -78,7 +78,10 @@ balance_tmp AS (
     d.date,
     d.address,
     d.currency,
-    b.balance,
+    CASE
+    WHEN d.currency IN ('LUNA', 'UST', 'KRT', 'MNT', 'SDT', 'krw', 'mnt', 'sdr') THEN b.balance
+    ELSE b.balance / POW(10,6)
+    END AS balance,
     d.balance_type,
     d.blockchain
   FROM
