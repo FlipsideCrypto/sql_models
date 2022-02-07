@@ -220,16 +220,16 @@ SELECT
   block_timestamp,
   c.tx_id,
   sender,
-  claim_0_amount AS staking_reward_amount,
-  claim_0_amount * p0.price AS staking_reward_amount_usd,
-  claim_0_currency AS staking_reward_currency,
-  claim_0_contract AS staking_reward_contract,
-  l0.address AS staking_reward_contract_label,
-  claim_1_amount AS market_reward_amount,
-  claim_1_amount * p1.price AS market_reward_amount_usd,
-  claim_1_currency AS market_reward_currency,
-  claim_1_contract AS market_reward_contract,
-  l1.address AS market_reward_contract_label
+  claim_0_amount,
+  claim_0_amount * p0.price AS claim_0_amount_usd,
+  claim_0_currency,
+  claim_0_contract,
+  l0.address AS claim_0_contract_label,
+  claim_1_amount,
+  claim_1_amount * p1.price AS claim_1_amount_usd,
+  claim_1_currency,
+  claim_1_contract,
+  l1.address AS claim_1_contract_label
 FROM
   all_claims c
   
