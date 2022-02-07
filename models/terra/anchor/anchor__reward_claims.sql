@@ -220,9 +220,9 @@ SELECT
   block_timestamp,
   tx_id,
   sender,
-  NULL as claim_0_amount,
-  NULL as claim_0_currency,
-  NULL as claim_0_contract,
+  0 as claim_0_amount,
+  0 as claim_0_currency,
+  0 as claim_0_contract,
   claim_1_amount,
   claim_1_currency,
   claim_1_contract
@@ -241,9 +241,9 @@ SELECT
   event_attributes :"0_amount" / pow(10,6) AS claim_0_amount,
   event_attributes :"1_contract_address" :: STRING AS claim_0_currency,
   m.contract_address AS claim_0_contract,
-  NULL as claim_1_amount,
-  NULL as claim_1_currency,
-  NULL as claim_1_contract
+  0 as claim_1_amount,
+  0 as claim_1_currency,
+  0 as claim_1_contract
 FROM {{ ref('silver_terra__msg_events') }} e
     
 JOIN single_withdraw_msgs m
