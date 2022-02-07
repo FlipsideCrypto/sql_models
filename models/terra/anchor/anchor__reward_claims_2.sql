@@ -70,7 +70,7 @@ WHERE msg_value:execute_msg:claim_rewards IS NOT NULL
 
 ),
 
-all_rewards (
+all_rewards AS (
 
 -- Staking Reward 
 SELECT
