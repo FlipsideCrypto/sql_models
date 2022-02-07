@@ -172,6 +172,24 @@ JOIN single_claim_msgs m
 
 ),
 
+single_withdraw_msgs AS (
+
+SELECT 
+  blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  tx_id,
+  msg_index,
+  msg_value :sender :: STRING as sender,
+  msg_value :contract :: STRING AS contract_address
+FROM  withdraw_claims
+WHERE tx_id NOT IN(SELECT 
+                     DISTINCT tx_id 
+                   FROM multi_claim_msgs) 
+    
+),
+
 all_claims AS (
 
 SELECT
@@ -210,6 +228,35 @@ SELECT
   claim_1_contract
 FROM
   single_claim_events
+
+UNION 
+
+SELECT
+  m.blockchain,
+  m.chain_id,
+  m.block_id,
+  m.block_timestamp,
+  m.tx_id,
+  m.sender,
+  event_attributes :"0_amount" / pow(10,6) AS claim_0_amount,
+  event_attributes :"1_contract_address" :: STRING AS claim_0_currency,
+  m.contract_address AS claim_0_contract,
+  NULL as claim_1_amount,
+  NULL as claim_1_currency,
+  NULL as claim_1_contract
+FROM {{ ref('silver_terra__msg_events') }} e
+    
+JOIN single_withdraw_msgs m
+  ON m.tx_id = e.tx_id
+  AND m.msg_index = e.msg_index
+
+WHERE event_type = 'from_contract'
+  AND tx_status = 'SUCCEEDED'
+  AND event_attributes :"0_action" :: STRING = 'withdraw'
+
+{% if is_incremental() %}
+  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
     
 )
 
