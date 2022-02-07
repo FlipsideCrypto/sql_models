@@ -221,7 +221,7 @@ SELECT
   tx_id,
   sender,
   0 as claim_0_amount,
-  0 as claim_0_currency,
+  'terra14z56l0fp2lsf86zy3hty2z47ezkhnthtr9yq76' as claim_0_currency,
   'terra1897an2xux840p9lrh6py3ryankc6mspw49xse3' as claim_0_contract,
   claim_1_amount,
   claim_1_currency,
@@ -242,7 +242,7 @@ SELECT
   event_attributes :"1_contract_address" :: STRING AS claim_0_currency,
   m.contract_address AS claim_0_contract,
   0 as claim_1_amount,
-  0 as claim_1_currency,
+  'terra14z56l0fp2lsf86zy3hty2z47ezkhnthtr9yq76' as claim_1_currency,
   'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s' as claim_1_contract
 FROM {{ ref('silver_terra__msg_events') }} e
     
