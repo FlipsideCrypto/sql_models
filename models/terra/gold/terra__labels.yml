@@ -10,6 +10,9 @@ models:
       - name: BLOCKCHAIN
         tests:
           - not_null
+      - name: CREATOR
+        tests: 
+          - not_null
       - name: LABEL
         tests:
           - not_null
@@ -19,3 +22,8 @@ models:
       - name: LABEL_TYPE
         tests:
           - not_null
+      - name: ADDRESS_NAME
+        description: Name of the controlling entity of the address
+        tests:
+          - not_null: 
+              enabled: False # Bug in deposit wallet algorithm causing nulls in this field

@@ -68,7 +68,7 @@ massets AS(
     m.block_timestamp,
     m.block_id,
     m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
-    p.address_name AS symbol,
+    coalesce(p.address_name, p.address) AS symbol,
     m.msg_value :execute_msg :feed_price :prices [0] [1] :: FLOAT AS price
   FROM
     {{ ref('silver_terra__msgs') }} m
