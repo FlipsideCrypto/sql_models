@@ -41,19 +41,14 @@ WITH base_table AS (
     END AS transfer_tx_flag
   FROM
     {{ ref('bronze_solana__transactions') }}
-  WHERE
-    program_id <> 'Vote111111111111111111111111111111111111111'
+  
+  WHERE program_id IS NULL 
+  OR program_id <> 'Vote111111111111111111111111111111111111111'
 
 {% if is_incremental() %}
-AND ingested_at >= (
-  SELECT
-    MAX(
-      ingested_at
-    )
-  FROM
-    {{ this }}
-)
+  AND ingested_at >= getdate() - interval '2 days'
 {% endif %}
+
 )
 SELECT
   block_timestamp,
