@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id, index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'solana', 'silver_solana', 'solana_events']
+  tags = ['snowflake', 'solana', 'silver_solana', 'solana_nfts']
 ) }}
 
 
@@ -40,6 +40,15 @@ AND t.tx_id = i.tx_id
     WHERE t.ingested_at >= getdate() - interval '2 days'
     AND i.ingested_at >= getdate() - interval '2 days'
   {% endif %}
+
+AND i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8', 
+                                      '617jbWo616ggkDxvW1Le8pV38XLbVSyWY8ae6QUmGBAU', 
+                                      'CJsLwbP1iu5DuUikHEJnLfANgKy6stB2uFgvBBHoyxwz', 
+                                      'AmK5g2XcyptVLCFESBCJqoSfwV3znGoVYQnqEnaAZKWn', 
+                                      '2CkRtcdfBTxRrCZxJ81NbiMYytsmt2eRUGq7xmAwoRyyjALj231CtW8qSPp2Lv2mhChrWeEcDRf5x3n28f3y3oBx', 
+                                      'SPf5WqNywtPrRXSU5enq5z9bPPhREaSYf2LhN5fUxcj', 
+                                      '2k8iJk39MtwMVEDMNuvUpEsm2jhBb8678jAqQkGEhu3bxPW4HesVkdJzMuMvgn61ST1S5YpskxVNaPDhrheUmjz9', 
+                                      'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ')
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id, i.index
 ORDER BY
