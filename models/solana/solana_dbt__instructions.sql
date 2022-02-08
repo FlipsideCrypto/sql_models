@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id, e.index)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['ingested_at::DATE'],
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_events']
@@ -24,6 +24,8 @@ WHERE COALESCE(
 AND COALESCE(
   e.value:programId :: STRING, 
   '') NOT IN ('FsJ3A3u2vn5cTVofAjvy6y5kwABJAqYWpe4975bi2epH', 'DtmE9D2CSB4L5D6A15mraeEjrGMm6auWVzgaD8hK2tZM')
+
+AND block_timestamp >= '2022-02-05'
 
 {% if is_incremental() %}
   AND ingested_at >= getdate() - interval '2 days'
