@@ -43,6 +43,7 @@ AND t.tx_id = i.tx_id
 WHERE i.event_type :: STRING = 'transfer'
 AND array_size(t.tx :meta:postTokenBalances :: ARRAY) >= 2
 AND t.tx :meta:postTokenBalances[0]:mint :: STRING <> t.tx :meta:postTokenBalances[array_size(t.tx :meta:postTokenBalances :: ARRAY)-1]:mint :: STRING
+AND block_timestamp >= '2022-02-01'
 
    {% if is_incremental() %}
     AND t.ingested_at >= (
