@@ -20,21 +20,26 @@ models:
           - not_null
       - name: TX_POSITION
         tests:
-          - not_null
+          - not_null:
+              enabled: False
       - name: NONCE
         tests:
-          - not_null
+          - not_null:
+              enabled: False
       - name: FROM_ADDRESS
         description: The sender/initiator of the transaction.
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
+              enabled: False
       - name: TO_ADDRESS
         tests:
-          - not_null
+          - not_null:
+              enabled: False
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
+              enabled: False
       - name: INPUT_METHOD
         tests:
           - not_null:
