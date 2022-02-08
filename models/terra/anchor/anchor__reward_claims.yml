@@ -6,6 +6,9 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - SENDER
+            - CLAIM_0_AMOUNT
+            - CLAIM_1_AMOUNT
     columns:
       - name: BLOCKCHAIN
         tests:

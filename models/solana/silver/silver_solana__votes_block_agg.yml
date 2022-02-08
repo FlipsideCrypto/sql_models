@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: silver_solana__votes_block_agg
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+          where: block_timestamp::date >= current_date - 2
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCKCHAIN 
+        tests: 
+          - not_null
+      - name: NUM_VOTES
+        tests: 
+          - not_null
