@@ -4,28 +4,17 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - ADDRESS
             - DATE
+            - ADDRESS
             - CURRENCY
             - BALANCE_TYPE
+          where: DATE > CURRENT_DATE - 30
     columns:
       - name: ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-z]{39,39}
-      # - name: ADDRESS_LABEL
-      #   tests:
-      #     - not_null
-      # - name: ADDRESS_LABEL_SUBTYPE
-      #   tests:
-      #     - not_null
-      # - name: ADDRESS_LABEL_TYPE
-      #   tests:
-      #     - not_null
-      # - name: ADDRESS_NAME
-      #   tests:
-      #     - not_null
       - name: BALANCE
         tests:
           - not_null
@@ -35,8 +24,11 @@ models:
       - name: BALANCE_USD
         tests:
           - not_null:
-              where: DATE > '2021-05-15'
+              where: DATE > CURRENT_DATE - 30 AND IS_NATIVE = TRUE
       - name: CURRENCY
+        tests:
+          - not_null
+      - name: IS_NATIVE
         tests:
           - not_null
       - name: DATE
@@ -44,4 +36,4 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 2
+              interval: 3

@@ -8,13 +8,14 @@ models:
     columns:
       - name: BLOCK_ID
         tests:
-          - not_null
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 3
+              interval: 1
       - name: NETWORK
         tests:
           - not_null
@@ -30,13 +31,13 @@ models:
       - name: BLOCK_TIME
         tests:
           - not_null
-      - name: BLOCKHASH
+      - name: BLOCK_HASH
         tests: 
           - not_null
       - name: PREVIOUS_BLOCK_ID
         tests: 
           - not_null
-      - name: PREVIOUS_BLOCKHASH
+      - name: PREVIOUS_BLOCK_HASH
         tests: 
           - not_null
       - name: INGESTED_AT

@@ -5,25 +5,27 @@
 
 SELECT
     block_timestamp, 
-    block_id,
+    block_id, 
     blockchain, 
-    recent_blockhash, 
+    recent_block_hash, 
     tx_id, 
-    ei.value:parsed:info:authority :: STRING AS tx_from_address,
-    ei.value:parsed:info:destination :: STRING AS tx_to_address, 
-    ei.value:parsed:info:amount/POW(10,9) :: INTEGER AS solana_amount, 
+    index, 
+    event_type, 
+    preTokenBalances, 
+    postTokenBalances, 
+    instruction:parsed:info:destination :: STRING AS destination, 
+    instruction:parsed:info:source :: STRING AS source, 
+    instruction:parsed:info:authority :: STRING AS authority,
+    CASE 
+        WHEN event_type = 'transferChecked' THEN instruction:parsed:info:tokenAmount:amount/POW(10,6)
+        WHEN event_type = 'transfer' AND instruction:programId :: STRING = '11111111111111111111111111111111' THEN instruction:parsed:info:lamports/POW(10,9)
+        ELSE instruction:parsed:info:amount/POW(10,6) END
+    AS amount, 
+    instruction:programId :: STRING AS program_id, 
     succeeded, 
-    ei.value:programId :: STRING AS program_id,
     ingested_at, 
     CASE WHEN program_id <> 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA' THEN TRUE ELSE FALSE END AS transfer_tx_flag 
-FROM {{ ref('silver_solana__events') }}, 
+FROM {{ ref('silver_solana__events') }}
 
-LATERAL FLATTEN (
-    input => event_info ) ei
-
-WHERE ei.value:parsed:type :: STRING = 'transfer'
-AND ei.value:program :: STRING = 'spl-token'
-
-qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
-ORDER BY
-  ingested_at DESC)) = 1
+WHERE event_type = 'transfer' 
+OR event_type = 'transferChecked'

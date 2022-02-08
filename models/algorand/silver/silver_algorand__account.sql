@@ -14,6 +14,10 @@ SELECT
     10,
     6
   ) AS rewardsbase,
+  rewards_total / pow(
+    10,
+    6
+  ) AS rewards_total,
   microalgos / pow(
     10,
     6

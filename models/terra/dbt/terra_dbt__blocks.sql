@@ -2,6 +2,7 @@
   materialized = 'incremental',
   unique_key = "CONCAT_WS('-', chain_id, block_id)",
   incremental_strategy = 'delete+insert',
+  cluster_by = ['_inserted_timestamp::DATE'],
   tags = ['snowflake', 'terra_silver', 'terra_blocks']
 ) }}
 
@@ -21,11 +22,9 @@ WITH base_tables AS (
     )
 
 {% if is_incremental() %}
-AND (
-  record_metadata :CreateTime :: INT / 1000
-) :: TIMESTAMP :: DATE >= (
+AND _inserted_timestamp >= (
   SELECT
-    DATEADD('day', -1, MAX(system_created_at :: DATE))
+    MAX(_inserted_timestamp)
   FROM
     {{ this }}
 )
@@ -35,6 +34,7 @@ SELECT
   (
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
+  _inserted_timestamp,
   record_content :model :blockchain :: STRING AS chain_id,
   t.value :block_id :: INT AS block_id,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,

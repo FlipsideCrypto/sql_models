@@ -1,0 +1,45 @@
+version: 2
+models:
+  - name: ethereum__labels
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - CREATOR
+            - ADDRESS
+    columns:
+      - name: BLOCKCHAIN
+        description: The name of the blockchain
+        tests:
+          - not_null
+      - name: CREATOR
+        description: The name of the creator of the label
+        tests:
+          - not_null
+      - name: LABEL_TYPE
+        description: A high-level category describing the addresses main function or ownership
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin']
+      - name: LABEL_SUBTYPE
+        description: A sub-category nested within label type providing further detail
+        tests:
+          - not_null
+      - name: LABEL
+        description: Name of the controlling entity of the address
+        tests:
+          - not_null
+      - name: ADDRESS_NAME
+        description: Name of the controlling entity of the address
+        tests:
+          - not_null: 
+              enabled: False # Bug in deposit wallet algorithm causing nulls in this field
+      - name: ADDRESS
+        description: Address that the label is for 
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+              where: BLOCKCHAIN = 'ethereum'
+      
