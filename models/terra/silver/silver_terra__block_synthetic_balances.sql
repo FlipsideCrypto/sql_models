@@ -1,17 +1,17 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
+  unique_key = "CONCAT_WS('-', date, address, currency)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
-  tags = ['snowflake', 'silver_terra', 'silver_terra__daily_balances']
+  tags = ['snowflake', 'silver_terra', 'silver_terra__synthetic_balances']
 ) }}
 
 WITH address_ranges AS (
 
   SELECT
-    address,
-    currency,
-    balance_type,
+    SUBSTRING(inputs,25,44) as address,
+    b.value:denom::string as currency,
+    'liquid' as balance_type,
     'terra' AS blockchain,
     MIN(
       block_timestamp :: DATE
@@ -19,17 +19,11 @@ WITH address_ranges AS (
     MAX(
       CURRENT_TIMESTAMP :: DATE
     ) AS max_block_date
-  FROM
-    {{ source(
-      'shared',
-      'terra_balances'
-    ) }}
-  GROUP BY
-    1,
-    2,
-    3,
-    4
+  FROM {{ ref('terra_dbt__synthetic_balances') }},
+  LATERAL FLATTEN(input => value_obj :balances) b
+  GROUP BY address, currency, balance_type, blockchain
 ),
+
 cte_my_date AS (
   SELECT
     HOUR :: DATE AS DATE
@@ -41,6 +35,7 @@ cte_my_date AS (
   GROUP BY
     1
 ),
+
 all_dates AS (
   SELECT
     C.date,
@@ -56,50 +51,49 @@ all_dates AS (
   WHERE
     A.address IS NOT NULL
 ),
-eth_balances AS (
+
+synth_balances AS (
   SELECT
-    address,
-    currency,
+    SUBSTRING(inputs,25,44) AS address,
+    b.value:denom::string AS currency,
     block_timestamp,
-    balance_type,
+    'liquid' AS balance_type,
     'terra' AS blockchain,
-    balance
+    b.value:amount::FLOAT as balance
   FROM
-    {{ source(
-      'shared',
-      'terra_balances'
-    ) }}
+    {{ ref('terra_dbt__synthetic_balances') }},
+    LATERAL FLATTEN(input => value_obj :balances) b
+
     qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
   ORDER BY
     balance DESC)) = 1
 ),
-balance_tmp AS (
+
+synth_balance_tmp AS (
   SELECT
     d.date,
     d.address,
     d.currency,
-    CASE
-    WHEN d.currency IN ('LUNA', 'UST', 'KRT', 'MNT', 'SDT', 'krw', 'mnt', 'sdr') THEN b.balance
-    ELSE b.balance / POW(10,6)
-    END AS balance,
+    b.balance,
     d.balance_type,
     d.blockchain
   FROM
     all_dates d
-    LEFT JOIN eth_balances b
+    LEFT JOIN synth_balances b
     ON d.date = b.block_timestamp :: DATE
     AND d.address = b.address
     AND d.currency = b.currency
     AND d.balance_type = b.balance_type
     AND d.blockchain = b.blockchain
 )
+
 SELECT
   DATE,
   address,
   currency,
   balance_type,
   blockchain,
-  TRUE as is_native,
+  FALSE AS is_native,
   LAST_VALUE(
     balance ignore nulls
   ) over(
@@ -111,4 +105,4 @@ SELECT
       DATE ASC rows unbounded preceding
   ) AS balance
 FROM
-  balance_tmp
+  synth_balance_tmp

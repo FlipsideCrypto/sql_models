@@ -1,9 +1,9 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id, index)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'solana', 'silver_solana', 'solana_events']
+  tags = ['snowflake', 'solana', 'silver_solana', 'solana_LP']
 ) }}
 
 
@@ -16,31 +16,38 @@ SELECT
   CASE WHEN t.tx :meta:status:Err IS NULL THEN TRUE ELSE FALSE END AS succeeded, 
   t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
   t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances,   
-  i.index :: INTEGER AS index, 
   i.event_type :: STRING AS event_type, 
   i.value AS instruction, 
-  ii.value as inner_instruction,
   t.ingested_at :: TIMESTAMP AS ingested_at
 FROM {{ ref('solana_dbt__instructions') }} i
-
-LEFT OUTER JOIN {{ ref('solana_dbt__inner_instructions') }} ii 
-ON ii.block_id = i.block_id 
-AND ii.tx_id = i.tx_id 
-AND ii.mapped_event_index = i.index
-
-{% if is_incremental() %}
-     WHERE ii.ingested_at >= getdate() - interval '2 days'
-{% endif %}
 
 LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t 
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
-  {% if is_incremental() %}
-     WHERE t.ingested_at >= getdate() - interval '2 days'
-     AND i.ingested_at >= getdate() - interval '2 days'
-  {% endif %}
+WHERE i.event_type :: STRING IN ('initialize', 'split', 'deactivate', 'delegate', 'withdraw', 'merge', 'authorize', 'allocate', 'assign', 'setLockup')
 
-qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id, i.index
+   {% if is_incremental() %}
+    AND t.ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+
+  AND i.ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+
+    {% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id
 ORDER BY
   t.ingested_at DESC)) = 1
