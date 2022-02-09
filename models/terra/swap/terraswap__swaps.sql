@@ -125,7 +125,7 @@ swaps AS (
     AND l.creator = 'flipside'
 ),
 
-msgs_multi_swaps_raw AS (
+msgs_multi_swaps_raw_type_1 AS (
   SELECT
     blockchain,
     chain_id,
@@ -143,9 +143,12 @@ msgs_multi_swaps_raw AS (
   WHERE
     msg_value :execute_msg :run :operations[0] :code ::STRING = 'swap'
     AND tx_status = 'SUCCEEDED'
-  
-  UNION ALL 
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+),
 
+msgs_multi_swaps_raw_type_2 AS (
   SELECT
     blockchain,
     chain_id,
@@ -163,9 +166,12 @@ msgs_multi_swaps_raw AS (
   WHERE 
     msg_value :execute_msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-  
-  UNION ALL 
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+),
 
+msgs_multi_swaps_raw_type_3_msg AS (
   SELECT
     blockchain,
     chain_id,
@@ -183,6 +189,76 @@ msgs_multi_swaps_raw AS (
   WHERE
     msg_value :execute_msg :send :msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+),
+
+msgs_multi_swaps_raw_type_3_events_raw AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    event_type,
+    event_attributes,
+    msg_index,
+    key,
+    value,
+    split_part(key, '_', 1) AS tx_index, 
+    MAX(split_part(key, '_', 1)) OVER (PARTITION BY tx_id) AS max_tx_index,
+    SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key)) AS tx_subtype
+  FROM {{ ref('silver_terra__msg_events') }}
+  , lateral flatten ( input => event_attributes)
+  WHERE event_type = 'from_contract'
+    AND tx_id IN (SELECT tx_id FROM msgs_multi_swaps_raw_type_3_msg) 
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  {% endif %} 
+),
+
+msgs_multi_swaps_raw_type_3_events_index AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    tx_index
+  FROM msgs_multi_swaps_raw_type_3_events_raw
+  WHERE value = 'swap'
+),
+
+msgs_multi_swaps_raw_type_3_events_value AS (
+  SELECT 
+    a.tx_id, 
+    RANK() OVER (PARTITION BY a.tx_id ORDER BY a.tx_index ASC) AS tx_index,
+    a.value::STRING AS pool_address
+  FROM msgs_multi_swaps_raw_type_3_events_raw a
+  INNER JOIN msgs_multi_swaps_raw_type_3_events_index b
+  ON a.tx_id = b.tx_id AND a.tx_index = b.tx_index
+  WHERE key LIKE '%_contract_address'
+),
+
+msgs_multi_swaps_raw_type_3 AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    a.tx_index,
+    max_tx_index,
+    block_timestamp,
+    a.tx_id,
+    sender,
+    b.pool_address AS pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_type_3_msg a
+  LEFT JOIN msgs_multi_swaps_raw_type_3_events_value b
+  ON a.tx_id = b.tx_id AND a.tx_index = b.tx_index
+),
+
+msgs_multi_swaps_raw AS (
+  SELECT * FROM msgs_multi_swaps_raw_type_1
+  UNION ALL 
+  SELECT * FROM msgs_multi_swaps_raw_type_2
+  UNION ALL 
+  SELECT * FROM msgs_multi_swaps_raw_type_3
 ),
 
 msgs_multi_swaps AS (
@@ -297,6 +373,42 @@ swaps_multi_swaps AS (
     AND l.creator = 'flipside'
 )
 
-SELECT DISTINCT * FROM swaps
+SELECT DISTINCT
+  BLOCKCHAIN,
+  CHAIN_ID,
+  BLOCK_ID,
+  MSG_INDEX,
+  TX_INDEX,
+  BLOCK_TIMESTAMP,
+  TX_ID,
+  SENDER,
+  OFFER_AMOUNT,
+  OFFER_AMOUNT_USD,
+  OFFER_CURRENCY,
+  RETURN_AMOUNT,
+  RETURN_AMOUNT_USD,
+  RETURN_CURRENCY,
+  POOL_ADDRESS,
+  POOL_NAME
+FROM swaps
+
 UNION ALL 
-SELECT DISTINCT * FROM swaps_multi_swaps
+
+SELECT DISTINCT
+  BLOCKCHAIN,
+  CHAIN_ID,
+  BLOCK_ID,
+  MSG_INDEX,
+  TX_INDEX,
+  BLOCK_TIMESTAMP,
+  TX_ID,
+  SENDER,
+  OFFER_AMOUNT,
+  OFFER_AMOUNT_USD,
+  OFFER_CURRENCY,
+  RETURN_AMOUNT,
+  RETURN_AMOUNT_USD,
+  RETURN_CURRENCY,
+  POOL_ADDRESS,
+  POOL_NAME
+FROM swaps_multi_swaps
