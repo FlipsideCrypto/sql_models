@@ -41,13 +41,14 @@ WITH token_transfers AS (
                 contract_address = '0x59728544b08ab483533076417fbbb2fd0b17ce3a'
         )
         AND token_id IS NOT NULL
+
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
 -- -- filter out intermediate addresses
 -- token_transfers as (
---     select 
+--     select
 --         tx_id,
 --         contract_address,
 --         block_timestamp,
@@ -133,23 +134,34 @@ tx_paid AS (
     FROM
         token_transfer_events
     WHERE
-        (from_address = buyer or origin_address = buyer)
-    AND 
-        to_address = seller
-    qualify(row_number() over (partition by tx_id, origin_address, from_address, to_address order by event_id desc)) = 1
+        (
+            from_address = buyer
+            OR origin_address = buyer
+        )
+        AND to_address = seller qualify(ROW_NUMBER() over (PARTITION BY tx_id, origin_address, from_address, to_address
+    ORDER BY
+        event_id DESC)) = 1
 ),
--- creator_fee AS (
---     SELECT
---         tx_id,
---         amount AS creator_fee
---     FROM
---         token_transfer_events
---     WHERE
---         (from_address = buyer or origin_address = buyer)
---     AND 
---         to_address <> '0x5924a28caaf1cc016617874a2f0c3710d881f3c1'
---     qualify(row_number() over (partition by tx_id, origin_address, from_address, to_address order by event_id)) = 1
--- ),
+creator_fee AS (
+    SELECT
+        tx_id,
+        amount AS creator_fee
+    FROM
+        token_transfer_events
+    WHERE
+        (
+            from_address = buyer
+            OR origin_address = buyer
+        )
+        AND to_address NOT IN (
+            '0x5924a28caaf1cc016617874a2f0c3710d881f3c1',
+            '0x59728544b08ab483533076417fbbb2fd0b17ce3a'
+        )
+        AND event_id IS NOT NULL
+        AND symbol = 'WETH' qualify(ROW_NUMBER() over (PARTITION BY tx_id, origin_address, from_address
+    ORDER BY
+        event_id)) = 1
+),
 -- find how much is paid to looksrare
 platform_fees AS (
     SELECT
@@ -174,11 +186,11 @@ SELECT
         platform_fee / n_tokens,
         0
     ) AS platform_fee,
-    -- COALESCE(
-    --     cf.creator_fee / n_tokens,
-    --     0
-    -- ) AS creator_fee,
-    0 as creator_fee,
+    COALESCE(
+        cf.creator_fee / n_tokens,
+        0
+    ) AS creator_fee,
+    -- 0 as creator_fee,
     CASE
         WHEN tx_currency IS NULL THEN tx_currency_contract
         ELSE tx_currency
@@ -191,7 +203,10 @@ FROM
     ON tt.tx_id = platform_fees.tx_id
     LEFT OUTER JOIN nfts_per_tx
     ON tt.tx_id = nfts_per_tx.tx_id
-    -- LEFT OUTER JOIN creator_fee cf
-    -- ON tt.tx_id = cf.tx_id
+    LEFT OUTER JOIN creator_fee cf
+    ON tt.tx_id = cf.tx_id
+    AND cf.creator_fee <> price
 WHERE
-    tt.tx_id <> '0xc5fd70e0f59961e5e73453060f547c098535365035f66b003e301339eb288c70'
+    tt.tx_id <> '0xc5fd70e0f59961e5e73453060f547c098535365035f66b003e301339eb288c70' -- filter out this transaction that has multiple looks rare sales
+    AND price IS NOT NULL -- filter out things missing in udm events
+    AND tx_currency = 'WETH'
