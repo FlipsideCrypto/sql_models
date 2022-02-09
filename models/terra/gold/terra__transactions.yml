@@ -24,7 +24,8 @@ models:
           - not_null
       - name: CODESPACE
         tests:
-          - not_null
+          - not_null:
+              where: chain_id = 'columbus-5'
       - name: FEE
         tests:
           - not_null
@@ -36,7 +37,8 @@ models:
           - not_null
       - name: TX_CODE
         tests:
-          - not_null
+          - not_null:
+              where: chain_id = 'columbus-5'
       - name: TX_ID
         tests:
           - not_null
@@ -48,7 +50,8 @@ models:
           - not_null
       - name: TX_STATUS_MSG
         tests:
-          - not_null
+          - not_null:
+              where: TX_STATUS = 'FAILED'
       - name: TX_TYPE
         tests:
           - not_null

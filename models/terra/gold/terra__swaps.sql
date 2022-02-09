@@ -18,26 +18,10 @@ WITH msgs AS(
     tx_id,
     msg_index,
     msg_type,
-    REGEXP_REPLACE(
-      msg_value :trader,
-      '\"',
-      ''
-    ) AS trader,
-    REGEXP_REPLACE(
-      msg_value :ask_denom,
-      '\"',
-      ''
-    ) AS ask_currency,
-    REGEXP_REPLACE(
-      msg_value :offer_coin :amount,
-      '\"',
-      ''
-    ) AS offer_amount,
-    REGEXP_REPLACE(
-      msg_value :offer_coin :denom,
-      '\"',
-      ''
-    ) AS offer_currency,
+    msg_value :trader :: STRING AS trader,
+    msg_value :ask_denom :: STRING AS ask_currency,
+    msg_value :offer_coin :amount :: NUMBER AS offer_amount,
+    msg_value :offer_coin :denom :: STRING AS offer_currency,
     msg_value
   FROM
     {{ ref('silver_terra__msgs') }}
@@ -55,46 +39,15 @@ events_transfer AS(
     event_type,
     event_attributes,
     msg_index,
-    REGEXP_REPLACE(
-      event_attributes :"0_sender",
-      '\"',
-      ''
-    ) AS "0_sender",
-    REGEXP_REPLACE(
-      event_attributes :"0_recipient",
-      '\"',
-      ''
-    ) AS "0_recipient",
-    REGEXP_REPLACE(
-      event_attributes :"0_amount" [0] :amount,
-      '\"',
-      ''
-    ) AS "0_amount",
-    REGEXP_REPLACE(
-      event_attributes :"0_amount" [0] :denom,
-      '\"',
-      ''
-    ) AS "0_amount_currency",
-    REGEXP_REPLACE(
-      event_attributes :"1_sender",
-      '\"',
-      ''
-    ) AS "1_sender",
-    REGEXP_REPLACE(
-      event_attributes :"1_recipient",
-      '\"',
-      ''
-    ) AS "1_recipient",
-    REGEXP_REPLACE(
-      event_attributes :"1_amount" [0] :amount,
-      '\"',
-      ''
-    ) AS "1_amount",
-    REGEXP_REPLACE(
-      event_attributes :"1_amount" [0] :denom,
-      '\"',
-      ''
-    ) AS "1_amount_currency"
+    -- event_index,
+    event_attributes :"0_sender" :: STRING AS "0_sender",
+    event_attributes :"0_recipient" :: STRING AS "0_recipient",
+    event_attributes :"0_amount" [0] :amount :: NUMBER AS "0_amount",
+    event_attributes :"0_amount" [0] :denom :: STRING AS "0_amount_currency",
+    event_attributes :"1_sender" :: STRING AS "1_sender",
+    event_attributes :"1_recipient" :: STRING AS "1_recipient",
+    event_attributes :"1_amount" [0] :amount :: NUMBER AS "1_amount",
+    event_attributes :"1_amount" [0] :denom :: STRING AS "1_amount_currency"
   FROM
     {{ ref('silver_terra__msg_events') }}
   WHERE
@@ -110,12 +63,9 @@ fees AS(
     tx_id,
     event_type,
     msg_index,
+    -- event_index,
     event_attributes :swap_fee [0] :amount AS swap_fee_amount,
-    REGEXP_REPLACE(
-      event_attributes :swap_fee [0] :denom,
-      '\"',
-      ''
-    ) AS swap_fee_currency
+    event_attributes :swap_fee [0] :denom :: STRING AS swap_fee_currency
   FROM
     {{ ref('silver_terra__msg_events') }}
   WHERE
@@ -149,6 +99,7 @@ SELECT
   m.block_timestamp,
   m.tx_status,
   m.tx_id,
+  m.msg_index,
   f.swap_fee_amount / pow(
     10,
     6
