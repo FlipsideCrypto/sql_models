@@ -6,7 +6,7 @@
 ) }}
 -- first get every NFT transfer that happens
 -- in a transaction with the AtomicMatch function:
-WITH token_transfers_tmp AS (
+WITH token_transfers AS (
 
     SELECT
         tx_id,
@@ -21,10 +21,10 @@ WITH token_transfers_tmp AS (
             event_inputs :_to :: STRING
         ) AS buyer,
         COALESCE(
-            event_inputs :tokenId :: STRING,
-            event_inputs :_id :: STRING,
-            event_inputs :id :: STRING
-        ) AS token_id_str
+            event_inputs :tokenId,
+            event_inputs :_id,
+            event_inputs :id
+        ) AS token_id
     FROM
         {{ ref('silver_ethereum__events_emitted') }}
     WHERE
@@ -40,24 +40,23 @@ WITH token_transfers_tmp AS (
             WHERE
                 contract_address = '0x59728544b08ab483533076417fbbb2fd0b17ce3a'
         )
-        AND token_id_str IS NOT NULL
-        AND len(token_id_str) < 18
-
+        AND token_id IS NOT NULL
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
-token_transfers AS (
-    SELECT
-        tx_id,
-        contract_address,
-        block_timestamp,
-        seller,
-        buyer,
-        token_id_str :: bigint AS token_id
-    FROM
-        token_transfers_tmp
-),
+-- -- filter out intermediate addresses
+-- token_transfers as (
+--     select 
+--         tx_id,
+--         contract_address,
+--         block_timestamp,
+--         token_id,
+--         max(case when seller = '0x677a2749082fcfbe0ae12300e2c0c1309a50e81f' then null else seller end) as seller,
+--         max(case when buyer = '0x677a2749082fcfbe0ae12300e2c0c1309a50e81f' then null else buyer end) as buyer
+--     from token_transfers_tmp
+--     group by 1,2,3,4
+-- ),
 -- count how many tokens are in the txn
 nfts_per_tx AS (
     SELECT
@@ -85,19 +84,12 @@ tx_buyer_seller AS (
         buyer,
         seller
 ),
--- sale_price as (
---     select
---         tx_id,
---         event_inputs:collection::string,
---     from
---         {{ ref('silver_ethereum__events_emitted') }}
---     where
---         event_name in ('TakerBid','TakerAsk')
--- )
 -- now find the fungible token transfers
 token_transfer_events AS (
     SELECT
         ee.tx_id,
+        event_id,
+        origin_address,
         from_address,
         contract_address,
         buyer,
@@ -141,8 +133,23 @@ tx_paid AS (
     FROM
         token_transfer_events
     WHERE
-        from_address = buyer
+        (from_address = buyer or origin_address = buyer)
+    AND 
+        to_address = seller
+    qualify(row_number() over (partition by tx_id, origin_address, from_address, to_address order by event_id desc)) = 1
 ),
+-- creator_fee AS (
+--     SELECT
+--         tx_id,
+--         amount AS creator_fee
+--     FROM
+--         token_transfer_events
+--     WHERE
+--         (from_address = buyer or origin_address = buyer)
+--     AND 
+--         to_address <> '0x5924a28caaf1cc016617874a2f0c3710d881f3c1'
+--     qualify(row_number() over (partition by tx_id, origin_address, from_address, to_address order by event_id)) = 1
+-- ),
 -- find how much is paid to looksrare
 platform_fees AS (
     SELECT
@@ -151,7 +158,7 @@ platform_fees AS (
     FROM
         token_transfer_events
     WHERE
-        to_address = '0x59728544b08ab483533076417fbbb2fd0b17ce3a'
+        to_address = '0x5924a28caaf1cc016617874a2f0c3710d881f3c1'
 ) -- we're joining on the original NFT transfers CTE
 SELECT
     'looksrare' AS event_platform,
@@ -167,7 +174,11 @@ SELECT
         platform_fee / n_tokens,
         0
     ) AS platform_fee,
-    0 AS creator_fee,
+    -- COALESCE(
+    --     cf.creator_fee / n_tokens,
+    --     0
+    -- ) AS creator_fee,
+    0 as creator_fee,
     CASE
         WHEN tx_currency IS NULL THEN tx_currency_contract
         ELSE tx_currency
@@ -180,3 +191,7 @@ FROM
     ON tt.tx_id = platform_fees.tx_id
     LEFT OUTER JOIN nfts_per_tx
     ON tt.tx_id = nfts_per_tx.tx_id
+    -- LEFT OUTER JOIN creator_fee cf
+    -- ON tt.tx_id = cf.tx_id
+WHERE
+    tt.tx_id <> '0xc5fd70e0f59961e5e73453060f547c098535365035f66b003e301339eb288c70'
