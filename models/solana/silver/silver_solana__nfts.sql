@@ -13,11 +13,11 @@ SELECT
   t.chain_id :: STRING AS blockchain, 
   t.tx :transaction:message:recentBlockhash :: STRING AS recent_block_hash, 
   t.tx_id :: STRING AS tx_id,
+  t.tx :meta:postTokenBalances[0]:mint AS mint, 
   CASE WHEN t.tx :meta:status:Err IS NULL THEN TRUE ELSE FALSE END AS succeeded, 
   t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
   t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances,   
   i.index :: INTEGER AS index, 
-  i.event_type :: STRING AS event_type, 
   i.value AS instruction, 
   ii.value as inner_instruction,
   t.ingested_at :: TIMESTAMP AS ingested_at

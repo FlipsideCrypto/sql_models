@@ -26,6 +26,9 @@ models:
       - name: TX_ID
         tests:
           - not_null
+      - name: mint
+        tests: 
+          - not_null
       - name: SUCCEEDED
         tests: 
           - not_null
