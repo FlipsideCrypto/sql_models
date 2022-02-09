@@ -2,6 +2,7 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
+  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'algorand', 'transaction_participation', 'silver_algorand']
 ) }}
 
@@ -23,10 +24,11 @@ WITH inner_tx_individual AS(
     address
 )
 SELECT
-  block_id,
-  intra,
+  ab.block_timestamp AS block_timestamp,
+  iti.block_id,
+  iti.intra,
   algorand_decode_hex_addr(
-    address :: text
+    iti.address :: text
   ) AS address,
   concat_ws(
     '-',
@@ -36,7 +38,10 @@ SELECT
   ) AS _unique_key,
   _FIVETRAN_SYNCED
 FROM
-  inner_tx_individual
+  inner_tx_individual iti
+  LEFT JOIN {{ ref('silver_algorand__block') }}
+  ab
+  ON b.round = ab.block_id
 WHERE
   1 = 1
 
