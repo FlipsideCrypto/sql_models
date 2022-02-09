@@ -13,12 +13,12 @@ WITH token_transfers AS (
         contract_addr AS contract_address,
         block_timestamp,
         COALESCE(
-            event_inputs :from :: STRING,
-            event_inputs :_from :: STRING
+            event_inputs :from,
+            event_inputs :_from
         ) AS seller,
         COALESCE(
-            event_inputs :to :: STRING,
-            event_inputs :_to :: STRING
+            event_inputs :to,
+            event_inputs :_to
         ) AS buyer,
         COALESCE(
             event_inputs :tokenId,
@@ -209,4 +209,4 @@ FROM
 WHERE
     tt.tx_id <> '0xc5fd70e0f59961e5e73453060f547c098535365035f66b003e301339eb288c70' -- filter out this transaction that has multiple looks rare sales
     AND price IS NOT NULL -- filter out things missing in udm events
-    AND tx_currency = 'WETH'
+    AND tx_currency = 'WETH' -- ignore other currencies, all looksrare sales are transacted in WETH
