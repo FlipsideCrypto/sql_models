@@ -4,8 +4,7 @@
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'ethereum', 'nft']
 ) }}
--- first get every NFT transfer that happens
--- in a transaction with the AtomicMatch function:
+-- first get every NFT transfer that happens on looksrare
 WITH token_transfers AS (
 
     SELECT
@@ -46,18 +45,6 @@ WITH token_transfers AS (
 AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
--- -- filter out intermediate addresses
--- token_transfers as (
---     select
---         tx_id,
---         contract_address,
---         block_timestamp,
---         token_id,
---         max(case when seller = '0x677a2749082fcfbe0ae12300e2c0c1309a50e81f' then null else seller end) as seller,
---         max(case when buyer = '0x677a2749082fcfbe0ae12300e2c0c1309a50e81f' then null else buyer end) as buyer
---     from token_transfers_tmp
---     group by 1,2,3,4
--- ),
 -- count how many tokens are in the txn
 nfts_per_tx AS (
     SELECT
@@ -142,6 +129,7 @@ tx_paid AS (
     ORDER BY
         event_id DESC)) = 1
 ),
+-- find royalty payment if any for sale
 creator_fee AS (
     SELECT
         tx_id,
@@ -190,7 +178,6 @@ SELECT
         cf.creator_fee / n_tokens,
         0
     ) AS creator_fee,
-    -- 0 as creator_fee,
     CASE
         WHEN tx_currency IS NULL THEN tx_currency_contract
         ELSE tx_currency
