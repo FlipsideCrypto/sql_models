@@ -18,9 +18,12 @@ FROM
     'terra',
     'terra_validator_voting_power'
   ) }}
-WHERE
-  1 = 1
 
 {% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '1 days'
+WHERE
+  block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
+
+qualify(ROW_NUMBER() over (PARTITION BY block_id, address
+ORDER BY
+  block_timestamp DESC)) = 1
