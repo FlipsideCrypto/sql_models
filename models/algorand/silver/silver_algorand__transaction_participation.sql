@@ -32,16 +32,16 @@ SELECT
   ) AS address,
   concat_ws(
     '-',
-    block_id :: STRING,
-    intra :: STRING,
-    address :: STRING
+    iti.block_id :: STRING,
+    iti.intra :: STRING,
+    iti.address :: stringg
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  iti._FIVETRAN_SYNCED
 FROM
   inner_tx_individual iti
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
-  ON b.round = ab.block_id
+  ON iti.block_id = ab.block_id
 WHERE
   1 = 1
 
