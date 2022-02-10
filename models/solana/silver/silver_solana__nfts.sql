@@ -45,7 +45,7 @@ WHERE i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTp
                                       '2k8iJk39MtwMVEDMNuvUpEsm2jhBb8678jAqQkGEhu3bxPW4HesVkdJzMuMvgn61ST1S5YpskxVNaPDhrheUmjz9', 
                                       'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ')
 
-AND t.block_timestamp >= '2022-02-06'
+AND  t.tx :meta:postTokenBalances[0]:mint :: STRING IS NOT NULL
 
  {% if is_incremental() %}
     AND t.ingested_at >= getdate() - interval '2 days'

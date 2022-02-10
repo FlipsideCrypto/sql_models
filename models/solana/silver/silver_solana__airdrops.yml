@@ -37,9 +37,6 @@ models:
       - name: SOURCE
         tests: 
           - not_null
-      - name: EVENT_TYPE
-        tests: 
-          - not_null
       - name: INGESTED_AT
         tests: 
           - not_null
