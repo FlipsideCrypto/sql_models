@@ -16,7 +16,6 @@ SELECT
     source, 
     preTokenBalances,  
     postTokenBalances, 
-    event_type, 
     instruction, 
     ingested_at
 

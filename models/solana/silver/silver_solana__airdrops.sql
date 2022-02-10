@@ -20,7 +20,6 @@ SELECT
   i.value :parsed:info:source :: STRING AS source, 
   t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
   t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances,   
-  i.event_type :: STRING AS event_type, 
   i.value AS instruction, 
   t.ingested_at :: TIMESTAMP AS ingested_at
 FROM {{ ref('solana_dbt__instructions') }} i

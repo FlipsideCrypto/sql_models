@@ -13,7 +13,7 @@ SELECT
   t.chain_id :: STRING AS blockchain, 
   t.tx :transaction:message:recentBlockhash :: STRING AS recent_block_hash, 
   t.tx_id :: STRING AS tx_id,
-  t.tx :meta:postTokenBalances[0]:mint AS mint, 
+  t.tx :meta:postTokenBalances[0]:mint :: STRING AS mint, 
   CASE WHEN t.tx :meta:status:Err IS NULL THEN TRUE ELSE FALSE END AS succeeded, 
   t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
   t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances,   
@@ -36,12 +36,7 @@ LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
-  {% if is_incremental() %}
-    WHERE t.ingested_at >= getdate() - interval '2 days'
-    AND i.ingested_at >= getdate() - interval '2 days'
-  {% endif %}
-
-AND i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8', 
+WHERE i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8', 
                                       '617jbWo616ggkDxvW1Le8pV38XLbVSyWY8ae6QUmGBAU', 
                                       'CJsLwbP1iu5DuUikHEJnLfANgKy6stB2uFgvBBHoyxwz', 
                                       'AmK5g2XcyptVLCFESBCJqoSfwV3znGoVYQnqEnaAZKWn', 
@@ -49,6 +44,13 @@ AND i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTpo8
                                       'SPf5WqNywtPrRXSU5enq5z9bPPhREaSYf2LhN5fUxcj', 
                                       '2k8iJk39MtwMVEDMNuvUpEsm2jhBb8678jAqQkGEhu3bxPW4HesVkdJzMuMvgn61ST1S5YpskxVNaPDhrheUmjz9', 
                                       'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ')
+
+AND t.block_timestamp >= '2022-02-06'
+
+ {% if is_incremental() %}
+    AND t.ingested_at >= getdate() - interval '2 days'
+    AND i.ingested_at >= getdate() - interval '2 days'
+  {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id, i.index
 ORDER BY
