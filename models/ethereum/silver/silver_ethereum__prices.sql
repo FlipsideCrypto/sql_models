@@ -6,9 +6,20 @@
     tags = ['snowflake', 'ethereum', 'silver_ethereum__prices']
 ) }}
 
-WITH metadata AS (
-    WITH tmp AS (
+WITH decimals AS (
 
+    SELECT
+        LOWER(address) AS address,
+        meta :decimals :: INT AS decimals
+    FROM
+        {{ ref('silver_ethereum__contracts') }}
+    WHERE
+        meta :decimals NOT LIKE '%00%' qualify(ROW_NUMBER() over(PARTITION BY address
+    ORDER BY
+        decimals DESC) = 1)
+),
+metadata AS (
+    WITH tmp AS (
         SELECT
             token_address,
             symbol,
@@ -100,7 +111,9 @@ WITH metadata AS (
 coinmarketcap AS (
     SELECT
         m.symbol,
-        lower(m.token_address) as token_address,
+        LOWER(
+            m.token_address
+        ) AS token_address,
         DATE_TRUNC(
             'hour',
             recorded_at
@@ -122,13 +135,17 @@ AND recorded_at >= getdate() - INTERVAL '2 days'
 {% endif %}
 GROUP BY
     m.symbol,
-    lower(m.token_address),
+    LOWER(
+        m.token_address
+    ),
     HOUR
 ),
 coingecko AS (
     SELECT
         m.symbol,
-        lower(m.token_address) as token_address,
+        LOWER(
+            m.token_address
+        ) AS token_address,
         DATE_TRUNC(
             'hour',
             recorded_at
@@ -150,10 +167,12 @@ AND recorded_at >= getdate() - INTERVAL '2 days'
 {% endif %}
 GROUP BY
     m.symbol,
-    lower(m.token_address),
+    LOWER(
+        m.token_address
+    ),
     HOUR
 ),
-decimals AS (
+decimals_old AS (
     SELECT
         LOWER(address) AS address,
         decimals
@@ -182,7 +201,10 @@ SELECT
         cg.price,
         cmc.price
     ) AS price,
-    d.decimals
+    COALESCE(
+        d.decimals,
+        DO.decimals
+    ) AS decimals
 FROM
     coingecko cg full
     OUTER JOIN coinmarketcap cmc
@@ -199,9 +221,14 @@ FROM
         cmc.token_address
     )
     LEFT JOIN decimals d
-    ON LOWER(
-        d.address
-    ) = LOWER(
+    ON d.address = LOWER(
+        COALESCE(
+            cg.token_address,
+            cmc.token_address
+        )
+    )
+    LEFT JOIN decimals_old DO
+    ON DO.address = LOWER(
         COALESCE(
             cg.token_address,
             cmc.token_address
