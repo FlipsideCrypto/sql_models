@@ -23,7 +23,7 @@ WITH token_transfers AS (
       SELECT
         tx_hash
       FROM
-        silver.ethereum_events
+        {{ ref('silver_ethereum__events') }}
       WHERE
         input_method = '0xab834bab'
     )
@@ -48,7 +48,7 @@ WHERE
     SELECT
       tx_hash
     FROM
-      silver.ethereum_events
+      {{ ref('silver_ethereum__events') }}
     WHERE
       input_method = '0xab834bab'
   )
@@ -73,7 +73,7 @@ WHERE
     SELECT
       tx_hash
     FROM
-      silver.ethereum_events
+      {{ ref('silver_ethereum__events') }}
     WHERE
       input_method = '0xab834bab'
   )
@@ -98,7 +98,7 @@ WHERE
     SELECT
       tx_hash
     FROM
-      silver.ethereum_events
+      {{ ref('silver_ethereum__events') }}
     WHERE
       input_method = '0xab834bab'
   )

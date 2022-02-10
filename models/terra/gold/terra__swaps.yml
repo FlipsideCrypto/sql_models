@@ -5,10 +5,9 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
+            - TX_ID
+            - MSG_INDEX
     columns:
-      - name: ASK_CURRENCY
-        tests:
-          - not_null
       - name: BLOCKCHAIN
         tests:
           - not_null
@@ -26,89 +25,64 @@ models:
           - not_null
       - name: OFFER_AMOUNT
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: OFFER_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
-      - name: OFFER_CURRENCY
-        tests:
-          - not_null
       - name: PRICE0_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: PRICE1_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: SWAP_FEE_AMOUNT
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: SWAP_FEE_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
-      - name: SWAP_FEE_CURRENCY
-        tests:
-          - not_null
-      - name: SWAP_PAIR
-        tests:
-          - not_null
       - name: TOKEN_0_AMOUNT
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: TOKEN_0_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
-      - name: TOKEN_0_CURRENCY
-        tests:
-          - not_null
       - name: TOKEN_1_AMOUNT
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: TOKEN_1_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
-      - name: TOKEN_1_CURRENCY
-        tests:
-          - not_null
       - name: TRADER
         tests:
           - not_null

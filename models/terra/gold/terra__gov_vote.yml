@@ -5,6 +5,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
+            - TX_ID
     columns:
       - name: BLOCKCHAIN
         tests:
@@ -34,21 +35,6 @@ models:
         tests:
           - not_null
       - name: VOTER
-        tests:
-          - not_null
-      - name: VOTER_ADDRESS_LABEL
-        tests:
-          - not_null
-      - name: VOTER_ADDRESS_NAME
-        tests:
-          - not_null
-      - name: VOTER_LABEL_SUBTYPE
-        tests:
-          - not_null
-      - name: VOTER_LABEL_TYPE
-        tests:
-          - not_null
-      - name: VOTING_POWER
         tests:
           - not_null
       - name: '"OPTION"'

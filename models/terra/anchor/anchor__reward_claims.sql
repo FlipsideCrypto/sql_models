@@ -255,7 +255,7 @@ WHERE event_type = 'from_contract'
   AND event_attributes :"0_action" :: STRING = 'withdraw'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  AND e.block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}
     
 )
