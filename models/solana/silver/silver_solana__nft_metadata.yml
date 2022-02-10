@@ -1,0 +1,49 @@
+version: 2
+models:
+  - name: silver_solana__nft_metadata
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - CONTRACT_ADDRESS
+            - TOKEN_ID
+    columns:
+      - name: BLOCKCHAIN
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: CONTRACT_NAME
+        tests:
+          - not_null
+      - name: CREATED_AT_TIMESTAMP
+        tests:
+          - not_null
+      - name: MINT
+        tests:
+          - not_null: 
+              enabled: False # Data is not yet in  bronze
+      - name: CREATOR_ADDRESS
+        tests:  
+          - not_null
+      - name: CREATOR_NAME
+        tests:
+          - not_null
+      - name: IMAGE_URL
+        tests:
+          - not_null
+      - name: PROJECT_NAME
+        tests:
+          - not_null
+      - name: TOKEN_ID
+        tests:
+          - not_null
+      - name: TOKEN_METADATA
+        tests:
+          - not_null
+      - name: TOKEN_METADATA_URI
+        tests:
+          - not_null
+      - name: TOKEN_NAME
+        tests:
+          - not_null

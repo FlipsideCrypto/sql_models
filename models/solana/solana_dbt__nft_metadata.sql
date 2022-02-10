@@ -7,7 +7,7 @@
 
 WITH base_tables AS (
 
-SELECT
+SELECT 
   *
 FROM
   {{ source(
@@ -38,10 +38,12 @@ SELECT
   (
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
-  'solana' AS blockchain,
+  record_content:model:blockchain :: STRING AS blockchain,
+  record_content:results[0]:contract_name :: STRING AS contract_name,
+  record_content:results[0]:token_id :: STRING AS token_id, 
+  record_content:results[0]:mint_address :: STRING AS mint, 
   t.value :commission_rate :: FLOAT AS commission_rate,
   t.value :contract_address :: STRING AS contract_address,
-  t.value :contract_name :: STRING AS contract_name,
   t.value :created_at_block_id :: bigint AS created_at_block_id,
   t.value :created_at_timestamp :: TIMESTAMP AS created_at_timestamp,
   t.value :created_at_tx_id :: STRING AS created_at_tx_id,
@@ -49,7 +51,6 @@ SELECT
   t.value :creator_name :: STRING AS creator_name,
   t.value :image_url :: STRING AS image_url,
   t.value :project_name :: STRING AS project_name,
-  t.value :token_id :: STRING AS token_id,
   t.value :token_metadata :: OBJECT AS token_metadata,
   t.value :token_metadata_uri :: STRING AS token_metadata_uri,
   t.value :token_name :: STRING AS token_name,*
