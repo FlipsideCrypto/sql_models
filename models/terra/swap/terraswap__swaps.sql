@@ -63,6 +63,23 @@ msgs AS (
   WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
 
+  UNION
+
+  -- non-native to native
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    msg_value :execute_msg :send :contract :: STRING AS pool_address
+  FROM {{ ref('silver_terra__msgs') }}
+  WHERE msg_value :execute_msg :send :msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
+    AND msg_value :execute_msg :send :msg :execute_swap_operations :operations[1] :terra_swap IS NULL
+    AND tx_status = 'SUCCEEDED'
+
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %}
@@ -141,7 +158,7 @@ msgs_multi_swaps_raw_type_1 AS (
   FROM {{ ref('silver_terra__msgs') }}
   , lateral flatten ( input => msg_value :execute_msg :run :operations)
   WHERE
-    msg_value :execute_msg :run :operations[0] :code ::STRING = 'swap'
+    msg_value :execute_msg :run :operations[1] :code ::STRING = 'swap'
     AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
@@ -164,7 +181,7 @@ msgs_multi_swaps_raw_type_2 AS (
   FROM {{ ref('silver_terra__msgs') }}
   , lateral flatten ( msg_value :execute_msg :execute_swap_operations :operations)
   WHERE 
-    msg_value :execute_msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
+    msg_value :execute_msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
@@ -187,7 +204,7 @@ msgs_multi_swaps_raw_type_3_msg AS (
   FROM {{ ref('silver_terra__msgs') }}
   , lateral flatten ( msg_value :execute_msg :send :msg :execute_swap_operations :operations)
   WHERE
-    msg_value :execute_msg :send :msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
+    msg_value :execute_msg :send :msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
@@ -250,7 +267,7 @@ msgs_multi_swaps_raw_type_3 AS (
     msg_value
   FROM msgs_multi_swaps_raw_type_3_msg a
   LEFT JOIN msgs_multi_swaps_raw_type_3_events_value b
-  ON a.tx_id = b.tx_id AND a.tx_index = b.tx_index
+  ON a.tx_id = b.tx_id AND (a.tx_index+1) = b.tx_index
 ),
 
 msgs_multi_swaps_raw AS (
