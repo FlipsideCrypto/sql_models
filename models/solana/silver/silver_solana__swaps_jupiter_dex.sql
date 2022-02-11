@@ -121,7 +121,7 @@ SELECT
     s1.mint AS swap_from_mint,
     s2.amount * pow(
         10,- s2.decimal
-    ) AS swap_to_mint,
+    ) AS swap_to_amount,
     s2.mint AS swap_to_mint
 FROM
     swaps_tmp s1

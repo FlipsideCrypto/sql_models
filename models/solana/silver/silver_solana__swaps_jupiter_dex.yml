@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_solana__swaps
+  - name: silver_solana__swaps_jupiter_dex
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -16,27 +16,21 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: BLOCKCHAIN 
-        tests: 
-          - not_null
-      - name: RECENT_BLOCK_HASH
-        tests:
-          - not_null
       - name: TX_ID
         tests:
           - not_null
-      - name: SUCCEEDED
+      - name: SWAPPER
         tests: 
           - not_null
-      - name: PRETOKENBALANCES
+      - name: SWAP_FROM_AMOUNT
         tests: 
           - not_null
-      - name: POSTTOKENBALANCES
+      - name: SWAP_FROM_MINT
         tests: 
           - not_null
-      - name: INSTRUCTION
+      - name: SWAP_TO_AMOUNT
         tests: 
           - not_null
-      - name: INGESTED_AT
+      - name: SWAP_TO_MINT
         tests: 
           - not_null
