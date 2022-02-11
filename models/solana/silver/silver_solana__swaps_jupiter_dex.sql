@@ -9,7 +9,9 @@
 WITH jupiter_dex_txs AS (
 
     SELECT
-        DISTINCT i.tx_id,
+        DISTINCT i.block_id,
+        i.block_timestamp,
+        i.tx_id,
         t.account_keys,
         t.succeeded
     FROM
@@ -28,6 +30,8 @@ AND t.ingested_at >= CURRENT_DATE - 2
 ),
 destinations AS (
     SELECT
+        i.block_id,
+        i.block_timestamp,
         i.tx_id,
         i.succeeded,
         i.index,
@@ -107,7 +111,9 @@ swaps_tmp AS (
         )
 )
 SELECT
-    s1.tx_id,,
+    s1.tx_id,
+    s1.block_id,
+    s1.block_timestamp,
     s2.owner AS swapper,
     s1.amount * pow(
         10,- s1.decimal
