@@ -34,7 +34,7 @@ SELECT
     '-',
     iti.block_id :: STRING,
     iti.intra :: STRING,
-    iti.address :: stringg
+    iti.address :: STRING
   ) AS _unique_key,
   iti._FIVETRAN_SYNCED
 FROM
@@ -46,7 +46,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND iti._FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _FIVETRAN_SYNCED
