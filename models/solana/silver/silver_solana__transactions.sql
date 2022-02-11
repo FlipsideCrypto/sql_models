@@ -63,7 +63,8 @@ SELECT
   succeeded,
   program_id,
   ingested_at,
-  transfer_tx_flag
+  transfer_tx_flag,
+  account_keys
 FROM
   base_table qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
 ORDER BY
