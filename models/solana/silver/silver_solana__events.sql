@@ -29,41 +29,17 @@ AND ii.tx_id = i.tx_id
 AND ii.mapped_event_index = i.index
 
 {% if is_incremental() %}
-    AND ii.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-    {% endif %}
+  AND ii.ingested_at >= getdate() - interval '2 days'
+{% endif %}
 
 LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t 
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
-   {% if is_incremental() %}
-    AND t.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-    {% endif %}
-
-{% if is_incremental() %}
-    WHERE i.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-    {% endif %}
+  {% if is_incremental() %}
+    WHERE t.ingested_at >= getdate() - interval '2 days'
+    AND i.ingested_at >= getdate() - interval '2 days'
+  {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id, i.index
 ORDER BY

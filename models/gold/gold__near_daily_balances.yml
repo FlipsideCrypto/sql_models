@@ -8,3 +8,4 @@ models:
             - DATE
             - ADDRESS
             - BALANCE_TYPE
+          enabled: False

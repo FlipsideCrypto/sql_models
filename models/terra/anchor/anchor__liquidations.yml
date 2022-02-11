@@ -1,12 +1,15 @@
 version: 2
 models:
   - name: anchor__liquidations
+    enabled: False # delete line/enable when model is fixed.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
             - BORROWER
+            - LIQUIDATED_AMOUNT
+            - LIQUIDATED_CURRENCY
     columns:
       - name: BLOCKCHAIN
         description: the blockchain this transaction sit on
@@ -28,7 +31,7 @@ models:
               datepart: day
               interval: 4
       - name: TX_ID
-        description: the unique identifier to find this transaction 
+        description: the unique identifier to find this transaction
         tests:
           - not_null
       - name: BID_FEE
@@ -47,7 +50,7 @@ models:
         tests:
           - not_null
       - name: LIQUIDATED_AMOUNT
-        description: the liquidated amount in the currency listed in the CURRENCY column 
+        description: the liquidated amount in the currency listed in the CURRENCY column
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -65,30 +68,11 @@ models:
         description: the liquidated currency
         tests:
           - not_null
-      - name: REPAY_AMOUNT
-        description: the repay amount in the currency listed in the CURRENCY column 
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: REPAY_AMOUNT_USD
-        description: the repay amount in USD 
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
-      - name: REPAY_CURRENCY
-        description: the repay currency
-        tests:
-          - not_null
       - name: CONTRACT_ADDRESS
         description: Anchor contract address
         tests:
-          - not_null 
+          - not_null
       - name: CONTRACT_LABEL
         description: Anchor contract address in the label
         tests:
-          - not_null 
+          - not_null

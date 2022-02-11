@@ -22,17 +22,18 @@ WITH rewards_event AS (
     msg_index,
     event_type,
     event_attributes,
-    VALUE :amount / pow(
+    amt.index AS event_attributes_amount_index,
+    amt.value :amount / pow(
       10,
       6
     ) AS event_rewards_amount,
-    VALUE :denom :: STRING AS event_rewards_currency,
+    amt.value :denom :: STRING AS event_rewards_currency,
     event_attributes :validator :: STRING AS validator_address
   FROM
     {{ ref('silver_terra__msg_events') }},
     LATERAL FLATTEN(
       input => event_attributes :amount
-    )
+    ) amt
   WHERE
     msg_module = 'distribution'
     AND msg_type = 'distribution/MsgWithdrawDelegationReward'
@@ -53,22 +54,10 @@ rewards AS (
     tx_id,
     msg_type,
     msg_index,
-    REGEXP_REPLACE(
-      msg_value :delegator_address,
-      '\"',
-      ''
-    ) AS delegator_address,
-    REGEXP_REPLACE(
-      msg_value :validator_address,
-      '\"',
-      ''
-    ) AS validator_address,
+    msg_value :delegator_address :: STRING AS delegator_address,
+    msg_value :validator_address :: STRING AS validator_address,
     REGEXP_REPLACE(msg_value :amount :amount / pow(10, 6), '\"', '') AS event_amount,
-    REGEXP_REPLACE(
-      msg_value :amount :denom,
-      '\"',
-      ''
-    ) AS event_currency
+    msg_value :amount :denom :: STRING AS event_currency
   FROM
     {{ ref('silver_terra__msgs') }}
   WHERE
@@ -90,6 +79,7 @@ rewards_event_base AS (
     tx_id,
     msg_type,
     msg_index,
+    event_attributes_amount_index,
     event_rewards_amount,
     event_rewards_currency,
     validator_address
@@ -105,8 +95,7 @@ SELECT
   rewards_event_base.tx_id,
   rewards_event_base.msg_type,
   rewards_event_base.msg_index,
-  rewards_event_base.event_rewards_amount AS event_transfer_amount,
-  rewards_event_base.event_rewards_currency AS event_transfer_currency,
+  rewards_event_base.event_attributes_amount_index,
   rewards_event_base.event_rewards_amount,
   rewards_event_base.event_rewards_currency,
   'withdraw_delegator_rewards' AS action,

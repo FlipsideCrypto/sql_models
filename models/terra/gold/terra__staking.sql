@@ -45,23 +45,12 @@ delegate AS (
     block_id,
     block_timestamp,
     tx_id,
+    msg_index,
     'delegate' AS action,
-    REGEXP_REPLACE(
-      msg_value :delegator_address,
-      '\"',
-      ''
-    ) AS delegator_address,
-    REGEXP_REPLACE(
-      msg_value :validator_address,
-      '\"',
-      ''
-    ) AS validator_address,
+    msg_value :delegator_address :: STRING AS delegator_address,
+    msg_value :validator_address :: STRING AS validator_address,
     REGEXP_REPLACE(msg_value :amount :amount / pow(10, 6), '\"', '') AS amount,
-    REGEXP_REPLACE(
-      msg_value :amount :denom,
-      '\"',
-      ''
-    ) AS currency
+    msg_value :amount :denom :: STRING AS currency
   FROM
     {{ ref('silver_terra__msgs') }}
   WHERE
@@ -88,23 +77,12 @@ undelegate AS (
     block_id,
     block_timestamp,
     tx_id,
+    msg_index,
     'undelegate' AS action,
-    REGEXP_REPLACE(
-      msg_value :delegator_address,
-      '\"',
-      ''
-    ) AS delegator_address,
-    REGEXP_REPLACE(
-      msg_value :validator_address,
-      '\"',
-      ''
-    ) AS validator_address,
+    msg_value :delegator_address :: STRING AS delegator_address,
+    msg_value :validator_address :: STRING AS validator_address,
     REGEXP_REPLACE(msg_value :amount :amount / pow(10, 6), '\"', '') AS amount,
-    REGEXP_REPLACE(
-      msg_value :amount :denom,
-      '\"',
-      ''
-    ) AS currency
+    msg_value :amount :denom :: STRING AS currency
   FROM
     {{ ref('silver_terra__msgs') }}
   WHERE
@@ -131,23 +109,12 @@ redelegate AS (
     block_id,
     block_timestamp,
     tx_id,
+    msg_index,
     'redelegate' AS action,
-    REGEXP_REPLACE(
-      msg_value :delegator_address,
-      '\"',
-      ''
-    ) AS delegator_address,
-    REGEXP_REPLACE(
-      msg_value :validator_dst_address,
-      '\"',
-      ''
-    ) AS validator_address,
+    msg_value :delegator_address :: STRING AS delegator_address,
+    msg_value :validator_dst_address :: STRING AS validator_address,
     REGEXP_REPLACE(msg_value :amount :amount / pow(10, 6), '\"', '') AS amount,
-    REGEXP_REPLACE(
-      msg_value :amount :denom,
-      '\"',
-      ''
-    ) AS currency
+    msg_value :amount :denom :: STRING AS currency
   FROM
     {{ ref('silver_terra__msgs') }}
   WHERE
@@ -172,6 +139,7 @@ SELECT
   A.tx_status,
   A.block_id,
   A.block_timestamp,
+  A.msg_index,
   A.tx_id,
   A.action,
   A.delegator_address,
@@ -213,7 +181,11 @@ FROM
   )
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   delegator_labels
-  ON A.delegator_address = delegator_labels.address AND delegator_labels.blockchain = 'terra' AND delegator_labels.creator = 'flipside'
+  ON A.delegator_address = delegator_labels.address
+  AND delegator_labels.blockchain = 'terra'
+  AND delegator_labels.creator = 'flipside'
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   validator_labels
-  ON A.validator_address = validator_labels.address AND validator_labels.blockchain = 'terra' AND validator_labels.creator = 'flipside'
+  ON A.validator_address = validator_labels.address
+  AND validator_labels.blockchain = 'terra'
+  AND validator_labels.creator = 'flipside'
