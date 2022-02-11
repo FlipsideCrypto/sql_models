@@ -10,6 +10,7 @@ SELECT
     block_timestamp, 
     block_id, 
     tx_id, 
+    b.index, 
     b.value :accountIndex :: INTEGER as account_index,
     b.value :mint :: STRING as mint, 
     b.value :owner :: STRING as owner, 
