@@ -26,15 +26,8 @@ AND ii.tx_id = i.tx_id
 AND ii.mapped_event_index = i.index
 
 {% if is_incremental() %}
-    AND ii.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-    {% endif %}
+  AND ii.ingested_at >= getdate() - interval '2 days'
+{% endif %}
 
 LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t 
 ON t.block_id = i.block_id 
@@ -43,29 +36,12 @@ AND t.tx_id = i.tx_id
 WHERE i.event_type :: STRING = 'transfer'
 AND array_size(t.tx :meta:postTokenBalances :: ARRAY) >= 2
 AND t.tx :meta:postTokenBalances[0]:mint :: STRING <> t.tx :meta:postTokenBalances[array_size(t.tx :meta:postTokenBalances :: ARRAY)-1]:mint :: STRING
-AND t.block_timestamp >= '2022-02-06'
-
-   {% if is_incremental() %}
-    AND t.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-    {% endif %}
+AND t.block_timestamp >= '2022-02-08'
 
 {% if is_incremental() %}
-    AND i.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-    {% endif %}
+  WHERE t.ingested_at >= getdate() - interval '2 days'
+  AND i.ingested_at >= getdate() - interval '2 days'
+{% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id
 ORDER BY
