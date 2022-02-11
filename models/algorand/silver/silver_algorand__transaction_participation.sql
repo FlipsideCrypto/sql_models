@@ -34,7 +34,7 @@ SELECT
     '-',
     iti.block_id :: STRING,
     iti.intra :: STRING,
-    iti.address :: stringg
+    iti.address :: STRING
   ) AS _unique_key,
   iti._FIVETRAN_SYNCED
 FROM
