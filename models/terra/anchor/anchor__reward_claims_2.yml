@@ -1,4 +1,4 @@
 version: 2
 models:
   - name: anchor__reward_claims_2
-    enabled: False
+      enabled: False

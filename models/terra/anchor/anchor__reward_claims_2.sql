@@ -1,6 +1,7 @@
 {{ config(
   materialized = 'view',
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
+  enabled = False,
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'anchor', 'reward_claims', 'address_labels']
