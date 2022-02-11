@@ -62,24 +62,6 @@ msgs AS (
   FROM {{ ref('silver_terra__msgs') }}
   WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-
-  UNION
-
-  -- non-native to native
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    msg_index,
-    block_timestamp,
-    tx_id,
-    msg_value :sender :: STRING AS sender,
-    msg_value :execute_msg :send :contract :: STRING AS pool_address
-  FROM {{ ref('silver_terra__msgs') }}
-  WHERE msg_value :execute_msg :send :msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
-    AND msg_value :execute_msg :send :msg :execute_swap_operations :operations[1] :terra_swap IS NULL
-    AND tx_status = 'SUCCEEDED'
-
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %}
@@ -182,13 +164,38 @@ msgs_multi_swaps_raw_type_2 AS (
   , lateral flatten ( msg_value :execute_msg :execute_swap_operations :operations)
   WHERE 
     msg_value :execute_msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %}
 ),
 
-msgs_multi_swaps_raw_type_3_msg AS (
+msgs_multi_swaps_raw_type_3 AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    index AS tx_index,
+    MAX(index) OVER (PARTITION BY tx_id) AS max_tx_index,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    msg_value :contract :: STRING AS pool_address,
+    msg_value
+  FROM {{ ref('silver_terra__msgs') }}
+  , lateral flatten ( msg_value :execute_msg :execute_swap_operations :operations)
+  WHERE 
+    msg_value :execute_msg :execute_swap_operations :operations[1] :native_swap IS NOT NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
+    AND tx_status = 'SUCCEEDED'
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+),
+
+msgs_multi_swaps_raw_type_4_msg AS (
   SELECT
     blockchain,
     chain_id,
@@ -204,14 +211,15 @@ msgs_multi_swaps_raw_type_3_msg AS (
   FROM {{ ref('silver_terra__msgs') }}
   , lateral flatten ( msg_value :execute_msg :send :msg :execute_swap_operations :operations)
   WHERE
-    msg_value :execute_msg :send :msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
+    msg_value :execute_msg :send :msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
+    AND msg_value :execute_msg :send :msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %}
 ),
 
-msgs_multi_swaps_raw_type_3_events_raw AS (
+msgs_multi_swaps_raw_type_4_events_raw AS (
   SELECT 
     tx_id, 
     block_timestamp,
@@ -226,33 +234,33 @@ msgs_multi_swaps_raw_type_3_events_raw AS (
   FROM {{ ref('silver_terra__msg_events') }}
   , lateral flatten ( input => event_attributes)
   WHERE event_type = 'from_contract'
-    AND tx_id IN (SELECT tx_id FROM msgs_multi_swaps_raw_type_3_msg) 
+    AND tx_id IN (SELECT tx_id FROM msgs_multi_swaps_raw_type_4_msg) 
   {% if is_incremental() %}
     AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %} 
 ),
 
-msgs_multi_swaps_raw_type_3_events_index AS (
+msgs_multi_swaps_raw_type_4_events_index AS (
   SELECT 
     tx_id, 
     block_timestamp,
     tx_index
-  FROM msgs_multi_swaps_raw_type_3_events_raw
+  FROM msgs_multi_swaps_raw_type_4_events_raw
   WHERE value = 'swap'
 ),
 
-msgs_multi_swaps_raw_type_3_events_value AS (
+msgs_multi_swaps_raw_type_4_events_value AS (
   SELECT 
     a.tx_id, 
     RANK() OVER (PARTITION BY a.tx_id ORDER BY a.tx_index ASC) AS tx_index,
     a.value::STRING AS pool_address
-  FROM msgs_multi_swaps_raw_type_3_events_raw a
-  INNER JOIN msgs_multi_swaps_raw_type_3_events_index b
+  FROM msgs_multi_swaps_raw_type_4_events_raw a
+  INNER JOIN msgs_multi_swaps_raw_type_4_events_index b
   ON a.tx_id = b.tx_id AND a.tx_index = b.tx_index
   WHERE key LIKE '%_contract_address'
 ),
 
-msgs_multi_swaps_raw_type_3 AS (
+msgs_multi_swaps_raw_type_4 AS (
   SELECT 
     blockchain,
     chain_id,
@@ -265,17 +273,73 @@ msgs_multi_swaps_raw_type_3 AS (
     sender,
     b.pool_address AS pool_address,
     msg_value
-  FROM msgs_multi_swaps_raw_type_3_msg a
-  LEFT JOIN msgs_multi_swaps_raw_type_3_events_value b
+  FROM msgs_multi_swaps_raw_type_4_msg a
+  LEFT JOIN msgs_multi_swaps_raw_type_4_events_value b
   ON a.tx_id = b.tx_id AND (a.tx_index+1) = b.tx_index
 ),
 
 msgs_multi_swaps_raw AS (
-  SELECT * FROM msgs_multi_swaps_raw_type_1
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    tx_index,
+    max_tx_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_type_1
+
   UNION ALL 
-  SELECT * FROM msgs_multi_swaps_raw_type_2
+
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    tx_index,
+    max_tx_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_type_2
+
   UNION ALL 
-  SELECT * FROM msgs_multi_swaps_raw_type_3
+
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    tx_index,
+    max_tx_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_type_3
+
+  UNION ALL 
+
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    tx_index,
+    max_tx_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_type_4
 ),
 
 msgs_multi_swaps AS (
@@ -294,7 +358,7 @@ msgs_multi_swaps AS (
   WHERE max_tx_index > 0
 ),
 
-events_multi_swaps_raw AS (
+events_multi_swaps_raw_type_1 AS (
   SELECT
     tx_id, 
     event_type,
@@ -322,7 +386,7 @@ events_multi_swaps_raw AS (
   GROUP BY 1,2,3,4,5,6
 ),
 
-events_multi_swaps AS (
+events_multi_swaps_type_1 AS (
   SELECT 
     tx_id,
     msg_index,
@@ -340,7 +404,7 @@ events_multi_swaps AS (
       "'offer_asset'"::STRING AS offer_currency,
       "'return_amount'" AS return_amount,
       "'ask_asset'"::STRING AS return_currency
-    FROM events_multi_swaps_raw
+    FROM events_multi_swaps_raw_type_1
       pivot (max(value) for tx_subtype IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount')) p
     ORDER BY 
       tx_id, 
@@ -348,6 +412,74 @@ events_multi_swaps AS (
       msg_index
   )
   WHERE offer_amount IS NOT NULL
+),
+
+events_multi_swaps_raw_type_2 AS (
+  SELECT 
+    tx_id, 
+    event_type,
+    event_attributes,
+    msg_index,
+    t1.value,
+    CONCAT(t0.key, '_', t1.key) AS key,
+    0 AS tx_index
+  FROM {{ ref('silver_terra__msg_events') }}
+  , lateral flatten ( input => event_attributes) as t0
+  , lateral flatten ( input => t0.value[0] , mode => 'object') t1
+  WHERE event_type = 'swap' 
+  AND t0.key IN ('offer', 'swap_coin')
+),
+
+events_multi_swaps_type_2 AS (
+  SELECT 
+    tx_id,
+    msg_index,
+    tx_index,
+    offer_amount :: numeric / pow(10,6) AS offer_amount,
+    offer_currency,
+    return_amount :: numeric / pow(10,6) AS return_amount,
+    return_currency
+  FROM (    
+    SELECT 
+      tx_id, 
+      msg_index,
+      tx_index,
+      "'offer_amount'" AS offer_amount,
+      "'offer_denom'"::STRING AS offer_currency,
+      "'swap_coin_amount'" AS return_amount,
+      "'swap_coin_denom'"::STRING AS return_currency
+    FROM events_multi_swaps_raw_type_2
+      pivot (max(value) for key IN ('offer_amount', 'offer_denom', 'swap_coin_amount', 'swap_coin_denom')) p
+    ORDER BY 
+      tx_id, 
+      tx_index,
+      msg_index
+  )
+),
+
+events_multi_swaps AS (
+  SELECT
+    tx_id,
+    msg_index,
+    tx_index,
+    offer_amount,
+    offer_currency,
+    return_amount,
+    return_currency
+  FROM events_multi_swaps_type_1
+
+  UNION ALL 
+
+  SELECT
+    tx_id,
+    msg_index,
+    tx_index,
+    offer_amount,
+    offer_currency,
+    return_amount,
+    return_currency
+  FROM events_multi_swaps_type_2
+
 ),
 
 swaps_multi_swaps AS (
