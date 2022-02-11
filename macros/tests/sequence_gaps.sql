@@ -1,35 +1,34 @@
-{% macro sequence_gaps(
-        table,
-        partition_by,
-        column
-    ) %}
-    {%- set partition_sql = partition_by | join(", ") -%}
-    {%- set previous_column = "prev_" ~ column -%}
-    WITH source AS (
-        SELECT
-            {{ partition_sql + "," if partition_sql }}
-            {{ column }},
-            LAG(
-                {{ column }},
-                1
-            ) over (
-                {{ "PARTITION BY " ~ partition_sql if partition_sql }}
-                ORDER BY
-                    {{ column }} ASC
-            ) AS {{ previous_column }}
-        FROM
-            {{ table }}
-    )
+{% test sequence_gaps(
+    model,
+    partition_by,
+    column_name
+) %}
+{%- set partition_sql = partition_by | join(", ") -%}
+{%- set previous_column = "prev_" ~ column_name -%}
+WITH source AS (
+    SELECT
+        {{ partition_sql + "," if partition_sql }}
+        {{ column_name }},
+        LAG(
+            {{ column_name }},
+            1
+        ) over (
+            {{ "PARTITION BY " ~ partition_sql if partition_sql }}
+            ORDER BY
+                {{ column_name }} ASC
+        ) AS {{ previous_column }}
+    FROM
+        {{ model }}
+)
 SELECT
     {{ partition_sql + "," if partition_sql }}
     {{ previous_column }},
-    {{ column }},
-    {{ column }} - {{ previous_column }}
+    {{ column_name }},
+    {{ column_name }} - {{ previous_column }}
     - 1 AS gap
 FROM
     source
 WHERE
-    {{ column }} - {{ previous_column }} <> 1
+    {{ column_name }} - {{ previous_column }} <> 1
 ORDER BY
-    gap DESC
-{% endmacro %}
+    gap DESC {% endtest %}

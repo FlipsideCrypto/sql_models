@@ -6,6 +6,11 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - CHAIN_ID
+      # - sequence_gaps:
+      #     partition_by:
+      #       - CHAIN_ID
+      #     column_name: BLOCK_ID
+
     columns:
       - name: BLOCKCHAIN
         tests:
@@ -13,6 +18,9 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
+          - sequence_gaps:
+              partition_by:
+                - CHAIN_ID
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
