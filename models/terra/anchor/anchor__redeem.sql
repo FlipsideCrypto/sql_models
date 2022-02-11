@@ -54,7 +54,7 @@ redeem_events AS (
   AND tx_status = 'SUCCEEDED'
 )
 
-SELECT
+SELECT DISTINCT
   e.blockchain,
   e.chain_id,
   e.block_id,
