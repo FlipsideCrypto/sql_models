@@ -187,7 +187,7 @@ msgs_multi_swaps_raw_type_3 AS (
   FROM {{ ref('silver_terra__msgs') }}
   , lateral flatten ( msg_value :execute_msg :execute_swap_operations :operations)
   WHERE 
-    msg_value :execute_msg :execute_swap_operations :operations[1] :native_swap IS NOT NULL
+    msg_value :execute_msg :execute_swap_operations :operations[0] :native_swap IS NOT NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :terra_swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
   {% if is_incremental() %}
@@ -457,6 +457,60 @@ events_multi_swaps_type_2 AS (
   )
 ),
 
+events_multi_swaps_raw_type_3 AS (
+  SELECT
+    tx_id, 
+    event_type,
+    event_attributes,
+    msg_index,
+    1 AS tx_index,
+    key,
+    MAX(value) AS value
+  FROM (
+    SELECT 
+        tx_id, 
+        event_type,
+        event_attributes,
+        msg_index,
+        key,
+        value
+      FROM {{ ref('silver_terra__msg_events') }}
+      , lateral flatten ( input => event_attributes)
+      WHERE event_type = 'from_contract'
+      AND event_attributes :"offer_amount" IS NOT NULL
+  ) tbl
+  WHERE key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount')
+  GROUP BY 1,2,3,4,5,6
+),
+
+events_multi_swaps_type_3 AS (
+  SELECT 
+    tx_id,
+    msg_index,
+    tx_index,
+    offer_amount :: numeric / pow(10,6) AS offer_amount,
+    offer_currency,
+    return_amount :: numeric / pow(10,6) AS return_amount,
+    return_currency
+  FROM (
+    SELECT 
+      tx_id, 
+      msg_index,
+      tx_index,
+      "'offer_amount'" AS offer_amount,
+      "'offer_asset'"::STRING AS offer_currency,
+      "'return_amount'" AS return_amount,
+      "'ask_asset'"::STRING AS return_currency
+    FROM events_multi_swaps_raw_type_3
+      pivot (max(value) for key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount')) p
+    ORDER BY 
+      tx_id, 
+      tx_index,
+      msg_index
+  )
+  WHERE offer_amount IS NOT NULL
+),
+
 events_multi_swaps AS (
   SELECT
     tx_id,
@@ -479,6 +533,18 @@ events_multi_swaps AS (
     return_amount,
     return_currency
   FROM events_multi_swaps_type_2
+
+  UNION ALL 
+
+  SELECT
+    tx_id,
+    msg_index,
+    tx_index,
+    offer_amount,
+    offer_currency,
+    return_amount,
+    return_currency
+  FROM events_multi_swaps_type_3
 
 ),
 
