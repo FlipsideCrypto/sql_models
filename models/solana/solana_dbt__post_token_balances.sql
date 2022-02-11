@@ -25,3 +25,7 @@ table(flatten(tx:meta:postTokenBalances)) b
 {% if is_incremental() %}
   WHERE ingested_at >= getdate() - interval '2 days'
 {% endif %}
+
+qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id, b.index
+ORDER BY
+  t.ingested_at DESC)) = 1
