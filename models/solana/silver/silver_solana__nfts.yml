@@ -1,7 +1,12 @@
 version: 2
 models:
-  - name: algorand__transactions
+  - name: silver_solana__nfts
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+            - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
@@ -12,24 +17,27 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: INTRA
+      - name: BLOCKCHAIN 
+        tests: 
+          - not_null
+      - name: RECENT_BLOCK_HASH
         tests:
           - not_null
       - name: TX_ID
         tests:
           - not_null
-      - name: INNER_TX
-        tests:
+      - name: MINT
+        tests: 
           - not_null
-      - name: TX_TYPE
-        tests:
+      - name: SUCCEEDED
+        tests: 
           - not_null
-      - name: TX_TYPE_NAME
-        tests:
+      - name: INDEX
+        tests: 
           - not_null
-      - name: GENESIS_HASH
-        tests:
+      - name: INSTRUCTION
+        tests: 
           - not_null
-      - name: TX_MESSAGE
-        tests:
+      - name: INGESTED_AT
+        tests: 
           - not_null

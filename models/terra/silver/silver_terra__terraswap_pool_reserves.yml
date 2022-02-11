@@ -10,8 +10,8 @@ models:
     columns:
       - name: BLOCKCHAIN
         tests:
-          - not_null
-        enabled: False # no idea why this test is here, it's hardcoded downstream but is always null in this table...maybe for future use?
+          - not_null:
+              enabled: False # no idea why this test is here, it's hardcoded downstream but is always null in this table...maybe for future use?
       - name: BLOCK_ID
         tests:
           - not_null
