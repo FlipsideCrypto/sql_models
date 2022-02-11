@@ -24,5 +24,3 @@ table(flatten(tx:meta:postTokenBalances)) b
 {% if is_incremental() %}
   WHERE ingested_at >= getdate() - interval '2 days'
 {% endif %}
-
-AND block_timestamp >= '2022-02-08'
