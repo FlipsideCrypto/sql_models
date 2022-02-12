@@ -137,7 +137,7 @@ FROM
     {{ ref('solana_dbt__nft_metadata') }}
 WHERE
     contract_name IS NOT NULL
-    AND token_name IS NOT NULL
+    token_name IS NOT NULL
     AND image_url IS NOT NULL
     AND token_metadata IS NOT NULL
 
