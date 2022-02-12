@@ -61,15 +61,35 @@ destinations AS (
 AND i.ingested_at >= CURRENT_DATE - 2
 {% endif %}
 ),
-middle_acct_map AS (
+post_balances_acct_map AS (
     SELECT
         t.tx_id,
         t.account_keys [b.account_index] :pubkey :: STRING AS middle_acct,
         b.owner,
         b.mint,
-        b.decimal
+        b.decimal,
+        b.amount
     FROM
         {{ ref('solana_dbt__post_token_balances') }}
+        b
+        INNER JOIN jupiter_dex_txs t
+        ON t.tx_id = b.tx_id
+
+{% if is_incremental() %}
+WHERE
+    i.ingested_at >= CURRENT_DATE - 2
+{% endif %}
+),
+pre_balances_acct_map AS (
+    SELECT
+        t.tx_id,
+        t.account_keys [b.account_index] :pubkey :: STRING AS middle_acct,
+        b.owner,
+        b.mint,
+        b.decimal,
+        b.amount
+    FROM
+        {{ ref('solana_dbt__pre_token_balances') }}
         b
         INNER JOIN jupiter_dex_txs t
         ON t.tx_id = b.tx_id
@@ -90,7 +110,7 @@ swap_actions AS (
         ) AS max_rn
     FROM
         destinations d
-        LEFT OUTER JOIN middle_acct_map m
+        LEFT OUTER JOIN post_balances_acct_map m
         ON d.tx_id = m.tx_id
         AND d.destination = m.middle_acct
     WHERE
@@ -114,19 +134,54 @@ SELECT
     s1.tx_id,
     s1.block_id,
     s1.block_timestamp,
+    s1.succeeded,
     s2.owner AS swapper,
-    s1.amount * pow(
-        10,- s1.decimal
-    ) AS swap_from_amount,
+    CASE
+        WHEN s1.succeeded = FALSE THEN 0
+        ELSE GREATEST(
+            s1.amount,
+            COALESCE(
+                post_from.amount - pre_from.amount,
+                0
+            )
+        ) * pow(
+            10,- s1.decimal
+        )
+    END AS swap_from_amount,
     s1.mint AS swap_from_mint,
-    s2.amount * pow(
-        10,- s2.decimal
-    ) AS swap_to_amount,
+    CASE
+        WHEN s1.succeeded = FALSE THEN 0
+        ELSE GREATEST(
+            s2.amount,
+            COALESCE(
+                pre_to.amount - post_to.amount,
+                0
+            )
+        ) * pow(
+            10,- s2.decimal
+        )
+    END AS swap_to_amount,
     s2.mint AS swap_to_mint
 FROM
     swaps_tmp s1
     LEFT OUTER JOIN swaps_tmp s2
     ON s1.tx_id = s2.tx_id
     AND s1.rn <> s2.rn
+    LEFT OUTER JOIN pre_balances_acct_map pre_from
+    ON pre_from.tx_id = s1.tx_id
+    AND pre_from.mint = s1.mint
+    AND pre_from.owner = s2.owner
+    LEFT OUTER JOIN pre_balances_acct_map pre_to
+    ON pre_to.tx_id = s1.tx_id
+    AND pre_to.mint = s2.mint
+    AND pre_to.owner = s2.owner
+    LEFT OUTER JOIN post_balances_acct_map post_from
+    ON post_from.tx_id = s1.tx_id
+    AND post_from.mint = s1.mint
+    AND post_from.owner = s2.owner
+    LEFT OUTER JOIN post_balances_acct_map post_to
+    ON post_to.tx_id = s1.tx_id
+    AND post_to.mint = s2.mint
+    AND post_to.owner = s2.owner
 WHERE
     s1.rn = 1
