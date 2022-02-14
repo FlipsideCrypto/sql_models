@@ -18,7 +18,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 7
       - name: CHAIN_ID
         tests:
           - not_null
