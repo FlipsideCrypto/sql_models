@@ -113,6 +113,43 @@ AND system_created_at :: DATE >= (
         {{ this }}
 )
 {% endif %}
+
+UNION ALL
+    -- THIS SECTION PULLS SOLANA METADATA
+SELECT
+    system_created_at,
+    blockchain,
+    commission_rate,
+    contract_address,
+    contract_name,
+    created_at_block_id,
+    created_at_timestamp,
+    created_at_tx_id,
+    creator_address,
+    creator_name,
+    image_url,
+    project_name,
+    token_id,
+    token_metadata,
+    token_metadata_uri,
+    token_name
+FROM
+    {{ ref('solana_dbt__nft_metadata') }}
+WHERE
+    contract_name IS NOT NULL
+    token_name IS NOT NULL
+    AND image_url IS NOT NULL
+    AND token_metadata IS NOT NULL
+
+{% if is_incremental() %}
+AND system_created_at :: DATE >= (
+    SELECT
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
+    FROM
+        {{ this }}
+)
+{% endif %}
+
 )
 SELECT
     system_created_at,
