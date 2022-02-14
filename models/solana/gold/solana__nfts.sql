@@ -14,6 +14,7 @@ SELECT
     preTokenBalances,  
     postTokenBalances, 
     instruction, 
+    inner_instruction, 
     ingested_at
 
 FROM {{ ref('silver_solana__nfts') }} 
