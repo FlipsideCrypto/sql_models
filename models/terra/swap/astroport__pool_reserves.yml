@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: terraswap__pool_reserves
+  - name: astroport__pool_reserves
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
