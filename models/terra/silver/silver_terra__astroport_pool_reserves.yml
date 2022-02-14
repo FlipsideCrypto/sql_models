@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: terraswap__pool_reserves
+  - name: silver_terra__astroport_pool_reserves
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -10,7 +10,8 @@ models:
     columns:
       - name: BLOCKCHAIN
         tests:
-          - not_null
+          - not_null:
+              enabled: False # no idea why this test is here, it's hardcoded downstream but is always null in this table...maybe for future use?
       - name: BLOCK_ID
         tests:
           - not_null
@@ -26,8 +27,6 @@ models:
       - name: CONTRACT_ADDRESS
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: terra[0-9a-z]{39,39}
       - name: TOTAL_SHARE
         tests:
           - not_null
@@ -37,17 +36,12 @@ models:
       - name: TOKEN_0_AMOUNT
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
+      - name: SYSTEM_CREATED_AT
+        tests:
+          - not_null
       - name: TOKEN_1_CURRENCY
         tests:
           - not_null
       - name: TOKEN_1_AMOUNT
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - decimal
-                - float
