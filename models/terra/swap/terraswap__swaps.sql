@@ -119,7 +119,11 @@ events AS (
     event_attributes :offer_asset :: STRING AS offer_currency,
     event_attributes :return_amount :: numeric / pow(10,6) AS return_amount,
     event_attributes :ask_asset :: STRING AS return_currency,
-    event_attributes :contract_address :: STRING AS contract_address
+    CASE 
+        WHEN event_attributes :contract_address :: STRING IS NOT NULL 
+        THEN event_attributes :contract_address :: STRING 
+        ELSE event_attributes :"0_contract_address" :: STRING
+    END AS contract_address
   FROM source_msg_events
   WHERE event_type = 'from_contract'
     AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
