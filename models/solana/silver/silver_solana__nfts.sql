@@ -6,6 +6,43 @@
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_nfts']
 ) }}
 
+WITH base_i AS (
+  SELECT
+  block_id, 
+  tx_id, 
+  index :: INTEGER AS index, 
+  value, 
+  ingested_at
+  FROM {{ ref('solana_dbt__instructions') }} 
+
+  WHERE ingested_at >= getdate() - interval '2 days'
+), 
+
+base_ii AS (
+  SELECT
+  block_id, 
+  tx_id, 
+  mapped_event_index :: INTEGER AS mapped_event_index, 
+  value,  
+  ingested_at
+  FROM {{ ref('solana_dbt__inner_instructions') }} 
+
+  WHERE ingested_at >= getdate() - interval '2 days'
+), 
+
+base_t AS (
+  SELECT
+  block_timestamp, 
+  block_id, 
+  tx_id, 
+  chain_id, 
+  tx, 
+  ingested_at
+
+  FROM {{ ref('bronze_solana__transactions') }}
+
+  WHERE ingested_at >= getdate() - interval '2 days'
+)
 
 SELECT 
   t.block_timestamp :: TIMESTAMP AS block_timestamp, 
@@ -21,18 +58,14 @@ SELECT
   i.value AS instruction, 
   ii.value as inner_instruction,
   t.ingested_at :: TIMESTAMP AS ingested_at
-FROM {{ ref('solana_dbt__instructions') }} i
+FROM base_i i
 
-LEFT OUTER JOIN {{ ref('solana_dbt__inner_instructions') }} ii 
+LEFT OUTER JOIN base_ii ii 
 ON ii.block_id = i.block_id 
 AND ii.tx_id = i.tx_id 
 AND ii.mapped_event_index = i.index
 
-{% if is_incremental() %}
-  AND ii.ingested_at >= getdate() - interval '2 days'
-{% endif %}
-
-LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t 
+LEFT OUTER JOIN base_t t 
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
@@ -43,14 +76,10 @@ WHERE i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTp
                                       '2CkRtcdfBTxRrCZxJ81NbiMYytsmt2eRUGq7xmAwoRyyjALj231CtW8qSPp2Lv2mhChrWeEcDRf5x3n28f3y3oBx', 
                                       'SPf5WqNywtPrRXSU5enq5z9bPPhREaSYf2LhN5fUxcj', 
                                       '2k8iJk39MtwMVEDMNuvUpEsm2jhBb8678jAqQkGEhu3bxPW4HesVkdJzMuMvgn61ST1S5YpskxVNaPDhrheUmjz9', 
-                                      'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ')
+                                      'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ', 
+                                      'J7RagMKwSD5zJSbRQZU56ypHUtux8LRDkUpAPSKH4WPp')
 
 AND  t.tx :meta:postTokenBalances[0]:mint :: STRING IS NOT NULL
-
- {% if is_incremental() %}
-    AND t.ingested_at >= getdate() - interval '2 days'
-    AND i.ingested_at >= getdate() - interval '2 days'
-  {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id, i.index
 ORDER BY
