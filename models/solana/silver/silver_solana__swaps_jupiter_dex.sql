@@ -126,7 +126,11 @@ signers_info AS (
         LEFT OUTER JOIN signers s
         ON s.tx_id = b.tx_id
     WHERE
-        s.acct <> 'GS4FJiLur4dUCjMNGsxoyEyjtxxAkFWKfHBbWLa9uNKg' -- this is some odd co-signer acct.  Is never the actual initiator of the swap
+        s.acct NOT IN (
+            'GS4FJiLur4dUCjMNGsxoyEyjtxxAkFWKfHBbWLa9uNKg',
+            '5z5h8D5FWUiCJsLjvYL8sWLc9xtP9iTrkEBmckf9AbZY',
+            '4Jfinpcv8KKAB9sTavsxQhxmsUAu7DktNi58VnCz414g'
+        ) -- this is some odd co-signer acct.  Is never the actual initiator of the swap
 
 {% if is_incremental() %}
 AND b.ingested_at >= CURRENT_DATE - 2
