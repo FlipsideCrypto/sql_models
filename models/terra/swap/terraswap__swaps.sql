@@ -347,6 +347,29 @@ msgs_multi_swaps_raw_type_5 AS (
     AND tx_status = 'SUCCEEDED'
 ),
 
+msgs_multi_swaps_raw_type_6 AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    index AS tx_index,
+    MAX(index) OVER (PARTITION BY tx_id) AS max_tx_index,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    value :terraswap :ts ::STRING AS pool_address,
+    msg_value
+  FROM source_msgs
+  , lateral flatten ( msg_value :execute_msg :assert_reaction_z :swaps)
+  WHERE 
+    msg_value :execute_msg :assert_reaction_z :swaps[0] :terraswap IS NOT NULL
+    AND tx_status = 'SUCCEEDED'
+)
+
+SELECT * FROM msgs_multi_swaps_raw_type_6
+,
+
 msgs_multi_swaps_raw AS (
   SELECT
     blockchain,
@@ -425,6 +448,22 @@ msgs_multi_swaps_raw AS (
     pool_address,
     msg_value
   FROM msgs_multi_swaps_raw_type_5
+
+  UNION ALL 
+
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    tx_index,
+    max_tx_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_type_6
 ),
 
 msgs_multi_swaps AS (
@@ -469,9 +508,13 @@ events_multi_swaps_raw_type_1 AS (
       WHERE event_type = 'from_contract'
       AND event_attributes :"0_offer_amount" IS NOT NULL AND event_attributes :"1_offer_amount" IS NOT NULL
   ) tbl
-  WHERE tx_subtype IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount')
+  WHERE tx_subtype IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', 'contract_address')
   GROUP BY 1,2,3,4,5,6,7
-),
+)
+
+SELECT * FROM events_multi_swaps_raw_type_1
+
+,
 
 events_multi_swaps_type_1 AS (
   SELECT 
