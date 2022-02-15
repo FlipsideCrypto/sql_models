@@ -177,12 +177,18 @@ SELECT
         s2.owner,
         s.acct
     ) AS swapper,
-    GREATEST(COALESCE(s1.amount * pow(10,- s1.decimal), 0), COALESCE((pre_from.amount - post_from.amount) * pow(10,- s1.decimal), 0), COALESCE(s.signer_sol_pre_balance - s.signer_sol_post_balance + s.fee, 0) * pow(10, -9)) AS swap_from_amount,
+    CASE
+        WHEN s1.succeeded = FALSE THEN 0
+        ELSE GREATEST(COALESCE(s1.amount * pow(10,- s1.decimal), 0), COALESCE((pre_from.amount - post_from.amount) * pow(10,- s1.decimal), 0), COALESCE(s.signer_sol_pre_balance - s.signer_sol_post_balance + s.fee, 0) * pow(10, -9))
+    END AS swap_from_amount,
     COALESCE(
         s1.mint,
         'So11111111111111111111111111111111111111112'
     ) AS swap_from_mint,
-    GREATEST(COALESCE(s2.amount * pow(10,- s2.decimal), 0), COALESCE((post_to.amount - pre_to.amount) * pow(10,- s2.decimal), 0), COALESCE(s.signer_sol_post_balance - s.signer_sol_pre_balance + s.fee, 0) * pow(10, -9)) AS swap_to_amount,
+    CASE
+        WHEN s1.succeeded = FALSE THEN 0
+        ELSE GREATEST(COALESCE(s2.amount * pow(10,- s2.decimal), 0), COALESCE((post_to.amount - pre_to.amount) * pow(10,- s2.decimal), 0), COALESCE(s.signer_sol_post_balance - s.signer_sol_pre_balance + s.fee, 0) * pow(10, -9))
+    END AS swap_to_amount,
     COALESCE(
         s2.mint,
         'So11111111111111111111111111111111111111112'
