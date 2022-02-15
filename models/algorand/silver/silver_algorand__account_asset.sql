@@ -32,10 +32,15 @@ SELECT
     address :: STRING,
     asset_id :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  DATEADD(
+    'MS',
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _FIVETRAN_SYNCED
 FROM
   {{ source(
-    'algorand_patch' 'ACCOUNT_ASSET'
+    'algorand_patch',
+    'ACCOUNT_ASSET'
   ) }}
   aa
   LEFT JOIN asset_name an
