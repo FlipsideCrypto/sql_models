@@ -145,6 +145,9 @@ sources:
       - name: METASTATE
       - name: TXN
       - name: TXN_PARTICIPATION 
+    schema: BRONZE_ALOGRAND_2_8_0__HEVO
+      - name: TXN
+      - name: TXN_PARTICIPATION_MISSING
   - name: prod
     database: chainwalkers
     schema: prod
