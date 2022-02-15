@@ -113,6 +113,7 @@ AND system_created_at :: DATE >= (
         {{ this }}
 )
 {% endif %}
+
 )
 SELECT
     system_created_at,
