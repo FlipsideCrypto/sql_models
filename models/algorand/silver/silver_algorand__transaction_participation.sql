@@ -34,6 +34,16 @@ hevo_inner_tx_individual AS(
       'algorand_patch',
       'TXN_PARTICIPATION_MISSING'
     ) }}
+  WHERE
+    ROUND > (
+      SELECT
+        MAX(ROUND)
+      FROM
+        {{ source(
+          'algorand',
+          'TXN_PARTICIPATION'
+        ) }}
+    )
   GROUP BY
     block_id,
     intra,
