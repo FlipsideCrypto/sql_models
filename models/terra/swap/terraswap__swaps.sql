@@ -121,8 +121,10 @@ events AS (
     event_attributes :ask_asset :: STRING AS return_currency,
     CASE 
         WHEN event_attributes :contract_address :: STRING IS NOT NULL 
-        THEN event_attributes :contract_address :: STRING 
-        ELSE event_attributes :"0_contract_address" :: STRING
+            THEN event_attributes :contract_address :: STRING 
+        WHEN event_attributes :"0_contract_address" :: STRING = event_attributes :"from" :: STRING
+            THEN event_attributes :"0_contract_address" :: STRING
+        ELSE event_attributes :"1_contract_address" :: STRING
     END AS contract_address
   FROM source_msg_events
   WHERE event_type = 'from_contract'
@@ -365,10 +367,7 @@ msgs_multi_swaps_raw_type_6 AS (
   WHERE 
     msg_value :execute_msg :assert_reaction_z :swaps[0] :terraswap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-)
-
-SELECT * FROM msgs_multi_swaps_raw_type_6
-,
+),
 
 msgs_multi_swaps_raw AS (
   SELECT
@@ -510,23 +509,19 @@ events_multi_swaps_raw_type_1 AS (
   ) tbl
   WHERE tx_subtype IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', 'contract_address')
   GROUP BY 1,2,3,4,5,6,7
-)
-
-SELECT * FROM events_multi_swaps_raw_type_1
-
-,
+),
 
 events_multi_swaps_type_1 AS (
   SELECT 
-    tx_id,
+    a.tx_id,
     msg_index,
-    tx_index,
+    a.tx_index,
     event_index,
     offer_amount :: numeric / pow(10,6) AS offer_amount,
     offer_currency,
     return_amount :: numeric / pow(10,6) AS return_amount,
     return_currency,
-    contract_address
+    b.pool_address AS contract_address
   FROM (
     SELECT 
       tx_id, 
@@ -545,7 +540,9 @@ events_multi_swaps_type_1 AS (
       tx_index,
       msg_index,
       event_index
-  )
+  ) a
+  LEFT JOIN msgs_multi_swaps_raw_type_4_events_value b
+  ON a.tx_id = b.tx_id AND (a.tx_index+1) = b.tx_index
   WHERE offer_amount IS NOT NULL
 ),
 
@@ -587,7 +584,7 @@ events_multi_swaps_type_2 AS (
       "'offer_denom'"::STRING AS offer_currency,
       "'swap_coin_amount'" AS return_amount,
       "'swap_coin_denom'"::STRING AS return_currency,
-      "'contract_address'"::STRING AS contract_address
+      event_attributes :trader ::STRING AS contract_address
     FROM events_multi_swaps_raw_type_2
       pivot (max(value) for key IN ('offer_amount', 'offer_denom', 'swap_coin_amount', 'swap_coin_denom', 'contract_address')) p
     ORDER BY 
@@ -622,7 +619,7 @@ events_multi_swaps_raw_type_3 AS (
       WHERE event_type = 'from_contract'
       AND event_attributes :"offer_amount" IS NOT NULL
   ) tbl
-  WHERE key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', 'contract_address')
+  WHERE key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', '2_contract_address', 'contract_address')
   GROUP BY 1,2,3,4,5,6,7
 ),
 
@@ -647,9 +644,9 @@ events_multi_swaps_type_3 AS (
       "'offer_asset'"::STRING AS offer_currency,
       "'return_amount'" AS return_amount,
       "'ask_asset'"::STRING AS return_currency,
-      "'contract_address'"::STRING AS contract_address
+      COALESCE("'2_contract_address'"::STRING, "'contract_address'"::STRING) AS contract_address
     FROM events_multi_swaps_raw_type_3
-      pivot (max(value) for key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', 'contract_address')) p
+      pivot (max(value) for key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', '2_contract_address', 'contract_address')) p
     ORDER BY 
       tx_id, 
       tx_index,
