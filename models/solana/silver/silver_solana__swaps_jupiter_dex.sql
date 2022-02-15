@@ -109,7 +109,9 @@ signers AS (
         jupiter_dex_txs t,
         TABLE(FLATTEN(t.account_keys)) A
     WHERE
-        A.value :signer = TRUE
+        A.value :signer = TRUE qualify(ROW_NUMBER() over (PARTITION BY t.tx_id
+    ORDER BY
+        A.index DESC)) = 1
 ),
 signers_info AS (
     SELECT
@@ -124,13 +126,12 @@ signers_info AS (
         INNER JOIN jupiter_dex_txs t
         ON t.tx_id = b.tx_id
         LEFT OUTER JOIN signers s
-        ON s.tx_id = b.tx_id
-    WHERE
-        s.acct NOT IN (
-            'GS4FJiLur4dUCjMNGsxoyEyjtxxAkFWKfHBbWLa9uNKg',
-            '5z5h8D5FWUiCJsLjvYL8sWLc9xtP9iTrkEBmckf9AbZY',
-            '4Jfinpcv8KKAB9sTavsxQhxmsUAu7DktNi58VnCz414g'
-        ) -- this is some odd co-signer acct.  Is never the actual initiator of the swap
+        ON s.tx_id = b.tx_id -- WHERE
+        --     s.acct NOT IN (
+        --         'GS4FJiLur4dUCjMNGsxoyEyjtxxAkFWKfHBbWLa9uNKg',
+        --         '5z5h8D5FWUiCJsLjvYL8sWLc9xtP9iTrkEBmckf9AbZY',
+        --         '4Jfinpcv8KKAB9sTavsxQhxmsUAu7DktNi58VnCz414g'
+        --     ) -- this is some odd co-signer acct.  Is never the actual initiator of the swap
 
 {% if is_incremental() %}
 AND b.ingested_at >= CURRENT_DATE - 2
