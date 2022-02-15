@@ -125,10 +125,11 @@ signers_info AS (
         ON t.tx_id = b.tx_id
         LEFT OUTER JOIN signers s
         ON s.tx_id = b.tx_id
+    WHERE
+        s.acct <> 'GS4FJiLur4dUCjMNGsxoyEyjtxxAkFWKfHBbWLa9uNKg'
 
 {% if is_incremental() %}
-WHERE
-    b.ingested_at >= CURRENT_DATE - 2
+AND b.ingested_at >= CURRENT_DATE - 2
 {% endif %}
 ),
 swap_actions AS (
