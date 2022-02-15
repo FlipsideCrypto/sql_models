@@ -150,6 +150,7 @@ sources:
     tables:
       - name: TXN
       - name: TXN_PARTICIPATION_MISSING
+      - name: BLOCK_HEADER
   - name: prod
     database: chainwalkers
     schema: prod
