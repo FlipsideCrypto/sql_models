@@ -43,7 +43,8 @@ WHERE i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTp
                                       '2CkRtcdfBTxRrCZxJ81NbiMYytsmt2eRUGq7xmAwoRyyjALj231CtW8qSPp2Lv2mhChrWeEcDRf5x3n28f3y3oBx', 
                                       'SPf5WqNywtPrRXSU5enq5z9bPPhREaSYf2LhN5fUxcj', 
                                       '2k8iJk39MtwMVEDMNuvUpEsm2jhBb8678jAqQkGEhu3bxPW4HesVkdJzMuMvgn61ST1S5YpskxVNaPDhrheUmjz9', 
-                                      'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ')
+                                      'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ', 
+                                      'J7RagMKwSD5zJSbRQZU56ypHUtux8LRDkUpAPSKH4WPp')
 
 AND  t.tx :meta:postTokenBalances[0]:mint :: STRING IS NOT NULL
 
