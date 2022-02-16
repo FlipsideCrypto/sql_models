@@ -8,40 +8,46 @@
 
 WITH base_i AS (
   SELECT
-  block_id, 
-  tx_id, 
-  index :: INTEGER AS index, 
-  value, 
-  ingested_at
+    block_id, 
+    tx_id, 
+    index :: INTEGER AS index, 
+    value, 
+    ingested_at
   FROM {{ ref('solana_dbt__instructions') }} 
 
+{% if is_incremental() %}
   WHERE ingested_at >= getdate() - interval '2 days'
+{% endif %}
 ), 
 
 base_ii AS (
   SELECT
-  block_id, 
-  tx_id, 
-  mapped_event_index :: INTEGER AS mapped_event_index, 
-  value,  
-  ingested_at
-  FROM {{ ref('solana_dbt__inner_instructions') }} 
+    block_id, 
+    tx_id, 
+    mapped_event_index :: INTEGER AS mapped_event_index, 
+    value,  
+    ingested_at
+  FROM {{ ref('solana_dbt__inner_instructions') }}
 
+{% if is_incremental() %}
   WHERE ingested_at >= getdate() - interval '2 days'
+{% endif %}
 ), 
 
 base_t AS (
   SELECT
-  block_timestamp, 
-  block_id, 
-  tx_id, 
-  chain_id, 
-  tx, 
-  ingested_at
+    block_timestamp, 
+    block_id, 
+    tx_id, 
+    chain_id, 
+    tx, 
+    ingested_at
 
   FROM {{ ref('bronze_solana__transactions') }}
 
+{% if is_incremental() %}
   WHERE ingested_at >= getdate() - interval '2 days'
+{% endif %}
 )
 
 SELECT 
