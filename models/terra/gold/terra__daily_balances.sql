@@ -67,7 +67,11 @@ SELECT
   address_labels.project_name AS address_label,
   address_labels.address_name AS address_name,
   balance,
-  balance * p.price AS balance_usd,
+  CASE
+  WHEN p.price IS NULL 
+  THEN (last_value(p.price ignore nulls) over (partition by b.address, currency order by DATE asc rows between unbounded preceding and current row)) * balance
+  ELSE balance * p.price
+  END AS balance_usd,
   b.balance_type,
   b.is_native,
   currency
@@ -76,10 +80,6 @@ FROM {{ ref('silver_terra__block_synthetic_balances') }} b
 LEFT OUTER JOIN prices p
   ON p.symbol = currency
   AND p.day = b.date
-
-LEFT OUTER JOIN prices i
-  ON i.address_name = currency
-  AND i.day = b.date
   
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS address_labels
   ON b.address = address_labels.address 
