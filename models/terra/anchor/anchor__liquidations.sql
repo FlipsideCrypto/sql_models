@@ -173,13 +173,13 @@ events_second_tokens AS (
       'hour',
       block_timestamp
     ) = l.hour
-    AND COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"0_collateral_token" :: STRING) = l.currency
+    AND COALESCE(event_attributes :collateral_token :: STRING, event_attributes :"1_collateral_token" :: STRING) = l.currency
     LEFT OUTER JOIN prices r
     ON DATE_TRUNC(
       'hour',
       block_timestamp
     ) = r.hour
-    AND COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"0_stable_denom" :: STRING) = r.currency
+    AND COALESCE(event_attributes :stable_denom :: STRING, event_attributes :"1_stable_denom" :: STRING) = r.currency
   WHERE
     event_type = 'from_contract'
     AND tx_id IN(
