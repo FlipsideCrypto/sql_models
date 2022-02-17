@@ -134,7 +134,7 @@ all_xfers AS (
 SELECT
     block_timestamp,
     tx_id,
-    msg_index,
+    msg_index::NUMERIC AS msg_index,
     event_type,
     a.value:array_index::STRING AS array_index,
     a.value:sender::STRING AS sender,
@@ -154,7 +154,7 @@ UNION
 SELECT
     block_timestamp,
     tx_id,
-    msg_index,
+    msg_index::NUMERIC AS msg_index,
     event_type,
     event_attributes_array[0]:array_index::STRING AS array_index,
     event_attributes_array[0]:sender::STRING AS sender,
@@ -173,7 +173,7 @@ UNION
 SELECT
     block_timestamp,
     tx_id,
-    msg_index,
+    msg_index::NUMERIC AS msg_index,
     event_type,
     a.value:array_index::STRING AS array_index,
     a.value:sender::STRING AS sender,
@@ -193,7 +193,7 @@ UNION
 SELECT
     block_timestamp,
     tx_id,
-    msg_index,
+    msg_index::NUMERIC AS msg_index,
     event_type,
     a.value:array_index::STRING AS array_index,
     a.value:from::STRING AS sender,
@@ -212,7 +212,7 @@ SELECT
 msgs AS (
     SELECT 
     tx_id,
-    r.msg_index,
+    r.msg_index::NUMERIC AS msg_index,
     a.value:array_index::STRING AS array_index,
     a.value:sender::STRING AS sender,
     a.value:contract::STRING AS contract_address
@@ -236,7 +236,7 @@ msg_actions AS (
   msg_type,
   msg_value,
   tx_status,
-  msg_index,
+  msg_index::NUMERIC AS msg_index,
   OBJECT_KEYS(msg_value:execute_msg)[0]::STRING AS execute_msg_type,
   msg_value:contract::STRING AS contract,
   REGEXP_SUBSTR(msg_type,'[A-z]*$') AS parsed_type,

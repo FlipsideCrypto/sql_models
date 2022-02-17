@@ -39,7 +39,7 @@ SELECT
   ) :: TIMESTAMP AS system_created_at,
   insert_date,
   blockchain,
-  LOWER(t.value :address :: STRING) AS address,
+  CASE WHEN blockchain = 'solana' THEN t.value :address :: STRING ELSE LOWER(t.value :address :: STRING) END AS address,
   t.value :creator :: STRING AS creator,
   t.value :l1_label :: STRING AS l1_label,
   t.value :l2_label :: STRING AS l2_label,
