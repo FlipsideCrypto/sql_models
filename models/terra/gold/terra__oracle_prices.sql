@@ -61,31 +61,6 @@ luna_rate AS (
 
 ),
 
-massets AS(
-  SELECT
-    m.blockchain,
-    m.chain_id,
-    m.block_timestamp,
-    m.block_id,
-    m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
-    coalesce(p.address_name, p.address) AS symbol,
-    m.msg_value :execute_msg :feed_price :prices [0] [1] :: FLOAT AS price
-  FROM
-    {{ ref('silver_terra__msgs') }} m
-  
-  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} p
-    ON msg_value :execute_msg :feed_price :prices [0] [0] :: STRING = p.address 
-    AND p.blockchain = 'terra' 
-    AND p.creator = 'flipside'
-  
-  WHERE msg_value :contract = 'terra1t6xe0txzywdg85n6k8c960cuwgh6l8esw6lau9' --Mirror Oracle Feeder
-    AND msg_value :sender = 'terra128968w0r6cche4pmf4xn5358kx2gth6tr3n0qs' -- Make sure we are pulling right events
-
-{% if is_incremental() %}
-AND m.block_timestamp >= getdate() - INTERVAL '1 days'
-{% endif %}
-
-),
 
 polymine AS (
 
@@ -189,21 +164,6 @@ LEFT OUTER JOIN prices x
 UNION
 
 SELECT
-  ma.blockchain,
-  ma.block_timestamp,
-  ma.currency AS currency,
-  ma.symbol AS symbol,
-  pp.price / ma.price AS luna_exchange_rate,
-  ma.price AS price_usd,
-  'oracle' AS source
-FROM massets ma
-  
-LEFT OUTER JOIN prices pp
-  ON DATE_TRUNC('hour',ma.block_timestamp) = pp.block_timestamp
-
-UNION
-
-SELECT
   ee.blockchain,
   ee.block_timestamp,
   ee.event_attributes :asset :: STRING AS currency,
@@ -224,9 +184,8 @@ LEFT OUTER JOIN prices pp
 WHERE
   event_type = 'from_contract'
   AND tx_id IN( SELECT tx_id FROM {{ ref('silver_terra__msgs') }}
-                WHERE msg_value :contract :: STRING = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t'
-                  AND msg_value :execute_msg :feed_price IS NOT NULL)
-
+                WHERE msg_value :execute_msg :feed_price IS NOT NULL)
+  AND price_usd > 0
 UNION
 
 SELECT
