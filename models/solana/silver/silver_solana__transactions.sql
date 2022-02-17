@@ -3,7 +3,8 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'solana', 'silver_solana', 'solana_transactions']
+  tags = ['snowflake', 'solana', 'silver_solana', 'solana_transactions'],
+  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
 ) }}
 
 WITH base_table AS (
