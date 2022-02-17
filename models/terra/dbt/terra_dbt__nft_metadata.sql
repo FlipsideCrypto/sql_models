@@ -21,7 +21,6 @@ WITH galactic_punks AS (
             )
 
     {% if is_incremental() %}
-    --- does this need a look back? It's static data
     AND (
         record_metadata :CreateTime :: INT / 1000
     ) :: TIMESTAMP :: DATE >= (
@@ -31,7 +30,8 @@ WITH galactic_punks AS (
             {{ this }}
     )
     {% endif %}
-    ) -----
+    )
+   
     SELECT
         (
             record_metadata :CreateTime :: INT / 1000
@@ -86,8 +86,7 @@ terra_nft_metadata AS (
             '.'
             ) [2] :: STRING = 'nft_metadata'
             AND record_content :model :blockchain :: STRING = 'terra'
-            )
-
+        
     {% if is_incremental() %}
     AND (
         record_metadata :CreateTime :: INT / 1000
@@ -98,6 +97,8 @@ terra_nft_metadata AS (
             {{ this }}
     )
     {% endif %}
+
+     )
 
     SELECT
         (
