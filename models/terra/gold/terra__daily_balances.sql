@@ -1,7 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  sort = ['date', 'currency'],
-  unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
+  unique_key = 'date',
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
   tags = ['snowflake', 'terra', 'balances', 'terra_daily_balances', 'address_labels']
@@ -21,6 +20,10 @@ WITH prices AS (
     {{ ref('terra__oracle_prices') }} p
   LEFT JOIN {{ ref('terra__labels') }} l
   on p.symbol = l.address
+  where 1=1
+  {% if is_incremental() %}
+AND block_timestamp::date >= current_date - 8
+{% endif %}
   GROUP BY
     p.symbol,
     DAY,
@@ -54,7 +57,7 @@ WHERE
   and b.currency <> 'UNOK'
 
 {% if is_incremental() %}
-AND DATE >= getdate() - INTERVAL '3 days'
+AND DATE >= getdate() - INTERVAL '7 days'
 {% endif %}
 
 UNION
@@ -87,5 +90,5 @@ LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS address_labels
   AND address_labels.creator = 'flipside'
 
 {% if is_incremental() %}
-WHERE date_trunc('day', block_timestamp) >= getdate() - INTERVAL '3 days'
+WHERE date_trunc('day', date) >= getdate() - INTERVAL '7 days'
 {% endif %}
