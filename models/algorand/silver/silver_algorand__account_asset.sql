@@ -12,7 +12,7 @@ WITH asset_name AS (
     params :an :: STRING AS NAME
   FROM
     {{ source(
-      'algorand',
+      'algorand_patch',
       'ASSET'
     ) }}
 )
@@ -32,10 +32,14 @@ SELECT
     address :: STRING,
     asset_id :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  DATEADD(
+    'MS',
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _FIVETRAN_SYNCED
 FROM
   {{ source(
-    'algorand',
+    'algorand_patch',
     'ACCOUNT_ASSET'
   ) }}
   aa

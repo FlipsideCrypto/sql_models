@@ -1,0 +1,87 @@
+version: 2
+models:
+  - name: terra__transfer_events
+    description: Terra transfer events, curated from Terra msg_events. Includes event_type transfers, cw20 token transfers, Wormhole transfers, and Delegator rewards transfers
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - MSG_INDEX
+            - ACTION_INDEX
+            - CURRENCY
+            - AMOUNT
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "The timestamp this block was recorded"
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: TX_ID
+        description: "The transaction that contained this transfer"
+        tests:
+          - not_null
+      - name: MSG_INDEX
+        description: "Message index, it is like the different steps for message, one message group can contain multiple message index values to deliver different information"
+        tests:
+          - not_null
+      - name: ACTION_INDEX
+        description: "Index for transfer event actions"
+        tests:
+          - not_null
+      - name: INITIAL_ACTION
+        description: "Initial action for a transfer event"
+        tests:
+      - name: CURRENT_ACTION
+        description: "Current action for a transfer event"
+        tests:
+      - name: SENDER
+        description: "Transfer sender"
+        tests:
+          - not_null:
+              where: INITIAL_ACTION NOT IN ('MsgSend', 'MsgMultiSend')
+      - name: SENDER_LABEL_TYPE
+        description: "See Labels section for details"
+      - name: SENDER_LABEL_SUBTYPE
+        description: "See Labels section for details"
+      - name: SENDER_ADDRESS_LABEL
+        description: "See Labels section for details"
+      - name: SENDER_ADDRESS_NAME
+        description: "See Labels section for details"
+      - name: RECIPIENT
+        description: "Transfer recipient"
+        tests:
+          - not_null
+      - name: RECIPIENT_LABEL_TYPE
+        description: "See Labels section for details"
+      - name: RECIPIENT_LABEL_SUBTYPE
+        description: "See Labels section for details"
+      - name: RECIPIENT_ADDRESS_LABEL
+        description: "See Labels section for details"
+      - name: RECIPIENT_ADDRESS_NAME
+        description: "See Labels section for details"
+      - name: CURRENCY
+        description: "The transfer currency"
+        tests:
+          - not_null
+      - name: AMOUNT
+        description: "The transfer amount"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - decimal
+                - float
+      - name: AMOUNT_USD
+        description: "The transfer amount in USD, it is calculated by the hourly price multiplied by the transfer amount"
+      - name: MSG_SENDER
+        description: "The message sender, from message event types"
+        tests:
+      - name: CONTRACT_ADDRESS
+        description: "The contract address that is responsible for kicking off the transfer event, if applicable"
+        tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: terra[0-9a-zA-Z]{39,40}
+      - name: CONTRACT_LABEL
+        description: "See Labels section for details"
