@@ -1,0 +1,15 @@
+version: 2
+models:
+  - name: terrascored__terraswap_token_prices
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TOKEN
+            - PRICE
+    columns:
+      - name: TOKEN
+        tests:
+          - not_null
+      - name: PRICE
+        tests:
+          - not_null
