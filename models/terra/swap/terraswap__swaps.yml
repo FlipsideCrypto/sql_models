@@ -8,6 +8,7 @@ models:
             - CHAIN_ID
             - TX_ID
             - MSG_INDEX
+            - TX_INDEX
     columns:
       - name: BLOCKCHAIN
         tests:
