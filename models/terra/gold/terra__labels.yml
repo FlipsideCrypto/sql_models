@@ -7,8 +7,12 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-z]{39,39}
+              enabled: False 
       - name: BLOCKCHAIN
         tests:
+          - not_null
+      - name: CREATOR
+        tests: 
           - not_null
       - name: LABEL
         tests:
@@ -19,3 +23,8 @@ models:
       - name: LABEL_TYPE
         tests:
           - not_null
+      - name: ADDRESS_NAME
+        description: Name of the controlling entity of the address
+        tests:
+          - not_null: 
+              enabled: False # Bug in deposit wallet algorithm causing nulls in this field

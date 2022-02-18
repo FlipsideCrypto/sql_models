@@ -11,9 +11,9 @@ SELECT
     tx_count, 
     block_height, 
     block_time, 
-    blockhash, 
+    block_hash, 
     previous_block_id, 
-    previous_blockhash, 
+    previous_block_hash, 
     ingested_at
 FROM 
     {{ ref('silver_solana__blocks') }}

@@ -64,9 +64,16 @@ stake_msgs AS (
     LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
     ON msg_value :execute_msg :send :contract :: STRING = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
   WHERE
-    msg_value :execute_msg :send :msg :stake_voting_tokens IS NOT NULL
-    AND msg_value :execute_msg :send :contract :: STRING = 'terra1f32xyep306hhcxxxf7mlyh0ucggc00rm2s9da5'
-    AND tx_status = 'SUCCEEDED'
+    (
+      msg_value :execute_msg :send :msg :stake_voting_tokens IS NOT NULL
+      AND msg_value :execute_msg :send :contract :: STRING = 'terra1f32xyep306hhcxxxf7mlyh0ucggc00rm2s9da5'
+      AND tx_status = 'SUCCEEDED'
+    )
+    OR 
+    (
+      msg_value:execute_msg:send:msg::string = 'eyJzdGFrZV92b3RpbmdfdG9rZW5zIjp7fX0='
+      AND tx_status = 'SUCCEEDED'
+    )
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (

@@ -98,7 +98,7 @@ SELECT
     token_metadata_uri,
     token_name
 FROM
-    {{ ref('terra_dbt__nft_metadata_galactic_punks') }}
+    {{ ref('terra_dbt__nft_metadata') }}
 WHERE
     contract_name IS NOT NULL
     AND token_name IS NOT NULL
@@ -113,6 +113,7 @@ AND system_created_at :: DATE >= (
         {{ this }}
 )
 {% endif %}
+
 )
 SELECT
     system_created_at,

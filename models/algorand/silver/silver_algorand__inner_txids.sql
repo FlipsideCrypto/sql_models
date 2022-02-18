@@ -2,15 +2,16 @@
   materialized = 'incremental',
   unique_key = '_unique_key',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'all_algorand', 'transactions', 'all_algorand_tx']
+  tags = ['snowflake', 'algorand', 'transactions', 'all_algorand_tx']
 ) }}
 
-WITH emptyROUNDS AS (
+WITH emptyROUNDS_fivetran AS (
 
   SELECT
     ROUND,
     intra,
     txn,
+    extra,
     _FIVETRAN_SYNCED
   FROM
     {{ source(
@@ -18,37 +19,102 @@ WITH emptyROUNDS AS (
       'TXN'
     ) }}
   WHERE
-    txid :: STRING = ''
+    txid IS NULL
 ),
-fulljson AS (
+emptyROUNDS_hevo AS (
+  SELECT
+    ROUND,
+    intra,
+    txn,
+    extra,
+    DATEADD(
+      'MS',
+      __HEVO__LOADED_AT,
+      '1970-01-01'
+    ) AS _FIVETRAN_SYNCED
+  FROM
+    {{ source(
+      'algorand_patch',
+      'TXN'
+    ) }}
+  WHERE
+    txid IS NULL
+    AND ROUND > (
+      SELECT
+        MAX(ROUND)
+      FROM
+        {{ source(
+          'algorand',
+          'TXN'
+        ) }}
+    )
+),
+emptyROUNDS AS(
+  SELECT
+    *
+  FROM
+    emptyROUNDS_fivetran
+  UNION
+  SELECT
+    *
+  FROM
+    emptyROUNDS_hevo
+),
+fulljson_fivetran AS (
   SELECT
     ROUND,
     txid,
     intra,
-    t.value AS message,
-    txn,
     txn :txn :gh :: STRING AS gh
   FROM
     {{ source(
       'algorand',
       'TXN'
-    ) }},
-    LATERAL FLATTEN(
-      input => txn :dt :itx
-    ) t
+    ) }}
   WHERE
-    txn :dt :itx IS NOT NULL
+    txid IS NOT NULL
+),
+fulljson_hevo AS (
+  SELECT
+    ROUND,
+    txid,
+    intra,
+    txn :txn :gh :: STRING AS gh
+  FROM
+    {{ source(
+      'algorand_patch',
+      'TXN'
+    ) }}
+  WHERE
+    txid IS NOT NULL
+    AND ROUND > (
+      SELECT
+        MAX(ROUND)
+      FROM
+        {{ source(
+          'algorand',
+          'TXN'
+        ) }}
+    )
+),
+fulljson AS(
+  SELECT
+    *
+  FROM
+    fulljson_fivetran
+  UNION
+  SELECT
+    *
+  FROM
+    fulljson_hevo
 )
 SELECT
   f.round AS txn_round,
   er.round AS inner_round,
   f.txid AS txn_txn_id,
-  f.txn AS txn_body,
-  f.message AS txn_inner_txn,
-  er.txn AS inner_message,
   er.intra AS inner_intra,
   f.intra AS txn_intra,
-  f.gh AS genisis_hash,
+  f.gh AS genesis_hash,
   concat_ws(
     '-',
     er.round :: STRING,
@@ -58,7 +124,7 @@ SELECT
 FROM
   emptyROUNDS er
   LEFT JOIN fulljson f
-  ON er.txn = f.message
+  ON er.extra :"root-intra" :: NUMBER = f.intra
   AND er.round = f.round
 WHERE
   f.round IS NOT NULL

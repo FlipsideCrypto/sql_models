@@ -14,10 +14,7 @@ WITH balances AS (
     address,
     balance
   FROM
-    {{ source(
-      'terra',
-      'udm_daily_balances_terra'
-    ) }}
+    {{ ref('silver_terra__daily_balances') }}
   WHERE
     balance_type = 'staked'
     AND address IN(
@@ -70,7 +67,9 @@ SELECT
 FROM
   {{ ref('silver_terra__msgs') }} A
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS voter_labels
-  ON msg_value :voter = voter_labels.address AND voter_labels.blockchain = 'terra' AND voter_labels.creator = 'flipside'
+  ON msg_value :voter = voter_labels.address
+  AND voter_labels.blockchain = 'terra'
+  AND voter_labels.creator = 'flipside'
   LEFT OUTER JOIN balances b
   ON DATE(
     A.block_timestamp

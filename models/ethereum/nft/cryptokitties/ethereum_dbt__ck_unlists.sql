@@ -11,7 +11,7 @@ WITH auction_cancelled AS (
     tx_id,
     block_timestamp
   FROM
-    silver.ethereum_events_emitted
+    {{ ref('silver_ethereum__events_emitted') }}
   WHERE
     event_name = 'AuctionCancelled'
     AND contract_addr = '0xb1690c08e213a35ed9bab7b318de14420fb57d8c'

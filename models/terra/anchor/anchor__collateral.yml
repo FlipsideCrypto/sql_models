@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - EVENT_TYPE
             - AMOUNT
             - CURRENCY
     columns:

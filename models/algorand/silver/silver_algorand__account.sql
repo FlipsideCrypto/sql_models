@@ -14,6 +14,10 @@ SELECT
     10,
     6
   ) AS rewardsbase,
+  rewards_total / pow(
+    10,
+    6
+  ) AS rewards_total,
   microalgos / pow(
     10,
     6
@@ -22,10 +26,14 @@ SELECT
   created_at AS created_at,
   keytype AS wallet_type,
   account_data AS account_data,
-  _FIVETRAN_SYNCED
+  DATEADD(
+    'MS',
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _FIVETRAN_SYNCED
 FROM
   {{ source(
-    'algorand',
+    'algorand_patch',
     'ACCOUNT'
   ) }}
 WHERE

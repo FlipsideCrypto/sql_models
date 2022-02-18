@@ -7,6 +7,7 @@ SELECT
     address,
     account_closed,
     rewardsbase,
+    rewards_total,
     balance,
     closed_at,
     created_at,

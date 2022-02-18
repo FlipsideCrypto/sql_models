@@ -68,7 +68,7 @@ massets AS(
     m.block_timestamp,
     m.block_id,
     m.msg_value :execute_msg :feed_price :prices [0] [0] :: STRING AS currency,
-    p.address AS symbol,
+    coalesce(p.address_name, p.address) AS symbol,
     m.msg_value :execute_msg :feed_price :prices [0] [1] :: FLOAT AS price
   FROM
     {{ ref('silver_terra__msgs') }} m
@@ -84,6 +84,31 @@ massets AS(
 {% if is_incremental() %}
 AND m.block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
+
+),
+
+polymine AS (
+
+SELECT
+    'terra' as blockchain,
+    DATE_TRUNC('minute', recorded_at) AS block_timestamp,
+    'terra1kcthelkax4j9x8d3ny6sdag0qmxxynl3qtcrpy' AS currency,
+    symbol,
+    AVG(p.price) AS price,
+    'coinmarketcap' as source
+FROM {{ source('shared','prices_v2') }} p
+WHERE asset_id IN('pylon-protocol',
+                  '10767')
+
+{% if is_incremental() %}
+AND recorded_at >= getdate() - INTERVAL '1 days'
+{% endif %}
+
+GROUP BY 1,
+         2,
+         3,
+         4,
+         6
 
 )
 
@@ -112,6 +137,8 @@ SELECT
     WHEN l.currency = 'uaud' THEN 'AUT'
     WHEN l.currency = 'uidr' THEN 'IDT'
     WHEN l.currency = 'uphp' THEN 'PHT'
+    WHEN l.currency = 'utwd' THEN 'TWT'
+    WHEN l.currency = 'umyr' THEN 'MYT'
     ELSE l.currency
   END AS symbol,
   exchange_rate AS luna_exchange_rate,
@@ -199,3 +226,18 @@ WHERE
   AND tx_id IN( SELECT tx_id FROM {{ ref('silver_terra__msgs') }}
                 WHERE msg_value :contract :: STRING = 'terra1cgg6yef7qcdm070qftghfulaxmllgmvk77nc7t'
                   AND msg_value :execute_msg :feed_price IS NOT NULL)
+
+UNION
+
+SELECT
+    p.blockchain,
+    p.block_timestamp,
+    p.currency,
+    p.symbol,
+    l.price/ p.price as luna_exchange_rate,
+    p.price AS price_usd,
+    p.source
+FROM polymine p
+
+LEFT OUTER JOIN prices l
+  ON date_trunc('hour', p.block_timestamp) = l.block_timestamp

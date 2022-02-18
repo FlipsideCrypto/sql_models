@@ -7,8 +7,7 @@ models:
             - BLOCK_ID
             - TX_ID
             - VALIDATOR
-            - CURRENCY
-            - EVENT_AMOUNT
+            - EVENT_ATTRIBUTES_AMOUNT_INDEX
     columns:
       - name: ACTION
         tests:
@@ -28,20 +27,10 @@ models:
       - name: CHAIN_ID
         tests:
           - not_null
-      - name: CURRENCY
-        tests:
-          - not_null
       - name: DELEGATOR
         tests:
-          - not_null
-      - name: DELEGATOR_ADDRESS_LABEL
-        tests:
-      - name: DELEGATOR_ADDRESS_NAME
-        tests:
-      - name: DELEGATOR_LABEL_SUBTYPE
-        tests:
-      - name: DELEGATOR_LABEL_TYPE
-        tests:
+          - not_null:
+              where: validator is null
       - name: EVENT_AMOUNT
         tests:
           - not_null
@@ -51,7 +40,6 @@ models:
                 - float
       - name: EVENT_AMOUNT_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -61,7 +49,6 @@ models:
           - not_null
       - name: PRICE_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -74,12 +61,5 @@ models:
           - not_null
       - name: VALIDATOR
         tests:
-          - not_null
-      - name: VALIDATOR_ADDRESS_LABEL
-        tests:
-      - name: VALIDATOR_ADDRESS_NAME
-        tests:
-      - name: VALIDATOR_LABEL_SUBTYPE
-        tests:
-      - name: VALIDATOR_LABEL_TYPE
-        tests:
+          - not_null:
+              where: delegator is null

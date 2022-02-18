@@ -12,13 +12,16 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: REWARDSLEVEL
         tests:
           - not_null
       - name: NETWORK
         tests:
           - not_null
-      - name: GENISIS_HASH
+      - name: GENESIS_HASH
         tests:
           - not_null
       - name: PREV_BLOCK_HASH

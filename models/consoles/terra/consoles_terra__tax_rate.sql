@@ -49,7 +49,7 @@ FROM
                 e.block_timestamp
             ) AS DATE,
             tax_rate,
-            CASE
+            CASE WHEN t.tax_rate = 0 then 0
                 WHEN e.event_amount_usd <= p.price / t.tax_rate THEN t.tax_rate
                 ELSE p.price / e.event_amount_usd
             END AS effective_tax_rate

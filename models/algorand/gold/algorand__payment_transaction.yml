@@ -3,6 +3,9 @@ models:
   - name: algorand__payment_transaction
     tests:
     columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null
@@ -27,7 +30,7 @@ models:
       - name: TX_TYPE_NAME
         tests:
           - not_null
-      - name: GENISIS_HASH
+      - name: GENESIS_HASH
         tests:
           - not_null
       - name: TX_MESSAGE
