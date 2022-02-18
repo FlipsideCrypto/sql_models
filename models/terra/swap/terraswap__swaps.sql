@@ -112,9 +112,13 @@ single_msgs_array_raw AS (
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :native_swap IS NULL 
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :terra_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :astro_swap IS NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[1] :prism_swap IS NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[1] :loop_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :native_swap IS NULL 
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :terra_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :astro_swap IS NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[2] :prism_swap IS NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[2] :loop_swap IS NULL
     AND tx_status = 'SUCCEEDED'
 ),
 
@@ -305,6 +309,7 @@ msgs_multi_swaps_raw_type_2_msg AS (
   , lateral flatten ( msg_value :execute_msg :execute_swap_operations :operations)
   WHERE msg_value :execute_msg :execute_swap_operations :operations IS NOT NULL
     AND tx_status = 'SUCCEEDED'
+    AND OBJECT_KEYS(value)[0]::STRING IN ('terra_swap', 'terraswap', 'native_swap')
   
   UNION ALL 
   
@@ -325,6 +330,7 @@ msgs_multi_swaps_raw_type_2_msg AS (
   , lateral flatten ( msg_value :execute_msg :send :msg :execute_swap_operations :operations)
   WHERE msg_value :execute_msg :send :msg :execute_swap_operations :operations IS NOT NULL
     AND tx_status = 'SUCCEEDED'
+    AND OBJECT_KEYS(value)[0]::STRING IN ('terra_swap', 'terraswap', 'native_swap')
 ),
 
 msgs_multi_swaps_raw_type_2_events_raw AS (
@@ -481,9 +487,9 @@ events_multi_swaps_type_1 AS (
     msg_index,
     tx_index,
     event_index,
-    "'offer_amount'" AS offer_amount,
+    "'offer_amount'":: numeric / pow(10,6) AS offer_amount,
     "'offer_asset'"::STRING AS offer_currency,
-    "'return_amount'" AS return_amount,
+    "'return_amount'":: numeric / pow(10,6) AS return_amount,
     "'ask_asset'"::STRING AS return_currency,
     "'contract_address'"::STRING AS contract_address
   FROM events_multi_swaps_raw_type_1
@@ -748,6 +754,8 @@ SELECT DISTINCT
   POOL_ADDRESS,
   POOL_NAME
 FROM swaps
+WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
 
 UNION ALL 
 
@@ -769,3 +777,5 @@ SELECT DISTINCT
   POOL_ADDRESS,
   POOL_NAME
 FROM swaps_multi_swaps
+WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
