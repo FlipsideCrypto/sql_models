@@ -59,7 +59,6 @@ FROM
   ) }}
 WHERE
   block_id < 11832821
-  AND 1 = 1
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
@@ -71,4 +70,4 @@ AND block_timestamp :: DATE >= (
 {% endif %}
 ) A qualify(ROW_NUMBER() over(PARTITION BY tx_hash
 ORDER BY
-  block_id desc, system_created_at DESC)) = 1
+  block_id DESC, system_created_at DESC)) = 1

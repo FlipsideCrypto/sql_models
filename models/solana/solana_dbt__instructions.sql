@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id, e.index)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['ingested_at::DATE'],
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_events']
