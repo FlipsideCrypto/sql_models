@@ -17,7 +17,6 @@ WITH withdraw_delegator_rewards AS (
     block_timestamp,
     tx_id,
     msg_index,
-    event_attributes_amount_index,
     'withdraw_delegator_rewards' AS action,
     event_rewards_amount AS amount,
     event_rewards_currency AS currency,
@@ -35,7 +34,6 @@ withdraw_validator_commission AS (
     block_timestamp,
     tx_id,
     msg_index,
-    event_attributes_amount_index,
     'withdraw_validator_commission' AS action,
     amount,
     currency,
@@ -68,7 +66,6 @@ SELECT
   A.block_timestamp,
   A.tx_id,
   A.msg_index,
-  A.event_attributes_amount_index,
   A.action,
   A.validator AS validator,
   validator_labels.l1_label AS validator_label_type,
@@ -104,11 +101,7 @@ FROM
   )
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   delegator_labels
-  ON A.delegator = delegator_labels.address
-  AND delegator_labels.blockchain = 'terra'
-  AND delegator_labels.creator = 'flipside'
+  ON A.delegator = delegator_labels.address AND delegator_labels.blockchain = 'terra' AND delegator_labels.creator = 'flipside'
   LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }}
   validator_labels
-  ON A.validator = validator_labels.address
-  AND validator_labels.blockchain = 'terra'
-  AND validator_labels.creator = 'flipside'
+  ON A.validator = validator_labels.address AND validator_labels.blockchain = 'terra' AND validator_labels.creator = 'flipside'

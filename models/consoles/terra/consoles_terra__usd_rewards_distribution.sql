@@ -4,22 +4,38 @@
     tags = ['snowflake', 'terra', 'console']
 ) }}
 
-WITH base_table AS (
+WITH total_supply AS (
 
     SELECT
         DATE AS DAY,
-        SUM(balance) AS total_supply,
-        SUM(case when balance_type = 'staked' then balance else 0 end) AS total_staked
+        SUM(balance) AS daily_total_supply
     FROM
         {{ ref('terra__daily_balances') }}
     WHERE
         currency = 'LUNA'
         AND address != 'terra1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3nln0mh'
-        AND date::date >= current_date - 180
+    GROUP BY
+        DAY
+),
+staked AS (
+    SELECT
+        DATE AS DAY,
+        SUM(balance) AS total_stake
+    FROM
+        {{ ref('terra__daily_balances') }}
+    WHERE
+        currency = 'LUNA'
+        AND address != 'terra1fl48vsnmsdzcv85q5d2q4z5ajdha8yu3nln0mh'
+        AND balance_type = 'staked'
     GROUP BY
         DAY
 )
-
-select *
-from base_table
-unpivot (daily_total_supply for type in (total_supply, total_staked))
+SELECT
+    'total_supply' AS TYPE,*
+FROM
+    total_supply
+UNION
+SELECT
+    'staked' AS TYPE,*
+FROM
+    staked

@@ -5,7 +5,6 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
-            - ADDRESS
     columns:
       - name: ADDRESS
         tests:

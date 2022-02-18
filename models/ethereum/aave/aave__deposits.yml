@@ -16,9 +16,6 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3  
       - name: TX_ID
         tests:
           - not_null
@@ -45,8 +42,7 @@ models:
           - not_null
       - name: LENDING_POOL_CONTRACT
         tests:
-          - not_null:
-              where: AAVE_VERSION <> 'Aave V1'
+          - not_null
       - name: AAVE_VERSION
         tests: 
           - not_null

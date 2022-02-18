@@ -3,8 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'solana', 'silver_solana', 'solana_transactions'],
-  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
+  tags = ['snowflake', 'solana', 'silver_solana', 'solana_transactions']
 ) }}
 
 WITH base_table AS (
@@ -30,7 +29,6 @@ WITH base_table AS (
       ELSE FALSE
     END AS succeeded,
     tx :transaction :message :instructions [0] :programId :: STRING AS program_id,
-    tx :transaction :message :accountKeys :: ARRAY AS account_keys,
     ingested_at :: TIMESTAMP AS ingested_at,
     CASE
       WHEN len(
@@ -43,13 +41,14 @@ WITH base_table AS (
     END AS transfer_tx_flag
   FROM
     {{ ref('bronze_solana__transactions') }}
-  WHERE
-    program_id IS NULL
-    OR program_id <> 'Vote111111111111111111111111111111111111111'
+  
+  WHERE program_id IS NULL 
+  OR program_id <> 'Vote111111111111111111111111111111111111111'
 
 {% if is_incremental() %}
-AND ingested_at >= getdate() - INTERVAL '2 days'
+  AND ingested_at >= getdate() - interval '2 days'
 {% endif %}
+
 )
 SELECT
   block_timestamp,
@@ -64,8 +63,7 @@ SELECT
   succeeded,
   program_id,
   ingested_at,
-  transfer_tx_flag,
-  account_keys
+  transfer_tx_flag
 FROM
   base_table qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id
 ORDER BY

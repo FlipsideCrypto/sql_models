@@ -27,10 +27,26 @@ AND t.tx_id = i.tx_id
 
 WHERE i.event_type :: STRING IN ('initialize', 'split', 'deactivate', 'delegate', 'withdraw', 'merge', 'authorize', 'allocate', 'assign', 'setLockup')
 
-{% if is_incremental() %}
-  AND t.ingested_at >= getdate() - interval '2 days'
-  AND i.ingested_at >= getdate() - interval '2 days'
-{% endif %}
+   {% if is_incremental() %}
+    AND t.ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+
+  AND i.ingested_at >= (
+      SELECT
+        MAX(
+          ingested_at
+        )
+      FROM
+        {{ this }}
+    )
+
+    {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id
 ORDER BY

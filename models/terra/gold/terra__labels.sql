@@ -6,8 +6,8 @@
 
 SELECT
   blockchain, 
-  address,
   creator, 
+  address,
   l1_label as label_type,
   l2_label as label_subtype,
   project_name as label, 

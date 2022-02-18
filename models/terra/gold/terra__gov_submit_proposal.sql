@@ -54,24 +54,31 @@ SELECT
   proposer_labels.project_name AS proposer_address_label,
   proposer_labels.address AS proposer_address_name,
   p.proposal_id,
-  COALESCE(
-    msg_value :content :type :: STRING,
-    msg_value :"content"."@type" :: STRING -- columbus-5
+  REGEXP_REPLACE(
+    msg_value :content :type,
+    '\"',
+    ''
   ) AS proposal_type,
-  COALESCE(
-    msg_value :content :value :description :: STRING,
-    msg_value :content :description :: STRING --columbus-5
+  REGEXP_REPLACE(
+    msg_value :content :value :description,
+    '\"',
+    ''
   ) AS description,
-  COALESCE(
-    msg_value :content :value :title :: STRING,
-    msg_value :content :title :: STRING --columbus-5
+  REGEXP_REPLACE(
+    msg_value :content :value :title,
+    '\"',
+    ''
   ) AS title,
   msg_value :initial_deposit [0] :amount / pow(
     10,
     6
   ) AS deposit_amount,
   deposit_amount * o.price_usd AS deposit_amount_usd,
-  msg_value :initial_deposit [0] :denom :: STRING AS deposit_currency
+  REGEXP_REPLACE(
+    msg_value :initial_deposit [0] :denom,
+    '\"',
+    ''
+  ) AS deposit_currency
 FROM
   {{ ref('silver_terra__msgs') }}
   t
@@ -90,9 +97,7 @@ FROM
     t.msg_value :proposer,
     '\"',
     ''
-  ) = proposer_labels.address
-  AND proposer_labels.blockchain = 'terra'
-  AND proposer_labels.creator = 'flipside'
+  ) = proposer_labels.address AND proposer_labels.blockchain = 'terra' AND proposer_labels.creator = 'flipside'
   LEFT OUTER JOIN proposal_id p
   ON t.tx_id = p.tx_id
 WHERE

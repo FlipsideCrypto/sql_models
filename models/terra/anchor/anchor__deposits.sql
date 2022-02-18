@@ -120,7 +120,7 @@ AND block_timestamp :: DATE >= (
 )
 {% endif %}
 )
-SELECT DISTINCT
+SELECT
   blockchain,
   chain_id,
   block_id,

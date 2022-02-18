@@ -41,6 +41,9 @@ models:
               column_type_list:
                 - decimal
                 - float
+      - name: SYSTEM_CREATED_AT
+        tests:
+          - not_null
       - name: TOKEN_1_CURRENCY
         tests:
           - not_null

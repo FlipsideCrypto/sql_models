@@ -4,7 +4,6 @@
 ) }}
 
 SELECT
-    block_timestamp,
     block_id,
     intra,
     address

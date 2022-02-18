@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: anchor__liquidations
+    enabled: False # delete line/enable when model is fixed.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

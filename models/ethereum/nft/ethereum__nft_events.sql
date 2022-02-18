@@ -259,16 +259,6 @@ WHERE
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
-UNION
-SELECT
-  *
-FROM
-  {{ ref('ethereum_dbt__looksrare_sales') }}
-
-{% if is_incremental() %}
-WHERE
-  block_timestamp >= getdate() - INTERVAL '5 days'
-{% endif %}
 ),
 price AS (
   SELECT
@@ -309,8 +299,16 @@ SELECT
     '_'
   ) AS project_name,
   nft.token_id,
-  nft.event_from :: STRING AS event_from,
-  nft.event_to :: STRING AS event_to,
+  REGEXP_REPLACE(
+    nft.event_from,
+    '\"',
+    ''
+  ) AS event_from,
+  REGEXP_REPLACE(
+    nft.event_to,
+    '\"',
+    ''
+  ) AS event_to,
   nft.price,
   nft.price * p.price AS price_usd,
   nft.platform_fee,
@@ -324,9 +322,7 @@ FROM
     'hour',
     block_timestamp
   ) = p.hour
-  LEFT OUTER JOIN {{ ref(
-    'silver_crosschain__address_labels'
+  LEFT OUTER JOIN {{ ref( 
+  'silver_crosschain__address_labels'
   ) }} AS contract_labels
-  ON nft.contract_address = contract_labels.address
-  AND contract_labels.blockchain = 'ethereum'
-  AND contract_labels.creator = 'flipside'
+  ON nft.contract_address = contract_labels.address AND contract_labels.blockchain = 'ethereum' AND contract_labels.creator = 'flipside'

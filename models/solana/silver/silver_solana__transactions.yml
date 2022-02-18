@@ -48,8 +48,7 @@ models:
               where: TRANSFER_TX_FLAG = TRUE
       - name: PROGRAM_ID
         tests: 
-          - not_null: 
-              where: TRANSFER_TX_FLAG = TRUE
+          - not_null
       - name: INGESTED_AT
         tests: 
           - not_null
