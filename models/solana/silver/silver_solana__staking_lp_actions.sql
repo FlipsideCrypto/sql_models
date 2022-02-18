@@ -6,6 +6,36 @@
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_LP']
 ) }}
 
+WITH base_i AS (
+  SELECT
+    block_id, 
+    tx_id, 
+    index :: INTEGER AS index, 
+    event_type, 
+    value, 
+    ingested_at
+  FROM {{ ref('solana_dbt__instructions') }} 
+
+{% if is_incremental() %}
+  WHERE ingested_at >= getdate() - interval '2 days'
+{% endif %}
+), 
+
+base_t AS (
+  SELECT
+    block_timestamp, 
+    block_id, 
+    tx_id, 
+    chain_id, 
+    tx, 
+    ingested_at
+
+  FROM {{ ref('bronze_solana__transactions') }}
+
+{% if is_incremental() %}
+  WHERE ingested_at >= getdate() - interval '2 days'
+{% endif %}
+)
 
 SELECT 
   t.block_timestamp :: TIMESTAMP AS block_timestamp, 
@@ -19,34 +49,13 @@ SELECT
   i.event_type :: STRING AS event_type, 
   i.value AS instruction, 
   t.ingested_at :: TIMESTAMP AS ingested_at
-FROM {{ ref('solana_dbt__instructions') }} i
+FROM base_i i
 
-LEFT OUTER JOIN {{ ref('bronze_solana__transactions') }} t 
+LEFT OUTER JOIN base_t t 
 ON t.block_id = i.block_id 
 AND t.tx_id = i.tx_id
 
 WHERE i.event_type :: STRING IN ('initialize', 'split', 'deactivate', 'delegate', 'withdraw', 'merge', 'authorize', 'allocate', 'assign', 'setLockup')
-
-   {% if is_incremental() %}
-    AND t.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-
-  AND i.ingested_at >= (
-      SELECT
-        MAX(
-          ingested_at
-        )
-      FROM
-        {{ this }}
-    )
-
-    {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY t.block_id, t.tx_id
 ORDER BY
