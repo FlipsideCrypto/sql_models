@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: crosschain__address_labels
+  - name: silver_dbt__address_labels
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -22,13 +22,13 @@ models:
         description: The date the label was inserted in the table
         tests:
           - not_null
-      - name: LABEL_TYPE
+      - name: L1_LABEL
         description: A high-level category describing the addresses main function or ownership
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
               value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin']
-      - name: LABEL_SUBTYPE
+      - name: L2_LABEL
         description: A sub-category nested within label type providing further detail
         tests:
           - not_null
