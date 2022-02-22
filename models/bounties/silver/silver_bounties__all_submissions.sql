@@ -7,18 +7,15 @@
 
 SELECT
   id,
-  timestamp_submission_sheet,
+  TIMESTAMP AS submitted_timestamp,
   program_name,
   program_type,
-  -- question level?
   question_difficulty,
   email_address,
   date_of_users_first_appearance,
-  -- date of last submission?
   date_of_users_last_appearance,
   discord_handle,
   twitter_handles,
-  -- submission link?
   links_to_public_results,
   total_score,
   grand_prize_winner,
