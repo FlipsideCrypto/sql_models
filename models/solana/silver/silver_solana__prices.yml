@@ -1,0 +1,32 @@
+version: 2
+models:
+  - name: silver_solana__prices
+    columns:
+      - name: RECORDED_AT
+        description: Time that the price was recorded at 
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: SYMBOL
+        description: Symbol of the token
+        tests:
+          - not_null
+      - name: PRICE
+        description: Price of the token at the recorded time
+        tests: 
+          - not_null
+      - name: TOTAL_SUPPLY
+        description: Total supply of the token 
+        tests: 
+          - not_null: 
+              enabled: FALSE # Missing total volume for some tokens 
+      - name: VOLUME_24H
+        description: Total volume of token traded in a 24H time period
+        tests: 
+          - not_null : 
+              enabled: FALSE # Missing 24H volume for some tokens
+      - name: PROVIDER
+        description: Name of the provider of the price information 
+        tests: 
+          - not_null 

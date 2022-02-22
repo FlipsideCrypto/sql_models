@@ -9,35 +9,53 @@ models:
           where: block_timestamp::date >= current_date - 2
     columns:
       - name: BLOCK_TIMESTAMP
+        description: The time the block began
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
       - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
         tests:
           - not_null
       - name: BLOCKCHAIN 
+        description: Cross-chain identifier
         tests: 
           - not_null
       - name: RECENT_BLOCK_HASH
+        description: Unique value that identifies the block 
         tests:
           - not_null
       - name: TX_ID
+        description: A unique key that identifies a transaction
         tests:
           - not_null
       - name: SUCCEEDED
+        description: TRUE when transaction succeeded. Otherwise this column is FALSE
         tests: 
           - not_null
       - name: PROGRAM_TYPE
+        description: In this table, always "vote." This is the type of event occurring
         tests: 
           - not_null
       - name: PROGRAM_ID
+        description: A string describing the program or contract interacted with
         tests: 
           - not_null
       - name: VOTE_ACCOUNT
+        description: Account belonging to the voting delegator
+        tests: 
+          - not_null
+      - name: VOTE_AUTHORITY
+        description: Authority for the voting delegator
         tests: 
           - not_null
       - name: INGESTED_AT
+        description: Time the record was sent to the table
+        tests: 
+          - not_null
+      - name: TRANSFER_TX_FLAG
+        description: Internal flag that allows for data integrity tests
         tests: 
           - not_null

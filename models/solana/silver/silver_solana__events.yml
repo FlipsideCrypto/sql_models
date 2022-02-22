@@ -9,26 +9,47 @@ models:
             - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
+        description: The time the block began
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
       - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
         tests:
           - not_null
       - name: BLOCKCHAIN 
+        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables
         tests: 
           - not_null
       - name: RECENT_BLOCK_HASH
+        description: Unique value that identifies the block
         tests:
           - not_null
       - name: TX_ID
+        description: A unique key that identifies a transaction
         tests:
           - not_null
       - name: SUCCEEDED
+        description: True when a transaction is successful, otherwise false. 
         tests: 
           - not_null
+      - name: PRETOKENBALANCES
+        description: Decoded event token details pre-airdrop
+      - name: POSTTOKENBALANCES
+        description: Decoded event token details post-airdrop
+      - name: INDEX
+        description: Location of the event within the instructions of a transaction
+        tests:  
+          - not_null
+      - name: INSTRUCTION
+        description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
+        tests: 
+          - not_null
+      - name: INNER_INSTRUCTION
+        description: A call from one smart contract program to another. 
       - name: INGESTED_AT
+        description: Time the record was sent to the table
         tests: 
           - not_null

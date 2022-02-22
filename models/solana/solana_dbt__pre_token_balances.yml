@@ -1,0 +1,57 @@
+version: 2
+models:
+  - name: solana_dbt__pre_token_balances
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+            - INDEX
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: The time the block began
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
+        tests:
+          - not_null
+      - name: TX_ID
+        description: A unique key that identifies a transaction
+        tests:
+          - not_null
+      - name: INDEX
+        description: Location of the event within the instructions of a transaction
+        tests: 
+          - not_null 
+      - name: ACCOUNT_INDEX
+        description: Index corresponding to the address's location in the accounts array 
+        tests: 
+          - not_null
+      - name: MINT
+        description: Identifier for the token
+        tests: 
+          - not_null 
+      - name: OWNER
+        description: Address of the owner of the account
+        tests: 
+          - not_null 
+      - name: DECIMAL 
+        description: Number of decimals in the token value, need to divide amount by 10^decimal
+        tests: 
+          - not_null 
+      - name: UIAMOUNT
+        description: Amount of the token in the transaction 
+        tests: 
+          - not_null
+      - name: UIAMOUNTSTRING
+        description: Amount of the token in the transaction in string format
+        tests: 
+          - not_null  
+      - name: INGESTED_AT
+        description: Time the record was sent to the table
+        tests: 
+          - not_null

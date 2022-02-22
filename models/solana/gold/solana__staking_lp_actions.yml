@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_solana__transfers
+  - name: solana__staking_lp_actions
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -15,11 +15,11 @@ models:
               datepart: day
               interval: 1
       - name: BLOCK_ID
-        description: Unique sequential number that identifies the current block
+        description: Unique sequential number that identifies the current block 
         tests:
           - not_null
-      - name: BLOCKCHAIN
-        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables 
+      - name: BLOCKCHAIN 
+        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables
         tests: 
           - not_null
       - name: RECENT_BLOCK_HASH
@@ -31,29 +31,15 @@ models:
         tests:
           - not_null
       - name: SUCCEEDED
-        description: True when a transaction is successful, otherwise false. 
+        description: TRUE when transaction succeeded. Otherwise this column is FALSE
         tests: 
           - not_null
       - name: PRETOKENBALANCES
         description: Decoded event token details pre-airdrop
       - name: POSTTOKENBALANCES
         description: Decoded event token details post-airdrop
-      - name: DESTINATION
-        description: Entity receiving a transaction
-        tests:  
-          - not_null
-      - name: SOURCE 
-        description: Entity initializing the transaction
-        tests: 
-          - not_null
-      - name: AUTHORITY
-        description: Used to sign certain transactions for the account it controls
-      - name: AMOUNT
-        description: Amount of Solana or other currency being transacted
-        tests: 
-          - not_null
       - name: EVENT_TYPE
-        description: Type of event that happened during the transaction
+        description: The type of event (i.e. "delegate", "withdraw") that is occurring
         tests: 
           - not_null
       - name: INSTRUCTION
@@ -61,6 +47,5 @@ models:
         tests: 
           - not_null
       - name: INGESTED_AT
-        description: Time the record was sent to the table
         tests: 
           - not_null

@@ -1,11 +1,12 @@
 version: 2
 models:
-  - name: silver_solana__transfers
+  - name: solana__events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+            - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
         description: The time the block began
@@ -18,8 +19,8 @@ models:
         description: Unique sequential number that identifies the current block
         tests:
           - not_null
-      - name: BLOCKCHAIN
-        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables 
+      - name: BLOCKCHAIN 
+        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables
         tests: 
           - not_null
       - name: RECENT_BLOCK_HASH
@@ -38,28 +39,16 @@ models:
         description: Decoded event token details pre-airdrop
       - name: POSTTOKENBALANCES
         description: Decoded event token details post-airdrop
-      - name: DESTINATION
-        description: Entity receiving a transaction
+      - name: INDEX
+        description: Location of the event within the instructions of a transaction
         tests:  
-          - not_null
-      - name: SOURCE 
-        description: Entity initializing the transaction
-        tests: 
-          - not_null
-      - name: AUTHORITY
-        description: Used to sign certain transactions for the account it controls
-      - name: AMOUNT
-        description: Amount of Solana or other currency being transacted
-        tests: 
-          - not_null
-      - name: EVENT_TYPE
-        description: Type of event that happened during the transaction
-        tests: 
           - not_null
       - name: INSTRUCTION
         description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
         tests: 
           - not_null
+      - name: INNER_INSTRUCTION
+        description: A call from one smart contract program to another. 
       - name: INGESTED_AT
         description: Time the record was sent to the table
         tests: 

@@ -1,11 +1,12 @@
 version: 2
 models:
-  - name: silver_solana__votes_block_agg
+  - name: solana_dbt__sol_balances
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
-          where: block_timestamp::date >= current_date - 2
+            - TX_ID
+            - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
         description: The time the block began
@@ -18,11 +19,19 @@ models:
         description: Unique sequential number that identifies the current block
         tests:
           - not_null
-      - name: BLOCKCHAIN 
-        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables 
+      - name: TX_ID
+        description: A unique key that identifies a transaction
+        tests:
+          - not_null
+      - name: SOL_PRE_BALANCES
+        description: Amount of SOL in wallet before a transaction 
         tests: 
           - not_null
-      - name: NUM_VOTES
-        description: The number of votes that occurred during the block
+      - name: SOL_POST_BALANCES
+        description: Amount of SOL in wallet after a transaction
+        tests: 
+          - not_null
+      - name: INGESTED_AT
+        description: Time the record was sent to the table
         tests: 
           - not_null

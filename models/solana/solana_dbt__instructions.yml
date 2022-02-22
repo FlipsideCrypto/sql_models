@@ -1,11 +1,12 @@
 version: 2
 models:
-  - name: silver_solana__swaps_jupiter_dex
+  - name: solana_dbt__instructions
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+            - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
         description: The time the block began
@@ -22,27 +23,19 @@ models:
         description: A unique key that identifies a transaction
         tests:
           - not_null
-      - name: SUCCEEDED
-        description: True when a transaction is successful, otherwise false. 
+      - name: INDEX
+        description: Location of the event within the instructions of a transaction
+        tests: 
+          - not_null 
+      - name: EVENT_TYPE
+        description: Type of event that is happening in the row i.e. transfer, createAccount
         tests: 
           - not_null
-      - name: SWAPPER
-        description: Address that initiated the swap 
+      - name: VALUE
+        description: json object that contains the inner instructions 
         tests: 
           - not_null
-      - name: SWAP_FROM_AMOUNT
-        description: Total amount of the token sent in to initiate the swap 
-        tests: 
-          - not_null
-      - name: SWAP_FROM_MINT
-        description: Token being sent or swapped from
-        tests: 
-          - not_null
-      - name: SWAP_TO_AMOUNT
-        description: Total amount of the token received in the swap
-        tests: 
-          - not_null
-      - name: SWAP_TO_MINT
-        description: Token being received or swapped for 
+      - name: INGESTED_AT
+        description: Time the record was sent to the table
         tests: 
           - not_null
