@@ -29,7 +29,3 @@ AND system_created_at :: DATE >= (
     {{ this }} AS address_labels
 )
 {% endif %}
-
-qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
-ORDER BY
-  insert_date DESC)) = 1
