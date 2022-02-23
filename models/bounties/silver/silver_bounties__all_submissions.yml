@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: silver_bounties__all_submissions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ID
+    columns:
+      - name: ID
+        tests:
+          - not_null
+      - name: PROGRAM_NAME
+        tests:
+          - not_null
+      - name: PROGRAM_TYPE 
+        tests: 
+          - not_null
+      - name: SUBMITTED_TIMESTAMP
+        tests:
+          - not_null
