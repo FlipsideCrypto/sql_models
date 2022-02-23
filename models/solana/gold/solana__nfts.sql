@@ -12,7 +12,8 @@ SELECT
     mint,  
     succeeded, 
     preTokenBalances,  
-    postTokenBalances, 
+    postTokenBalances,
+    index,  
     instruction, 
     inner_instruction, 
     ingested_at
