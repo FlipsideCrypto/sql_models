@@ -50,7 +50,8 @@ models:
       - name: VOTE_AUTHORITY
         description: Authority for the voting delegator
         tests: 
-          - not_null
+          - not_null: 
+              enabled: false # Vote authority not always available
       - name: INGESTED_AT
         description: Time the record was sent to the table
         tests: 
