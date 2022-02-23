@@ -12,8 +12,8 @@ SELECT
   program_type,
   question_difficulty,
   email_address,
-  date_of_users_first_appearance,
-  date_of_users_last_appearance,
+  date_of_users_first_appearance :: ARRAY [0] :: timestamp_ntz AS date_of_users_first_appearance,
+  date_of_users_last_appearance :: ARRAY [0] :: timestamp_ntz AS date_of_users_last_appearance,
   discord_handle,
   twitter_handles,
   links_to_public_results,
@@ -23,7 +23,7 @@ SELECT
   amount_to_pay_automated,
   token_to_pay,
   finance_has_paid,
-  bounty_question_title
+  bounty_question_title :: ARRAY [0] :: STRING AS bounty_question_title
 FROM
   {{ source(
     'bi_analytics',
