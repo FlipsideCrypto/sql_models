@@ -49,9 +49,8 @@ WITH latest AS (
         balance_type,
         1 AS RANK
       FROM
-        {{ source(
-          'shared',
-          'terra_balances'
+        {{ ref(
+          "terra_dbt__balances"
         ) }}
       WHERE
         block_timestamp :: DATE >= (
@@ -108,7 +107,7 @@ FROM
 SELECT
   block_timestamp, address, currency, balance_type, blockchain, balance
 FROM
-  {{ source('shared', 'terra_balances') }}
+  {{ ref("terra_dbt__balances") }}
 {% endif %}),
 address_ranges AS (
   SELECT
@@ -168,7 +167,7 @@ terra_balances AS (
     {{ ref(
       "terra_dbt__balances"
     ) }}
-    qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
+    base_balances qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
   ORDER BY
     balance DESC)) = 1
 ),
