@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = 'id',
   incremental_strategy = 'merge',
-  tags = ['snowflake', 'bi_analytics', 'airtable']
+  tags = ['snowflake', 'bi_analytics', 'airtable', 'bounties']
 ) }}
 
 SELECT
