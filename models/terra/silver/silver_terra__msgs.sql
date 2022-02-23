@@ -3,7 +3,8 @@
   unique_key = "CONCAT_WS('-', chain_id, block_id, tx_id, msg_index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra_silver', 'terra_msgs']
+  tags = ['snowflake', 'terra_silver', 'terra_msgs'],
+  post_hook = 'delete from {{ this }} m using ( select distinct block_id, tx_id from {{ this }} where block_timestamp::date >= current_date - 7 qualify(rank() over (partition by tx_id order by block_id desc)) > 1 ) ub where m.block_id = ub.block_id and m.tx_id = ub.tx_id and m.block_timestamp::date >= current_date - 7;'
 ) }}
 
 WITH msgs_uncle_blocks_removed AS (
