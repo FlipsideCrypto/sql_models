@@ -134,32 +134,17 @@ sources:
     tables:
       - name: daily_balances
   - name: algorand
-    schema: BRONZE_ALGORAND_2_6_4_PUBLIC
-    tables:
-      - name: ACCOUNT
-      - name: ACCOUNT_APP
-      - name: ACCOUNT_ASSET
-      - name: APP
-      - name: ASSET
-      - name: BLOCK_HEADER
-      - name: METASTATE
-      - name: TXN
-      - name: TXN_PARTICIPATION
-  - name: algorand_patch
-    schema: BRONZE_ALOGRAND_2_8_0__HEVO
-    tables:
-      - name: ACCOUNT
-      - name: ACCOUNT_APP
-      - name: ACCOUNT_ASSET
-      - name: APP
-      - name: ASSET
-      - name: BLOCK_HEADER
-      - name: METASTATE
-      - name: TXN
-      - name: TXN_PARTICIPATION
-  - name: algorand_patch
     schema: BRONZE_ALOGRAND_2_8_0__HEVO_PARALLEL
     tables:
+      - name: ACCOUNT
+      - name: ACCOUNT_APP
+      - name: ACCOUNT_ASSET
+      - name: APP
+      - name: ASSET
+      - name: BLOCK_HEADER
+      - name: METASTATE
+      - name: TXN
+      - name: TXN_PARTICIPATION
       - name: TXN_MISSING
       - name: TXN_PARTICIPATION_MISSING
   - name: bi_analytics
