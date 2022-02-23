@@ -1,12 +1,6 @@
 version: 2
 models:
   - name: solana_dbt__instructions
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - BLOCK_ID
-            - TX_ID
-            - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
         description: The time the block began
@@ -29,8 +23,6 @@ models:
           - not_null 
       - name: EVENT_TYPE
         description: Type of event that is happening in the row i.e. transfer, createAccount
-        tests: 
-          - not_null
       - name: VALUE
         description: json object that contains the inner instructions 
         tests: 

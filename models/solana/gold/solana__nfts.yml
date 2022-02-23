@@ -14,7 +14,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 2
       - name: BLOCK_ID
         description: Unique sequential number that identifies the current block 
         tests:
