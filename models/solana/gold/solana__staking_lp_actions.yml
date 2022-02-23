@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_solana__airdrops
+  - name: solana__staking_lp_actions
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -15,7 +15,7 @@ models:
               datepart: day
               interval: 2
       - name: BLOCK_ID
-        description: Unique sequential number that identifies the current block
+        description: Unique sequential number that identifies the current block 
         tests:
           - not_null
       - name: BLOCKCHAIN 
@@ -31,30 +31,21 @@ models:
         tests:
           - not_null
       - name: SUCCEEDED
-        description: True when a transaction is successful, otherwise false. 
-        tests: 
-          - not_null
-      - name: AUTHORITY
-        description: Used to sign certain transactions for the account it controls
-      - name: DESTINATION
-        description: Entity receiving a transaction
-        tests: 
-          - not_null
-      - name: MINT
-        description: Identifier for the token or NFT being received in the airdrop. Use this field to join to labels or NFT metadata tables. 
-        tests: 
-          - not_null
-      - name: SOURCE
-        description: Entity initializing the transaction
+        description: TRUE when transaction succeeded. Otherwise this column is FALSE
         tests: 
           - not_null
       - name: PRETOKENBALANCES
         description: Decoded event token details pre-airdrop
       - name: POSTTOKENBALANCES
         description: Decoded event token details post-airdrop
+      - name: EVENT_TYPE
+        description: The type of event (i.e. "delegate", "withdraw") that is occurring
+        tests: 
+          - not_null
       - name: INSTRUCTION
         description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
+        tests: 
+          - not_null
       - name: INGESTED_AT
-        description: Time the record was sent to the table
         tests: 
           - not_null
