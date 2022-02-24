@@ -24,7 +24,7 @@ SELECT
   ) AS _FIVETRAN_SYNCED
 FROM
   {{ source(
-    'algorand',
+    'algorand_patch',
     'ASSET'
   ) }}
 WHERE

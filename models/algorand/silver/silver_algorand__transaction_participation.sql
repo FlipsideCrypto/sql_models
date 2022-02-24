@@ -31,7 +31,7 @@ hevo_inner_tx_individual AS(
     MIN(DATEADD('MS', __HEVO__LOADED_AT, '1970-01-01')) AS _FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand',
+      'algorand_patch',
       'TXN_PARTICIPATION_MISSING'
     ) }}
   WHERE
