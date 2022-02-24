@@ -53,7 +53,7 @@ hourly_prices AS (
     )
 
 {% if is_incremental() %}
-AND recorded_at >= CURRENT_DATE - 45
+AND recorded_at >= CURRENT_DATE - 3
 {% else %}
   AND recorded_at >= '2020-05-05' -- first date with valid prices data
 {% endif %}
@@ -99,13 +99,12 @@ hour_token_addresses_pair AS (
 
 {% if is_incremental() %}
 WHERE
-  HOUR BETWEEN CURRENT_DATE - 45
+  HOUR BETWEEN CURRENT_DATE - 3
   AND DATE_TRUNC('hour', SYSDATE())
 {% else %}
 WHERE
   HOUR BETWEEN '2020-05-05'
-  AND DATE_TRUNC('hour', SYSDATE()
-) -- first date with valid prices data
+  AND DATE_TRUNC('hour', SYSDATE()) -- first date with valid prices data
 {% endif %}),
 imputed AS (
   SELECT
@@ -146,29 +145,40 @@ imputed AS (
         AND p.symbol = 'ETH'
       )
     )
+),
+FINAL AS (
+  SELECT
+    p.hour AS HOUR,
+    p.token_address,
+    CASE
+      WHEN symbol IS NOT NULL THEN symbol
+      ELSE lag_symbol
+    END AS symbol,
+    CASE
+      WHEN decimals IS NOT NULL THEN decimals
+      ELSE lag_decimals
+    END AS decimals,
+    CASE
+      WHEN avg_price IS NOT NULL THEN avg_price
+      ELSE imputed_price
+    END AS price,
+    CASE
+      WHEN avg_price IS NULL THEN TRUE
+      ELSE FALSE
+    END AS is_imputed
+  FROM
+    imputed p
+  WHERE
+    price IS NOT NULL
 )
 SELECT
-  p.hour AS HOUR,
-  p.token_address,
-  CASE
-    WHEN symbol IS NOT NULL THEN symbol
-    ELSE lag_symbol
-  END AS symbol,
-  CASE
-    WHEN decimals IS NOT NULL THEN decimals
-    ELSE lag_decimals
-  END AS decimals,
-  CASE
-    WHEN avg_price IS NOT NULL THEN avg_price
-    ELSE imputed_price
-  END AS price,
-  CASE
-    WHEN avg_price IS NULL THEN TRUE
-    ELSE FALSE
-  END AS is_imputed
+  HOUR,
+  token_address,
+  symbol,
+  decimals,
+  price,
+  is_imputed
 FROM
-  imputed p
-WHERE
-  price IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY HOUR, token_address, symbol
+  FINAL qualify(ROW_NUMBER() over(PARTITION BY HOUR, token_address, symbol
 ORDER BY
-  price DESC)) = 1
+  decimals DESC) = 1)
