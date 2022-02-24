@@ -19,7 +19,10 @@ WITH prices AS (
     ) }}
   WHERE
     asset_id = '4172'
-    and provider is not null
+    AND provider is not null
+{% if is_incremental() %}
+AND recorded_at >= getdate() - INTERVAL '1 days'
+{% endif %}
   GROUP BY
     1,
     2
@@ -37,6 +40,9 @@ other_prices AS (
       '7857',
       '8857'
     )
+{% if is_incremental() %}
+AND recorded_at >= getdate() - INTERVAL '1 days'
+{% endif %}
   GROUP BY
     1,
     2
@@ -85,6 +91,23 @@ GROUP BY 1,
          4,
          6
 
+),
+
+feed_prices AS (
+SELECT
+  m.blockchain,
+  date_trunc('hour', m.block_timestamp) as block_timestamp,
+  f.value[0] ::STRING AS currency,
+  AVG(f.value[1] ::FLOAT) AS price_usd
+FROM {{ ref('silver_terra__msgs') }} m,
+lateral flatten (input => msg_value :execute_msg :feed_price :prices) f
+WHERE msg_value :execute_msg :feed_price IS NOT NULL
+AND tx_status = 'SUCCEEDED'
+
+{% if is_incremental() %}
+  AND block_timestamp >= getdate() - INTERVAL '1 days'
+{% endif %}
+GROUP BY 1,2,3
 )
 
 SELECT
@@ -166,26 +189,21 @@ UNION
 SELECT
   ee.blockchain,
   ee.block_timestamp,
-  ee.event_attributes :asset :: STRING AS currency,
+  ee.currency,
   l.address_name AS symbol,
-  pp.price / ee.event_attributes :price :: FLOAT AS luna_exchange_rate,
-  ee.event_attributes :price :: FLOAT AS price_usd,
+  pp.price / ee.price_usd AS luna_exchange_rate,
+  ee.price_usd,
   'oracle' AS source
-FROM {{ ref('silver_terra__msg_events') }} ee
+FROM feed_prices ee
   
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
-  ON ee.event_attributes :asset :: STRING = l.address 
+  ON ee.currency = l.address 
   AND l.blockchain = 'terra' 
   AND l.creator = 'flipside'
 
 LEFT OUTER JOIN prices pp
   ON DATE_TRUNC('hour', ee.block_timestamp) = pp.block_timestamp
 
-WHERE
-  event_type = 'from_contract'
-  AND tx_id IN( SELECT tx_id FROM {{ ref('silver_terra__msgs') }}
-                WHERE msg_value :execute_msg :feed_price IS NOT NULL)
-  AND price_usd > 0
 UNION
 
 SELECT
