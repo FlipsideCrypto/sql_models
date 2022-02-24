@@ -19,7 +19,7 @@ WITH allBLOCKS AS(
     _FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand_patch',
+      'algorand',
       'BLOCK_HEADER'
     ) }}
 )
