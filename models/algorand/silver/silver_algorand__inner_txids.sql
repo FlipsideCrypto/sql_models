@@ -30,7 +30,7 @@ emptyROUNDS_hevo AS (
     _FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand',
+      'algorand_patch',
       'TXN'
     ) }}
   WHERE
@@ -78,7 +78,7 @@ fulljson_hevo AS (
     txn :txn :gh :: STRING AS gh
   FROM
     {{ source(
-      'algorand',
+      'algorand_patch',
       'TXN'
     ) }}
   WHERE
