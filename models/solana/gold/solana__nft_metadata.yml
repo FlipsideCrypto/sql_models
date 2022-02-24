@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_solana__nft_metadata
+  - name: solana__nft_metadata
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

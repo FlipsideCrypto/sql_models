@@ -1,11 +1,12 @@
 version: 2
 models:
-  - name: silver_solana__airdrops
+  - name: solana__events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+            - INDEX
     columns:
       - name: BLOCK_TIMESTAMP
         description: The time the block began
@@ -34,26 +35,20 @@ models:
         description: True when a transaction is successful, otherwise false. 
         tests: 
           - not_null
-      - name: AUTHORITY
-        description: Used to sign certain transactions for the account it controls
-      - name: DESTINATION
-        description: Entity receiving a transaction
-        tests: 
-          - not_null
-      - name: MINT
-        description: Identifier for the token or NFT being received in the airdrop. Use this field to join to labels or NFT metadata tables. 
-        tests: 
-          - not_null
-      - name: SOURCE
-        description: Entity initializing the transaction
-        tests: 
-          - not_null
       - name: PRETOKENBALANCES
         description: Decoded event token details pre-airdrop
       - name: POSTTOKENBALANCES
         description: Decoded event token details post-airdrop
+      - name: INDEX
+        description: Location of the event within the instructions of a transaction
+        tests:  
+          - not_null
       - name: INSTRUCTION
         description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
+        tests: 
+          - not_null
+      - name: INNER_INSTRUCTION
+        description: A call from one smart contract program to another. 
       - name: INGESTED_AT
         description: Time the record was sent to the table
         tests: 
