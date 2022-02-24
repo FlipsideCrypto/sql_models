@@ -157,10 +157,6 @@ sources:
       - name: TXN
       - name: TXN_PARTICIPATION 
       - name: TXN_PARTICIPATION_MISSING
-  - name: bi_analytics
-    schema: bronze_bounties_airtable
-    tables:
-      - name: all_submissions
   - name: prod
     database: chainwalkers
     schema: prod
