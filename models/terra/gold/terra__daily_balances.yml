@@ -24,7 +24,7 @@ models:
       - name: BALANCE_USD
         tests:
           - not_null:
-              where: DATE > CURRENT_DATE - 30 AND IS_NATIVE = TRUE
+              where: BALANCE > 0 AND CURRENCY NOT IN ( 'aUST', 'LOTA') AND DATE > CURRENT_DATE - 90
       - name: CURRENCY
         tests:
           - not_null

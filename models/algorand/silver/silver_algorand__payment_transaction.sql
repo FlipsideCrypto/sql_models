@@ -95,7 +95,7 @@ allTXN_hevo AS (
     ) AS _FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand_patch',
+      'algorand',
       'TXN'
     ) }}
     b
