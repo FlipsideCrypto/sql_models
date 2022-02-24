@@ -71,7 +71,7 @@ SELECT
   address_labels.address_name AS address_name,
   balance,
   CASE
-  WHEN p.price * balance IS NULL AND BALANCE > 0
+  WHEN p.price * balance IS NULL
   THEN (last_value(p.price ignore nulls) over (partition by currency order by DATE asc rows between unbounded preceding and current row)) * balance
   ELSE balance * p.price
   END AS balance_usd,
