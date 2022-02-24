@@ -13,12 +13,10 @@ WITH allTXN_fivetran AS (
     b.intra AS intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
-    HEX_DECODE_STRING(
-      CASE
-        WHEN b.txid IS NULL THEN ft.txn_txn_id :: text
-        ELSE b.txid :: text
-      END
-    ) AS tx_id,
+    CASE
+      WHEN b.txid IS NULL THEN ft.txn_txn_id :: text
+      ELSE b.txid :: text
+    END AS tx_id,
     CASE
       WHEN b.txid IS NULL THEN 'true'
       ELSE 'false'
@@ -60,14 +58,10 @@ allTXN_hevo AS (
     b.intra AS intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
-    HEX_DECODE_STRING(
-      BASE64_ENCODE(
-        CASE
-          WHEN b.txid IS NULL THEN ft.txn_txn_id
-          ELSE b.txid
-        END
-      )
-    ) AS tx_id,
+    CASE
+      WHEN b.txid IS NULL THEN ft.txn_txn_id :: text
+      ELSE b.txid :: text
+    END AS tx_id,
     CASE
       WHEN b.txid IS NULL THEN 'true'
       ELSE 'false'
@@ -133,7 +127,9 @@ SELECT
   intra,
   block_id,
   tx_group_id,
-  tx_id,
+  TRY_HEX_DECODE_STRING(
+    b.tx_id :: text
+  ) AS tx_id,
   TO_BOOLEAN(inner_tx) AS inner_tx,
   asset_id,
   algorand_decode_b64_addr(

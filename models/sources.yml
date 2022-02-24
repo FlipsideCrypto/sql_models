@@ -134,6 +134,11 @@ sources:
     tables:
       - name: daily_balances
   - name: algorand
+    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
+    tables:
+      - name: TXN
+      - name: TXN_PARTICIPATION
+  - name: algorand
     schema: BRONZE_ALGORAND_2_8_0__2_PUBLIC
     tables:
       - name: ACCOUNT
@@ -143,8 +148,6 @@ sources:
       - name: ASSET
       - name: BLOCK_HEADER
       - name: METASTATE
-      - name: TXN
-      - name: TXN_PARTICIPATION
   - name: algorand
     schema: BRONZE_ALOGRAND_2_8_0__HEVO_PARALLEL
     tables:
