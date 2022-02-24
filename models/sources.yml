@@ -143,10 +143,13 @@ sources:
       - name: ASSET
       - name: BLOCK_HEADER
       - name: METASTATE
-      - name: TXN
-      - name: TXN_PARTICIPATION
       - name: TXN_MISSING
       - name: TXN_PARTICIPATION_MISSING
+  - name: algorand
+    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
+    tables:
+      - name: TXN
+      - name: TXN_PARTICIPATION
   - name: prod
     database: chainwalkers
     schema: prod

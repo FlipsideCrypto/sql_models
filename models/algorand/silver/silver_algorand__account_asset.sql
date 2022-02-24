@@ -17,9 +17,7 @@ WITH asset_name AS (
     ) }}
 )
 SELECT
-  algorand_decode_hex_addr(
-    aa.addr :: text
-  ) AS address,
+  algorand_decode_hex_addr(BASE64_ENCODE(aa.addr)) AS address,
   assetid AS asset_id,
   an.name :: STRING AS asset_name,
   amount AS amount,

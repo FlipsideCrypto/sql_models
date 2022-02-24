@@ -6,9 +6,7 @@
 ) }}
 
 SELECT
-  algorand_decode_hex_addr(
-    addr :: text
-  ) AS address,
+  algorand_decode_hex_addr(BASE64_ENCODE(addr)) AS address,
   app AS app_id,
   deleted AS app_closed,
   closed_at AS closed_at,

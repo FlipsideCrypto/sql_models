@@ -7,9 +7,7 @@
 
 SELECT
   INDEX AS app_id,
-  algorand_decode_hex_addr(
-    creator :: text
-  ) AS creator_address,
+  algorand_decode_hex_addr(BASE64_ENCODE(creator)) AS creator_address,
   deleted AS app_closed,
   closed_at AS closed_at,
   created_at AS created_at,

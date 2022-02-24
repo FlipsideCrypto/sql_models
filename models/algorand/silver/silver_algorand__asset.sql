@@ -7,9 +7,7 @@
 
 SELECT
   INDEX AS asset_id,
-  algorand_decode_hex_addr(
-    creator_addr :: text
-  ) AS creator_address,
+  algorand_decode_hex_addr(BASE64_ENCODE(creator_addr)) AS creator_address,
   params :t :: NUMBER AS total_supply,
   params :an :: STRING AS asset_name,
   params :au :: STRING AS asset_url,

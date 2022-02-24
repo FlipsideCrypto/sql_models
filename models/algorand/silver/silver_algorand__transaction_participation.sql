@@ -11,7 +11,9 @@ WITH inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    addr :: text AS address,
+    algorand_decode_hex_addr(
+      addr :: text
+    ) AS address,
     MIN(_FIVETRAN_SYNCED) AS _FIVETRAN_SYNCED
   FROM
     {{ source(
@@ -27,7 +29,7 @@ hevo_inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    addr :: text AS address,
+    algorand_decode_hex_addr(BASE64_ENCODE(addr)) AS address,
     MIN(DATEADD('MS', __HEVO__LOADED_AT, '1970-01-01')) AS _FIVETRAN_SYNCED
   FROM
     {{ source(
@@ -64,9 +66,7 @@ SELECT
   ab.block_timestamp AS block_timestamp,
   iti.block_id,
   iti.intra,
-  algorand_decode_hex_addr(
-    iti.address :: text
-  ) AS address,
+  iti.address,
   concat_ws(
     '-',
     iti.block_id :: STRING,
