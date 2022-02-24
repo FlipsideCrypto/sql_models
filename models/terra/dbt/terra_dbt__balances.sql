@@ -16,10 +16,12 @@ WITH base_tables AS (
     ) }}
   WHERE
     record_content :model :name :: STRING IN (
-      'terra_balances',
+      'terra_balances', 
       'terra-5_balances',
-      'terra-5_synthetic_balances_model',
-      'terra_synthetic_balances_model'
+      'terra_delegations', 
+      'terra-5_delegations', 
+      'terra-5_delegations_bison', 
+      'terra-5_balances_bison'
     )
 
 {% if is_incremental() %}
