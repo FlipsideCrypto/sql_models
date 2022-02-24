@@ -12,7 +12,7 @@ WITH asset_name AS (
     params :an :: STRING AS NAME
   FROM
     {{ source(
-      'algorand',
+      'algorand_patch',
       'ASSET'
     ) }}
 )
@@ -39,7 +39,7 @@ SELECT
   ) AS _FIVETRAN_SYNCED
 FROM
   {{ source(
-    'algorand',
+    'algorand_patch',
     'ACCOUNT_ASSET'
   ) }}
   aa
