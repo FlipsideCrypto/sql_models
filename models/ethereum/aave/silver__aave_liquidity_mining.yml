@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: silver__aave_liquidity_mining
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKHOUR
+            - TOKEN_ADDRESS
+    columns:
+      - name: BLOCKHOUR
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: TOKEN_ADDRESS
+        tests:
+          - not_null
+      - name: EMISSIONPERSECOND
+          - not_null
