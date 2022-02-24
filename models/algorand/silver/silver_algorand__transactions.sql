@@ -90,7 +90,7 @@ allTXN_hevo AS (
   FROM
     {{ source(
       'algorand_patch',
-      'TXN'
+      'TXN_MISSING'
     ) }}
     b
     LEFT JOIN {{ ref('silver_algorand__inner_txids') }}
