@@ -70,7 +70,7 @@ all_inner_tx_individual AS(
     *
   FROM
     inner_tx_individual
-  UNION ALL
+  UNION
   SELECT
     *
   FROM
