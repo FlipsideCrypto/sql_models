@@ -37,7 +37,7 @@ WHERE
 AND b._FIVETRAN_SYNCED >= (
   SELECT
     MAX(
-      b._FIVETRAN_SYNCED
+      _FIVETRAN_SYNCED
     )
   FROM
     {{ this }}
