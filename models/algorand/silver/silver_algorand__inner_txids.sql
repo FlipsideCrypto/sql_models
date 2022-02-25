@@ -27,14 +27,10 @@ emptyROUNDS_hevo AS (
     intra,
     txn,
     extra,
-    DATEADD(
-      'MS',
-      __HEVO__LOADED_AT,
-      '1970-01-01'
-    ) AS _FIVETRAN_SYNCED
+    _FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand_patch',
+      'algorand',
       'TXN'
     ) }}
   WHERE
@@ -82,7 +78,7 @@ fulljson_hevo AS (
     txn :txn :gh :: STRING AS gh
   FROM
     {{ source(
-      'algorand_patch',
+      'algorand',
       'TXN'
     ) }}
   WHERE

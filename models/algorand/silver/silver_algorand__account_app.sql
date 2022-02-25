@@ -19,14 +19,10 @@ SELECT
     addr :: STRING,
     app :: STRING
   ) AS _unique_key,
-  DATEADD(
-    'MS',
-    __HEVO__LOADED_AT,
-    '1970-01-01'
-  ) AS _FIVETRAN_SYNCED
+  _FIVETRAN_SYNCED
 FROM
   {{ source(
-    'algorand_patch',
+    'algorand',
     'ACCOUNT_APP'
   ) }}
 WHERE
