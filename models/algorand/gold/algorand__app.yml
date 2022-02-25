@@ -12,6 +12,8 @@ models:
       - name: CREATOR_ADDRESS
         tests:
           - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
       - name: APP_CLOSED
         tests:
           - not_null
