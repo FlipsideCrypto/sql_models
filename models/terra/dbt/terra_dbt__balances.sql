@@ -34,17 +34,55 @@ AND (
     {{ this }}
 )
 {% endif %}
+),
+
+terra_balance_dbt_table AS (
+  SELECT
+    t.value :address :: STRING AS address,
+    t.value :balance :: INT AS balance,
+    t.value :balance_type :: STRING AS balance_type,
+    t.value :block_id :: INT AS block_number,
+    t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
+    t.value :blockchain :: STRING AS blockchain,
+    t.value :currency :: STRING AS currency
+  FROM
+    base_tables,
+    LATERAL FLATTEN(
+      input => record_content :results
+    ) t
+),
+
+terra_balance_columbus_3_table AS (
+  SELECT 
+    address,
+    balance,
+    balance_type,
+    block_number,
+    block_timestamp,
+    'columbus-3' AS blockchain,
+    currency
+  FROM {{ source('shared', 'terra_balances') }}
+  WHERE date(block_timestamp) < '2020-10-04' AND block_number <= 3820000
 )
+
 SELECT
-  t.value :address :: STRING AS address,
-  t.value :balance :: INT AS balance,
-  t.value :balance_type :: STRING AS balance_type,
-  t.value :block_id :: INT AS block_number,
-  t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
-  t.value :blockchain :: STRING AS blockchain,
-  t.value :currency :: STRING AS currency
-FROM
-  base_tables,
-  LATERAL FLATTEN(
-    input => record_content :results
-  ) t
+  address,
+  balance,
+  balance_type,
+  block_number,
+  block_timestamp,
+  blockchain,
+  currency
+FROM terra_balance_dbt_table
+
+UNION ALL 
+
+SELECT
+  address,
+  balance,
+  balance_type,
+  block_number,
+  block_timestamp,
+  blockchain,
+  currency
+FROM terra_balance_columbus_3_table
