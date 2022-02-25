@@ -29,14 +29,12 @@ WITH base_tables AS (
     )
 
 {% if is_incremental() %}
-AND (
-  record_metadata :CreateTime :: INT / 1000
-) :: TIMESTAMP :: DATE >= (
-  SELECT
-    DATEADD('day', -1, MAX(system_created_at :: DATE))
-  FROM
-    {{ this }}
-)
+  AND _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp)
+    FROM
+      {{ this }}
+  )
 {% endif %}
 ),
 
