@@ -39,65 +39,67 @@ WITH latest AS (
       FROM
         {{ this }})
     ),
-    NEW AS (
+    
+NEW AS (
+  SELECT
+    block_timestamp :: DATE AS DATE,
+    address,
+    currency,
+    balance,
+    blockchain,
+    balance_type,
+    1 AS RANK
+  FROM
+    {{ ref(
+      "terra_dbt__balances"
+    ) }}
+  WHERE
+    block_timestamp :: DATE >= (
       SELECT
-        block_timestamp :: DATE AS DATE,
+        DATEADD('day', -1, MAX(DATE))
+      FROM
+        {{ this }}) qualify(ROW_NUMBER() over(PARTITION BY address, currency, blockchain, balance_type, block_timestamp :: DATE
+      ORDER BY
+        block_timestamp DESC)) = 1
+    ),
+
+incremental AS (
+  SELECT
+    DATE,
+    address,
+    currency,
+    balance_type,
+    blockchain,
+    balance
+  FROM
+    (
+      SELECT
+        DATE,
         address,
         currency,
-        balance,
-        blockchain,
         balance_type,
+        blockchain,
+        balance,
+        2 AS RANK
+      FROM
+        latest
+      UNION
+      SELECT
+        DATE,
+        address,
+        currency,
+        balance_type,
+        blockchain,
+        balance,
         1 AS RANK
       FROM
-        {{ ref(
-          "terra_dbt__balances"
-        ) }}
-      WHERE
-        block_timestamp :: DATE >= (
-          SELECT
-            DATEADD('day', -1, MAX(DATE))
-          FROM
-            {{ this }}) qualify(ROW_NUMBER() over(PARTITION BY address, currency, blockchain, balance_type, block_timestamp :: DATE
-          ORDER BY
-            block_timestamp DESC)) = 1
-        ),
-        incremental AS (
-          SELECT
-            DATE,
-            address,
-            currency,
-            balance_type,
-            blockchain,
-            balance
-          FROM
-            (
-              SELECT
-                DATE,
-                address,
-                currency,
-                balance_type,
-                blockchain,
-                balance,
-                2 AS RANK
-              FROM
-                latest
-              UNION
-              SELECT
-                DATE,
-                address,
-                currency,
-                balance_type,
-                blockchain,
-                balance,
-                1 AS RANK
-              FROM
-                NEW
-            ) qualify(ROW_NUMBER() over(PARTITION BY address, currency, blockchain, balance_type, DATE
-          ORDER BY
-            RANK ASC)) = 1
-        ),
-        base_balances AS (
+        NEW
+    ) qualify(ROW_NUMBER() over(PARTITION BY address, currency, blockchain, balance_type, DATE
+  ORDER BY
+    RANK ASC)) = 1
+),
 
+ase_balances AS (
 {% if is_incremental() %}
 SELECT
   DATE AS block_timestamp, address, currency, balance_type, blockchain, balance
@@ -109,6 +111,7 @@ SELECT
 FROM
   {{ ref("terra_dbt__balances") }}
 {% endif %}),
+
 address_ranges AS (
   SELECT
     address,
@@ -129,6 +132,7 @@ address_ranges AS (
     3,
     4
 ),
+
 cte_my_date AS (
   SELECT
     HOUR :: DATE AS DATE
@@ -140,6 +144,7 @@ cte_my_date AS (
   GROUP BY
     1
 ),
+
 all_dates AS (
   SELECT
     C.date,
@@ -155,6 +160,7 @@ all_dates AS (
   WHERE
     A.address IS NOT NULL
 ),
+
 terra_balances AS (
   SELECT
     address,
@@ -171,6 +177,7 @@ terra_balances AS (
   ORDER BY
     balance DESC)) = 1
 ),
+
 balance_tmp AS (
   SELECT
     d.date,
@@ -203,6 +210,7 @@ balance_tmp AS (
     AND d.balance_type = b.balance_type
     AND d.blockchain = b.blockchain
 )
+
 SELECT
   DATE,
   address,
