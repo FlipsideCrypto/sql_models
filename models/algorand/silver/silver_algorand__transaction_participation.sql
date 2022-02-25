@@ -20,18 +20,31 @@ WITH inner_tx_individual AS(
       'algorand',
       'TXN_PARTICIPATION'
     ) }}
-  GROUP BY
-    block_id,
-    intra,
-    address
+
+{% if is_incremental() %}
+WHERE
+  _FIVETRAN_SYNCED >= (
+    SELECT
+      MAX(
+        _FIVETRAN_SYNCED
+      )
+    FROM
+      {{ this }}
+  )
+{% endif %}
+GROUP BY
+  block_id,
+  intra,
+  address
 ),
 hevo_inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    algorand_decode_hex_addr(
-      addr :: text
-    ) AS address,
+    addr :: text AS address,
+    --   algorand_decode_hex_addr( # TODO Hevo is working on this bug.
+    --     addr :: text
+    --   ) AS address,
     MIN(DATEADD('MS', __HEVO__LOADED_AT, '1970-01-01')) AS _FIVETRAN_SYNCED
   FROM
     {{ source(
@@ -58,7 +71,7 @@ all_inner_tx_individual AS(
     *
   FROM
     inner_tx_individual
-  UNION
+  UNION ALL
   SELECT
     *
   FROM
@@ -81,16 +94,3 @@ FROM
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
   ON iti.block_id = ab.block_id
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND iti._FIVETRAN_SYNCED >= (
-  SELECT
-    MAX(
-      _FIVETRAN_SYNCED
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}
