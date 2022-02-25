@@ -230,3 +230,7 @@ FROM
     )
 WHERE
     s1.rn = 1
+
+QUALIFY(ROW_NUMBER() over(PARTITION BY s1.block_id, s1.tx_id
+ORDER BY
+  s1.block_timestamp DESC)) = 1
