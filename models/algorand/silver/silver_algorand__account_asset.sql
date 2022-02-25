@@ -20,7 +20,7 @@ SELECT
   algorand_decode_hex_addr(
     aa.addr :: text
   ) AS address,
-  assetid AS asset_id,
+  aa.assetid AS asset_id,
   an.name :: STRING AS asset_name,
   aa.amount AS amount,
   aa.created_at AS asset_added_at,
@@ -30,8 +30,8 @@ SELECT
   aa.frozen AS frozen,
   concat_ws(
     '-',
-    aa.address :: STRING,
-    aa.asset_id :: STRING
+    address :: STRING,
+    asset_id :: STRING
   ) AS _unique_key,
   aa._FIVETRAN_SYNCED
 FROM
