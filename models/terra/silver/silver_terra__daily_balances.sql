@@ -99,7 +99,7 @@ incremental AS (
     RANK ASC)) = 1
 ),
 
-ase_balances AS (
+base_balances AS (
 {% if is_incremental() %}
 SELECT
   DATE AS block_timestamp, address, currency, balance_type, blockchain, balance
