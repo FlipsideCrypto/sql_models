@@ -44,7 +44,7 @@ FROM
   ON aa.assetid = an.index
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
-  ON aa.asset_added_at = ab.block_id
+  ON aa.created_at = ab.block_id
 WHERE
   1 = 1
 
