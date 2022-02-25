@@ -36,7 +36,8 @@ WITH allTXN_fivetran AS (
       ELSE txn :txn :gh :: STRING
     END AS genesis_hash,
     txn AS tx_message,
-    extra --b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
+    extra,
+    b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
   FROM
     {{ source(
       'algorand',
@@ -80,7 +81,8 @@ allTXN_hevo AS (
       ELSE txn :txn :gh :: STRING
     END AS genesis_hash,
     txn AS tx_message,
-    extra --b._FIVETRAN_SYNCED
+    extra,
+    b._FIVETRAN_SYNCED
   FROM
     {{ source(
       'algorand',
@@ -140,7 +142,7 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  SYSDATE() AS _insert_timestamp --b._FIVETRAN_SYNCED
+  b._FIVETRAN_SYNCED
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
@@ -150,7 +152,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND b._FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _FIVETRAN_SYNCED
