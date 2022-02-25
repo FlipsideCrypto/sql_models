@@ -9,7 +9,7 @@ WITH allTXN_fivetran AS (
 
   SELECT
     ab.block_timestamp AS block_timestamp,
-    b.intra AS intra,
+    b.intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
     CASE
@@ -77,15 +77,11 @@ allTXN_hevo AS (
     END AS genesis_hash,
     txn AS tx_message,
     extra,
-    DATEADD(
-      'MS',
-      b.__HEVO__LOADED_AT,
-      '1970-01-01'
-    ) AS _FIVETRAN_SYNCED
+    b._FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand_patch',
-      'TXN'
+      'algorand',
+      'TXN_MISSING'
     ) }}
     b
     LEFT JOIN {{ ref('silver_algorand__inner_txids') }}
@@ -107,7 +103,7 @@ allTXN_hevo AS (
         ) }}
     )
 ),
-allTXN AS(
+allTXN AS (
   SELECT
     *
   FROM

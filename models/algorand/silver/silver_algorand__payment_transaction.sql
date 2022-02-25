@@ -88,15 +88,11 @@ allTXN_hevo AS (
     END AS genesis_hash,
     txn AS tx_message,
     extra,
-    DATEADD(
-      'MS',
-      b.__HEVO__LOADED_AT,
-      '1970-01-01'
-    ) AS _FIVETRAN_SYNCED
+    b._FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand_patch',
-      'TXN'
+      'algorand',
+      'TXN_MISSING'
     ) }}
     b
     LEFT JOIN {{ ref('silver_algorand__inner_txids') }}
