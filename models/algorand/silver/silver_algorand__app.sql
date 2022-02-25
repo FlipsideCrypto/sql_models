@@ -13,7 +13,7 @@ SELECT
   aa.deleted AS app_closed,
   aa.closed_at AS closed_at,
   aa.created_at AS created_at,
-  ab.block_timestamp AS create_at_timestamp,
+  ab.block_timestamp AS created_at_timestamp,
   aa.params,
   aa._FIVETRAN_SYNCED
 FROM
