@@ -27,11 +27,11 @@ models:
           - not_null
       - name: SENDER
         tests:
-          - not_null   
+          - not_null
       - name: FEE
         tests:
           - not_null:
-              where: inner_tx = 'true'                 
+              where: inner_tx = 'true'
       - name: TX_TYPE
         tests:
           - not_null
@@ -40,11 +40,11 @@ models:
           - not_null
       - name: GENESIS_HASH
         tests:
-          - not_null  
+          - not_null
       - name: TX_MESSAGE
         tests:
           - not_null
-      - name: _FIVETRAN_SYNCED
+      - name: _INSERTED_TIMESTAMP
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
