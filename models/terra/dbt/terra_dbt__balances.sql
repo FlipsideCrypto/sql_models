@@ -33,7 +33,10 @@ WITH base_tables AS (
     SELECT
       MAX(_inserted_timestamp)
     FROM
-      {{ this }}
+      {{ source(
+      'bronze',
+      'prod_terra_sink_645110886'
+      ) }}
   )
 {% endif %}
 ),
@@ -52,20 +55,21 @@ terra_balance_dbt_table AS (
     LATERAL FLATTEN(
       input => record_content :results
     ) t
-),
-
-terra_balance_columbus_3_table AS (
-  SELECT 
-    address,
-    balance,
-    balance_type,
-    block_number,
-    block_timestamp,
-    'columbus-3' AS blockchain,
-    currency
-  FROM {{ source('shared', 'terra_balances') }}
-  WHERE date(block_timestamp) < '2020-10-04' AND block_number <= 3820000
 )
+
+{% if is_incremental() %}
+
+SELECT
+  address,
+  balance,
+  balance_type,
+  block_number,
+  block_timestamp,
+  blockchain,
+  currency
+FROM terra_balance_dbt_table
+
+{% else %}
 
 SELECT
   address,
@@ -79,12 +83,16 @@ FROM terra_balance_dbt_table
 
 UNION ALL 
 
-SELECT
+SELECT 
   address,
   balance,
   balance_type,
   block_number,
   block_timestamp,
-  blockchain,
+  'columbus-3' AS blockchain,
   currency
-FROM terra_balance_columbus_3_table
+FROM {{ source('shared', 'terra_balances') }}
+WHERE date(block_timestamp) < '2020-10-04' AND block_number <= 3820000
+
+{% endif %}
+
