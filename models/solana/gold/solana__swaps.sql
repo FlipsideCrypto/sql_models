@@ -20,7 +20,7 @@ FROM
 UNION ALL 
 
 SELECT
-    'jupiter aggregator v2' AS swap_program,
+    'orca dex V2' AS swap_program,
     block_timestamp,
     block_id,
     tx_id,
