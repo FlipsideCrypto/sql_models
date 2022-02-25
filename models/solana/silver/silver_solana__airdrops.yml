@@ -30,6 +30,10 @@ models:
         description: A unique key that identifies a transaction
         tests:
           - not_null
+      - name: PROGRAM_ID
+        description: The ID in the form of an address, that belongs to the smart contract being called
+        tests: 
+          - not_null
       - name: SUCCEEDED
         description: True when a transaction is successful, otherwise false. 
         tests: 
@@ -56,5 +60,9 @@ models:
         description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
       - name: INGESTED_AT
         description: Time the record was sent to the table
+        tests: 
+          - not_null
+      - name: ACCOUNT_KEYS
+        description: Array containing information about the accounts in the transaction
         tests: 
           - not_null

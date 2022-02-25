@@ -29,9 +29,11 @@ base_t AS (
     tx_id, 
     chain_id, 
     tx, 
+    program_id, 
+    account_keys, 
     ingested_at
 
-  FROM {{ ref('bronze_solana__transactions') }}
+  FROM {{ ref('solana_dbt__transactions') }}
 
 {% if is_incremental() %}
   WHERE ingested_at >= getdate() - interval '2 days'
@@ -39,12 +41,13 @@ base_t AS (
 )
 
 SELECT 
-  t.block_timestamp :: TIMESTAMP AS block_timestamp, 
-  t.block_id :: INTEGER AS block_id,
-  t.chain_id :: STRING AS blockchain, 
-  t.tx :transaction:message:recentBlockhash :: STRING AS recent_block_hash, 
-  t.tx_id :: STRING AS tx_id,
-  CASE WHEN t.tx :meta:status:Err IS NULL THEN TRUE ELSE FALSE END AS succeeded, 
+  t.block_timestamp, 
+  t.block_id,
+  t.chain_id AS blockchain, 
+  t.recent_block_hash, 
+  t.tx_id,
+  t.program_id, 
+  t.succeeded, 
   i.value :parsed:info:authority :: STRING AS authority, 
   i.value :parsed:info:destination :: STRING AS destination, 
   i.value :parsed:info:mint :: STRING AS mint, 
@@ -52,7 +55,8 @@ SELECT
   t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
   t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances,   
   i.value AS instruction, 
-  t.ingested_at :: TIMESTAMP AS ingested_at
+  t.ingested_at :: TIMESTAMP AS ingested_at, 
+  t.account_keys AS account_keys
 FROM base_i i
 
 LEFT OUTER JOIN base_t t 

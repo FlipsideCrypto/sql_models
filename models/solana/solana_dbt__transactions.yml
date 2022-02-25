@@ -1,0 +1,71 @@
+version: 2
+models:
+  - name: solana_dbt__transactions
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: The time the block began
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
+        tests:
+          - not_null
+      - name: CHAIN_ID
+        description: In this table, always Solana. Useful to joining to crosschain tables. 
+      - name: RECENT_BLOCK_HASH
+        description: Unique value that identifies the block
+        tests:
+          - not_null
+      - name: TX_ID
+        description: A unique key that identifies a transaction
+        tests:
+          - not_null
+      - name: PRE_MINT
+        description: Token address of token at start of transaction 
+        tests:
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
+      - name: POST_MINT
+        description: Token address of token at end of transaction 
+        tests:
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
+      - name: TX_FROM_ADDRESS
+        description: Entity sending a transaction
+        tests: 
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
+      - name: TX_TO_ADDRESS
+        description: Entity receiving a transaction
+        tests: 
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
+              enabled: False # null values currently expected for some txs
+      - name: FEE
+        description: Transaction fee (in lamports)
+        tests: 
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
+      - name: SUCCEEDED
+        description: True when a transaction is successful, otherwise false. 
+        tests: 
+          - not_null
+      - name: PROGRAM_ID
+        description: ID of the smart contract interacted with 
+        tests: 
+          - not_null: 
+              where: TRANSFER_TX_FLAG = TRUE
+      - name: INGESTED_AT
+        description: Time the record was sent to the table
+        tests: 
+          - not_null
+      - name: TRANSFER_TX_FLAG
+        description: Internal flag that allows for data integrity tests
+        tests: 
+          - not_null 
