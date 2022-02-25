@@ -41,11 +41,10 @@ hevo_inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    addr :: text AS address,
-    --   algorand_decode_hex_addr( # TODO Hevo is working on this bug.
-    --     addr :: text
-    --   ) AS address,
-    MIN(DATEADD('MS', __HEVO__LOADED_AT, '1970-01-01')) AS _FIVETRAN_SYNCED
+    algorand_decode_hex_addr(
+      addr :: text
+    ) AS address,
+    MAX(_FIVETRAN_SYNCED)
   FROM
     {{ source(
       'algorand',

@@ -148,11 +148,11 @@ sources:
       - name: ASSET
       - name: BLOCK_HEADER
       - name: METASTATE
+      - name: TXN_PARTICIPATION_MISSING
   - name: algorand
     schema: BRONZE_ALOGRAND_2_8_0__HEVO_PARALLEL
     tables:
       - name: TXN_MISSING
-      - name: TXN_PARTICIPATION_MISSING
   - name: prod
     database: chainwalkers
     schema: prod
