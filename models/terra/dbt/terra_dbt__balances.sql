@@ -8,20 +8,24 @@
 WITH base_tables AS (
 
   SELECT
-    *
+    record_metadata,
+    record_content,
+    _inserted_timestamp
   FROM
     {{ source(
       'bronze',
       'prod_terra_sink_645110886'
     ) }}
   WHERE
-    record_content :model :name :: STRING IN (
-      'terra_balances', 
-      'terra-5_balances',
-      'terra_delegations', 
-      'terra-5_delegations', 
-      'terra-5_delegations_bison', 
-      'terra-5_balances_bison'
+    record_content :model :class :: STRING IN (
+      'terra.balances.models.TerraDelegationsModel',
+      'terra.balances.models.TerraBalancesModel',
+      'terra.balances.models.Terra5BalancesModel',
+      'terra.balances.terra_synthetic_balances_model.Terra5SyntheticBalancesModel',
+      'terra.balances.models.Terra5DelegationsModel',
+      'terra.balances.terra_synthetic_balances_model.TerraSyntheticBalancesModel',
+      'terra.balances.models.TerraBalancesModel',
+      'terra.balances.models.TerraDelegationsModel'
     )
 
 {% if is_incremental() %}
