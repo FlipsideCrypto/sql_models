@@ -20,3 +20,6 @@ models:
       - name: CREATED_AT
         tests:
           - not_null          
+      - name: CREATED_AT_TIMESTAMP
+        tests:
+          - not_null
