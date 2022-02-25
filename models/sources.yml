@@ -136,17 +136,10 @@ sources:
   - name: algorand
     schema: BRONZE_ALGORAND_2_8_0_PUBLIC
     tables:
-      - name: ACCOUNT
-      - name: ACCOUNT_APP
-      - name: ACCOUNT_ASSET
-      - name: APP
-      - name: ASSET
-      - name: BLOCK_HEADER
-      - name: METASTATE
       - name: TXN
       - name: TXN_PARTICIPATION
-  - name: algorand_patch
-    schema: BRONZE_ALOGRAND_2_8_0__HEVO
+  - name: algorand
+    schema: BRONZE_ALGORAND_2_8_0__2_PUBLIC
     tables:
       - name: ACCOUNT
       - name: ACCOUNT_APP
@@ -155,9 +148,7 @@ sources:
       - name: ASSET
       - name: BLOCK_HEADER
       - name: METASTATE
-      - name: TXN
-      - name: TXN_PARTICIPATION
-  - name: algorand_patch
+  - name: algorand
     schema: BRONZE_ALOGRAND_2_8_0__HEVO_PARALLEL
     tables:
       - name: TXN_MISSING

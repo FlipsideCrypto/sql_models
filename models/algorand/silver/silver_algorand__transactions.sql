@@ -89,7 +89,7 @@ allTXN_hevo AS (
     ) AS _FIVETRAN_SYNCED
   FROM
     {{ source(
-      'algorand_patch',
+      'algorand',
       'TXN_MISSING'
     ) }}
     b
@@ -127,8 +127,8 @@ SELECT
   intra,
   block_id,
   tx_group_id,
-  HEX_DECODE_STRING(
-    tx_id
+  TRY_HEX_DECODE_STRING(
+    b.tx_id :: text
   ) AS tx_id,
   TO_BOOLEAN(inner_tx) AS inner_tx,
   asset_id,
@@ -146,7 +146,7 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  b._FIVETRAN_SYNCED
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
