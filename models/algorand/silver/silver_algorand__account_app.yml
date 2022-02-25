@@ -26,8 +26,13 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 2
       - name: APP_INFO
         tests:
           - not_null:
               where: APP_CLOSED = FALSE
+      - name: _FIVETRAN_SYNCED
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1

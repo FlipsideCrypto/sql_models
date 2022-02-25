@@ -13,7 +13,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 2
       - name: BLOCK_ID
         tests:
           - not_null
@@ -25,3 +25,8 @@ models:
           - not_null
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
+      - name: _FIVETRAN_SYNCED
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
