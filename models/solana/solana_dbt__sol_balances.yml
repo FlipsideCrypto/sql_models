@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: solana_dbt__sol_balances
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: The time the block began
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
+        tests:
+          - not_null
+      - name: TX_ID
+        description: A unique key that identifies a transaction
+        tests:
+          - not_null
+      - name: SOL_PRE_BALANCES
+        description: Amount of SOL in wallet before a transaction 
+        tests: 
+          - not_null: 
+              enabled: False # Not all system transaction has a pre balance
+      - name: SOL_POST_BALANCES
+        description: Amount of SOL in wallet after a transaction
+        tests: 
+          - not_null: 
+              enabled: false # Not all transactions have a post balance 
+      - name: INGESTED_AT
+        description: Time the record was sent to the table
+        tests: 
+          - not_null

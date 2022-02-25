@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_TIMESTAMP
             - CURRENCY
+            - SOURCE
     columns:
       - name: BLOCKCHAIN
         tests:

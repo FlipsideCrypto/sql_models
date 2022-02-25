@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: solana_dbt__instructions
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: The time the block began
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
+        tests:
+          - not_null
+      - name: TX_ID
+        description: A unique key that identifies a transaction
+        tests:
+          - not_null
+      - name: INDEX
+        description: Location of the event within the instructions of a transaction
+        tests: 
+          - not_null 
+      - name: EVENT_TYPE
+        description: Type of event that is happening in the row i.e. transfer, createAccount
+      - name: VALUE
+        description: json object that contains the inner instructions 
+        tests: 
+          - not_null
+      - name: INGESTED_AT
+        description: Time the record was sent to the table
+        tests: 
+          - not_null

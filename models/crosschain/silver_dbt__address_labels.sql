@@ -96,3 +96,7 @@ FROM
   LATERAL FLATTEN(
     input => record_content
   ) t
+
+qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
+ORDER BY
+  insert_date DESC)) = 1
