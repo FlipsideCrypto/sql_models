@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', address, block_number)",
+  unique_key = "CONCAT_WS('-', address, block_number, balance_type, currency)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'terra_silver', 'terra_balances']
 ) }}
