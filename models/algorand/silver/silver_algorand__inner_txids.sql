@@ -21,7 +21,7 @@ WITH emptyROUNDS_fivetran AS (
     txid IS NULL
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
+AND _FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -55,7 +55,7 @@ emptyROUNDS_hevo AS (
     )
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
+AND _FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP

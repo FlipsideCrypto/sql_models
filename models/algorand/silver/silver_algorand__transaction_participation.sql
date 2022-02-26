@@ -22,7 +22,7 @@ WITH inner_tx_individual AS(
 
 {% if is_incremental() %}
 WHERE
-  _INSERTED_TIMESTAMP >= (
+  _FIVETRAN_SYNCED >= (
     SELECT
       MAX(
         _INSERTED_TIMESTAMP
@@ -58,10 +58,22 @@ hevo_inner_tx_individual AS(
           'TXN_PARTICIPATION'
         ) }}
     )
-  GROUP BY
-    block_id,
-    intra,
-    address
+
+{% if is_incremental() %}
+WHERE
+  _FIVETRAN_SYNCED >= (
+    SELECT
+      MAX(
+        _INSERTED_TIMESTAMP
+      )
+    FROM
+      {{ this }}
+  )
+{% endif %}
+GROUP BY
+  block_id,
+  intra,
+  address
 ),
 all_inner_tx_individual AS(
   SELECT

@@ -50,6 +50,17 @@ WITH allTXN_fivetran AS (
     ON b.round = ab.block_id
   WHERE
     tx_type = 'acfg'
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 allTXN_hevo AS (
   SELECT
@@ -104,6 +115,17 @@ allTXN_hevo AS (
           'TXN'
         ) }}
     )
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 allTXN AS(
   SELECT
@@ -148,16 +170,3 @@ FROM
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
-  SELECT
-    MAX(
-      _INSERTED_TIMESTAMP
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}
