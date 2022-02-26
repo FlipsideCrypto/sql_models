@@ -13,8 +13,7 @@ WITH inner_tx_individual AS(
     intra,
     algorand_decode_hex_addr(
       addr :: text
-    ) AS address,
-    MIN(_FIVETRAN_SYNCED) AS _FIVETRAN_SYNCED
+    ) AS address
   FROM
     {{ source(
       'algorand',
@@ -26,7 +25,7 @@ WHERE
   _FIVETRAN_SYNCED >= (
     SELECT
       MAX(
-        _FIVETRAN_SYNCED
+        _INSERTED_TIMESTAMP
       )
     FROM
       {{ this }}
@@ -43,8 +42,7 @@ hevo_inner_tx_individual AS(
     intra,
     algorand_decode_hex_addr(
       addr :: text
-    ) AS address,
-    MAX(_FIVETRAN_SYNCED)
+    ) AS address
   FROM
     {{ source(
       'algorand',
@@ -60,17 +58,29 @@ hevo_inner_tx_individual AS(
           'TXN_PARTICIPATION'
         ) }}
     )
-  GROUP BY
-    block_id,
-    intra,
-    address
+
+{% if is_incremental() %}
+WHERE
+  _FIVETRAN_SYNCED >= (
+    SELECT
+      MAX(
+        _INSERTED_TIMESTAMP
+      )
+    FROM
+      {{ this }}
+  )
+{% endif %}
+GROUP BY
+  block_id,
+  intra,
+  address
 ),
 all_inner_tx_individual AS(
   SELECT
     *
   FROM
     inner_tx_individual
-  UNION ALL
+  UNION
   SELECT
     *
   FROM
@@ -87,7 +97,7 @@ SELECT
     iti.intra :: STRING,
     iti.address :: STRING
   ) AS _unique_key,
-  iti._FIVETRAN_SYNCED
+  SYSDATE() AS _INSERTED_TIMESTAMP
 FROM
   all_inner_tx_individual iti
   LEFT JOIN {{ ref('silver_algorand__block') }}

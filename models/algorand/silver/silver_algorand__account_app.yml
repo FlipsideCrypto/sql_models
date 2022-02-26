@@ -10,6 +10,8 @@ models:
       - name: ADDRESS
         tests:
           - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
       - name: APP_ID
         tests:
           - not_null
@@ -19,7 +21,18 @@ models:
       - name: CREATED_AT
         tests:
           - not_null
+      - name: CREATED_AT_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 50
       - name: APP_INFO
         tests:
           - not_null:
               where: APP_CLOSED = FALSE
+      - name: _FIVETRAN_SYNCED
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
