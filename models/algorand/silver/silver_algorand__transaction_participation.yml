@@ -26,7 +26,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
-      - name: _INSERTED_TIMESTAMP
+      - name: _INSERTED_TIMESTAMP::DATE
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
