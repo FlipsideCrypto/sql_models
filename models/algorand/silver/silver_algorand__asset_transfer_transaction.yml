@@ -10,7 +10,7 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null:
-            enabled: False # FIXME
+              enabled: False # FIXME
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: hour
               interval: 50

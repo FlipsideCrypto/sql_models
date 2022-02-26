@@ -10,7 +10,7 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null:
-            enabled: False # FIXME
+              enabled: False # FIXME
       - name: BLOCK_ID
         tests:
           - not_null
