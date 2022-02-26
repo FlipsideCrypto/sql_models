@@ -9,10 +9,11 @@ models:
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null
+          - not_null:
+              enabled: False # FIXME
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
+              datepart: hour
+              interval: 50
       - name: BLOCK_ID
         tests:
           - not_null
@@ -25,6 +26,11 @@ models:
       - name: INNER_TX
         tests:
           - not_null
+      - name: SENDER
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
       - name: TX_TYPE
         tests:
           - not_null
@@ -37,3 +43,8 @@ models:
       - name: TX_MESSAGE
         tests:
           - not_null
+      - name: _INSERTED_TIMESTAMP::DATE
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1

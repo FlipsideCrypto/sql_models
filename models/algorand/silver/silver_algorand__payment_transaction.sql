@@ -38,8 +38,7 @@ WITH allTXN_fivetran AS (
       ELSE txn :txn :gh :: STRING
     END AS genesis_hash,
     txn AS tx_message,
-    extra,
-    b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
+    extra
   FROM
     {{ source(
       'algorand',
@@ -55,6 +54,17 @@ WITH allTXN_fivetran AS (
     ON b.round = ab.block_id
   WHERE
     tx_type = 'pay'
+
+{% if is_incremental() %}
+AND b._FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 allTXN_hevo AS (
   SELECT
@@ -87,8 +97,7 @@ allTXN_hevo AS (
       ELSE txn :txn :gh :: STRING
     END AS genesis_hash,
     txn AS tx_message,
-    extra,
-    b._FIVETRAN_SYNCED
+    extra
   FROM
     {{ source(
       'algorand',
@@ -113,6 +122,17 @@ allTXN_hevo AS (
           'TXN'
         ) }}
     )
+
+{% if is_incremental() %}
+AND b._FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 allTXN AS(
   SELECT
@@ -153,22 +173,9 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  SYSDATE() AS _inserted_timestamp
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
-  SELECT
-    MAX(
-      _FIVETRAN_SYNCED
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}
