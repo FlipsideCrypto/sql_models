@@ -91,7 +91,7 @@ fulljson_fivetran AS (
     txid IS NOT NULL
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
+AND _FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -125,7 +125,7 @@ fulljson_hevo AS (
     )
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
+AND _FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP

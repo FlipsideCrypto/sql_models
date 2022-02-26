@@ -118,15 +118,14 @@ allTXN_hevo AS (
     )
 
 {% if is_incremental() %}
-WHERE
-  b._FIVETRAN_SYNCED >= (
-    SELECT
-      MAX(
-        _INSERTED_TIMESTAMP
-      )
-    FROM
-      {{ this }}
-  )
+AND b._FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
 {% endif %}
 ),
 allTXN AS(

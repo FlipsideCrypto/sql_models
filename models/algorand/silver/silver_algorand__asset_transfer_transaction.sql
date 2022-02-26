@@ -55,7 +55,7 @@ WITH allTXN_fivetran AS (
     tx_type = 'axfer'
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND b._FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -122,7 +122,7 @@ allTXN_hevo AS (
     )
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND b._FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
