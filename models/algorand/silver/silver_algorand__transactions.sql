@@ -150,10 +150,10 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND b._FIVETRAN_SYNCED >= (
+AND b._INSERTED_TIMESTAMP >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

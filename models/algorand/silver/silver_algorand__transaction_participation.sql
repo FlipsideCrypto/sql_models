@@ -22,10 +22,10 @@ WITH inner_tx_individual AS(
 
 {% if is_incremental() %}
 WHERE
-  _FIVETRAN_SYNCED >= (
+  _INSERTED_TIMESTAMP >= (
     SELECT
       MAX(
-        _FIVETRAN_SYNCED
+        _INSERTED_TIMESTAMP
       )
     FROM
       {{ this }}
