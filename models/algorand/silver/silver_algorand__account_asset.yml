@@ -32,7 +32,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 2
+              interval: 50
       - name: FROZEN
         tests:
           - not_null
@@ -44,8 +44,3 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      
-
-
-
-
