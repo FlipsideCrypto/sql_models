@@ -11,8 +11,8 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 2
+              datepart: hour
+              interval: 50
       - name: block_id
         tests:
           - not_null
