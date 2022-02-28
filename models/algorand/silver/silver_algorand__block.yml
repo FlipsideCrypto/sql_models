@@ -11,10 +11,11 @@ models:
           - not_null
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null
+          - not_null:
+              enabled: False
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 50
       - name: REWARDSLEVEL
         tests:
           - not_null
@@ -31,3 +32,8 @@ models:
       - name: HEADER
         tests:
           - not_null
+      - name: _FIVETRAN_SYNCED
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1

@@ -7,29 +7,34 @@
 
 SELECT
   algorand_decode_hex_addr(
-    addr :: text
+    b.addr :: text
   ) AS address,
-  app AS app_id,
-  deleted AS app_closed,
-  closed_at AS closed_at,
-  created_at AS created_at,
-  localstate AS app_info,
+  b.app AS app_id,
+  b.deleted AS app_closed,
+  b.closed_at AS closed_at,
+  b.created_at AS created_at,
+  ab.block_timestamp AS created_at_timestamp,
+  b.localstate AS app_info,
   concat_ws(
     '-',
-    addr :: STRING,
-    app :: STRING
+    b.addr :: STRING,
+    b.app :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  b._FIVETRAN_SYNCED
 FROM
   {{ source(
     'algorand',
     'ACCOUNT_APP'
   ) }}
+  b
+  LEFT JOIN {{ ref('silver_algorand__block') }}
+  ab
+  ON b.created_at = ab.block_id
 WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND b._FIVETRAN_SYNCED >= (
   SELECT
     MAX(
       _FIVETRAN_SYNCED
