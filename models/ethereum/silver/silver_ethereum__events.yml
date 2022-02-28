@@ -1,13 +1,14 @@
 version: 2
 models:
-  - name: silver_ethereum__reads
+  - name: silver_ethereum__events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
-            - CONTRACT_ADDRESS
-            - FUNCTION_NAME
-            - INPUTS
+            - COALESCE(LOG_INDEX, -1)
+            - TX_HASH
+            - FROM_UK
+            - TO_UK
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
@@ -15,10 +16,3 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: BLOCK_ID
-        tests:
-          - not_null
-      - name: CONTRACT_ADDRESS
-        tests:
-          - not_null
-
