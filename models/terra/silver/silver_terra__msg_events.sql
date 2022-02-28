@@ -3,7 +3,8 @@
   unique_key = "CONCAT_WS('-', chain_id, block_id, tx_id, msg_index, event_index, event_type)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra_silver', 'terra_msg_events']
+  tags = ['snowflake', 'terra_silver', 'terra_msg_events'],
+  post_hook = '{{ delete_uncle_block_tx() }}'
 ) }}
 
 WITH msg_events_uncle_blocks_removed AS (

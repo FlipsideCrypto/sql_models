@@ -37,7 +37,7 @@ models:
         tests:
           - not_null
       - name: ADDRESS
-        description: Address that the label is for 
+        description: Address that the label is for. This is the field that should be used to join other tables with labels. 
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:

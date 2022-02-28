@@ -134,7 +134,12 @@ sources:
     tables:
       - name: daily_balances
   - name: algorand
-    schema: BRONZE_ALOGRAND_2_8_0__HEVO_PARALLEL
+    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
+    tables:
+      - name: TXN
+      - name: TXN_PARTICIPATION
+  - name: algorand
+    schema: BRONZE_ALGORAND_2_8_0__2_PUBLIC
     tables:
       - name: ACCOUNT
       - name: ACCOUNT_APP
@@ -143,13 +148,8 @@ sources:
       - name: ASSET
       - name: BLOCK_HEADER
       - name: METASTATE
-      - name: TXN_MISSING
       - name: TXN_PARTICIPATION_MISSING
-  - name: algorand
-    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
-    tables:
-      - name: TXN
-      - name: TXN_PARTICIPATION
+      - name: TXN_MISSING
   - name: prod
     database: chainwalkers
     schema: prod

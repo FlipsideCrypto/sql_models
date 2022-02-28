@@ -1,0 +1,51 @@
+version: 2
+models:
+  - name: solana__staking_lp_actions
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - TX_ID
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: The time the block began
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block 
+        tests:
+          - not_null
+      - name: BLOCKCHAIN 
+        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables
+        tests: 
+          - not_null
+      - name: RECENT_BLOCK_HASH
+        description: Unique value that identifies the block
+        tests:
+          - not_null
+      - name: TX_ID
+        description: A unique key that identifies a transaction
+        tests:
+          - not_null
+      - name: SUCCEEDED
+        description: TRUE when transaction succeeded. Otherwise this column is FALSE
+        tests: 
+          - not_null
+      - name: PRETOKENBALANCES
+        description: Decoded event token details pre-airdrop
+      - name: POSTTOKENBALANCES
+        description: Decoded event token details post-airdrop
+      - name: EVENT_TYPE
+        description: The type of event (i.e. "delegate", "withdraw") that is occurring
+        tests: 
+          - not_null
+      - name: INSTRUCTION
+        description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
+        tests: 
+          - not_null
+      - name: INGESTED_AT
+        tests: 
+          - not_null
