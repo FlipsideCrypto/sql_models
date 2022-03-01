@@ -1,20 +1,16 @@
 version: 2
 models:
-  - name: silver__aave_liquidity_mining
+  - name: silver_ethereum__prices
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - BLOCKHOUR
             - TOKEN_ADDRESS
+            - SYMBOL
+            - HOUR
     columns:
-      - name: BLOCKHOUR
+      - name: HOUR
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: TOKEN_ADDRESS
-        tests:
-          - not_null
-      - name: EMISSIONPERSECOND
-          - not_null

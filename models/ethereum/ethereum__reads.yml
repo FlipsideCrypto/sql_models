@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_ethereum__reads
+  - name: ethereum__reads
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -15,10 +15,3 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: BLOCK_ID
-        tests:
-          - not_null
-      - name: CONTRACT_ADDRESS
-        tests:
-          - not_null
-

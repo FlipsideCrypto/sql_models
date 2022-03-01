@@ -36,8 +36,7 @@ WITH allTXN_fivetran AS (
       ELSE txn :txn :gh :: STRING
     END AS genesis_hash,
     txn AS tx_message,
-    extra,
-    b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
+    extra
   FROM
     {{ source(
       'algorand',
@@ -51,6 +50,18 @@ WITH allTXN_fivetran AS (
     LEFT JOIN {{ ref('silver_algorand__block') }}
     ab
     ON b.round = ab.block_id
+
+{% if is_incremental() %}
+WHERE
+  b._FIVETRAN_SYNCED >= (
+    SELECT
+      MAX(
+        _INSERTED_TIMESTAMP
+      )
+    FROM
+      {{ this }}
+  )
+{% endif %}
 ),
 allTXN_hevo AS (
   SELECT
@@ -81,15 +92,10 @@ allTXN_hevo AS (
       ELSE txn :txn :gh :: STRING
     END AS genesis_hash,
     txn AS tx_message,
-    extra,
-    DATEADD(
-      'MS',
-      b.__HEVO__LOADED_AT,
-      '1970-01-01'
-    ) AS _FIVETRAN_SYNCED
+    extra
   FROM
     {{ source(
-      'algorand_patch',
+      'algorand',
       'TXN_MISSING'
     ) }}
     b
@@ -110,6 +116,17 @@ allTXN_hevo AS (
           'TXN'
         ) }}
     )
+
+{% if is_incremental() %}
+AND b._FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 allTXN AS(
   SELECT
@@ -127,8 +144,8 @@ SELECT
   intra,
   block_id,
   tx_group_id,
-  HEX_DECODE_STRING(
-    tx_id
+  TRY_HEX_DECODE_STRING(
+    b.tx_id :: text
   ) AS tx_id,
   TO_BOOLEAN(inner_tx) AS inner_tx,
   asset_id,
@@ -146,22 +163,9 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  SYSDATE() AS _inserted_timestamp
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
-  SELECT
-    MAX(
-      _FIVETRAN_SYNCED
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}

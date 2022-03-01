@@ -11,27 +11,41 @@ WITH inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    addr :: text AS address,
-    MIN(_FIVETRAN_SYNCED) AS _FIVETRAN_SYNCED
+    algorand_decode_hex_addr(
+      addr :: text
+    ) AS address
   FROM
     {{ source(
       'algorand',
       'TXN_PARTICIPATION'
     ) }}
-  GROUP BY
-    block_id,
-    intra,
-    address
+
+{% if is_incremental() %}
+WHERE
+  _FIVETRAN_SYNCED >= (
+    SELECT
+      MAX(
+        _INSERTED_TIMESTAMP
+      )
+    FROM
+      {{ this }}
+  )
+{% endif %}
+GROUP BY
+  block_id,
+  intra,
+  address
 ),
 hevo_inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    addr :: text AS address,
-    MIN(DATEADD('MS', __HEVO__LOADED_AT, '1970-01-01')) AS _FIVETRAN_SYNCED
+    algorand_decode_hex_addr(
+      addr :: text
+    ) AS address
   FROM
     {{ source(
-      'algorand_patch',
+      'algorand',
       'TXN_PARTICIPATION_MISSING'
     ) }}
   WHERE
@@ -44,10 +58,22 @@ hevo_inner_tx_individual AS(
           'TXN_PARTICIPATION'
         ) }}
     )
-  GROUP BY
-    block_id,
-    intra,
-    address
+
+{% if is_incremental() %}
+WHERE
+  _FIVETRAN_SYNCED >= (
+    SELECT
+      MAX(
+        _INSERTED_TIMESTAMP
+      )
+    FROM
+      {{ this }}
+  )
+{% endif %}
+GROUP BY
+  block_id,
+  intra,
+  address
 ),
 all_inner_tx_individual AS(
   SELECT
@@ -64,31 +90,16 @@ SELECT
   ab.block_timestamp AS block_timestamp,
   iti.block_id,
   iti.intra,
-  algorand_decode_hex_addr(
-    iti.address :: text
-  ) AS address,
+  address,
   concat_ws(
     '-',
     iti.block_id :: STRING,
     iti.intra :: STRING,
     iti.address :: STRING
   ) AS _unique_key,
-  iti._FIVETRAN_SYNCED
+  SYSDATE() AS _INSERTED_TIMESTAMP
 FROM
   all_inner_tx_individual iti
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
   ON iti.block_id = ab.block_id
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND iti._FIVETRAN_SYNCED >= (
-  SELECT
-    MAX(
-      _FIVETRAN_SYNCED
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}

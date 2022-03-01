@@ -11,8 +11,7 @@ WITH emptyROUNDS_fivetran AS (
     ROUND,
     intra,
     txn,
-    extra,
-    _FIVETRAN_SYNCED
+    extra
   FROM
     {{ source(
       'algorand',
@@ -20,22 +19,28 @@ WITH emptyROUNDS_fivetran AS (
     ) }}
   WHERE
     txid IS NULL
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 emptyROUNDS_hevo AS (
   SELECT
     ROUND,
     intra,
     txn,
-    extra,
-    DATEADD(
-      'MS',
-      __HEVO__LOADED_AT,
-      '1970-01-01'
-    ) AS _FIVETRAN_SYNCED
+    extra
   FROM
     {{ source(
-      'algorand_patch',
-      'TXN'
+      'algorand',
+      'TXN_MISSING'
     ) }}
   WHERE
     txid IS NULL
@@ -48,6 +53,17 @@ emptyROUNDS_hevo AS (
           'TXN'
         ) }}
     )
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 emptyROUNDS AS(
   SELECT
@@ -73,6 +89,17 @@ fulljson_fivetran AS (
     ) }}
   WHERE
     txid IS NOT NULL
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 fulljson_hevo AS (
   SELECT
@@ -82,8 +109,8 @@ fulljson_hevo AS (
     txn :txn :gh :: STRING AS gh
   FROM
     {{ source(
-      'algorand_patch',
-      'TXN'
+      'algorand',
+      'TXN_MISSING'
     ) }}
   WHERE
     txid IS NOT NULL
@@ -96,6 +123,17 @@ fulljson_hevo AS (
           'TXN'
         ) }}
     )
+
+{% if is_incremental() %}
+AND _FIVETRAN_SYNCED >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 ),
 fulljson AS(
   SELECT
@@ -120,7 +158,7 @@ SELECT
     er.round :: STRING,
     er.intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  SYSDATE() AS _inserted_timestamp
 FROM
   emptyROUNDS er
   LEFT JOIN fulljson f
@@ -128,14 +166,3 @@ FROM
   AND er.round = f.round
 WHERE
   f.round IS NOT NULL
-
-{% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
-  SELECT
-    MAX(
-      _FIVETRAN_SYNCED
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}

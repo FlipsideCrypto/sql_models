@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'date',
+  unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
   tags = ['snowflake', 'terra', 'balances', 'terra_daily_balances', 'address_labels']
