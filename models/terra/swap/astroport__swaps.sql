@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, msg_index, tx_index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'astroport', 'swap', 'address_labels']
@@ -237,7 +237,6 @@ swaps AS (
 -----------------
 --Multiple Swap--
 -----------------
-
 -- First type of multiple swaps, the pool address works for here
 msgs_multi_swaps_raw_type_2_msg AS (
   SELECT
@@ -290,21 +289,9 @@ msgs_multi_swaps_raw_type_2_events_raw AS (
     msg_index,
     key,
     value,
-    CASE 
-        WHEN key REGEXP '^[0-9]' 
-        THEN split_part(key, '_', 1) 
-        ELSE '0'::STRING 
-    END AS tx_index, 
-    CASE 
-        WHEN key REGEXP '^[0-9]' 
-        THEN MAX(split_part(key, '_', 1)) OVER (PARTITION BY tx_id)
-        ELSE '0'::STRING 
-    END AS max_tx_index, 
-    CASE 
-        WHEN key REGEXP '^[0-9]' 
-        THEN SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key))
-        ELSE key::STRING 
-    END AS tx_subtype
+    split_part(key, '_', 1) AS tx_index, 
+    MAX(split_part(key, '_', 1)) OVER (PARTITION BY tx_id) AS max_tx_index, 
+    SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key)) AS tx_subtype
   FROM source_msg_events
   , lateral flatten ( input => event_attributes)
   WHERE event_type = 'from_contract' 
@@ -347,7 +334,7 @@ msgs_multi_swaps_raw_type_2 AS (
     msg_value
   FROM msgs_multi_swaps_raw_type_2_msg a
   LEFT JOIN msgs_multi_swaps_raw_type_2_events_value b
-  ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index AND (a.tx_index+1) = b.tx_index
+  ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index AND a.tx_index = b.tx_index
 ),
 
 msgs_multi_swaps_raw AS (
@@ -446,7 +433,7 @@ events_multi_swaps_raw_type_2 AS (
   , lateral flatten ( input => event_attributes) as t0
   , lateral flatten ( input => t0.value[0] , mode => 'object') t1
   WHERE event_type = 'swap' 
-  AND t0.key IN ('offer', 'swap_coin')
+  AND t0.key IN ('offer', 'swap_coin', 'contract_address')
 ),
 
 events_multi_swaps_type_2 AS (
