@@ -17,9 +17,7 @@ WITH asset_name AS (
     ) }}
 )
 SELECT
-  algorand_decode_hex_addr(
-    aa.addr :: text
-  ) AS address,
+  algorand_decode_hex_addr(to_char(aa.addr, 'base64')) AS address,
   aa.assetid AS asset_id,
   an.name :: STRING AS asset_name,
   aa.amount AS amount,
@@ -33,7 +31,7 @@ SELECT
     address :: STRING,
     asset_id :: STRING
   ) AS _unique_key,
-  aa._FIVETRAN_SYNCED
+  aa.__HEVO__LOADED_AT
 FROM
   {{ source(
     'algorand',
@@ -49,10 +47,10 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND aa._FIVETRAN_SYNCED >= (
+AND aa.__HEVO__LOADED_AT >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      __HEVO__LOADED_AT
     )
   FROM
     {{ this }}

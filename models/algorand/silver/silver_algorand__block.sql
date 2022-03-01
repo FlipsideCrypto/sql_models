@@ -16,7 +16,7 @@ WITH allBLOCKS AS(
     header :prev :: STRING AS prev_block_hash,
     header :txn :: STRING AS txn_root,
     header,
-    _FIVETRAN_SYNCED
+    __HEVO__LOADED_AT
   FROM
     {{ source(
       'algorand',
@@ -32,17 +32,17 @@ SELECT
   prev_block_hash,
   txn_root,
   header,
-  _FIVETRAN_SYNCED
+  __HEVO__LOADED_AT
 FROM
   allBLOCKS
 WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND __HEVO__LOADED_AT >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      __HEVO__LOADED_AT
     )
   FROM
     {{ this }}

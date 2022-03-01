@@ -21,7 +21,7 @@ WITH emptyROUNDS_fivetran AS (
     txid IS NULL
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND __HEVO__LOADED_AT >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -55,7 +55,7 @@ emptyROUNDS_hevo AS (
     )
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND __HEVO__LOADED_AT >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -91,7 +91,7 @@ fulljson_fivetran AS (
     txid IS NOT NULL
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND __HEVO__LOADED_AT >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -125,7 +125,7 @@ fulljson_hevo AS (
     )
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND __HEVO__LOADED_AT >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP

@@ -6,9 +6,7 @@
 ) }}
 
 SELECT
-  algorand_decode_hex_addr(
-    b.addr :: text
-  ) AS address,
+  algorand_decode_hex_addr(to_char(b.addr, 'base64')) AS address,
   b.app AS app_id,
   b.deleted AS app_closed,
   b.closed_at AS closed_at,
@@ -20,7 +18,7 @@ SELECT
     b.addr :: STRING,
     b.app :: STRING
   ) AS _unique_key,
-  b._FIVETRAN_SYNCED
+  b.__HEVO__LOADED_AT
 FROM
   {{ source(
     'algorand',
@@ -34,10 +32,10 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND b._FIVETRAN_SYNCED >= (
+AND b.__HEVO__LOADED_AT >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      __HEVO__LOADED_AT
     )
   FROM
     {{ this }}

@@ -6,9 +6,7 @@
 ) }}
 
 SELECT
-  algorand_decode_hex_addr(
-    aa.addr :: text
-  ) AS address,
+  algorand_decode_hex_addr(to_char(aa.addr, 'base64')) AS address,
   aa.deleted AS account_closed,
   aa.rewardsbase / pow(
     10,
@@ -27,7 +25,7 @@ SELECT
   ab.block_timestamp AS created_at_timestamp,
   aa.keytype AS wallet_type,
   aa.account_data AS account_data,
-  aa._FIVETRAN_SYNCED
+  aa.__HEVO__LOADED_AT
 FROM
   {{ source(
     'algorand',
@@ -41,10 +39,10 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND aa._FIVETRAN_SYNCED >= (
+AND aa.__HEVO__LOADED_AT >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      __HEVO__LOADED_AT
     )
   FROM
     {{ this }}

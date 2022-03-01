@@ -7,15 +7,13 @@
 
 SELECT
   INDEX AS app_id,
-  algorand_decode_hex_addr(
-    aa.creator :: text
-  ) AS creator_address,
+  algorand_decode_hex_addr(to_char(aa.creator, 'base64')) AS creator_address,
   aa.deleted AS app_closed,
   aa.closed_at AS closed_at,
   aa.created_at AS created_at,
   ab.block_timestamp AS created_at_timestamp,
   aa.params,
-  aa._FIVETRAN_SYNCED
+  aa.__HEVO__LOADED_AT
 FROM
   {{ source(
     'algorand',
@@ -29,10 +27,10 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND aa._FIVETRAN_SYNCED >= (
+AND aa.__HEVO__LOADED_AT >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      __HEVO__LOADED_AT
     )
   FROM
     {{ this }}

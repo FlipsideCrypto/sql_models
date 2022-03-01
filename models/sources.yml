@@ -134,13 +134,10 @@ sources:
     tables:
       - name: daily_balances
   - name: algorand
-    schema: BRONZE_ALGORAND_2_8_0_PUBLIC
+    schema: BRONZE_ALOGRAND_2_8_0__HEVO_PARALLEL
     tables:
       - name: TXN
       - name: TXN_PARTICIPATION
-  - name: algorand
-    schema: BRONZE_ALGORAND_2_8_0__2_PUBLIC
-    tables:
       - name: ACCOUNT
       - name: ACCOUNT_APP
       - name: ACCOUNT_ASSET

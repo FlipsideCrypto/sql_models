@@ -50,7 +50,7 @@ WITH allTXN_fivetran AS (
     tx_type = 'appl'
 
 {% if is_incremental() %}
-AND b._FIVETRAN_SYNCED >= (
+AND b.__HEVO__LOADED_AT >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -113,7 +113,7 @@ allTXN_hevo AS (
     )
 
 {% if is_incremental() %}
-AND b._FIVETRAN_SYNCED >= (
+AND b.__HEVO__LOADED_AT >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP

@@ -11,9 +11,7 @@ WITH inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    algorand_decode_hex_addr(
-      addr :: text
-    ) AS address
+    algorand_decode_hex_addr(to_char(addr, 'base64')) AS address
   FROM
     {{ source(
       'algorand',
@@ -22,7 +20,7 @@ WITH inner_tx_individual AS(
 
 {% if is_incremental() %}
 WHERE
-  _FIVETRAN_SYNCED >= (
+  __HEVO__LOADED_AT >= (
     SELECT
       MAX(
         _INSERTED_TIMESTAMP
@@ -40,9 +38,7 @@ hevo_inner_tx_individual AS(
   SELECT
     ROUND AS block_id,
     intra,
-    algorand_decode_hex_addr(
-      addr :: text
-    ) AS address
+    algorand_decode_hex_addr(to_char(addr, 'base64')) AS address
   FROM
     {{ source(
       'algorand',
@@ -61,7 +57,7 @@ hevo_inner_tx_individual AS(
 
 {% if is_incremental() %}
 WHERE
-  _FIVETRAN_SYNCED >= (
+  __HEVO__LOADED_AT >= (
     SELECT
       MAX(
         _INSERTED_TIMESTAMP
