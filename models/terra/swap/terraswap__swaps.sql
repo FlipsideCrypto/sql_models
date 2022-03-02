@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, msg_index, tx_index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'terraswap', 'swap', 'address_labels']
@@ -52,6 +52,20 @@ source_address_labels AS (
   FROM {{ ref('silver_crosschain__address_labels') }}
 ),
 
+terraswap_pairs AS (
+  SELECT 
+    tx_id,
+    event_attributes :pair_contract_addr::STRING AS contract_address
+  FROM {{ ref('silver_terra__msg_events') }}
+  WHERE tx_id IN (SELECT
+                  tx_id
+                  FROM {{ ref('silver_terra__msgs') }}
+                  WHERE msg_value :execute_msg :create_pair :asset_infos[0] :token :contract_addr::STRING IS NOT NULL
+  				AND msg_value :contract::STRING = 'terra1ulgw0td86nvs4wtpsc80thv6xelk76ut7a7apj'
+                 )
+  AND event_type = 'from_contract'
+),
+
 ---------------
 --Single Swap--
 ---------------
@@ -89,6 +103,21 @@ single_msgs_non_array AS (
   FROM source_msgs
   WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
+
+  UNION
+
+  --Undecoded swap messages
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    msg_value :execute_msg :send :contract :: STRING AS pool_address
+  FROM source_msgs
+  WHERE msg_value :execute_msg :send :contract :: STRING IN (SELECT contract_address FROM terraswap_pairs)
 ),
 
 -- Single swap within the msg, the txs wrapped in an array
@@ -254,6 +283,7 @@ msgs_multi_swaps_raw_type_1 AS (
   WHERE
     msg_value :execute_msg :run :operations[1] :code ::STRING = 'swap'
     AND tx_status = 'SUCCEEDED'
+    AND pool_address != 'uusd'
   
   UNION ALL 
   
@@ -475,7 +505,7 @@ events_multi_swaps_raw_type_1 AS (
       FROM source_msg_events
       , lateral flatten ( input => event_attributes)
       WHERE event_type = 'from_contract'
-      AND event_attributes :"0_offer_amount" IS NOT NULL AND event_attributes :"1_offer_amount" IS NOT NULL
+      AND event_attributes :"0_offer_amount" IS NOT NULL AND event_attributes :"1_offer_amount" IS NOT NULL AND event_attributes :maker_fee_amount IS NULL
   ) tbl
   WHERE tx_subtype IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', 'contract_address')
   GROUP BY 1,2,3,4,5,6,7
