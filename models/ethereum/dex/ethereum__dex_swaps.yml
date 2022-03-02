@@ -7,9 +7,6 @@ models:
             - DIRECTION
             - EVENT_INDEX
             - TX_ID
-            - TOKEN_ADDRESS
-            - AMOUNT_IN
-            - AMOUNT_OUT
     columns:
       - name: AMOUNT_IN # TODO: proportional null test
         tests:
@@ -42,8 +39,7 @@ models:
               value_set: ["IN", "OUT"]
       - name: EVENT_INDEX
         tests:
-          - not_null:
-              where: PLATFORM <> 'uniswap-v3' 
+          - not_null
       - name: FROM_ADDRESS
         tests:
           - not_null

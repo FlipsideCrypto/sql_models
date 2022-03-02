@@ -6,43 +6,48 @@
 ) }}
 
 SELECT
-  algorand_decode_hex_addr(to_char(aa.addr, 'base64')) AS address,
-  aa.deleted AS account_closed,
-  aa.rewardsbase / pow(
+  algorand_decode_hex_addr(
+    addr :: text
+  ) AS address,
+  deleted AS account_closed,
+  rewardsbase / pow(
     10,
     6
   ) AS rewardsbase,
-  aa.rewards_total / pow(
+  rewards_total / pow(
     10,
     6
   ) AS rewards_total,
-  aa.microalgos / pow(
+  microalgos / pow(
     10,
     6
   ) AS balance,
-  aa.closed_at AS closed_at,
-  aa.created_at AS created_at,
-  ab.block_timestamp AS created_at_timestamp,
-  aa.keytype AS wallet_type,
-  aa.account_data AS account_data,
-  aa.__HEVO__LOADED_AT
+  closed_at AS closed_at,
+  created_at AS created_at,
+  keytype AS wallet_type,
+  account_data AS account_data,
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   {{ source(
     'algorand',
     'ACCOUNT'
   ) }}
-  aa
-  LEFT JOIN {{ ref('silver_algorand__block') }}
-  ab
-  ON aa.created_at = ab.block_id
 WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND aa.__HEVO__LOADED_AT >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      __HEVO__LOADED_AT
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

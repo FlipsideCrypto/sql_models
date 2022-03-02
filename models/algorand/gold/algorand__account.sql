@@ -11,7 +11,6 @@ SELECT
     balance,
     closed_at,
     created_at,
-    created_at_timestamp,
     wallet_type,
     account_data
 FROM

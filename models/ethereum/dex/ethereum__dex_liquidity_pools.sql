@@ -261,6 +261,4 @@ SELECT
 FROM
   curve
 WHERE
-  pool_address IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY pool_address
-ORDER BY
-  tokens DESC)) = 1
+  pool_address IS NOT NULL

@@ -1,8 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_timestamp, currency, source)",
+  sort = 'block_timestamp',
+  unique_key = "CONCAT_WS('-', block_timestamp)",
   incremental_strategy = 'delete+insert',
-  cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'oracle', 'terra_oracle', 'address_labels']
 ) }}
 
@@ -20,6 +20,9 @@ WITH prices AS (
   WHERE
     asset_id = '4172'
     AND provider is not null
+{% if is_incremental() %}
+AND recorded_at >= getdate() - INTERVAL '1 days'
+{% endif %}
   GROUP BY
     1,
     2
@@ -37,6 +40,9 @@ other_prices AS (
       '7857',
       '8857'
     )
+{% if is_incremental() %}
+AND recorded_at >= getdate() - INTERVAL '1 days'
+{% endif %}
   GROUP BY
     1,
     2

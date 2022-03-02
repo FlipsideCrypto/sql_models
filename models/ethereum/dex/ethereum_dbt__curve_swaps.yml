@@ -6,7 +6,6 @@ models:
           combination_of_columns:
             - TX_ID
             - event_index
-            - POOL_NAME
     columns:
       - name: AMOUNT_IN
         tests:
