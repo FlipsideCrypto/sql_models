@@ -55,7 +55,7 @@ source_address_labels AS (
 ---------------
 --Single Swap--
 ---------------
-single_msgs_array_raw AS (
+single_msgs_array_raw_type_1 AS (
   SELECT
     blockchain,
     chain_id,
@@ -78,6 +78,48 @@ single_msgs_array_raw AS (
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :astro_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :loop_swap IS NULL
     AND tx_status = 'SUCCEEDED'
+),
+
+single_msgs_array_raw_type_2 AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    COALESCE(event_attributes :"0_sender" :: STRING, event_attributes :"sender" :: STRING) AS sender,
+    COALESCE(event_attributes :"0_contract_address" :: STRING, event_attributes :"contract_address" :: STRING) AS contract_address
+  FROM source_msg_events
+  WHERE event_type = 'from_contract' AND event_attributes:"maker_fee_amount" IS NOT NULL AND tx_id NOT IN (SELECT tx_id FROM single_msgs_array_raw_type_1)
+),
+
+single_msgs_array_raw AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    contract_address,
+    event_attributes
+  FROM single_msgs_array_raw_type_1
+
+  UNION ALL 
+
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    contract_address,
+    event_attributes
+  FROM single_msgs_array_raw_type_2
 ),
 
 single_msgs_array_raw_events_raw AS (
@@ -131,10 +173,11 @@ single_msgs_array_raw_updated AS (
     block_timestamp,
     a.tx_id,
     sender,
-    b.pool_address AS contract_address
+    COALESCE(b.pool_address, a.contract_address) AS contract_address
   FROM single_msgs_array_raw a
   LEFT JOIN single_msgs_array_raw_events_value b
   ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index
+  WHERE NOT(sender IS NULL AND b.pool_address IS NULL)
 ),
 
 single_msg_array_events AS (
@@ -185,6 +228,7 @@ events AS (
   SELECT
     msg_index,
     tx_id,
+    event_attributes :sender :: STRING AS sender,
     event_attributes :offer_amount :: numeric / pow(10,6) AS offer_amount,
     event_attributes :offer_asset :: STRING AS offer_currency,
     event_attributes :return_amount :: numeric / pow(10,6) AS return_amount,
@@ -204,7 +248,7 @@ swaps AS (
     0 AS tx_index, --Because there is always only 1 tx index here, so it should be 0
     block_timestamp,
     m.tx_id,
-    sender,
+    COALESCE(m.sender, e.sender) AS sender,
     offer_amount,
     offer_amount * o.price AS offer_amount_usd,
     offer_currency,
@@ -330,7 +374,7 @@ msgs_multi_swaps_raw_type_2 AS (
     block_timestamp,
     a.tx_id,
     sender,
-    b.pool_address AS pool_address,
+    COALESCE(a.pool_address, b.pool_address) AS pool_address,
     msg_value
   FROM msgs_multi_swaps_raw_type_2_msg a
   LEFT JOIN msgs_multi_swaps_raw_type_2_events_value b
@@ -654,46 +698,48 @@ swaps_multi_swaps AS (
   WHERE m_tx_index = e_tx_index
 )
 
-SELECT DISTINCT
-  BLOCKCHAIN,
-  CHAIN_ID,
-  BLOCK_ID,
-  MSG_INDEX,
-  TX_INDEX,
-  BLOCK_TIMESTAMP,
-  TX_ID,
-  SENDER,
-  OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
-  OFFER_AMOUNT_USD,
-  OFFER_CURRENCY,
-  RETURN_AMOUNT,
-  RETURN_AMOUNT_USD,
-  RETURN_CURRENCY,
-  POOL_ADDRESS,
-  POOL_NAME
-FROM swaps
-WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
-    AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+SELECT DISTINCT * FROM (
+    SELECT
+        BLOCKCHAIN,
+        CHAIN_ID,
+        BLOCK_ID,
+        MSG_INDEX,
+        TX_INDEX,
+        BLOCK_TIMESTAMP,
+        TX_ID,
+        SENDER,
+        OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
+        OFFER_AMOUNT_USD,
+        OFFER_CURRENCY,
+        RETURN_AMOUNT,
+        RETURN_AMOUNT_USD,
+        RETURN_CURRENCY,
+        POOL_ADDRESS,
+        POOL_NAME
+    FROM swaps
+    WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+        AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
 
-UNION ALL 
+    UNION ALL 
 
-SELECT DISTINCT
-  BLOCKCHAIN,
-  CHAIN_ID,
-  BLOCK_ID,
-  MSG_INDEX,
-  TX_INDEX,
-  BLOCK_TIMESTAMP,
-  TX_ID,
-  SENDER,
-  OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
-  OFFER_AMOUNT_USD,
-  OFFER_CURRENCY,
-  RETURN_AMOUNT,
-  RETURN_AMOUNT_USD,
-  RETURN_CURRENCY,
-  POOL_ADDRESS,
-  POOL_NAME
-FROM swaps_multi_swaps
-WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
-    AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    SELECT
+        BLOCKCHAIN,
+        CHAIN_ID,
+        BLOCK_ID,
+        MSG_INDEX,
+        TX_INDEX,
+        BLOCK_TIMESTAMP,
+        TX_ID,
+        SENDER,
+        OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
+        OFFER_AMOUNT_USD,
+        OFFER_CURRENCY,
+        RETURN_AMOUNT,
+        RETURN_AMOUNT_USD,
+        RETURN_CURRENCY,
+        POOL_ADDRESS,
+        POOL_NAME
+    FROM swaps_multi_swaps
+    WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+        AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+)
