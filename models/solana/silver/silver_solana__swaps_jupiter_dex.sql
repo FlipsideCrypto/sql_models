@@ -320,3 +320,4 @@ FROM
     AND a2.rn = a2.max_rn
 WHERE
     a1.rn = 1
+    AND to_amt IS NOT NULL
