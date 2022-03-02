@@ -55,6 +55,34 @@ source_address_labels AS (
 ---------------
 --Single Swap--
 ---------------
+astro_pairs AS (
+  SELECT 
+    event_attributes :pair_contract_addr::STRING AS contract_address
+  FROM source_msg_events
+  WHERE tx_id IN (SELECT
+                    tx_id
+                  FROM source_msgs
+                  WHERE msg_value :execute_msg :create_pair IS NOT NULL
+  				  AND msg_value :contract = 'terra1fnywlw4edny3vw44x04xd67uzkdqluymgreu7g'
+                 )
+  AND event_type = 'from_contract'
+),
+
+single_msgs_array_raw_type_0 AS (  
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    msg_value :execute_msg :send :contract :: STRING AS contract_address
+  FROM source_msgs
+  WHERE contract_address in (SELECT contract_address from astro_pairs)
+    AND tx_status = 'SUCCEEDED'
+),
+
 single_msgs_array_raw_type_1 AS (
   SELECT
     blockchain,
@@ -95,6 +123,20 @@ single_msgs_array_raw_type_2 AS (
 ),
 
 single_msgs_array_raw AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    contract_address,
+    event_attributes
+  FROM single_msgs_array_raw_type_0
+  
+  UNION ALL
+  
   SELECT 
     blockchain,
     chain_id,
