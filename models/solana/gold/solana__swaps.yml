@@ -41,10 +41,8 @@ models:
       - name: SWAP_TO_AMOUNT
         description: Total amount of the token received in the swap
         tests: 
-          - not_null: 
-              enabled: FALSE
+          - not_null
       - name: SWAP_TO_MINT
         description: Token being received or swapped for 
         tests: 
-          - not_null: 
-              enabled: FALSE
+          - not_null
