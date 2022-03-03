@@ -44,8 +44,8 @@ WITH base_table AS (
   FROM
     {{ ref('bronze_solana__transactions') }}
   WHERE
-    program_id IS NULL
-    OR program_id <> 'Vote111111111111111111111111111111111111111'
+    tx :transaction :message :instructions [0] :programId :: STRING IS NOT NULL
+    AND tx :transaction :message :instructions [0] :programId :: STRING <> 'Vote111111111111111111111111111111111111111'
 
 {% if is_incremental() %}
 AND ingested_at >= getdate() - INTERVAL '2 days'
