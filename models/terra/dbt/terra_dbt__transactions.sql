@@ -16,11 +16,15 @@ WITH base_tables AS (
       'prod_terra_sink_645110886'
     ) }}
   WHERE
-    record_content :model :name :: STRING IN (
-      'terra_tx_model',
-      'terra-5_tx_model'
+    (
+      record_content :model :name :: STRING = 'terra_tx_model'
+      AND record_content:model.run_id = 'v2022.03.02.0'
     )
-    AND record_content:model.run_id = 'v2022.01.14.0'
+    OR
+    (
+      record_content :model :name :: STRING = 'terra-5_tx_model'
+      AND record_content:model.run_id = 'v2022.01.14.0'
+    )
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
