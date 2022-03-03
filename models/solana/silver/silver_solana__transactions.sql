@@ -38,14 +38,14 @@ WITH base_table AS (
       ) > 0
       AND len(
         tx :meta :preTokenBalances [0]
-      ) > 0 THEN TRUE
+      ) > 0 
+      AND len(tx: TRANSACTION :message :instructions) > 0 THEN TRUE
       ELSE FALSE
     END AS transfer_tx_flag
   FROM
     {{ ref('bronze_solana__transactions') }}
   WHERE
-    tx :transaction :message :instructions [0] :programId :: STRING IS NOT NULL
-    AND tx :transaction :message :instructions [0] :programId :: STRING <> 'Vote111111111111111111111111111111111111111'
+    tx :transaction :message :instructions [0] :programId :: STRING <> 'Vote111111111111111111111111111111111111111'
 
 {% if is_incremental() %}
 AND ingested_at >= getdate() - INTERVAL '2 days'
