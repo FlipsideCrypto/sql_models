@@ -87,6 +87,7 @@ single_msgs_non_array AS (
   FROM source_msgs
   WHERE msg_value :execute_msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
+    AND pool_address in (SELECT contract_address FROM terraswap_pairs)
 
   UNION
 
@@ -103,7 +104,8 @@ single_msgs_non_array AS (
   FROM source_msgs
   WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-
+    AND msg_value :execute_msg :send :contract :: STRING IN (SELECT contract_address FROM terraswap_pairs)
+ 
   UNION
 
   --Undecoded swap messages
@@ -220,6 +222,7 @@ events AS (
   WHERE event_type = 'from_contract'
     AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
     AND event_attributes :offer_amount IS NOT NULL
+    AND event_attributes :maker_fee_amount IS NULL
 ), 
 
 swaps AS (
@@ -283,8 +286,8 @@ msgs_multi_swaps_raw_type_1 AS (
   WHERE
     msg_value :execute_msg :run :operations[1] :code ::STRING = 'swap'
     AND tx_status = 'SUCCEEDED'
-    AND pool_address != 'uusd'
-  
+    --AND pool_address IN (SELECT contract_address FROM terraswap_pairs)
+   
   UNION ALL 
   
   SELECT
@@ -317,7 +320,7 @@ msgs_multi_swaps_raw_type_1 AS (
     WHERE 
       msg_value :execute_msg :assert_reaction_z :swaps[0] :terraswap IS NOT NULL
       AND tx_status = 'SUCCEEDED'
-      AND value :terraswap :ts ::STRING IS NOT NULL
+      AND value :terraswap :ts ::STRING IN (SELECT contract_address FROM terraswap_pairs)
   )
 ),
 
@@ -603,6 +606,7 @@ events_multi_swaps_raw_type_3 AS (
       , lateral flatten ( input => event_attributes)
       WHERE event_type = 'from_contract'
       AND event_attributes :"offer_amount" IS NOT NULL
+      AND event_attributes :maker_fee_amount IS NULL
   ) tbl
   WHERE key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', '2_contract_address', 'contract_address')
   GROUP BY 1,2,3,4,5,6,7
