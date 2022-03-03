@@ -68,7 +68,7 @@ delegates_map as (
 signers_tmp AS (
     SELECT
         t.tx_id,
-        A.value :pubkey :: STRING AS acct,=
+        A.value :pubkey :: STRING AS acct,
         A.index
     FROM
         orca_dex_txs t
