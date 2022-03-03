@@ -22,7 +22,7 @@ SELECT
   ) AS address,
   assetid AS asset_id,
   an.name :: STRING AS asset_name,
-  amount AS amount,
+  amount :: NUMBER AS amount,
   created_at AS asset_added_at,
   closed_at AS asset_last_removed,
   deleted AS asset_closed,
