@@ -52,20 +52,6 @@ source_address_labels AS (
   FROM {{ ref('silver_crosschain__address_labels') }}
 ),
 
-terraswap_pairs AS (
-  SELECT 
-    tx_id,
-    event_attributes :pair_contract_addr::STRING AS contract_address
-  FROM {{ ref('silver_terra__msg_events') }}
-  WHERE tx_id IN (SELECT
-                  tx_id
-                  FROM {{ ref('silver_terra__msgs') }}
-                  WHERE msg_value :execute_msg :create_pair :asset_infos[0] :token :contract_addr::STRING IS NOT NULL
-  				AND msg_value :contract::STRING = 'terra1ulgw0td86nvs4wtpsc80thv6xelk76ut7a7apj'
-                 )
-  AND event_type = 'from_contract'
-),
-
 astro_pairs AS (
   SELECT 
     tx_id,
@@ -101,7 +87,6 @@ single_msgs_non_array AS (
   FROM source_msgs
   WHERE msg_value :execute_msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-    AND pool_address in (SELECT contract_address FROM terraswap_pairs)
 
   UNION
 
@@ -118,7 +103,6 @@ single_msgs_non_array AS (
   FROM source_msgs
   WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-    AND msg_value :execute_msg :send :contract :: STRING IN (SELECT contract_address FROM terraswap_pairs)
  
   UNION
 
@@ -133,7 +117,6 @@ single_msgs_non_array AS (
     msg_value :sender :: STRING AS sender,
     msg_value :execute_msg :send :contract :: STRING AS pool_address
   FROM source_msgs
-  WHERE msg_value :execute_msg :send :contract :: STRING IN (SELECT contract_address FROM terraswap_pairs)
 ),
 
 -- Single swap within the msg, the txs wrapped in an array
@@ -299,6 +282,7 @@ msgs_multi_swaps_raw_type_1 AS (
   WHERE
     msg_value :execute_msg :run :operations[1] :code ::STRING = 'swap'
     AND tx_status = 'SUCCEEDED'
+    AND value :contract :: STRING <> 'uusd'
    
   UNION ALL 
   
@@ -332,7 +316,6 @@ msgs_multi_swaps_raw_type_1 AS (
     WHERE 
       msg_value :execute_msg :assert_reaction_z :swaps[0] :terraswap IS NOT NULL
       AND tx_status = 'SUCCEEDED'
-      AND value :terraswap :ts ::STRING IN (SELECT contract_address FROM terraswap_pairs)
   )
 ),
 
@@ -801,6 +784,7 @@ SELECT DISTINCT
 FROM swaps
 WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
     AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    AND POOL_ADDRESS NOT IN (SELECT contract_address from astro_pairs) --Remove astroport swaps
 
 UNION ALL 
 
@@ -824,4 +808,4 @@ SELECT DISTINCT
 FROM swaps_multi_swaps
 WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
     AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
-    AND POOL_ADDRESS NOT IN (SELECT contract_address from astro_pairs)
+    AND POOL_ADDRESS NOT IN (SELECT contract_address from astro_pairs) --remove astroport swaps
