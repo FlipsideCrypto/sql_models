@@ -9,7 +9,6 @@ SELECT
     asset_name,
     amount,
     asset_added_at,
-    added_at_timestamp,
     asset_last_removed,
     asset_closed,
     frozen
