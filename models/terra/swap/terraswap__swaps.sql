@@ -66,6 +66,20 @@ terraswap_pairs AS (
   AND event_type = 'from_contract'
 ),
 
+astro_pairs AS (
+  SELECT 
+    tx_id,
+    event_attributes :pair_contract_addr::STRING AS contract_address
+  FROM {{ ref('silver_terra__msg_events') }}
+  where tx_id in (SELECT
+                  tx_id
+                  from terra.msgs
+                  where msg_value :execute_msg :create_pair IS NOT NULL
+  				and msg_value :contract = 'terra1fnywlw4edny3vw44x04xd67uzkdqluymgreu7g'
+                 )
+  AND event_type = 'from_contract'
+),
+
 ---------------
 --Single Swap--
 ---------------
@@ -222,7 +236,6 @@ events AS (
   WHERE event_type = 'from_contract'
     AND tx_id IN(SELECT DISTINCT tx_id FROM msgs)
     AND event_attributes :offer_amount IS NOT NULL
-    AND event_attributes :maker_fee_amount IS NULL
 ), 
 
 swaps AS (
@@ -286,7 +299,6 @@ msgs_multi_swaps_raw_type_1 AS (
   WHERE
     msg_value :execute_msg :run :operations[1] :code ::STRING = 'swap'
     AND tx_status = 'SUCCEEDED'
-    --AND pool_address IN (SELECT contract_address FROM terraswap_pairs)
    
   UNION ALL 
   
@@ -508,7 +520,7 @@ events_multi_swaps_raw_type_1 AS (
       FROM source_msg_events
       , lateral flatten ( input => event_attributes)
       WHERE event_type = 'from_contract'
-      AND event_attributes :"0_offer_amount" IS NOT NULL AND event_attributes :"1_offer_amount" IS NOT NULL AND event_attributes :maker_fee_amount IS NULL
+      AND event_attributes :"0_offer_amount" IS NOT NULL AND event_attributes :"1_offer_amount" IS NOT NULL
   ) tbl
   WHERE tx_subtype IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', 'contract_address')
   GROUP BY 1,2,3,4,5,6,7
@@ -606,7 +618,6 @@ events_multi_swaps_raw_type_3 AS (
       , lateral flatten ( input => event_attributes)
       WHERE event_type = 'from_contract'
       AND event_attributes :"offer_amount" IS NOT NULL
-      AND event_attributes :maker_fee_amount IS NULL
   ) tbl
   WHERE key IN ('ask_asset', 'offer_amount', 'offer_asset', 'return_amount', '2_contract_address', 'contract_address')
   GROUP BY 1,2,3,4,5,6,7
@@ -813,3 +824,4 @@ SELECT DISTINCT
 FROM swaps_multi_swaps
 WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
     AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    AND POOL_ADDRESS NOT IN (SELECT contract_address from astro_pairs)

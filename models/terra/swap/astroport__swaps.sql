@@ -367,11 +367,12 @@ msgs_multi_swaps_raw_type_2_msg AS (
 
 ),
 
-msgs_multi_swaps_raw_undecoded_msg (
+msgs_multi_swaps_raw_undecoded_msg AS (
   SELECT
     blockchain,
     chain_id,
     block_id,
+    msg_index,
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
@@ -409,6 +410,16 @@ msgs_multi_swaps_raw_type_2_events_index AS (
   WHERE value = 'swap'
 ),
 
+msgs_multi_swaps_raw_undecoded_events_index AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    msg_index,
+    tx_index AS tx_index
+  FROM msgs_multi_swaps_raw_type_2_events_raw
+  WHERE value = 'send'
+),
+
 msgs_multi_swaps_raw_type_2_events_value AS (
   SELECT 
     a.tx_id, 
@@ -420,6 +431,7 @@ msgs_multi_swaps_raw_type_2_events_value AS (
   ON a.tx_id = b.tx_id AND a.tx_index = b.tx_index AND a.msg_index = b.msg_index
   WHERE tx_subtype = 'contract_address'
 ),
+
 
 msgs_multi_swaps_raw_type_2 AS (
   SELECT 
@@ -446,15 +458,15 @@ msgs_multi_swaps_raw_undecoded AS (
     block_id,
     a.msg_index,
     b.tx_index,
-    block_timestamp,
+    a.block_timestamp,
     a.tx_id,
     sender,
-    COALESCE(a.pool_address, b.pool_address) AS pool_address,
+    a.pool_address AS pool_address,
     msg_value
   FROM msgs_multi_swaps_raw_undecoded_msg a
-  LEFT JOIN msgs_multi_swaps_raw_type_2_events_value b
+  LEFT JOIN msgs_multi_swaps_raw_undecoded_events_index b
   ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index
-)
+),
 
 msgs_multi_swaps_raw AS (
   SELECT
@@ -487,7 +499,7 @@ msgs_multi_swaps AS (
   FROM msgs_multi_swaps_raw
   WHERE max_tx_index > 0
 
-  UNION
+  UNION ALL
 
   SELECT 
     blockchain,

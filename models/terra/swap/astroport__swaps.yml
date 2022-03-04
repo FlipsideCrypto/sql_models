@@ -9,6 +9,7 @@ models:
             - TX_ID
             - MSG_INDEX
             - TX_INDEX
+            - SENDER
     columns:
       - name: BLOCKCHAIN
         tests:
