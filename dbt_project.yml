@@ -31,6 +31,9 @@ clean-targets: # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 models:
   +copy_grants: true
+  +persist_docs:
+    relation: true
+    columns: true
   sql_models:
     ethereum:
       materialized: incremental

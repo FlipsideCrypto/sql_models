@@ -7,7 +7,24 @@
 ) }}
 
 SELECT
-  *
+  system_created_at,
+  _inserted_timestamp,
+  blockchain,
+  block_id,
+  block_timestamp,
+  chain_id,
+  codespace,
+  tx_id,
+  tx_from,
+  tx_to,
+  tx_type,
+  tx_module,
+  tx_status,
+  tx_status_msg,
+  tx_code,
+  fee,
+  gas_wanted,
+  gas_used
 FROM
   {{ ref('terra_dbt__transactions') }}
 

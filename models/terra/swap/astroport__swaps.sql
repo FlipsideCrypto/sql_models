@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id, msg_index, tx_index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'terra', 'terraswap', 'swap', 'address_labels']
+  tags = ['snowflake', 'terra', 'astroport', 'swap', 'address_labels']
 ) }}
 
 WITH prices AS (
@@ -55,12 +55,20 @@ source_address_labels AS (
 ---------------
 --Single Swap--
 ---------------
+astro_pairs AS (
+  SELECT 
+    event_attributes :pair_contract_addr::STRING AS contract_address
+  FROM source_msg_events
+  WHERE tx_id IN (SELECT
+                    tx_id
+                  FROM source_msgs
+                  WHERE msg_value :execute_msg :create_pair IS NOT NULL
+  				  AND msg_value :contract = 'terra1fnywlw4edny3vw44x04xd67uzkdqluymgreu7g'
+                 )
+  AND event_type = 'from_contract'
+),
 
--- Single swap means in ONE msg, there is only ONE swap happened
--- There are 2 types of single swap now: (1) non_array; (2) array. Only difference is how to extract the data
--- For the pool_address, we extracted that from msg, not from events for the single swap
-single_msgs_non_array AS (
-  -- native to non-native/native
+single_msgs_array_raw_type_0 AS (  
   SELECT
     blockchain,
     chain_id,
@@ -69,30 +77,13 @@ single_msgs_non_array AS (
     block_timestamp,
     tx_id,
     msg_value :sender :: STRING AS sender,
-    msg_value :contract :: STRING AS pool_address
+    msg_value :execute_msg :send :contract :: STRING AS contract_address
   FROM source_msgs
-  WHERE msg_value :execute_msg :swap IS NOT NULL
-    AND tx_status = 'SUCCEEDED'
-
-  UNION
-
-  -- non-native to native
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    msg_index,
-    block_timestamp,
-    tx_id,
-    msg_value :sender :: STRING AS sender,
-    msg_value :execute_msg :send :contract :: STRING AS pool_address
-  FROM source_msgs
-  WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
+  WHERE contract_address in (SELECT contract_address from astro_pairs)
     AND tx_status = 'SUCCEEDED'
 ),
 
--- Single swap within the msg, the txs wrapped in an array
-single_msgs_array_raw AS (
+single_msgs_array_raw_type_1 AS (
   SELECT
     blockchain,
     chain_id,
@@ -103,23 +94,132 @@ single_msgs_array_raw AS (
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS contract_address
   FROM source_msgs
-  WHERE 
-    (
-      msg_value :execute_msg :execute_swap_operations :operations[0] :native_swap IS NOT NULL
-        OR 
-      msg_value :execute_msg :execute_swap_operations :operations[0] :terra_swap IS NOT NULL
-    )
+  WHERE msg_value :execute_msg :execute_swap_operations :operations[0] :astro_swap IS NOT NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :native_swap IS NULL 
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :terra_swap IS NULL
-    AND msg_value :execute_msg :execute_swap_operations :operations[1] :astro_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :prism_swap IS NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[1] :astro_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[1] :loop_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :native_swap IS NULL 
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :terra_swap IS NULL
-    AND msg_value :execute_msg :execute_swap_operations :operations[2] :astro_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :prism_swap IS NULL
+    AND msg_value :execute_msg :execute_swap_operations :operations[2] :astro_swap IS NULL
     AND msg_value :execute_msg :execute_swap_operations :operations[2] :loop_swap IS NULL
     AND tx_status = 'SUCCEEDED'
+),
+
+single_msgs_array_raw_type_2 AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    COALESCE(event_attributes :"0_sender" :: STRING, event_attributes :"sender" :: STRING) AS sender,
+    COALESCE(event_attributes :"0_contract_address" :: STRING, event_attributes :"contract_address" :: STRING) AS contract_address
+  FROM source_msg_events
+  WHERE event_type = 'from_contract' AND event_attributes:"maker_fee_amount" IS NOT NULL AND tx_id NOT IN (SELECT tx_id FROM single_msgs_array_raw_type_1)
+),
+
+single_msgs_array_raw AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    contract_address,
+    event_attributes
+  FROM single_msgs_array_raw_type_0
+  
+  UNION ALL
+  
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    contract_address,
+    event_attributes
+  FROM single_msgs_array_raw_type_1
+
+  UNION ALL 
+
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    contract_address,
+    event_attributes
+  FROM single_msgs_array_raw_type_2
+),
+
+single_msgs_array_raw_events_raw AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    tx_id, 
+    block_timestamp,
+    event_type,
+    event_attributes,
+    msg_index,
+    key,
+    value,
+    split_part(key, '_', 1) AS tx_index, 
+    MAX(split_part(key, '_', 1)) OVER (PARTITION BY tx_id) AS max_tx_index, 
+    SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key)) AS tx_subtype
+  FROM source_msg_events
+  , lateral flatten ( input => event_attributes)
+  WHERE event_type = 'from_contract' 
+),
+
+single_msgs_array_raw_events_index AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    msg_index,
+    tx_index AS tx_index
+  FROM single_msgs_array_raw_events_raw
+  WHERE value = 'swap'
+),
+
+single_msgs_array_raw_events_value AS (
+  SELECT 
+    a.tx_id, 
+    a.msg_index,
+    RANK() OVER (PARTITION BY a.tx_id, a.msg_index ORDER BY a.tx_index ASC) AS tx_index,
+    a.value::STRING AS pool_address
+  FROM single_msgs_array_raw_events_raw a
+  INNER JOIN single_msgs_array_raw_events_index b
+  ON a.tx_id = b.tx_id AND a.tx_index = b.tx_index AND a.msg_index = b.msg_index
+  WHERE tx_subtype = 'contract_address'
+),
+
+single_msgs_array_raw_updated AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    a.msg_index,
+    block_timestamp,
+    a.tx_id,
+    sender,
+    COALESCE(b.pool_address, a.contract_address) AS contract_address
+  FROM single_msgs_array_raw a
+  LEFT JOIN single_msgs_array_raw_events_value b
+  ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index
+  WHERE NOT(sender IS NULL AND b.pool_address IS NULL)
 ),
 
 single_msg_array_events AS (
@@ -128,8 +228,8 @@ single_msg_array_events AS (
     source_msg_events.tx_id,
     source_msg_events.event_attributes :contract_address :: STRING AS pool_address
   FROM source_msg_events
-  INNER JOIN single_msgs_array_raw
-  ON source_msg_events.tx_id = single_msgs_array_raw.tx_id
+  INNER JOIN single_msgs_array_raw_updated
+  ON source_msg_events.tx_id = single_msgs_array_raw_updated.tx_id
   WHERE event_type = 'from_contract'
 ), 
 
@@ -138,35 +238,22 @@ single_msgs_array AS (
     blockchain,
     chain_id,
     block_id,
-    single_msgs_array_raw.msg_index,
+    single_msgs_array_raw_updated.msg_index,
     block_timestamp,
-    single_msgs_array_raw.tx_id,
+    single_msgs_array_raw_updated.tx_id,
     sender,
     CASE 
         WHEN single_msg_array_events.pool_address IS NULL 
-        THEN single_msgs_array_raw.contract_address
+        THEN single_msgs_array_raw_updated.contract_address
         ELSE single_msg_array_events.pool_address
     END AS pool_address
-  FROM single_msgs_array_raw
+  FROM single_msgs_array_raw_updated
   LEFT JOIN single_msg_array_events
-  ON single_msgs_array_raw.tx_id = single_msg_array_events.tx_id 
-    AND single_msgs_array_raw.msg_index = single_msg_array_events.msg_index 
+  ON single_msgs_array_raw_updated.tx_id = single_msg_array_events.tx_id 
+    AND single_msgs_array_raw_updated.msg_index = single_msg_array_events.msg_index 
 ),
 
 msgs AS (
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    msg_index,
-    block_timestamp,
-    tx_id,
-    sender,
-    pool_address
-  FROM single_msgs_non_array
-  
-  UNION ALL 
-  
   SELECT 
     blockchain,
     chain_id,
@@ -183,6 +270,7 @@ events AS (
   SELECT
     msg_index,
     tx_id,
+    event_attributes :sender :: STRING AS sender,
     event_attributes :offer_amount :: numeric / pow(10,6) AS offer_amount,
     event_attributes :offer_asset :: STRING AS offer_currency,
     event_attributes :return_amount :: numeric / pow(10,6) AS return_amount,
@@ -202,7 +290,7 @@ swaps AS (
     0 AS tx_index, --Because there is always only 1 tx index here, so it should be 0
     block_timestamp,
     m.tx_id,
-    sender,
+    COALESCE(m.sender, e.sender) AS sender,
     offer_amount,
     offer_amount * o.price AS offer_amount_usd,
     offer_currency,
@@ -236,61 +324,6 @@ swaps AS (
 --Multiple Swap--
 -----------------
 -- First type of multiple swaps, the pool address works for here
-msgs_multi_swaps_raw_type_1 AS (
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    msg_index,
-    index AS tx_index,
-    MAX(index) OVER (PARTITION BY tx_id) AS max_tx_index,
-    block_timestamp,
-    tx_id,
-    msg_value :sender :: STRING AS sender,
-    value :contract :: STRING AS pool_address,
-    msg_value
-  FROM source_msgs
-  , lateral flatten ( input => msg_value :execute_msg :run :operations)
-  WHERE
-    msg_value :execute_msg :run :operations[1] :code ::STRING = 'swap'
-    AND tx_status = 'SUCCEEDED'
-  
-  UNION ALL 
-  
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    msg_index,
-    (tx_index - 1) AS tx_index,
-    max_tx_index,
-    block_timestamp,
-    tx_id,
-    sender,
-    pool_address,
-    msg_value
-  FROM (
-    SELECT
-      blockchain,
-      chain_id,
-      block_id,
-      msg_index,
-      RANK() OVER (ORDER BY index ASC) AS tx_index,
-      MAX(index) OVER (PARTITION BY tx_id) AS max_tx_index,
-      block_timestamp,
-      tx_id,
-      msg_value :sender :: STRING AS sender,
-      value :terraswap :ts ::STRING AS pool_address,
-      msg_value
-    FROM source_msgs
-    , lateral flatten ( msg_value :execute_msg :assert_reaction_z :swaps)
-    WHERE 
-      msg_value :execute_msg :assert_reaction_z :swaps[0] :terraswap IS NOT NULL
-      AND tx_status = 'SUCCEEDED'
-      AND value :terraswap :ts ::STRING IS NOT NULL
-  )
-),
-
 msgs_multi_swaps_raw_type_2_msg AS (
   SELECT
     blockchain,
@@ -309,7 +342,7 @@ msgs_multi_swaps_raw_type_2_msg AS (
   , lateral flatten ( msg_value :execute_msg :execute_swap_operations :operations)
   WHERE msg_value :execute_msg :execute_swap_operations :operations IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-    AND OBJECT_KEYS(value)[0]::STRING IN ('terra_swap', 'terraswap', 'native_swap')
+    AND OBJECT_KEYS(value)[0]::STRING IN ('astro_swap', 'astroswap')
   
   UNION ALL 
   
@@ -330,7 +363,7 @@ msgs_multi_swaps_raw_type_2_msg AS (
   , lateral flatten ( msg_value :execute_msg :send :msg :execute_swap_operations :operations)
   WHERE msg_value :execute_msg :send :msg :execute_swap_operations :operations IS NOT NULL
     AND tx_status = 'SUCCEEDED'
-    AND OBJECT_KEYS(value)[0]::STRING IN ('terra_swap', 'terraswap', 'native_swap')
+    AND OBJECT_KEYS(value)[0]::STRING IN ('astro_swap', 'astroswap')
 ),
 
 msgs_multi_swaps_raw_type_2_events_raw AS (
@@ -342,25 +375,12 @@ msgs_multi_swaps_raw_type_2_events_raw AS (
     msg_index,
     key,
     value,
-    CASE 
-        WHEN key REGEXP '^[0-9]' 
-        THEN split_part(key, '_', 1) 
-        ELSE '0'::STRING 
-    END AS tx_index, 
-    CASE 
-        WHEN key REGEXP '^[0-9]' 
-        THEN MAX(split_part(key, '_', 1)) OVER (PARTITION BY tx_id)
-        ELSE '0'::STRING 
-    END AS max_tx_index, 
-    CASE 
-        WHEN key REGEXP '^[0-9]' 
-        THEN SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key))
-        ELSE key::STRING 
-    END AS tx_subtype
+    split_part(key, '_', 1) AS tx_index, 
+    MAX(split_part(key, '_', 1)) OVER (PARTITION BY tx_id) AS max_tx_index, 
+    SUBSTRING(key, LEN(split_part(key, '_', 1))+2, LEN(key)) AS tx_subtype
   FROM source_msg_events
   , lateral flatten ( input => event_attributes)
-  WHERE event_type = 'from_contract'
-//    AND tx_id IN (SELECT tx_id FROM msgs_multi_swaps_raw_type_2_msg) 
+  WHERE event_type = 'from_contract' 
 ),
 
 msgs_multi_swaps_raw_type_2_events_index AS (
@@ -396,30 +416,14 @@ msgs_multi_swaps_raw_type_2 AS (
     block_timestamp,
     a.tx_id,
     sender,
-    CASE WHEN b.pool_address IS NULL THEN a.pool_address ELSE b.pool_address END AS pool_address,
+    COALESCE(a.pool_address, b.pool_address) AS pool_address,
     msg_value
   FROM msgs_multi_swaps_raw_type_2_msg a
   LEFT JOIN msgs_multi_swaps_raw_type_2_events_value b
-  ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index AND (a.tx_index+1) = b.tx_index
+  ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index AND a.tx_index = b.tx_index
 ),
 
 msgs_multi_swaps_raw AS (
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    msg_index,
-    tx_index,
-    max_tx_index,
-    block_timestamp,
-    tx_id,
-    sender,
-    pool_address,
-    msg_value
-  FROM msgs_multi_swaps_raw_type_1
-
-  UNION ALL 
-
   SELECT
     blockchain,
     chain_id,
@@ -515,7 +519,7 @@ events_multi_swaps_raw_type_2 AS (
   , lateral flatten ( input => event_attributes) as t0
   , lateral flatten ( input => t0.value[0] , mode => 'object') t1
   WHERE event_type = 'swap' 
-  AND t0.key IN ('offer', 'swap_coin')
+  AND t0.key IN ('offer', 'swap_coin', 'contract_address')
 ),
 
 events_multi_swaps_type_2 AS (
@@ -736,46 +740,48 @@ swaps_multi_swaps AS (
   WHERE m_tx_index = e_tx_index
 )
 
-SELECT DISTINCT
-  BLOCKCHAIN,
-  CHAIN_ID,
-  BLOCK_ID,
-  MSG_INDEX,
-  TX_INDEX,
-  BLOCK_TIMESTAMP,
-  TX_ID,
-  SENDER,
-  OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
-  OFFER_AMOUNT_USD,
-  OFFER_CURRENCY,
-  RETURN_AMOUNT,
-  RETURN_AMOUNT_USD,
-  RETURN_CURRENCY,
-  POOL_ADDRESS,
-  POOL_NAME
-FROM swaps
-WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
-    AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+SELECT DISTINCT * FROM (
+    SELECT
+        BLOCKCHAIN,
+        CHAIN_ID,
+        BLOCK_ID,
+        MSG_INDEX,
+        TX_INDEX,
+        BLOCK_TIMESTAMP,
+        TX_ID,
+        SENDER,
+        OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
+        OFFER_AMOUNT_USD,
+        OFFER_CURRENCY,
+        RETURN_AMOUNT,
+        RETURN_AMOUNT_USD,
+        RETURN_CURRENCY,
+        POOL_ADDRESS,
+        POOL_NAME
+    FROM swaps
+    WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+        AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
 
-UNION ALL 
+    UNION ALL 
 
-SELECT DISTINCT
-  BLOCKCHAIN,
-  CHAIN_ID,
-  BLOCK_ID,
-  MSG_INDEX,
-  TX_INDEX,
-  BLOCK_TIMESTAMP,
-  TX_ID,
-  SENDER,
-  OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
-  OFFER_AMOUNT_USD,
-  OFFER_CURRENCY,
-  RETURN_AMOUNT,
-  RETURN_AMOUNT_USD,
-  RETURN_CURRENCY,
-  POOL_ADDRESS,
-  POOL_NAME
-FROM swaps_multi_swaps
-WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
-    AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    SELECT
+        BLOCKCHAIN,
+        CHAIN_ID,
+        BLOCK_ID,
+        MSG_INDEX,
+        TX_INDEX,
+        BLOCK_TIMESTAMP,
+        TX_ID,
+        SENDER,
+        OFFER_AMOUNT::FLOAT AS OFFER_AMOUNT,
+        OFFER_AMOUNT_USD,
+        OFFER_CURRENCY,
+        RETURN_AMOUNT,
+        RETURN_AMOUNT_USD,
+        RETURN_CURRENCY,
+        POOL_ADDRESS,
+        POOL_NAME
+    FROM swaps_multi_swaps
+    WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+        AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+)

@@ -45,4 +45,5 @@ models:
       - name: SWAP_TO_MINT
         description: Token being received or swapped for 
         tests: 
-          - not_null
+          - not_null: 
+              where: SUCCEEDED = TRUE

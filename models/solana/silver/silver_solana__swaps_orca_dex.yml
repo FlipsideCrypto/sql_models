@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_solana__swaps_jupiter_dex
+  - name: silver_solana__swaps_orca_dex
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -33,8 +33,7 @@ models:
       - name: FROM_AMT
         description: Total amount of the token sent in to initiate the swap 
         tests: 
-          - not_null: 
-              enabled: FALSE
+          - not_null
       - name: FROM_MINT
         description: Token being sent or swapped from
         tests: 
@@ -42,10 +41,9 @@ models:
       - name: TO_AMT
         description: Total amount of the token received in the swap
         tests: 
-          - not_null: 
-              enabled: FALSE
+          - not_null
       - name: TO_MINT
         description: Token being received or swapped for 
         tests: 
-          - not_null: 
-              enabled: FALSE ## Nulls expected when tx fails
+          - not_null:
+              where: succeeded = TRUE

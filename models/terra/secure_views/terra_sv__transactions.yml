@@ -24,7 +24,8 @@ models:
           - not_null
       - name: CODESPACE
         tests:
-          - not_null
+          - not_null: 
+              enabled: False
       - name: FEE
         tests:
           - not_null
@@ -36,8 +37,12 @@ models:
           - not_null
       - name: TX_CODE
         tests:
-          - not_null
+          - not_null: 
+              enabled: False
       - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_FROM
         tests:
           - not_null
       - name: TX_MODULE
@@ -48,7 +53,8 @@ models:
           - not_null
       - name: TX_STATUS_MSG
         tests:
-          - not_null
+          - not_null: 
+              enabled: False
       - name: TX_TYPE
         tests:
           - not_null
