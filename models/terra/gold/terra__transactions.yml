@@ -42,6 +42,9 @@ models:
       - name: TX_ID
         tests:
           - not_null
+      - name: TX_FROM
+        tests:
+          - not_null
       - name: TX_MODULE
         tests:
           - not_null

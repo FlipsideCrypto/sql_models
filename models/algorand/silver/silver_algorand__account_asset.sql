@@ -22,7 +22,7 @@ SELECT
   ) AS address,
   assetid AS asset_id,
   an.name :: STRING AS asset_name,
-  amount AS amount,
+  amount :: NUMBER AS amount,
   created_at AS asset_added_at,
   closed_at AS asset_last_removed,
   deleted AS asset_closed,
@@ -32,7 +32,11 @@ SELECT
     address :: STRING,
     asset_id :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   {{ source(
     'algorand',
@@ -45,10 +49,14 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

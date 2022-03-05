@@ -5,14 +5,14 @@
   tags = ['snowflake', 'algorand', 'transactions', 'all_algorand_tx']
 ) }}
 
-WITH emptyROUNDS_fivetran AS (
+WITH emptyROUNDS AS (
 
   SELECT
     ROUND,
     intra,
     txn,
     extra,
-    _FIVETRAN_SYNCED
+    __HEVO__LOADED_AT
   FROM
     {{ source(
       'algorand',
@@ -21,42 +21,7 @@ WITH emptyROUNDS_fivetran AS (
   WHERE
     txid IS NULL
 ),
-emptyROUNDS_hevo AS (
-  SELECT
-    ROUND,
-    intra,
-    txn,
-    extra,
-    _FIVETRAN_SYNCED
-  FROM
-    {{ source(
-      'algorand',
-      'TXN'
-    ) }}
-  WHERE
-    txid IS NULL
-    AND ROUND > (
-      SELECT
-        MAX(ROUND)
-      FROM
-        {{ source(
-          'algorand',
-          'TXN'
-        ) }}
-    )
-),
-emptyROUNDS AS(
-  SELECT
-    *
-  FROM
-    emptyROUNDS_fivetran
-  UNION
-  SELECT
-    *
-  FROM
-    emptyROUNDS_hevo
-),
-fulljson_fivetran AS (
+fulljson AS (
   SELECT
     ROUND,
     txid,
@@ -69,40 +34,6 @@ fulljson_fivetran AS (
     ) }}
   WHERE
     txid IS NOT NULL
-),
-fulljson_hevo AS (
-  SELECT
-    ROUND,
-    txid,
-    intra,
-    txn :txn :gh :: STRING AS gh
-  FROM
-    {{ source(
-      'algorand',
-      'TXN'
-    ) }}
-  WHERE
-    txid IS NOT NULL
-    AND ROUND > (
-      SELECT
-        MAX(ROUND)
-      FROM
-        {{ source(
-          'algorand',
-          'TXN'
-        ) }}
-    )
-),
-fulljson AS(
-  SELECT
-    *
-  FROM
-    fulljson_fivetran
-  UNION
-  SELECT
-    *
-  FROM
-    fulljson_hevo
 )
 SELECT
   f.round AS txn_round,
@@ -116,7 +47,11 @@ SELECT
     er.round :: STRING,
     er.intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   emptyROUNDS er
   LEFT JOIN fulljson f
@@ -126,10 +61,14 @@ WHERE
   f.round IS NOT NULL
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}
