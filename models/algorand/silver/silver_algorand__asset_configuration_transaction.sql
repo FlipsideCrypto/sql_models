@@ -34,8 +34,7 @@ WITH allTXN AS (
       ELSE txn :txn :gh :: STRING
     END AS genesis_hash,
     txn AS tx_message,
-    extra,
-    b.__HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
+    extra
   FROM
     {{ source(
       'algorand',
@@ -78,7 +77,7 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  b._INSERTED_TIMESTAMP
+  SYSDATE() AS _inserted_timestamp
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}

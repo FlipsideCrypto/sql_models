@@ -10,6 +10,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: hour
+              interval: 50
       - name: block_id
         tests:
           - not_null
@@ -24,11 +27,11 @@ models:
           - not_null
       - name: SENDER
         tests:
-          - not_null   
+          - not_null
       - name: FEE
         tests:
           - not_null:
-              where: inner_tx = 'true'                 
+              where: inner_tx = 'true'
       - name: TX_TYPE
         tests:
           - not_null
@@ -37,7 +40,12 @@ models:
           - not_null
       - name: GENESIS_HASH
         tests:
-          - not_null  
+          - not_null
       - name: TX_MESSAGE
         tests:
           - not_null
+      - name: _INSERTED_TIMESTAMP::DATE
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1

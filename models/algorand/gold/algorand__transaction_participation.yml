@@ -12,8 +12,8 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
+              datepart: hour
+              interval: 50
       - name: BLOCK_ID
         tests:
           - not_null
@@ -23,3 +23,5 @@ models:
       - name: ADDRESS
         tests:
           - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58

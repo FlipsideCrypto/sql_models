@@ -9,6 +9,8 @@ models:
       - name: ADDRESS
         tests:
           - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
       - name: ACCOUNT_CLOSED
         tests:
           - not_null
@@ -28,6 +30,12 @@ models:
       - name: CREATED_AT
         tests:
           - not_null
+      - name: CREATED_AT_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: hour
+              interval: 50
       - name: WALLET_TYPE
         tests:
           - accepted_values:

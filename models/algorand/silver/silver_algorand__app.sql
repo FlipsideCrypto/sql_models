@@ -8,12 +8,13 @@
 SELECT
   INDEX AS app_id,
   algorand_decode_hex_addr(
-    creator :: text
+    aa.creator :: text
   ) AS creator_address,
-  deleted AS app_closed,
-  closed_at AS closed_at,
-  created_at AS created_at,
-  params,
+  aa.deleted AS app_closed,
+  aa.closed_at AS closed_at,
+  aa.created_at AS created_at,
+  ab.block_timestamp AS created_at_timestamp,
+  aa.params,
   DATEADD(
     ms,
     __HEVO__LOADED_AT,
@@ -24,8 +25,10 @@ FROM
     'algorand',
     'APP'
   ) }}
-WHERE
-  1 = 1
+  aa
+  LEFT JOIN {{ ref('silver_algorand__block') }}
+  ab
+  ON aa.created_at = ab.block_idWHERE 1 = 1
 
 {% if is_incremental() %}
 AND DATEADD(

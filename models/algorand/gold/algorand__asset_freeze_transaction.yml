@@ -30,10 +30,12 @@ models:
           - not_null
       - name: SENDER
         tests:
-          - not_null   
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
       - name: FEE
         tests:
-          - not_null    
+          - not_null
       - name: TX_TYPE
         tests:
           - not_null
