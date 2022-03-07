@@ -1,0 +1,56 @@
+version: 2
+models:
+  - name: solana__blocks
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+    columns:
+      - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
+        tests:
+          - not_null: 
+              where: "block_timestamp > current_date - 2"
+      - name: BLOCK_TIMESTAMP
+        description: The time the block began
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: NETWORK
+        description: Mainnet, testnet, or devnet
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables
+        tests:
+          - not_null
+      - name: TX_COUNT
+        description: Number of actions - inclusive of votes and Pyth Oracle Transactions - that occurred during the block
+        tests:
+          - not_null
+      - name: BLOCK_HEIGHT
+        description: Number of blocks beneath the current block, the first block after the genesis block
+        tests:
+          - not_null
+      - name: BLOCK_TIME
+        description: The time the block began
+        tests:
+          - not_null
+      - name: BLOCK_HASH
+        description: Unique value that identifies the block
+        tests: 
+          - not_null
+      - name: PREVIOUS_BLOCK_ID
+        description: Block_id that identifies the previous block
+        tests: 
+          - not_null
+      - name: PREVIOUS_BLOCK_HASH
+        description: Identifies previous block - matches the block hash of the block that just occurred before this block
+        tests: 
+          - not_null
+      - name: INGESTED_AT
+        description: Time the data was sent to be included in the table
+        tests: 
+          - not_null

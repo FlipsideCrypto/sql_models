@@ -3,7 +3,8 @@
   unique_key = "CONCAT_WS('-', block_id, tx_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
-  tags = ['snowflake', 'solana', 'silver_solana', 'solana_transactions']
+  tags = ['snowflake', 'solana', 'silver_solana', 'solana_transactions'],
+  post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
 ) }}
 
 WITH base_table AS (
@@ -37,14 +38,15 @@ WITH base_table AS (
       ) > 0
       AND len(
         tx :meta :preTokenBalances [0]
-      ) > 0 THEN TRUE
+      ) > 0 
+      AND len(tx: TRANSACTION :message :instructions) > 0 THEN TRUE
       ELSE FALSE
     END AS transfer_tx_flag
   FROM
     {{ ref('bronze_solana__transactions') }}
   WHERE
-    program_id IS NULL
-    OR program_id <> 'Vote111111111111111111111111111111111111111'
+   program_id IS NULL
+  OR program_id <> 'Vote111111111111111111111111111111111111111'
 
 {% if is_incremental() %}
 AND ingested_at >= getdate() - INTERVAL '2 days'

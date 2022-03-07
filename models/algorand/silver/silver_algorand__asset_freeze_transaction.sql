@@ -35,7 +35,7 @@ WITH allTXN AS (
     END AS genesis_hash,
     txn AS tx_message,
     extra,
-    b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
+    b.__HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
   FROM
     {{ source(
       'algorand',
@@ -80,7 +80,7 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  b._INSERTED_TIMESTAMP
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
@@ -90,10 +90,10 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND b._INSERTED_TIMESTAMP >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

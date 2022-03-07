@@ -33,7 +33,11 @@ WITH allTXN AS (
     END AS genesis_hash,
     txn AS tx_message,
     extra,
-    b._FIVETRAN_SYNCED AS _FIVETRAN_SYNCED
+    DATEADD(
+      ms,
+      b.__HEVO__LOADED_AT,
+      '1970-01-01'
+    ) AS _INSERTED_TIMESTAMP
   FROM
     {{ source(
       'algorand',
@@ -49,6 +53,21 @@ WITH allTXN AS (
     ON b.round = ab.block_id
   WHERE
     tx_type = 'appl'
+
+{% if is_incremental() %}
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}
 )
 SELECT
   block_timestamp,
@@ -75,22 +94,9 @@ SELECT
     block_id :: STRING,
     intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  b._INSERTED_TIMESTAMP
 FROM
   allTXN b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
-  SELECT
-    MAX(
-      _FIVETRAN_SYNCED
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}

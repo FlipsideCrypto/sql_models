@@ -17,7 +17,11 @@ SELECT
   deleted AS asset_deleted,
   closed_at AS closed_at,
   created_at AS created_at,
-  _FIVETRAN_SYNCED
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   {{ source(
     'algorand',
@@ -27,10 +31,14 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}
