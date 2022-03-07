@@ -52,6 +52,20 @@ source_address_labels AS (
   FROM {{ ref('silver_crosschain__address_labels') }}
 ),
 
+astro_pairs AS (
+  SELECT 
+    tx_id,
+    event_attributes :pair_contract_addr::STRING AS contract_address
+  FROM {{ ref('silver_terra__msg_events') }}
+  where tx_id in (SELECT
+                  tx_id
+                  from terra.msgs
+                  where msg_value :execute_msg :create_pair IS NOT NULL
+  				and msg_value :contract = 'terra1fnywlw4edny3vw44x04xd67uzkdqluymgreu7g'
+                 )
+  AND event_type = 'from_contract'
+),
+
 ---------------
 --Single Swap--
 ---------------
@@ -89,6 +103,20 @@ single_msgs_non_array AS (
   FROM source_msgs
   WHERE msg_value :execute_msg :send :msg :swap IS NOT NULL
     AND tx_status = 'SUCCEEDED'
+ 
+  UNION
+
+  --Undecoded swap messages
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    msg_value :execute_msg :send :contract :: STRING AS pool_address
+  FROM source_msgs
 ),
 
 -- Single swap within the msg, the txs wrapped in an array
@@ -254,7 +282,8 @@ msgs_multi_swaps_raw_type_1 AS (
   WHERE
     msg_value :execute_msg :run :operations[1] :code ::STRING = 'swap'
     AND tx_status = 'SUCCEEDED'
-  
+    AND value :contract :: STRING <> 'uusd'
+   
   UNION ALL 
   
   SELECT
@@ -287,7 +316,6 @@ msgs_multi_swaps_raw_type_1 AS (
     WHERE 
       msg_value :execute_msg :assert_reaction_z :swaps[0] :terraswap IS NOT NULL
       AND tx_status = 'SUCCEEDED'
-      AND value :terraswap :ts ::STRING IS NOT NULL
   )
 ),
 
@@ -756,6 +784,7 @@ SELECT DISTINCT
 FROM swaps
 WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
     AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    AND POOL_ADDRESS NOT IN (SELECT contract_address from astro_pairs) --Remove astroport swaps
 
 UNION ALL 
 
@@ -779,3 +808,4 @@ SELECT DISTINCT
 FROM swaps_multi_swaps
 WHERE OFFER_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
     AND RETURN_CURRENCY NOT LIKE 'cw20:terra%' -- Remove PRISM contract
+    AND POOL_ADDRESS NOT IN (SELECT contract_address from astro_pairs) --remove astroport swaps

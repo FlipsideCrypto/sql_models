@@ -9,7 +9,6 @@ SELECT
     app_closed,
     closed_at,
     created_at,
-    created_at_timestamp,
     params
 FROM
     {{ ref('silver_algorand__app') }}

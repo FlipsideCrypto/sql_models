@@ -9,6 +9,7 @@ models:
             - TX_ID
             - MSG_INDEX
             - TX_INDEX
+            - OFFER_CURRENCY
     columns:
       - name: BLOCKCHAIN
         tests:

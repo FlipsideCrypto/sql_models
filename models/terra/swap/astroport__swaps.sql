@@ -364,6 +364,23 @@ msgs_multi_swaps_raw_type_2_msg AS (
   WHERE msg_value :execute_msg :send :msg :execute_swap_operations :operations IS NOT NULL
     AND tx_status = 'SUCCEEDED'
     AND OBJECT_KEYS(value)[0]::STRING IN ('astro_swap', 'astroswap')
+
+),
+
+msgs_multi_swaps_raw_undecoded_msg AS (
+  SELECT
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    block_timestamp,
+    tx_id,
+    msg_value :sender :: STRING AS sender,
+    msg_value :execute_msg :send :contract :: STRING AS pool_address,
+    msg_value
+  FROM source_msgs
+  WHERE msg_value :execute_msg :send :contract :: STRING = 'terra16t7dpwwgx9n3lq6l6te3753lsjqwhxwpday9zx' --Astroswap Router
+    AND tx_status = 'SUCCEEDED'
 ),
 
 msgs_multi_swaps_raw_type_2_events_raw AS (
@@ -393,6 +410,16 @@ msgs_multi_swaps_raw_type_2_events_index AS (
   WHERE value = 'swap'
 ),
 
+msgs_multi_swaps_raw_undecoded_events_index AS (
+  SELECT 
+    tx_id, 
+    block_timestamp,
+    msg_index,
+    tx_index AS tx_index
+  FROM msgs_multi_swaps_raw_type_2_events_raw
+  WHERE value = 'send'
+),
+
 msgs_multi_swaps_raw_type_2_events_value AS (
   SELECT 
     a.tx_id, 
@@ -404,6 +431,7 @@ msgs_multi_swaps_raw_type_2_events_value AS (
   ON a.tx_id = b.tx_id AND a.tx_index = b.tx_index AND a.msg_index = b.msg_index
   WHERE tx_subtype = 'contract_address'
 ),
+
 
 msgs_multi_swaps_raw_type_2 AS (
   SELECT 
@@ -421,6 +449,23 @@ msgs_multi_swaps_raw_type_2 AS (
   FROM msgs_multi_swaps_raw_type_2_msg a
   LEFT JOIN msgs_multi_swaps_raw_type_2_events_value b
   ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index AND a.tx_index = b.tx_index
+),
+
+msgs_multi_swaps_raw_undecoded AS (
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    a.msg_index,
+    b.tx_index,
+    a.block_timestamp,
+    a.tx_id,
+    sender,
+    a.pool_address AS pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_undecoded_msg a
+  LEFT JOIN msgs_multi_swaps_raw_undecoded_events_index b
+  ON a.tx_id = b.tx_id AND a.msg_index = b.msg_index
 ),
 
 msgs_multi_swaps_raw AS (
@@ -453,6 +498,21 @@ msgs_multi_swaps AS (
     msg_value
   FROM msgs_multi_swaps_raw
   WHERE max_tx_index > 0
+
+  UNION ALL
+
+  SELECT 
+    blockchain,
+    chain_id,
+    block_id,
+    msg_index,
+    tx_index,
+    block_timestamp,
+    tx_id,
+    sender,
+    pool_address,
+    msg_value
+  FROM msgs_multi_swaps_raw_undecoded
 ),
 
 events_multi_swaps_raw_type_1 AS (
