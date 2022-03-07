@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'terra_views', 'terra', 'terrascored', 'swap_token_prices']
+  tags = ['snowflake', 'terra_views', 'terra', 'terrascored', 'swap_current_prices']
 ) }}
 
 WITH terraswap_prices AS (
