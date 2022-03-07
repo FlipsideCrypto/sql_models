@@ -1,81 +1,184 @@
-{{ 
-  config(
-    materialized='incremental', 
-    sort='hour', 
-    unique_key='hour', 
-    incremental_strategy='delete+insert',
-    tags=['snowflake', 'ethereum', 'events']
-  )
-}}
+{{ config(
+  materialized = 'incremental',
+  sort = 'hour',
+  unique_key = 'hour',
+  incremental_strategy = 'delete+insert',
+  tags = ['snowflake', 'ethereum', 'events']
+) }}
 
-with full_decimals as (
-  select
-    lower(address) as contract_address,
-    meta :decimals :: int as decimals
-  from
+WITH full_decimals AS (
+
+  SELECT
+    LOWER(address) AS contract_address,
+    meta :decimals :: INT AS decimals
+  FROM
     {{ ref('silver_ethereum__contracts') }}
-  where
-    meta :decimals not like '%00%' qualify(row_number() over(partition by contract_address order by decimals desc) = 1) --need the %00% filter to exclude messy data
+  WHERE
+    meta :decimals NOT LIKE '%00%' qualify(ROW_NUMBER() over(PARTITION BY contract_address
+  ORDER BY
+    decimals DESC) = 1) --need the %00% filter to exclude messy data
 ),
-hourly_prices as (
-    select
-      p.symbol,
-      date_trunc('hour', recorded_at) as hour,
-      lower(a.token_address) as token_address,
-      d.decimals,
-      avg(price) as price
-    from {{ source('shared', 'prices_v2') }} p
-    left outer join {{ source('shared', 'market_asset_metadata') }} a on p.asset_id = a.asset_id
-    left outer join full_decimals d on d.contract_address = lower(a.token_address)
-    where (a.platform_id = '1027' or a.asset_id = '1027' or a.platform_id = 'ethereum')
-    {% if is_incremental() %}
-        and recorded_at >= current_date - 45
-    {% else %}
-        and recorded_at >= '2020-05-05' -- first date with valid prices data
-    {% endif %}  
-    group by 1,2,3,4
-)
-, token_addresses as (
-    select distinct lower(a.token_address) as token_address
-    from {{ source('shared', 'prices_v2') }} p
-    left outer join {{ source('shared', 'market_asset_metadata') }} a on p.asset_id = a.asset_id 
-    where (a.platform_id = '1027' or a.asset_id = '1027' or a.platform_id = 'ethereum')
-    and (token_address is not null or p.symbol = 'ETH')
-)
-, hour_token_addresses_pair as (
-    select *
-    from silver.hours
-    cross join token_addresses
-    {% if is_incremental() %}
-      where hour between current_date - 45 and date_trunc('hour',sysdate())
-    {% else %}
-      where hour between '2020-05-05' and date_trunc('hour',sysdate())-- first date with valid prices data
-    {% endif %}  
-)
-, imputed as (
-    select 
+hourly_prices AS (
+  SELECT
+    p.symbol,
+    DATE_TRUNC(
+      'hour',
+      recorded_at
+    ) AS HOUR,
+    LOWER(
+      A.token_address
+    ) AS token_address,
+    d.decimals,
+    AVG(price) AS price
+  FROM
+    {{ source(
+      'shared',
+      'prices_v2'
+    ) }}
+    p
+    LEFT OUTER JOIN {{ source(
+      'shared',
+      'market_asset_metadata'
+    ) }} A
+    ON p.asset_id = A.asset_id
+    LEFT OUTER JOIN full_decimals d
+    ON d.contract_address = LOWER(
+      A.token_address
+    )
+  WHERE
+    (
+      A.platform_id = '1027'
+      OR A.asset_id = '1027'
+      OR A.platform_id = 'ethereum'
+    )
+
+{% if is_incremental() %}
+AND recorded_at >= CURRENT_DATE - 3
+{% else %}
+  AND recorded_at >= '2020-05-05' -- first date with valid prices data
+{% endif %}
+GROUP BY
+  1,
+  2,
+  3,
+  4
+),
+token_addresses AS (
+  SELECT
+    DISTINCT LOWER(
+      A.token_address
+    ) AS token_address
+  FROM
+    {{ source(
+      'shared',
+      'prices_v2'
+    ) }}
+    p
+    LEFT OUTER JOIN {{ source(
+      'shared',
+      'market_asset_metadata'
+    ) }} A
+    ON p.asset_id = A.asset_id
+  WHERE
+    (
+      A.platform_id = '1027'
+      OR A.asset_id = '1027'
+      OR A.platform_id = 'ethereum'
+    )
+    AND (
+      token_address IS NOT NULL
+      OR p.symbol = 'ETH'
+    )
+),
+hour_token_addresses_pair AS (
+  SELECT
+    *
+  FROM
+    silver.hours
+    CROSS JOIN token_addresses
+
+{% if is_incremental() %}
+WHERE
+  HOUR BETWEEN CURRENT_DATE - 3
+  AND DATE_TRUNC('hour', SYSDATE())
+{% else %}
+WHERE
+  HOUR BETWEEN '2020-05-05'
+  AND DATE_TRUNC('hour', SYSDATE()) -- first date with valid prices data
+{% endif %}),
+imputed AS (
+  SELECT
+    h.hour,
+    h.token_address,
+    p.symbol,
+    p.decimals,
+    p.price AS avg_price,
+    LAG(
+      p.symbol
+    ) ignore nulls over (
+      PARTITION BY h.token_address
+      ORDER BY
         h.hour
-        , h.token_address
-        , p.symbol
-        , p.decimals
-        , p.price as avg_price
-        , lag(p.symbol) ignore nulls over (partition by h.token_address order by h.hour) as lag_symbol
-        , lag(p.decimals) ignore nulls over (partition by h.token_address order by h.hour) as lag_decimals
-        , lag(p.price) ignore nulls over (partition by h.token_address order by h.hour) as imputed_price
-    from hour_token_addresses_pair h 
-    left outer join hourly_prices p on p.hour = h.hour 
-      and (p.token_address = h.token_address or (h.token_address is null and p.symbol = 'ETH'))
+    ) AS lag_symbol,
+    LAG(
+      p.decimals
+    ) ignore nulls over (
+      PARTITION BY h.token_address
+      ORDER BY
+        h.hour
+    ) AS lag_decimals,
+    LAG(
+      p.price
+    ) ignore nulls over (
+      PARTITION BY h.token_address
+      ORDER BY
+        h.hour
+    ) AS imputed_price
+  FROM
+    hour_token_addresses_pair h
+    LEFT OUTER JOIN hourly_prices p
+    ON p.hour = h.hour
+    AND (
+      p.token_address = h.token_address
+      OR (
+        h.token_address IS NULL
+        AND p.symbol = 'ETH'
+      )
+    )
+),
+FINAL AS (
+  SELECT
+    p.hour AS HOUR,
+    p.token_address,
+    CASE
+      WHEN symbol IS NOT NULL THEN symbol
+      ELSE lag_symbol
+    END AS symbol,
+    CASE
+      WHEN decimals IS NOT NULL THEN decimals
+      ELSE lag_decimals
+    END AS decimals,
+    CASE
+      WHEN avg_price IS NOT NULL THEN avg_price
+      ELSE imputed_price
+    END AS price,
+    CASE
+      WHEN avg_price IS NULL THEN TRUE
+      ELSE FALSE
+    END AS is_imputed
+  FROM
+    imputed p
+  WHERE
+    price IS NOT NULL
 )
-select 
-    p.hour as hour
-    , p.token_address
-    , case when symbol is not null then symbol
-      else lag_symbol end as symbol
-    , case when decimals is not null then decimals
-      else lag_decimals end as decimals
-    , case when avg_price is not null then avg_price
-      else imputed_price end as price
-    , case when avg_price is null then TRUE 
-      else FALSE end as is_imputed
-from imputed p
-where price is not null
+SELECT
+  HOUR,
+  token_address,
+  symbol,
+  decimals,
+  price,
+  is_imputed
+FROM
+  FINAL qualify(ROW_NUMBER() over(PARTITION BY HOUR, token_address, symbol
+ORDER BY
+  decimals DESC) = 1)

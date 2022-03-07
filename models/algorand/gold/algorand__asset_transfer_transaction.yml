@@ -8,7 +8,7 @@ models:
           - not_null:
               enabled: False
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
+              datepart: hour
               interval: 50
       - name: BLOCK_ID
         tests:

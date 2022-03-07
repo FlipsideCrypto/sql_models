@@ -9,10 +9,9 @@ models:
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null:
-              enabled: False
+          - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
+              datepart: hour
               interval: 50
       - name: block_id
         tests:

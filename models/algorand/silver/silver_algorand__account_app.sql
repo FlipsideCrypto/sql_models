@@ -20,13 +20,16 @@ SELECT
     b.addr :: STRING,
     b.app :: STRING
   ) AS _unique_key,
-  b._FIVETRAN_SYNCED
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   {{ source(
     'algorand',
     'ACCOUNT_APP'
   ) }}
-  b
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
   ON b.created_at = ab.block_id
@@ -34,10 +37,14 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND b._FIVETRAN_SYNCED >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

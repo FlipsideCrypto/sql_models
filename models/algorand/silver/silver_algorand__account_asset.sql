@@ -33,7 +33,11 @@ SELECT
     address :: STRING,
     asset_id :: STRING
   ) AS _unique_key,
-  aa._FIVETRAN_SYNCED
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   {{ source(
     'algorand',
@@ -49,10 +53,14 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND aa._FIVETRAN_SYNCED >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

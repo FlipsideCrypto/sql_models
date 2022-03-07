@@ -9,8 +9,7 @@ models:
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null:
-              enabled: False
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null

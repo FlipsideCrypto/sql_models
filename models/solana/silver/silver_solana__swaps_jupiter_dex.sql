@@ -25,8 +25,40 @@ WITH jupiter_dex_txs AS (
         i.value :programId :: STRING = 'JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo' -- jupiter aggregator v2
 
 {% if is_incremental() %}
-AND i.ingested_at >= CURRENT_DATE - 2
-AND t.ingested_at >= CURRENT_DATE - 2
+AND i.ingested_at :: DATE >= CURRENT_DATE - 2
+AND t.block_timestamp :: DATE >= CURRENT_DATE - 2
+{% endif %}
+),
+signers AS (
+    SELECT
+        t.tx_id,
+        A.value :pubkey :: STRING AS acct,
+        A.index
+    FROM
+        jupiter_dex_txs t,
+        TABLE(FLATTEN(t.account_keys)) A
+    WHERE
+        A.value :signer = TRUE qualify(ROW_NUMBER() over (PARTITION BY t.tx_id
+    ORDER BY
+        A.index DESC)) = 1
+),
+post_balances_acct_map AS (
+    SELECT
+        t.tx_id,
+        t.account_keys [b.account_index] :pubkey :: STRING AS middle_acct,
+        b.owner,
+        b.mint,
+        b.decimal,
+        b.amount
+    FROM
+        {{ ref('solana_dbt__post_token_balances') }}
+        b
+        INNER JOIN jupiter_dex_txs t
+        ON t.tx_id = b.tx_id
+
+{% if is_incremental() %}
+WHERE
+    b.ingested_at :: DATE >= CURRENT_DATE - 2
 {% endif %}
 ),
 destinations AS (
@@ -38,6 +70,8 @@ destinations AS (
         i.index,
         ii.index AS inner_index,
         ii.value :parsed :info :destination :: STRING AS destination,
+        ii.value :parsed :info :authority :: STRING AS authority,
+        ii.value :parsed :info :source :: STRING AS source,
         ii.value :parsed :info :amount AS amount,
         ROW_NUMBER() over (
             PARTITION BY i.tx_id
@@ -57,180 +91,233 @@ destinations AS (
             ii.value :programId :: STRING,
             ''
         ) <> '11111111111111111111111111111111'
+        AND i.instruction :programId :: STRING = 'JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo'
 
 {% if is_incremental() %}
-AND i.ingested_at >= CURRENT_DATE - 2
+AND i.block_timestamp :: DATE >= CURRENT_DATE - 2
 {% endif %}
 ),
-post_balances_acct_map AS (
+destination_acct_map AS (
     SELECT
-        t.tx_id,
-        t.account_keys [b.account_index] :pubkey :: STRING AS middle_acct,
-        b.owner,
-        b.mint,
-        b.decimal,
-        b.amount
+        tx_id,
+        authority,
+        source
     FROM
-        {{ ref('solana_dbt__post_token_balances') }}
-        b
-        INNER JOIN jupiter_dex_txs t
-        ON t.tx_id = b.tx_id
-
-{% if is_incremental() %}
-WHERE
-    b.ingested_at >= CURRENT_DATE - 2
-{% endif %}
+        destinations
+    GROUP BY
+        1,
+        2,
+        3
 ),
-pre_balances_acct_map AS (
+swaps_tmp_1 AS (
     SELECT
-        t.tx_id,
-        t.account_keys [b.account_index] :pubkey :: STRING AS middle_acct,
-        b.owner,
-        b.mint,
-        b.decimal,
-        b.amount
-    FROM
-        {{ ref('solana_dbt__pre_token_balances') }}
-        b
-        INNER JOIN jupiter_dex_txs t
-        ON t.tx_id = b.tx_id
-
-{% if is_incremental() %}
-WHERE
-    b.ingested_at >= CURRENT_DATE - 2
-{% endif %}
-),
-signers AS (
-    SELECT
-        t.tx_id,
-        A.value :pubkey :: STRING AS acct,
-        A.index
-    FROM
-        jupiter_dex_txs t,
-        TABLE(FLATTEN(t.account_keys)) A
-    WHERE
-        A.value :signer = TRUE qualify(ROW_NUMBER() over (PARTITION BY t.tx_id
-    ORDER BY
-        A.index DESC)) = 1
-),
-signers_info AS (
-    SELECT
-        t.tx_id,
-        t.fee,
-        s.acct,
-        b.sol_pre_balances [s.index] AS signer_sol_pre_balance,
-        b.sol_post_balances [s.index] AS signer_sol_post_balance
-    FROM
-        {{ ref('solana_dbt__sol_balances') }}
-        b
-        INNER JOIN jupiter_dex_txs t
-        ON t.tx_id = b.tx_id
-        LEFT OUTER JOIN signers s
-        ON s.tx_id = b.tx_id -- WHERE
-        --     s.acct NOT IN (
-        --         'GS4FJiLur4dUCjMNGsxoyEyjtxxAkFWKfHBbWLa9uNKg',
-        --         '5z5h8D5FWUiCJsLjvYL8sWLc9xtP9iTrkEBmckf9AbZY',
-        --         '4Jfinpcv8KKAB9sTavsxQhxmsUAu7DktNi58VnCz414g'
-        --     ) -- this is some odd co-signer acct.  Is never the actual initiator of the swap
-
-{% if is_incremental() %}
-AND b.ingested_at >= CURRENT_DATE - 2
-{% endif %}
-),
-swap_actions AS (
-    SELECT
-        d.*,
-        m.owner,
-        m.mint,
-        m.decimal,
-        MAX(rn) over (
-            PARTITION BY d.tx_id
-        ) AS max_rn
+        s.acct AS swapper,
+        COALESCE(
+            p1.owner,
+            d2.authority
+        ) AS destination_owner,
+        COALESCE(
+            p1.mint,
+            p2.mint
+        ) AS mint,
+        COALESCE(
+            p1.decimal,
+            p2.decimal
+        ) AS DECIMAL,
+        d.*
     FROM
         destinations d
-        LEFT OUTER JOIN post_balances_acct_map m
-        ON d.tx_id = m.tx_id
-        AND d.destination = m.middle_acct
+        LEFT OUTER JOIN signers s
+        ON s.acct = d.authority
+        AND s.tx_id = d.tx_id
+        LEFT OUTER JOIN post_balances_acct_map p1
+        ON p1.middle_acct = d.destination
+        AND p1.tx_id = d.tx_id
+        LEFT OUTER JOIN post_balances_acct_map p2
+        ON p2.middle_acct = d.source
+        AND p2.tx_id = d.tx_id
+        LEFT OUTER JOIN destination_acct_map d2
+        ON d2.source = d.destination
+        AND d2.tx_id = d.tx_id
+),
+swapper_min_rn AS (
+    SELECT
+        DISTINCT s.tx_id,
+        MIN(rn) over (
+            PARTITION BY s.tx_id
+        ) AS min_swapper_rn
+    FROM
+        swaps_tmp_1 s
     WHERE
-        COALESCE(
-            d.amount :: STRING,
-            '-1'
-        ) <> '0'
+        swapper IS NOT NULL
 ),
 swaps_tmp AS (
     SELECT
+        s.block_id,
+        s.block_timestamp,
+        s.tx_id,
+        s.succeeded,
+        s.swapper,
+        s.destination_owner,
+        s.mint,
+        s.decimal,
+        s.index,
+        s.inner_index,
+        s.destination,
+        s.authority,
+        s.source,
+        s.amount,
+        ROW_NUMBER() over (
+            PARTITION BY s.tx_id
+            ORDER BY
+                s.index,
+                s.inner_index
+        ) AS rn
+    FROM
+        swaps_tmp_1 s
+        INNER JOIN swapper_min_rn m
+        ON s.tx_id = m.tx_id
+    WHERE
+        s.rn >= m.min_swapper_rn
+),
+mint_acct_map AS (
+    SELECT
+        tx_id,
+        source,
+        mint,
+        DECIMAL
+    FROM
+        swaps_tmp
+    GROUP BY
+        1,
+        2,
+        3,
+        4
+),
+swap_actions AS (
+    SELECT
+        s1.block_id,
+        s1.block_timestamp,
+        s1.tx_id,
+        s1.succeeded,
+        s1.swapper,
+        s1.destination_owner,
+        s1.destination,
+        s1.source,
+        COALESCE(
+            s1.mint,
+            s2.mint
+        ) AS mint,
+        COALESCE(
+            s1.decimal,
+            s2.decimal
+        ) AS DECIMAL,
+        s1.amount :: bigint AS amount,
+        s1.rn
+    FROM
+        swaps_tmp s1
+        LEFT OUTER JOIN mint_acct_map s2
+        ON s1.destination = s2.source
+        AND s1.tx_id = s2.tx_id
+),
+swap_actions_with_refund AS (
+    SELECT
+        s1.*,
+        s3.mint AS originating_mint,
+        CASE
+            WHEN s2.amount < s1.amount THEN s2.amount
+            ELSE NULL
+        END AS refund,
+        MAX(refund) over (
+            PARTITION BY s1.tx_id
+        ) AS max_refund,
+        s1.amount - COALESCE(
+            refund,
+            0
+        ) AS final_amt
+    FROM
+        swap_actions s1
+        LEFT OUTER JOIN swap_actions s2
+        ON s1.tx_id = s2.tx_id
+        AND s1.swapper = s2.destination_owner
+        AND s1.mint = s2.mint
+        AND s1.rn = 1
+        LEFT OUTER JOIN swap_actions s3
+        ON s1.tx_id = s3.tx_id
+        AND s3.rn = 1
+),
+swap_actions_final AS (
+    SELECT
         *
     FROM
-        swap_actions
+        swap_actions_with_refund
     WHERE
-        (
-            rn = 1
-            OR rn = max_rn
-        )
+        swapper IS NOT NULL
+        OR mint <> originating_mint
+        OR (
+            originating_mint = mint
+            AND max_refund IS NULL
+        ) -- need to do this for situations where it appears the user swaps back to the same mint...
+),
+agg_tmp AS (
+    SELECT
+        block_id,
+        block_timestamp,
+        tx_id,
+        succeeded,
+        swapper,
+        mint,
+        DECIMAL,
+        SUM(final_amt) AS amt,
+        MIN(rn) AS rn
+    FROM
+        swap_actions_final
+    GROUP BY
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+),
+agg AS (
+    SELECT
+        *,
+        MAX(rn) over (
+            PARTITION BY tx_id
+        ) AS max_rn
+    FROM
+        agg_tmp
+    WHERE
+        amt <> 0
 )
 SELECT
-    s1.tx_id,
-    s1.block_id,
-    s1.block_timestamp,
-    s1.succeeded,
-    COALESCE(
-        s2.owner,
-        s.acct
-    ) AS swapper,
+    a1.block_id,
+    a1.block_timestamp,
+    a1.tx_id,
+    a1.succeeded,
+    a1.swapper,
+    a1.mint AS from_mint,
     CASE
-        WHEN s1.succeeded = FALSE THEN 0
-        ELSE GREATEST(COALESCE(s1.amount * pow(10,- s1.decimal), 0), COALESCE((pre_from.amount - post_from.amount) * pow(10,- s1.decimal), 0), COALESCE(s.signer_sol_pre_balance - s.signer_sol_post_balance + s.fee, 0) * pow(10, -9))
-    END AS swap_from_amount,
-    COALESCE(
-        s1.mint,
-        'So11111111111111111111111111111111111111112'
-    ) AS swap_from_mint,
+        WHEN a1.succeeded THEN a1.amt * pow(
+            10,- a1.decimal
+        )
+        ELSE 0
+    END AS from_amt,
+    a2.mint AS to_mint,
     CASE
-        WHEN s1.succeeded = FALSE THEN 0
-        ELSE GREATEST(COALESCE(s2.amount * pow(10,- s2.decimal), 0), COALESCE((post_to.amount - pre_to.amount) * pow(10,- s2.decimal), 0), COALESCE(s.signer_sol_post_balance - s.signer_sol_pre_balance + s.fee, 0) * pow(10, -9))
-    END AS swap_to_amount,
-    COALESCE(
-        s2.mint,
-        'So11111111111111111111111111111111111111112'
-    ) AS swap_to_mint
+        WHEN a1.succeeded THEN a2.amt * pow(
+            10,- a2.decimal
+        )
+        ELSE 0
+    END AS to_amt
 FROM
-    swaps_tmp s1
-    LEFT OUTER JOIN swaps_tmp s2
-    ON s1.tx_id = s2.tx_id
-    AND s1.rn <> s2.rn
-    LEFT OUTER JOIN signers_info s
-    ON s.tx_id = s1.tx_id
-    LEFT OUTER JOIN pre_balances_acct_map pre_from
-    ON pre_from.tx_id = s1.tx_id
-    AND pre_from.mint = s1.mint
-    AND pre_from.owner = COALESCE(
-        s2.owner,
-        s.acct
-    )
-    LEFT OUTER JOIN pre_balances_acct_map pre_to
-    ON pre_to.tx_id = s1.tx_id
-    AND pre_to.mint = s2.mint
-    AND pre_to.owner = COALESCE(
-        s2.owner,
-        s.acct
-    )
-    LEFT OUTER JOIN post_balances_acct_map post_from
-    ON post_from.tx_id = s1.tx_id
-    AND post_from.mint = s1.mint
-    AND post_from.owner = COALESCE(
-        s2.owner,
-        s.acct
-    )
-    LEFT OUTER JOIN post_balances_acct_map post_to
-    ON post_to.tx_id = s1.tx_id
-    AND post_to.mint = s2.mint
-    AND post_to.owner = COALESCE(
-        s2.owner,
-        s.acct
-    )
+    agg a1
+    LEFT OUTER JOIN agg a2
+    ON a1.tx_id = a2.tx_id
+    AND a1.rn <> a2.rn
+    AND a2.rn = a2.max_rn
 WHERE
-    s1.rn = 1
-
-QUALIFY(ROW_NUMBER() over(PARTITION BY s1.block_id, s1.tx_id
-ORDER BY
-  s1.block_timestamp DESC)) = 1
+    a1.rn = 1
+    AND to_amt IS NOT NULL

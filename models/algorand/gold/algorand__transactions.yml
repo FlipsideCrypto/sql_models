@@ -5,10 +5,9 @@ models:
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null:
-              enabled: False
+          - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
+              datepart: hour
               interval: 50
       - name: BLOCK_ID
         tests:
@@ -22,7 +21,7 @@ models:
       - name: INNER_TX
         tests:
           - not_null
-      - name: SENDER
+          - name: SENDER
         tests:
           - not_null
           - dbt_expectations.expect_column_value_lengths_to_equal:

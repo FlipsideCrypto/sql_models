@@ -16,9 +16,14 @@ WITH base_tables AS (
       'prod_terra_sink_645110886'
     ) }}
   WHERE
-    record_content :model :name :: STRING IN (
-      'terra_tx_model',
-      'terra-5_tx_model'
+    (
+      record_content :model :name :: STRING = 'terra_tx_model'
+      AND record_content:model.run_id = 'v2022.03.02.0'
+    )
+    OR
+    (
+      record_content :model :name :: STRING = 'terra-5_tx_model'
+      AND record_content:model.run_id = 'v2022.01.14.0'
     )
 
 {% if is_incremental() %}
@@ -46,6 +51,8 @@ SELECT
     -- Post Columbus-4: txhash
     t.value :tx_id :: STRING
   ) AS tx_id,
+  t.value :tx_from as tx_from,
+  t.value :tx_to as tx_to,
   t.value :tx_type :: STRING AS tx_type,
   t.value :tx_module :: STRING AS tx_module,
   t.value :tx_status :: STRING AS tx_status,

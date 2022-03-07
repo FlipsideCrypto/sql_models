@@ -15,7 +15,11 @@ SELECT
   aa.created_at AS created_at,
   ab.block_timestamp AS created_at_timestamp,
   aa.params,
-  aa._FIVETRAN_SYNCED
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   {{ source(
     'algorand',
@@ -24,15 +28,17 @@ FROM
   aa
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
-  ON aa.created_at = ab.block_id
-WHERE
-  1 = 1
+  ON aa.created_at = ab.block_idWHERE 1 = 1
 
 {% if is_incremental() %}
-AND aa._FIVETRAN_SYNCED >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

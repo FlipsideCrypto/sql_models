@@ -66,5 +66,3 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-z]{39,39}
-      - name: POOL_NAME
-        tests:

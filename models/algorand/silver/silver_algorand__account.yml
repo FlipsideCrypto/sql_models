@@ -34,14 +34,14 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
+              datepart: hour
               interval: 50
       - name: WALLET_TYPE
         tests:
           - accepted_values:
               values: ["sig", "msig", "lsig", "", null]
               enabled: False # unhandled deletions causes this test to fail
-      - name: _FIVETRAN_SYNCED
+      - name: _INSERTED_TIMESTAMP::DATE
         tests:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day

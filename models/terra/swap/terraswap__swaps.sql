@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, msg_index, tx_index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'terraswap', 'swap', 'address_labels']
