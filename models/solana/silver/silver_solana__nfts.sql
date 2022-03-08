@@ -61,6 +61,7 @@ SELECT
   t.tx :meta:preTokenBalances :: ARRAY AS preTokenBalances, 
   t.tx :meta:postTokenBalances :: ARRAY AS postTokenBalances,   
   i.index :: INTEGER AS index, 
+  i.value :programId :: STRING AS program_id, 
   i.value AS instruction, 
   ii.value as inner_instruction,
   t.ingested_at :: TIMESTAMP AS ingested_at
@@ -83,7 +84,8 @@ WHERE i.value:programId :: STRING IN ('MEisE1HzehtrDpAAT8PnLHjpSSkRYakotTuJRPjTp
                                       'SPf5WqNywtPrRXSU5enq5z9bPPhREaSYf2LhN5fUxcj', 
                                       '2k8iJk39MtwMVEDMNuvUpEsm2jhBb8678jAqQkGEhu3bxPW4HesVkdJzMuMvgn61ST1S5YpskxVNaPDhrheUmjz9', 
                                       'cndyAnrLdpjq1Ssp1z8xxDsB8dxe7u4HL5Nxi2K5WXZ', 
-                                      'J7RagMKwSD5zJSbRQZU56ypHUtux8LRDkUpAPSKH4WPp')
+                                      'J7RagMKwSD5zJSbRQZU56ypHUtux8LRDkUpAPSKH4WPp', 
+                                      'M2mx93ekt1fmXSVkTrUL9xVFHkmME8HTUi5Cyc5aF7K')
 
 AND  t.tx :meta:postTokenBalances[0]:mint :: STRING IS NOT NULL
 
