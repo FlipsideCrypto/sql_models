@@ -15,6 +15,7 @@ SELECT
     preTokenBalances,  
     postTokenBalances,
     index,  
+    program_id, 
     instruction, 
     inner_instruction, 
     ingested_at
