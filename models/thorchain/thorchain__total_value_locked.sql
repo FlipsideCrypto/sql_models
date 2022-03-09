@@ -64,8 +64,8 @@ total_value_pooled_tbl AS (
 SELECT 
   COALESCE(total_value_bonded_tbl.day, total_value_pooled_tbl.day) AS day,
   COALESCE(total_value_pooled, 0) AS total_value_pooled,
-  COALESCE(SUM(total_value_bonded) OVER (ORDER BY total_value_bonded_tbl.day ASC), 0) AS total_value_bonded,
-  COALESCE(total_value_pooled, 0) + SUM(COALESCE(total_value_bonded, 0)) OVER (ORDER BY total_value_bonded_tbl.day ASC) AS total_value_locked
+  COALESCE(SUM(total_value_bonded) OVER (ORDER BY COALESCE(total_value_bonded_tbl.day, total_value_pooled_tbl.day) ASC), 0) AS total_value_bonded,
+  COALESCE(total_value_pooled, 0) + SUM(COALESCE(total_value_bonded, 0)) OVER (ORDER BY COALESCE(total_value_bonded_tbl.day, total_value_pooled_tbl.day) ASC) AS total_value_locked
 FROM total_value_bonded_tbl
 
 FULL JOIN total_value_pooled_tbl
