@@ -8,7 +8,7 @@ models:
             - SYMBOL
             - TOKEN_ADDRESS
       - sequence_gaps:
-          column_name: HOUR
+          column_name: HOUR::date
     columns:
       - name: HOUR
         tests:
