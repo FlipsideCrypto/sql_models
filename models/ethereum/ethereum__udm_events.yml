@@ -10,8 +10,6 @@ models:
             - FROM_ADDRESS
             - TO_ADDRESS
             - SYMBOL
-      - sequence_gaps:
-          column_name: BLOCK_TIMESTAMP::date
     columns:
       # - name: AMOUNT
       #   tests:

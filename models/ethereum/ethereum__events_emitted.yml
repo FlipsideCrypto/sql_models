@@ -7,8 +7,6 @@ models:
             - BLOCK_ID
             - EVENT_INDEX
             - TX_ID
-      - sequence_gaps:
-          column_name: BLOCK_TIMESTAMP::date
     columns:
       - name: BLOCK_ID
         tests:
