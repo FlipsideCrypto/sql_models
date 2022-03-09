@@ -3,6 +3,7 @@
   unique_key = "block_id",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
+  persist_docs={"relation": true, "columns": true}, 
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_votes']
 ) }}
 
