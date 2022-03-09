@@ -6,6 +6,8 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+      - sequence_gaps:
+          column_name: BLOCK_TIMESTAMP::date
     columns:
       - name: BLOCK_ID
         tests:

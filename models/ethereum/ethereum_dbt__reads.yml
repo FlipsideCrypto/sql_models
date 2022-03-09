@@ -1,0 +1,11 @@
+version: 2
+models:
+  - name: ethereum_dbt__reads
+    tests:
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1

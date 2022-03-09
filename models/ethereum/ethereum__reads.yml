@@ -8,6 +8,9 @@ models:
             - CONTRACT_ADDRESS
             - FUNCTION_NAME
             - INPUTS
+      - sequence_gaps:
+          column_name: BLOCK_TIMESTAMP::date
+      
     columns:
       - name: BLOCK_TIMESTAMP
         tests:

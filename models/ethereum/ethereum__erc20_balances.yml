@@ -9,6 +9,8 @@ models:
             - USER_ADDRESS
             - CONTRACT_ADDRESS
           where: balance_date >= current_date - 2
+      - sequence_gaps:
+          column_name: BALANCE_DATE
     columns:
       - name: ADDRESS_NAME
         description: "The name of the address, if we have one, i.e. the name of a dapp or an exchange. When exchanges are found algorithmically, a number is assigned when groups of addresses belonging to a single exchange are identifiable."
