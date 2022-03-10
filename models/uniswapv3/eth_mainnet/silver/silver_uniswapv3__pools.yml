@@ -12,6 +12,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 7
       - name: BLOCKCHAIN
         tests:
           - not_null
@@ -45,34 +48,7 @@ models:
       - name: POOL_ADDRESS
         tests:
           - not_null
-      - name: POOL_NAME
-        tests:
-          - not_null
       - name: TICK_SPACING
-        tests:
-          - not_null
-      - name: TOKEN0
-        tests:
-          - not_null
-      - name: TOKEN0_DECIMALS
-        tests:
-          - not_null
-      - name: TOKEN0_NAME
-        tests:
-          - not_null
-      - name: TOKEN0_SYMBOL
-        tests:
-          - not_null
-      - name: TOKEN1
-        tests:
-          - not_null
-      - name: TOKEN1_DECIMALS
-        tests:
-          - not_null
-      - name: TOKEN1_NAME
-        tests:
-          - not_null
-      - name: TOKEN1_SYMBOL
         tests:
           - not_null
       - name: TX_ID

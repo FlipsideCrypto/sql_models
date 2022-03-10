@@ -16,6 +16,7 @@ SELECT
   swaps.tick,
   swaps.liquidity,
   swaps.liquidity_adjusted,
+  log_index,
   {{ decimal_adjust("swaps.amount0", "p.token0_decimals") }} AS amount0_adjusted,
   {{ decimal_adjust("swaps.amount1", "p.token1_decimals") }} AS amount1_adjusted,
   p.token0 AS token0_address,

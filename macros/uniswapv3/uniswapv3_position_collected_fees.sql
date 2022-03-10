@@ -90,6 +90,7 @@
         ee.block_id,
         ee.block_timestamp,
         ee.tx_id,
+        ee.event_index,
         contract_address as pool_address,
         p.pool_name,
         coalesce(
