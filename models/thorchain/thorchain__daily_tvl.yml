@@ -9,6 +9,9 @@ models:
       - name: DAY
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
       - name: TOTAL_VALUE_POOLED
         tests:
           - not_null
