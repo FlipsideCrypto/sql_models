@@ -6,7 +6,7 @@
   tags = ['snowflake', 'terra', 'astroport', 'pool_reserves']
 ) }}
 
-select
+select distinct
     (
       record_metadata :CreateTime :: INT / 1000
     ) :: TIMESTAMP AS system_created_at,
@@ -28,7 +28,7 @@ from
     lateral flatten(input => record_content:results) as r
 where
     record_content:model.name = 'terra-5_astroport_pool_reserves'
-    and record_content:model.run_id = 'v2022.02.14.0'
+    and record_content:model.run_id = 'v2022.03.07.0'
 {% if is_incremental() %}
 AND (
   record_metadata :CreateTime :: INT / 1000

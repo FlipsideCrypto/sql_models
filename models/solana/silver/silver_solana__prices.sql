@@ -1,5 +1,6 @@
 {{ config(
     materialized = 'view',
+    persist_docs={"relation": true, "columns": true}, 
     tags = ['snowflake', 'solana', 'silver_solana', 'solana_prices']
 ) }}
 

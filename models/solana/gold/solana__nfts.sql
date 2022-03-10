@@ -1,5 +1,6 @@
 {{ config(
     materialized = 'view', 
+    persist_docs={"relation": true, "columns": true}, 
     tags = ['snowflake', 'solana', 'gold_solana', 'solana_nfts']
 ) }}
 
@@ -14,6 +15,7 @@ SELECT
     preTokenBalances,  
     postTokenBalances,
     index,  
+    program_id, 
     instruction, 
     inner_instruction, 
     ingested_at

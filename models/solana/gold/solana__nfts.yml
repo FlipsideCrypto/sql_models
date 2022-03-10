@@ -47,6 +47,10 @@ models:
         description: Location of the event within the instructions of a transaction
         tests:  
           - not_null
+      - name: PROGRAM_ID
+        description: Address of the program interacted with during the transaction
+        tests: 
+          - not_null
       - name: INSTRUCTION
         description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
         tests: 

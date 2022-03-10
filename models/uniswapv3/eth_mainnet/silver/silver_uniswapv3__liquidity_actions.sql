@@ -89,8 +89,8 @@ SELECT
   block_id,
   block_timestamp,
   blockchain,
-  liquidity,
-  liquidity_adjusted,
+  COALESCE(liquidity, 0) as liquidity,
+  COALESCE(liquidity_adjusted, 0) as liquidity_adjusted,
   liquidity_provider,
   nf_position_manager_address,
   nf_token_id,
@@ -103,6 +103,6 @@ SELECT
   virtual_reserves_token0,
   virtual_reserves_token1
 FROM
-  silver qualify(ROW_NUMBER() over(PARTITION BY tx_id, nf_token_id
+  silver qualify(ROW_NUMBER() over(PARTITION BY tx_id
 ORDER BY
   system_created_at DESC)) = 1

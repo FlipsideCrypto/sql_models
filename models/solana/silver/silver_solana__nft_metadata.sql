@@ -3,6 +3,7 @@
   unique_key = "CONCAT_WS('-', contract_name, token_id)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['created_at_timestamp::DATE'],
+  persist_docs={"relation": true, "columns": true}, 
   tags = ['snowflake', 'solana', 'silver_solana', 'solana_nfts', 'solana_nft_metadata']
 ) }}
 
