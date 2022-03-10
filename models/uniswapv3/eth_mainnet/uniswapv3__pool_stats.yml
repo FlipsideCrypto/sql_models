@@ -13,6 +13,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: BLOCKCHAIN
         tests:
           - not_null
@@ -33,9 +36,6 @@ models:
       - name: POOL_ADDRESS
         tests:
           - not_null
-      - name: POOL_NAME
-        tests:
-          - not_null
       - name: PRICE_0_1
         tests:
           - not_null
@@ -52,14 +52,12 @@ models:
                 - float
       - name: PROTOCOL_FEES_TOKEN0_ADJUSTED
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: PROTOCOL_FEES_TOKEN1_ADJUSTED
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -68,12 +66,6 @@ models:
         tests:
           - not_null
       - name: TOKEN1_ADDRESS
-        tests:
-          - not_null
-      - name: TOKEN0_SYMBOL
-        tests:
-          - not_null
-      - name: TOKEN1_SYMBOL
         tests:
           - not_null
       - name: TICK
@@ -105,14 +97,12 @@ models:
                 - float
       - name: VIRTUAL_RESERVES_TOKEN0_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: VIRTUAL_RESERVES_TOKEN1_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -133,14 +123,12 @@ models:
                 - float
       - name: TOKEN0_BALANCE_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: TOKEN1_BALANCE_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
