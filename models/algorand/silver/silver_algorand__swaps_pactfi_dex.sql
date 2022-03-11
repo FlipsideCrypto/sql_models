@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'tx_group_id',
+    unique_key = '_unique_key',
     incremental_strategy = 'merge',
     tags = ['snowflake', 'algorand', 'transactions', 'algorand_swaps']
 ) }}
@@ -72,6 +72,7 @@ pactfi_app AS(
 from_pay_swaps AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
+        pt.intra,
         pt.sender AS swapper,
         'ALGO' AS from_asset_name,
         amount AS swap_from_amount,
@@ -90,6 +91,7 @@ from_pay_swaps AS(
 from_axfer_swaps AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
+        pt.intra,
         pt.sender AS swapper,
         A.asset_name AS from_asset_name,
         CASE
@@ -127,6 +129,7 @@ from_swaps AS(
 SELECT
     pa.block_timestamp,
     pa.block_id AS block_id,
+    pa.intra AS intra,
     pa.tx_group_id AS tx_group_id,
     pa.app_id,
     fs.swapper,
@@ -136,8 +139,14 @@ SELECT
     pa.pool_address AS pool_address,
     pa.to_asset_name,
     pa.to_asset_id AS swap_to_asset_id,
-    pa.swap_to_amount
+    pa.swap_to_amount,
+    concat_ws(
+        '-',
+        pa.block_id :: STRING,
+        pa.intra :: STRING
+    ) AS _unique_key
 FROM
     pactfi_app pa
     LEFT JOIN from_swaps fs
     ON pa.tx_group_id = fs.tx_group_id
+    AND pa.intra -1 = fs.intra

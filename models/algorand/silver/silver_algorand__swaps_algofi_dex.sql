@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'tx_group_id',
+    unique_key = '_unique_key',
     incremental_strategy = 'merge',
     tags = ['snowflake', 'algorand', 'transactions', 'algorand_swaps']
 ) }}
@@ -73,6 +73,7 @@ algofi_app AS(
 from_pay_swapssfe AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
+        pt.intra,
         pt.sender AS swapper,
         'ALGO' AS from_asset_name,
         amount - ref.tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
@@ -102,6 +103,7 @@ from_pay_swapssfe AS(
 from_axfer_swapssfe AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
+        pt.intra,
         pt.sender AS swapper,
         a2.asset_name AS from_asset_name,
         CASE
@@ -154,7 +156,7 @@ allsfe AS(
     SELECT
         'sfe' AS TYPE,
         pa.block_id,
-        intra,
+        pa.intra,
         pa.tx_group_id,
         block_timestamp,
         pa.swapper,
@@ -171,8 +173,8 @@ allsfe AS(
         algofi_app pa
         LEFT JOIN from_swapssfe fs
         ON pa.tx_group_id = fs.tx_group_id
+        AND pa.intra -1 = fs.intra
 ),
------
 algofi_appsef AS(
     SELECT
         act.block_id,
@@ -227,6 +229,7 @@ algofi_appsef AS(
 from_pay_swapssef AS(
     SELECT
         pt.tx_group_id AS tx_group_id,
+        pt.intra,
         pt.sender AS swapper,
         'ALGO' AS from_asset_name,
         amount AS swap_from_amount,
@@ -245,6 +248,7 @@ from_pay_swapssef AS(
 from_axfer_swapssef AS(
     SELECT
         pt.tx_group_id AS tx_group_id,
+        pt.intra,
         pt.sender AS swapper,
         A.asset_name AS from_asset_name,
         CASE
@@ -271,6 +275,7 @@ from_axfer_swapssef AS(
 from_swapssef AS(
     SELECT
         tx_group_id,
+        intra,
         swapper,
         from_asset_name,
         swap_from_amount,
@@ -280,6 +285,7 @@ from_swapssef AS(
     UNION
     SELECT
         tx_group_id,
+        intra,
         swapper,
         from_asset_name,
         swap_from_amount,
@@ -291,7 +297,7 @@ allsef AS(
     SELECT
         'sef' AS TYPE,
         pa.block_id,
-        intra,
+        pa.intra,
         pa.tx_group_id,
         block_timestamp,
         pa.swapper,
@@ -308,12 +314,14 @@ allsef AS(
         algofi_appsef pa
         LEFT JOIN from_swapssef fs
         ON pa.tx_group_id = fs.tx_group_id
+        AND pa.intra -1 = fs.intra
     WHERE
         fs.tx_group_id IS NOT NULL
 )
 SELECT
     block_timestamp,
     block_id,
+    intra,
     tx_group_id,
     app_id,
     swapper,
@@ -323,13 +331,19 @@ SELECT
     pool_address,
     to_asset_name,
     swap_to_asset_id,
-    swap_to_amount
+    swap_to_amount,
+    concat_ws(
+        '-',
+        block_id :: STRING,
+        intra :: STRING
+    ) AS _unique_key
 FROM
     allsef
 UNION
 SELECT
     block_timestamp,
     block_id,
+    intra,
     tx_group_id,
     app_id,
     swapper,
@@ -339,6 +353,11 @@ SELECT
     pool_address,
     to_asset_name,
     swap_to_asset_id,
-    swap_to_amount
+    swap_to_amount,
+    concat_ws(
+        '-',
+        block_id :: STRING,
+        intra :: STRING
+    ) AS _unique_key
 FROM
     allsfe

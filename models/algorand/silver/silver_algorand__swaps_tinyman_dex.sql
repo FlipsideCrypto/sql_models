@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'tx_group_id',
+    unique_key = '_unique_key',
     incremental_strategy = 'merge',
     tags = ['snowflake', 'algorand', 'transactions', 'algorand_swaps']
 ) }}
@@ -76,7 +76,7 @@ receiver_pay AS(
         pt.sender AS pool_address,
         'ALGO' AS to_asset_name,
         0 AS to_asset_id,
-        amount AS swap_to_amount
+        ZEROIFNULL(amount) AS swap_to_amount
     FROM
         tinymanapp ta
         LEFT JOIN {{ ref('silver_algorand__payment_transaction') }}
@@ -95,11 +95,15 @@ receiver_asset AS (
         A.asset_name AS to_asset_name,
         pt.asset_id AS to_asset_id,
         CASE
-            WHEN A.decimals > 0 THEN asset_amount / pow(
-                10,
-                A.decimals
+            WHEN A.decimals > 0 THEN ZEROIFNULL(
+                asset_amount / pow(
+                    10,
+                    A.decimals
+                )
             )
-            ELSE asset_amount
+            ELSE ZEROIFNULL(
+                asset_amount
+            )
         END AS swap_to_amount
     FROM
         tinymanapp ta
@@ -139,6 +143,7 @@ all_receiver AS(
 SELECT
     ta.block_timestamp,
     ta.block_id AS block_id,
+    app_intra AS intra,
     ta.tx_group_id AS tx_group_id,
     app_id,
     als.swapper,
@@ -148,7 +153,12 @@ SELECT
     ars.pool_address AS pool_address,
     ars.to_asset_name,
     ars.to_asset_id AS swap_to_asset_id,
-    ars.swap_to_amount
+    ars.swap_to_amount,
+    concat_ws(
+        '-',
+        ta.block_id :: STRING,
+        app_intra :: STRING
+    ) AS _unique_key
 FROM
     tinymanapp ta
     LEFT JOIN all_sender als
