@@ -8,9 +8,7 @@
 WITH base_tables AS (
 
   SELECT
-    record_metadata,
-    record_content,
-    _inserted_timestamp
+    *
   FROM
     {{ source(
       'bronze',
@@ -39,59 +37,22 @@ WITH base_tables AS (
       ) }}
   )
 {% endif %}
-),
-
-terra_balance_dbt_table AS (
-  SELECT
-    t.value :address :: STRING AS address,
-    t.value :balance :: INT AS balance,
-    t.value :balance_type :: STRING AS balance_type,
-    t.value :block_id :: INT AS block_number,
-    t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
-    t.value :blockchain :: STRING AS blockchain,
-    t.value :currency :: STRING AS currency
-  FROM
-    base_tables,
-    LATERAL FLATTEN(
-      input => record_content :results
-    ) t
 )
 
-{% if is_incremental() %}
-
 SELECT
-  address,
-  balance,
-  balance_type,
-  block_number,
-  block_timestamp,
-  blockchain,
-  currency
-FROM terra_balance_dbt_table
-
-{% else %}
-
-SELECT
-  address,
-  balance,
-  balance_type,
-  block_number,
-  block_timestamp,
-  blockchain,
-  currency
-FROM terra_balance_dbt_table
-
-UNION ALL 
-
-SELECT 
-  address,
-  balance,
-  balance_type,
-  block_number,
-  block_timestamp,
-  'columbus-3' AS blockchain,
-  currency
-FROM {{ source('shared', 'terra_balances') }}
-WHERE date(block_timestamp) < '2020-10-04' AND block_number <= 3820000
-
-{% endif %}
+  (
+    record_metadata :CreateTime :: INT / 1000
+  ) :: TIMESTAMP AS system_created_at,
+  _inserted_timestamp,
+  t.value :address :: STRING AS address,
+  t.value :balance :: INT AS balance,
+  t.value :balance_type :: STRING AS balance_type,
+  t.value :block_id :: INT AS block_number,
+  t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
+  t.value :blockchain :: STRING AS blockchain,
+  t.value :currency :: STRING AS currency
+FROM
+  base_tables,
+  LATERAL FLATTEN(
+    input => record_content :results
+  ) t
