@@ -24,6 +24,7 @@ pactfi_app AS(
         act.intra,
         act.tx_group_id,
         block_timestamp,
+        act._INSERTED_TIMESTAMP,
         sender AS swapper,
         app_id,
         CASE
@@ -142,9 +143,24 @@ SELECT
         '-',
         pa.block_id :: STRING,
         pa.intra :: STRING
-    ) AS _unique_key
+    ) AS _unique_key,
+    pa._INSERTED_TIMESTAMP
 FROM
     pactfi_app pa
     LEFT JOIN from_swaps fs
     ON pa.tx_group_id = fs.tx_group_id
     AND pa.intra -1 = fs.intra
+WHERE
+    1 = 1
+
+{% if is_incremental() %}
+AND pa._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+)
+{% endif %}
+

@@ -12,6 +12,7 @@ WITH tinymanapp AS(
             tx_message :txn :apat [0] :: STRING
         ) AS swapper,
         tx_group_id AS tx_group_id,
+        _INSERTED_TIMESTAMP,
         block_timestamp,
         block_id,
         tx_id,
@@ -156,7 +157,8 @@ SELECT
         '-',
         ta.block_id :: STRING,
         app_intra :: STRING
-    ) AS _unique_key
+    ) AS _unique_key,
+    ta._INSERTED_TIMESTAMP
 FROM
     tinymanapp ta
     LEFT JOIN all_sender als
@@ -166,3 +168,13 @@ FROM
 WHERE
     ars.tx_group_id IS NOT NULL
     AND als.tx_group_id IS NOT NULL
+{% if is_incremental() %}
+AND ta._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+)
+{% endif %}
