@@ -6,6 +6,8 @@ models:
           combination_of_columns:
             - TX_ID
             - NF_TOKEN_ID
+      - sequence_gaps:
+          column_name: NF_TOKEN_ID
     columns:
       - name: BLOCKCHAIN
         tests:
