@@ -23,6 +23,7 @@ algofi_app AS(
         act.block_id,
         act.intra,
         act.tx_group_id,
+        act._INSERTED_TIMESTAMP,
         act.sender,
         act.block_timestamp,
         act.sender AS swapper,
@@ -158,6 +159,7 @@ allsfe AS(
         pa.block_id,
         pa.intra,
         pa.tx_group_id,
+        pa._INSERTED_TIMESTAMP,
         block_timestamp,
         pa.swapper,
         app_id,
@@ -180,6 +182,7 @@ algofi_appsef AS(
         act.block_id,
         act.intra,
         act.tx_group_id,
+        act._INSERTED_TIMESTAMP,
         act.block_timestamp,
         act.sender AS swapper,
         act.app_id,
@@ -299,6 +302,7 @@ allsef AS(
         pa.block_id,
         pa.intra,
         pa.tx_group_id,
+        pa._INSERTED_TIMESTAMP,
         block_timestamp,
         pa.swapper,
         app_id,
@@ -334,7 +338,8 @@ SELECT
         '-',
         block_id :: STRING,
         intra :: STRING
-    ) AS _unique_key
+    ) AS _unique_key,
+    _INSERTED_TIMESTAMP
 FROM
     allsef
 UNION
@@ -354,6 +359,20 @@ SELECT
         '-',
         block_id :: STRING,
         intra :: STRING
-    ) AS _unique_key
+    ) AS _unique_key,
+    _INSERTED_TIMESTAMP
 FROM
     allsfe
+WHERE
+    1 = 1
+
+{% if is_incremental() %}
+AND _INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+)
+{% endif %}
