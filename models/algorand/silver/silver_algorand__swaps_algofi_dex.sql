@@ -29,6 +29,10 @@ algofi_app AS(
         act.app_id,
         act.fee,
         CASE
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN asa.asset_name
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 'ALGO'
+        END AS to_asset_name,
+        CASE
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN act.tx_message :dt :itx [0] :txn :xaid :: NUMBER
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 0
         END AS swap_to_asset_id,
@@ -67,6 +71,7 @@ from_pay_swapssfe AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
+        'ALGO' AS from_asset_name,
         amount - ref.tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
             10,
             6
@@ -95,6 +100,7 @@ from_axfer_swapssfe AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
+        a2.asset_name AS from_asset_name,
         asset_amount / pow(
             10,
             A.decimals
@@ -148,9 +154,11 @@ allsfe AS(
         pa.swapper,
         app_id,
         fee,
+        to_asset_name,
         swap_to_asset_id,
         pool_address,
         swap_to_amount,
+        from_asset_name,
         from_asset_id,
         swap_from_amount
     FROM
@@ -168,6 +176,10 @@ algofi_appsef AS(
         act.sender AS swapper,
         act.app_id,
         act.fee,
+        CASE
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN asa.asset_name
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 'ALGO'
+        END AS to_asset_name,
         CASE
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN act.tx_message :dt :itx [0] :txn :xaid :: NUMBER
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 0
@@ -207,6 +219,7 @@ from_pay_swapssef AS(
     SELECT
         pt.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
+        'ALGO' AS from_asset_name,
         amount AS swap_from_amount,
         0 AS from_asset_id
     FROM
@@ -224,6 +237,7 @@ from_axfer_swapssef AS(
     SELECT
         pt.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
+        A.from_asset_name,
         asset_amount / pow(
             10,
             A.decimals
@@ -246,6 +260,7 @@ from_swapssef AS(
     SELECT
         tx_group_id,
         swapper,
+        from_asset_name,
         swap_from_amount,
         from_asset_id
     FROM
@@ -254,6 +269,7 @@ from_swapssef AS(
     SELECT
         tx_group_id,
         swapper,
+        from_asset_name,
         swap_from_amount,
         from_asset_id
     FROM
@@ -270,8 +286,10 @@ allsef AS(
         app_id,
         fee,
         pool_address,
+        to_asset_id,
         swap_to_asset_id,
         swap_to_amount,
+        from_asset_name,
         from_asset_id,
         swap_from_amount
     FROM
@@ -288,9 +306,11 @@ SELECT
     tx_group_id,
     app_id,
     swapper,
+    from_asset_name,
     from_asset_id,
     swap_from_amount,
     pool_address,
+    to_asset_name,
     swap_to_asset_id,
     swap_to_amount
 FROM
@@ -303,9 +323,11 @@ SELECT
     tx_group_id,
     app_id,
     swapper,
+    from_asset_name,
     from_asset_id,
     swap_from_amount,
     pool_address,
+    to_asset_name,
     swap_to_asset_id,
     swap_to_amount
 FROM

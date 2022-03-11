@@ -27,6 +27,10 @@ pactfi_app AS(
         sender AS swapper,
         app_id,
         CASE
+            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN asa.asset_name :: STRING
+            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 'ALGO'
+        END AS to_asset_name,
+        CASE
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN tx_message :dt :itx [0] :txn :xaid :: NUMBER
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 0
         END AS to_asset_id,
@@ -66,6 +70,7 @@ from_pay_swaps AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
+        'ALGO' AS from_asset_name,
         amount AS swap_from_amount,
         0 AS from_asset_id
     FROM
@@ -83,6 +88,7 @@ from_axfer_swaps AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
+        A.asset_name AS from_asset_name,
         asset_amount / pow(
             10,
             decimals
@@ -119,9 +125,11 @@ SELECT
     pa.tx_group_id AS tx_group_id,
     pa.app_id,
     fs.swapper,
+    fs.from_asset_name,
     fs.from_asset_id AS swap_from_asset_id,
     fs.swap_from_amount,
     pa.pool_address AS pool_address,
+    pa.to_asset_name,
     pa.to_asset_id AS swap_to_asset_id,
     pa.swap_to_amount
 FROM

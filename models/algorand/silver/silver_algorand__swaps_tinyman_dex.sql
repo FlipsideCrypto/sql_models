@@ -32,6 +32,7 @@ sender_pay AS (
     SELECT
         pt.tx_group_id,
         pt.sender AS swapper,
+        'ALGO' AS from_asset_name,
         0 AS from_asset_id,
         amount AS swap_from_amount
     FROM
@@ -48,6 +49,7 @@ sender_asset AS (
     SELECT
         pt.tx_group_id,
         pt.sender AS swapper,
+        A.asset_name AS from_asset_name,
         pt.asset_id AS from_asset_id,
         asset_amount / pow(
             10,
@@ -69,6 +71,7 @@ receiver_pay AS(
     SELECT
         pt.tx_group_id,
         pt.sender AS pool_address,
+        'ALGO' AS to_asset_name,
         0 AS to_asset_id,
         amount AS swap_to_amount
     FROM
@@ -86,6 +89,7 @@ receiver_asset AS (
     SELECT
         pt.tx_group_id,
         pt.sender AS pool_address,
+        A.asset_name AS to_asset_name,
         pt.asset_id AS to_asset_id,
         asset_amount / pow(
             10,
@@ -133,9 +137,11 @@ SELECT
     ta.tx_group_id AS tx_group_id,
     app_id,
     als.swapper,
+    als.from_asset_name,
     als.from_asset_id,
     als.swap_from_amount,
     ars.pool_address AS pool_address,
+    ars.to_asset_name,
     ars.to_asset_id,
     ars.swap_to_amount
 FROM
