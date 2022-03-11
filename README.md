@@ -6,6 +6,23 @@ The framework used to manage SQL table composition is [DBT](https://docs.getdbt.
 
 Project Docs: [sql-models.lab3547.com](http://sql-models.lab3547.com/#!/overview)
 
+## Upgrading to DBT Version 1.0 for Local Development
+We are now using DBT version 1.0 for this project.  Follow the instructions below for your operating system to upgrade your local development environment.
+
+**MacOS**
+If you originally installed dbt using home brew, upgrade it using the below command
+```
+brew update
+brew upgrade dbt-snowflake
+brew link --overwrite dbt-snowflake
+```
+
+**Windows**
+```
+pip install --upgrade dbt-core
+pip install --upgrade dbt-snowflake
+```
+
 ## Getting Started
 
 **Step1**: Install the DBT command line tool on your local machine. Instructions [here at DBT](https://docs.getdbt.com/dbt-cli/installation).
