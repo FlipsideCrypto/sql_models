@@ -82,6 +82,6 @@ models:
         description: "The contract address that is responsible for kicking off the transfer event, if applicable"
         tests:
           - dbt_expectations.expect_column_values_to_match_regex:
-              regex: terra[0-9a-zA-Z]{39,40}
+              regex: terra[0-9a-zA-Z]{39,40}|TERRA[0-9a-zA-Z]{39,40}
       - name: CONTRACT_LABEL
         description: "See Labels section for details"

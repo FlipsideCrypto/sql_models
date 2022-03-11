@@ -168,7 +168,6 @@ FROM
 WHERE
     ars.tx_group_id IS NOT NULL
     AND als.tx_group_id IS NOT NULL
-
 {% if is_incremental() %}
 AND ta._INSERTED_TIMESTAMP >= (
     SELECT
