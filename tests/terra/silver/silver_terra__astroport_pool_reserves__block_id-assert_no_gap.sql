@@ -1,0 +1,1 @@
+{{ sequence_gaps(ref('silver_terra__astroport_pool_reserves'), ["chain_id", "contract_address"], "block_id") }}
