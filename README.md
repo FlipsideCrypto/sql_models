@@ -22,6 +22,13 @@ brew link --overwrite dbt-snowflake
 pip install --upgrade dbt-core
 pip install --upgrade dbt-snowflake
 ```
+After running the upgrade commands, run `dbt --versions` to check you are now on v1.0
+
+For both systems you will need to re-run your dbt dependencies which will be installed in dbt_packages instead of dbt_modules
+
+```
+dbt deps
+```
 
 ## Getting Started
 
