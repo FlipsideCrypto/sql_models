@@ -325,11 +325,9 @@ SELECT
     tx_group_id,
     app_id,
     swapper,
-    from_asset_name,
     from_asset_id AS swap_from_asset_id,
     swap_from_amount,
     pool_address,
-    to_asset_name,
     swap_to_asset_id,
     swap_to_amount,
     concat_ws(
@@ -347,11 +345,9 @@ SELECT
     tx_group_id,
     app_id,
     swapper,
-    from_asset_name,
     from_asset_id AS swap_from_asset_id,
     swap_from_amount,
     pool_address,
-    to_asset_name,
     swap_to_asset_id,
     swap_to_amount,
     concat_ws(

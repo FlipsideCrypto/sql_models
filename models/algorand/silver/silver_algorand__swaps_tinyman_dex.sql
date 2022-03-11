@@ -147,11 +147,9 @@ SELECT
     ta.tx_group_id AS tx_group_id,
     app_id,
     als.swapper,
-    als.from_asset_name,
     als.from_asset_id AS swap_from_asset_id,
     als.swap_from_amount,
     ars.pool_address AS pool_address,
-    ars.to_asset_name,
     ars.to_asset_id AS swap_to_asset_id,
     ars.swap_to_amount,
     concat_ws(
