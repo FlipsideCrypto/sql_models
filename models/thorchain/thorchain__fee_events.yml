@@ -5,6 +5,9 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
+            - POOL_DEDUCT
+            - ASSET
+            - ASSET_E8
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -25,8 +28,8 @@ models:
         tests:
           - not_null
       - name: POOL_DEDUCT
-      tests:
-        - not_null
+        tests:
+          - not_null
       - name: ASSET_E8
         tests:
           - not_null

@@ -1,11 +1,12 @@
 version: 2
 models:
-  - name: thorchain__gas_events
+  - name: thorchain__block_pool_depths
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
+            - BLOCK_TIMESTAMP
             - BLOCK_ID
-            - ASSET
+            - POOL_NAME
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -19,15 +20,6 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: RUNE_E8
-        tests:
-          - not_null
-      - name: TX_COUNT
-        tests:
-          - not_null
-      - name: ASSET
-        tests:
-          - not_null
-      - name: ASSET_E8
+      - name: POOL_NAME
         tests:
           - not_null
