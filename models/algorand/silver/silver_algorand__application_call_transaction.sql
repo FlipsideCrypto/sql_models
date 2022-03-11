@@ -8,7 +8,6 @@
 WITH allTXN AS (
 
   SELECT
-    ab.block_timestamp AS block_timestamp,
     b.intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
@@ -48,9 +47,6 @@ WITH allTXN AS (
     ft
     ON b.round = ft.inner_round
     AND b.intra = ft.inner_intra
-    LEFT JOIN {{ ref('silver_algorand__block') }}
-    ab
-    ON b.round = ab.block_id
   WHERE
     tx_type = 'appl'
 
@@ -70,9 +66,9 @@ AND DATEADD(
 {% endif %}
 )
 SELECT
-  block_timestamp,
+  ab.block_timestamp,
   intra,
-  block_id,
+  b.block_id,
   tx_group_id,
   HEX_DECODE_STRING(
     tx_id
@@ -86,13 +82,13 @@ SELECT
   app_id,
   csv.type AS tx_type,
   csv.name AS tx_type_name,
-  genesis_hash,
+  b.genesis_hash,
   tx_message,
   extra,
   concat_ws(
     '-',
-    block_id :: STRING,
-    intra :: STRING
+    b.block_id :: STRING,
+    b.intra :: STRING
   ) AS _unique_key,
   b._INSERTED_TIMESTAMP
 FROM
@@ -100,3 +96,6 @@ FROM
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
+  LEFT JOIN {{ ref('silver_algorand__block') }}
+  ab
+  ON b.block_id = ab.block_id
