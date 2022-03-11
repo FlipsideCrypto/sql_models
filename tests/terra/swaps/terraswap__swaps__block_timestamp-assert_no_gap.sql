@@ -1,0 +1,1 @@
+{{ date_gaps(ref("terraswap__swaps"), [], "block_timestamp") }}

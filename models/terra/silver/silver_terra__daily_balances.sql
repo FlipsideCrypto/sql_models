@@ -3,7 +3,7 @@
   unique_key = 'date',
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
-  tags = ['snowflake', 'silver_terra', 'silver_terra__daily_balances']
+  tags = ['snowflake', 'terra_silver', 'silver_terra__daily_balances']
 ) }}
 
 with latest as (

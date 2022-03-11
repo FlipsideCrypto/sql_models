@@ -6,6 +6,8 @@ models:
           combination_of_columns:
             - TX_ID
             - LOG_INDEX
+      - date_gaps:
+           column_name: BLOCK_TIMESTAMP
     columns:
       - name: AMOUNT0
         tests:
