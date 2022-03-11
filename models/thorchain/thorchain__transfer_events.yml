@@ -1,11 +1,10 @@
 version: 2
 models:
-  - name: thorchain__bond_events
+  - name: thorchain__transfer_events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - EVENT_ID
-            - TX_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -22,15 +21,15 @@ models:
       - name: EVENT_ID
         tests:
           - not_null
-      - name: TX_ID
+      - name: ASSET
         tests:
           - not_null
-      - name: BOND_TYPE
+      - name: AMOUNT_E8
         tests:
           - not_null
-      - name: E8
+      - name: FROM_ADDRESS
         tests:
           - not_null
-      - name: ASSET_E8
+      - name: TO_ADDRESS
         tests:
           - not_null
