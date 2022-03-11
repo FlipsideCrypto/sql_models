@@ -3,7 +3,7 @@
   unique_key = "CONCAT_WS('-', date, address, currency)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['date'],
-  tags = ['snowflake', 'silver_terra', 'silver_terra__synthetic_balances']
+  tags = ['snowflake', 'terra_silver', 'silver_terra__synthetic_balances']
 ) }}
 
 WITH address_ranges AS (

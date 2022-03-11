@@ -190,7 +190,8 @@ FROM provide_msgs m
 JOIN provide_events e
   ON m.tx_id = e.tx_id
   AND m.msg_index = e.msg_index
-
+  AND token_0_amount IS NOT NULL
+  
 UNION
 
   -- Remove Liquidity
