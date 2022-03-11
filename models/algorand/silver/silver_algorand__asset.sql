@@ -13,7 +13,10 @@ SELECT
   params :t :: NUMBER AS total_supply,
   params :an :: STRING AS asset_name,
   params :au :: STRING AS asset_url,
-  params :dc AS decimals,
+  CASE
+    WHEN params :dc IS NULL THEN 0
+    WHEN params :dc IS NOT NULL THEN params :dc :: NUMBER
+  END AS decimals,
   deleted AS asset_deleted,
   closed_at AS closed_at,
   created_at AS created_at,
