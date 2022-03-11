@@ -37,10 +37,13 @@ algofi_app AS(
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 0
         END AS swap_to_asset_id,
         CASE
-            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
+            AND asa.decimals > 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
                 10,
                 asa.decimals
             )
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
+            AND asa.decimals = 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN act.tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
                 10,
                 6
@@ -101,13 +104,16 @@ from_axfer_swapssfe AS(
         pa.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
         a2.asset_name AS from_asset_name,
-        asset_amount / pow(
-            10,
-            A.decimals
-        ) - ref.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
-            10,
-            a2.decimals
-        ) AS swap_from_amount,
+        CASE
+            WHEN a2.decimals > 0 THEN asset_amount / pow(
+                10,
+                A.decimals
+            ) - ref.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+                10,
+                a2.decimals
+            )
+            WHEN a2.decimals = 0 THEN asset_amount - ref.tx_message :dt :itx [0] :txn :aamt :: NUMBER
+        END AS swap_from_amount,
         pt.asset_id AS from_asset_id
     FROM
         algofi_app pa
@@ -185,10 +191,13 @@ algofi_appsef AS(
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 0
         END AS swap_to_asset_id,
         CASE
-            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
+            AND asa.decimals > 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
                 10,
                 asa.decimals
             )
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
+            AND asa.decimals = 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN act.tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
                 10,
                 6
@@ -237,11 +246,14 @@ from_axfer_swapssef AS(
     SELECT
         pt.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
-        A.from_asset_name,
-        asset_amount / pow(
-            10,
-            A.decimals
-        ) AS swap_from_amount,
+        A.asset_name AS from_asset_name,
+        CASE
+            WHEN A.decimals > 0 THEN asset_amount / pow(
+                10,
+                A.decimals
+            )
+            ELSE asset_amount
+        END AS swap_from_amount,
         pt.asset_id AS from_asset_id
     FROM
         algofi_appsef pa
@@ -286,7 +298,7 @@ allsef AS(
         app_id,
         fee,
         pool_address,
-        to_asset_id,
+        to_asset_name,
         swap_to_asset_id,
         swap_to_amount,
         from_asset_name,
@@ -302,12 +314,11 @@ allsef AS(
 SELECT
     block_timestamp,
     block_id,
-    intra,
     tx_group_id,
     app_id,
     swapper,
     from_asset_name,
-    from_asset_id,
+    from_asset_id AS swap_from_asset_id,
     swap_from_amount,
     pool_address,
     to_asset_name,
@@ -319,12 +330,11 @@ UNION
 SELECT
     block_timestamp,
     block_id,
-    intra,
     tx_group_id,
     app_id,
     swapper,
     from_asset_name,
-    from_asset_id,
+    from_asset_id AS swap_from_asset_id,
     swap_from_amount,
     pool_address,
     to_asset_name,

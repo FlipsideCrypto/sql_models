@@ -35,10 +35,13 @@ pactfi_app AS(
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN 0
         END AS to_asset_id,
         CASE
-            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer' THEN tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
+            AND asa.decimals > 0 THEN tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
                 10,
                 asa.decimals
             )
+            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
+            AND asa.decimals = 0 THEN tx_message :dt :itx [0] :txn :aamt :: NUMBER
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
                 10,
                 6
@@ -89,10 +92,13 @@ from_axfer_swaps AS(
         pa.tx_group_id AS tx_group_id,
         pt.sender AS swapper,
         A.asset_name AS from_asset_name,
-        asset_amount / pow(
-            10,
-            decimals
-        ) AS from_amount,
+        CASE
+            WHEN decimals > 0 THEN asset_amount / pow(
+                10,
+                decimals
+            )
+            ELSE asset_amount
+        END AS from_amount,
         pt.asset_id AS from_asset_id
     FROM
         pactfi_app pa
@@ -121,7 +127,6 @@ from_swaps AS(
 SELECT
     pa.block_timestamp,
     pa.block_id AS block_id,
-    pa.intra AS intra,
     pa.tx_group_id AS tx_group_id,
     pa.app_id,
     fs.swapper,

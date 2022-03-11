@@ -5,9 +5,9 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - block_id
-            - intra
+            - tx_group_id
     columns:
-      - name: swaps_program
+      - name: swap_program
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
@@ -17,9 +17,6 @@ models:
               datepart: day
               interval: 1
       - name: BLOCK_ID
-        tests:
-          - not_null
-      - name: INTRA
         tests:
           - not_null
       - name: tx_group_id

@@ -26,7 +26,7 @@ WITH tinymanapp AS(
         )
         AND TRY_BASE64_DECODE_STRING(
             tx_message :txn :apaa [0] :: STRING
-        ) = 'swap' ---get pool asset_id as well
+        ) = 'swap'
 ),
 sender_pay AS (
     SELECT
@@ -51,10 +51,13 @@ sender_asset AS (
         pt.sender AS swapper,
         A.asset_name AS from_asset_name,
         pt.asset_id AS from_asset_id,
-        asset_amount / pow(
-            10,
-            A.decimals
-        ) AS swap_from_amount
+        CASE
+            WHEN A.decimals > 0 THEN asset_amount / pow(
+                10,
+                A.decimals
+            )
+            ELSE asset_amount
+        END AS swap_from_amount
     FROM
         tinymanapp ta
         LEFT JOIN {{ ref('silver_algorand__asset_transfer_transaction') }}
@@ -91,10 +94,13 @@ receiver_asset AS (
         pt.sender AS pool_address,
         A.asset_name AS to_asset_name,
         pt.asset_id AS to_asset_id,
-        asset_amount / pow(
-            10,
-            A.decimals
-        ) AS swap_to_amount
+        CASE
+            WHEN A.decimals > 0 THEN asset_amount / pow(
+                10,
+                A.decimals
+            )
+            ELSE asset_amount
+        END AS swap_to_amount
     FROM
         tinymanapp ta
         LEFT JOIN {{ ref('silver_algorand__asset_transfer_transaction') }}
@@ -133,16 +139,15 @@ all_receiver AS(
 SELECT
     ta.block_timestamp,
     ta.block_id AS block_id,
-    ta.app_intra AS intra,
     ta.tx_group_id AS tx_group_id,
     app_id,
     als.swapper,
     als.from_asset_name,
-    als.from_asset_id,
+    als.from_asset_id AS swap_from_asset_id,
     als.swap_from_amount,
     ars.pool_address AS pool_address,
     ars.to_asset_name,
-    ars.to_asset_id,
+    ars.to_asset_id AS swap_to_asset_id,
     ars.swap_to_amount
 FROM
     tinymanapp ta

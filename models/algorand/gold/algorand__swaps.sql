@@ -5,9 +5,8 @@
 
 SELECT
     'tinyman' AS swap_program,
-    pa.block_timestamp,
+    block_timestamp,
     block_id,
-    intra,
     tx_group_id,
     app_id,
     swapper,
@@ -23,9 +22,8 @@ FROM
 UNION
 SELECT
     'algofi' AS swap_program,
-    pa.block_timestamp,
+    block_timestamp,
     block_id,
-    intra,
     tx_group_id,
     app_id,
     swapper,
@@ -41,9 +39,8 @@ FROM
 UNION
 SELECT
     'pactfi' AS swap_program,
-    pa.block_timestamp,
+    block_timestamp,
     block_id,
-    intra,
     tx_group_id,
     app_id,
     swapper,
