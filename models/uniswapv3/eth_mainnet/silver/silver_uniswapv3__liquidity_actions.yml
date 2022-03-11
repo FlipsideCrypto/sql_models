@@ -5,6 +5,8 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
+      - date_gaps:
+           column_name: BLOCK_TIMESTAMP
     columns:
       - name: ACTION
         tests:
