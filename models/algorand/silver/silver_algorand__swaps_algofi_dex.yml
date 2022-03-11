@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_algorand__swaps_pactfi_dex
+  - name: silver_algorand__swaps_algofi_dex
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
