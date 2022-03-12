@@ -23,6 +23,11 @@ models:
         description: the timestamp this transaction get generated
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+              enabled: False
+              # Disabling this test because we're missing Col-5 transactions
       - name: TX_ID
         description: the unique identifier to find this transaction 
         tests:

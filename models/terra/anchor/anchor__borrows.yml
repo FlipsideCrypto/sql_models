@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - AMOUNT
     columns:
       - name: BLOCKCHAIN
         description: the blockchain this transaction sit on
