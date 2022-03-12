@@ -151,3 +151,14 @@ sources:
     tables:
       - name: solana_blocks
       - name: solana_txs
+  - name: solana
+    database: solana
+    schema: core
+    tables:
+      - name: fact_transactions
+      - name: fact_events
+      - name: fact_transfers
+      - name: fact_swaps
+      - name: fact_votes_agg_block
+      - name: fact_stakiing_lp_actions
+      - name: dim_labels
