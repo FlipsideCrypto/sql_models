@@ -1,11 +1,13 @@
 version: 2
 models:
-  - name: thorchain__gas_events
+  - name: thorchain__pool_balance_change_events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
             - ASSET
+            - RUNE_AMOUNT
+            - ASSET_AMOUNT
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -17,17 +19,5 @@ models:
         tests:
           - not_null
       - name: BLOCK_ID
-        tests:
-          - not_null
-      - name: RUNE_E8
-        tests:
-          - not_null
-      - name: TX_COUNT
-        tests:
-          - not_null
-      - name: ASSET
-        tests:
-          - not_null
-      - name: ASSET_E8
         tests:
           - not_null
