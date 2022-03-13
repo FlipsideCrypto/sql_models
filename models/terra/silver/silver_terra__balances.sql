@@ -1,8 +1,8 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'date',
+  unique_key = 'block_timestamp::date',
   incremental_strategy = 'delete+insert',
-  cluster_by = ['date'],
+  cluster_by = ['block_timestamp::date'],
   tags = ['snowflake', 'silver_terra', 'balances']
 ) }}
 
@@ -23,7 +23,7 @@
       SELECT MAX(_inserted_timestamp)
       FROM {{ this }}
   )
-  qualify(ROW_NUMBER() over(PARTITION BY chain_id, block_id
+  qualify(ROW_NUMBER() over(PARTITION BY blockchain, block_number, currency
   ORDER BY
     system_created_at DESC)) = 1
 {% else %}
@@ -36,7 +36,7 @@
     blockchain,
     currency
   FROM {{ ref('terra_dbt__balances')}}
-  qualify(ROW_NUMBER() over(PARTITION BY chain_id, block_id
+  qualify(ROW_NUMBER() over(PARTITION BY blockchain, block_number, currency
   ORDER BY
     system_created_at DESC)) = 1
 
