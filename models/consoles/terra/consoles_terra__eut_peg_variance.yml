@@ -7,6 +7,12 @@ models:
             - DATE
             - CURRENCY
     columns:
+      - name: DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 7
       - name: CURRENCY
         tests:
           - not_null
