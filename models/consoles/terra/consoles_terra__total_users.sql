@@ -1,5 +1,6 @@
 {{ config(
   materialized = 'view',
+  unique_key = 'date',
   tags = ['snowflake', 'terra', 'console', 'terra_total_users']
 ) }}
 
