@@ -45,7 +45,7 @@ SELECT
   ) :: TIMESTAMP AS system_created_at,
   _inserted_timestamp,
   t.value :address :: STRING AS address,
-  t.value :balance :: INT AS balance,
+  t.value :balance :: FLOAT AS balance,
   t.value :balance_type :: STRING AS balance_type,
   t.value :block_id :: INT AS block_number,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
