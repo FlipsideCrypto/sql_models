@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = "CONCAT_WS('-', block_id, tx_id)",
+  unique_key = "CONCAT_WS('-', block_id, tx_id, msg_index)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::DATE'],
   tags = ['snowflake', 'terra', 'anchor', 'borrows', 'address_labels']
@@ -42,6 +42,7 @@ SELECT
   block_id,
   block_timestamp,
   tx_id,
+  msg_index,
   msg_value :sender :: STRING AS sender,
   msg_value :execute_msg :borrow_stable :borrow_amount / pow(
     10,
