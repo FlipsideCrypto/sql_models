@@ -50,10 +50,7 @@ NEW AS (
     balance_type,
     1 AS RANK
   FROM
-    {{ source(
-      'shared',
-      'terra_balances'
-    ) }}
+    {{ ref('silver_terra__balances') }}
   WHERE
   block_timestamp :: DATE >= (
     SELECT
@@ -111,7 +108,7 @@ FROM
 SELECT
   block_timestamp, address, currency, balance_type, blockchain, balance
 FROM
-  {{ source('shared', 'terra_balances') }}
+  {{ ref('silver_terra__balances') }}
 {% endif %}),
 
 address_ranges AS (
