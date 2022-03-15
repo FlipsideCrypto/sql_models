@@ -7,6 +7,7 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - POLL_ID
     columns:
       - name: BLOCKCHAIN
         tests:
@@ -22,7 +23,8 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 1
+              interval: 1 #Votes do not happen daily
+              enabled: False
       - name: TX_ID
         tests:
           - not_null

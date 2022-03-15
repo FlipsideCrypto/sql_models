@@ -76,7 +76,7 @@ msgs AS (
     msg_value :sender :: STRING AS sender,
     msg_value :contract :: STRING AS contract_address
   FROM
-    terra.msgs
+    {{ ref('silver_terra__msgs') }}
   WHERE
     msg_value :execute_msg :withdraw_voting_rewards IS NOT NULL
 
@@ -105,8 +105,9 @@ events AS (
     JOIN msgs m
     ON m.tx_id = e.tx_id
   WHERE
-    event_attributes :"0_action" = 'withdraw'
-    AND event_type = 'from_contract'
+     event_attributes :"0_action" = 'withdraw_voting_rewards'
+     and event_type = 'from_contract'
+     and event_attributes :"0_contract_address" = 'terra1wh39swv7nq36pnefnupttm2nr96kz7jjddyt2x'
 {% if is_incremental() %}
 AND e.block_timestamp :: DATE >= (
   SELECT
