@@ -52,6 +52,9 @@
     currency
   FROM {{ source('shared', 'terra_balances') }}
   WHERE date(block_timestamp) < '2020-10-04' AND block_number <= 3820000
+  qualify(ROW_NUMBER() over(PARTITION BY blockchain, block_number, currency
+  ORDER BY
+    system_created_at DESC)) = 1
 {% endif %}
 
 
