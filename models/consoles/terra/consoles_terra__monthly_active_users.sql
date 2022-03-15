@@ -1,7 +1,7 @@
 {{ config(
   materialized = 'view',
   unique_key = 'MONTH',
-  tags = ['snowflake', 'terra', 'console', 'terra_total_users']
+  tags = ['snowflake', 'terra', 'console', 'terra_monthly_active_users']
 ) }}
 
 
