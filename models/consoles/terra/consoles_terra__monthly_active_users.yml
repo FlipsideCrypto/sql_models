@@ -8,12 +8,12 @@ models:
             - MONTH
             - ACTIVE_USERS
     columns:
-      # - name: MONTH
-      #   tests:
-      #     - not_null
-      #     - dbt_expectations.expect_row_values_to_have_recent_data:
-      #         datepart: month
-      #         interval: 1
+      - name: TEST_MONTH
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: month
+              interval: 2
       - name: ACTIVE_USERS
         tests:
           - not_null

@@ -104,6 +104,7 @@ monthly_unique as (
 
 SELECT
     TO_CHAR("MONTH",'mon yyyy') as "MONTH", 
+    "MONTH" AS "TEST_MONTH",
     "ACTIVE_USERS"
 FROM
     monthly_unique
