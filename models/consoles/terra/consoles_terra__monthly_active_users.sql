@@ -1,6 +1,8 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'table',
   unique_key = 'MONTH',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['MONTH'],
   tags = ['snowflake', 'terra', 'console', 'terra_monthly_active_users']
 ) }}
 
@@ -69,6 +71,10 @@ WITH active_wallets AS (
         )
       AND regexp_like(address, 'terra1[a-z0-9]{38}') -- https://docs.terra.money/docs/develop/sdks/terra-js/common-examples.html#validate-a-terra-address
 
+{% if is_incremental() %}
+  AND block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
+
 ),
 
 active_wallets_multisend AS (
@@ -76,7 +82,7 @@ active_wallets_multisend AS (
   SELECT
     	 date_trunc('month', block_timestamp) as date,
     	 value:address as address
-  FROM {{ ref('terra__msgs') }}
+  FROM {{ ref('terra__msgs') }} 
   , lateral flatten(input => msg_value:inputs)
   WHERE tx_status = 'SUCCEEDED'
     AND address IS NOT NULL
@@ -84,6 +90,10 @@ active_wallets_multisend AS (
     AND date < date_trunc('month',CURRENT_DATE)
     AND msg_type = 'bank/MsgMultiSend'
     AND regexp_like(address,'terra1[a-z0-9]{38}')
+
+{% if is_incremental() %}
+  AND block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
 
 ),
 
