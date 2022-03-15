@@ -33,7 +33,7 @@ WHERE
 {% if is_incremental() %}
   block_timestamp >= getdate() - interval '7 days'
 {% else %}
-  block_timestamp >= getdate() - interval '9 months'
+  TRUE
 {% endif %}
 
 
