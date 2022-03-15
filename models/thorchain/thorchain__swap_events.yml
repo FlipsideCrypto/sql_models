@@ -7,6 +7,9 @@ models:
             - BLOCK_TIMESTAMP
             - BLOCK_ID
             - TX_ID
+            - POOL_NAME
+            - FROM_ASSET
+            - TO_ASSET
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
