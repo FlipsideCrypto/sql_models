@@ -20,7 +20,7 @@
             {% if is_incremental() %}
             hour >= getdate() - interval '{{incremental_days}}'
             {% else %}
-            hour >= getdate() - interval '{{full_refresh_days}}'
+            TRUE
             {% endif %}
         ) sq
         WHERE 

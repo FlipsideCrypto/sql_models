@@ -49,9 +49,9 @@ ON prices_1.hour = date_trunc('day', swaps.block_timestamp) AND p.token1 = price
 
 WHERE
 {% if is_incremental() %}
-  swaps.block_timestamp >= getdate() - interval '7 days'
+  block_timestamp >= getdate() - interval '7 days'
 {% else %}
-  swaps.block_timestamp >= getdate() - interval '9 months'
+  TRUE
 {% endif %}
 
 {%- endmacro %}

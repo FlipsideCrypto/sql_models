@@ -117,8 +117,8 @@ FROM
 WHERE
 
 {% if is_incremental() %}
-A.block_timestamp >= getdate() - INTERVAL '7 days'
+  block_timestamp >= getdate() - interval '7 days'
 {% else %}
-  A.block_timestamp >= getdate() - INTERVAL '9 months'
+  TRUE
 {% endif %}
 {%- endmacro %}
