@@ -1,0 +1,1 @@
+{{ null_threshold(ref('anchor__repay'), "borrower", 0.9) }}

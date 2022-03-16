@@ -1,0 +1,1 @@
+{{ date_gaps(ref("anchor__collateral"), [], "block_timestamp") }}
