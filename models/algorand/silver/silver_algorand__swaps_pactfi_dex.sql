@@ -135,7 +135,7 @@ SELECT
     pa.app_id,
     fs.swapper,
     fs.from_asset_id AS swap_from_asset_id,
-    fs.swap_from_amount :: DECIMAL AS from_to_amount,
+    fs.swap_from_amount :: DECIMAL AS swap_from_amount,
     pa.pool_address AS pool_address,
     pa.to_asset_id AS swap_to_asset_id,
     pa.swap_to_amount :: DECIMAL AS swap_to_amount,
