@@ -351,10 +351,10 @@ SELECT
     app_id,
     swapper,
     from_asset_id AS swap_from_asset_id,
-    swap_from_amount,
+    swap_from_amount :: DECIMAL AS swap_from_amount,
     pool_address,
     swap_to_asset_id,
-    swap_to_amount,
+    swap_to_amount :: DECIMAL AS swap_to_amount,
     concat_ws(
         '-',
         block_id :: STRING,
@@ -376,4 +376,3 @@ AND _INSERTED_TIMESTAMP >= (
         {{ this }}
 )
 {% endif %}
-

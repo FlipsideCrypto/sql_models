@@ -5,20 +5,16 @@
     tags = ['snowflake', 'algorand', 'transactions', 'algorand_swaps']
 ) }}
 
-WITH pact_app_ids AS (
+WITH wagmi_app_ids AS (
 
     SELECT
-        DISTINCT tx_message :txn :apid :: NUMBER AS app_id
+        DISTINCT app_id AS app_id
     FROM
-        {{ ref('silver_algorand__transactions') }}
+        {{ ref('silver_algorand__app') }}
     WHERE
-        inner_tx = 'FALSE'
-        AND tx_message :dt :itx [0] :txn :type :: STRING = 'acfg'
-        AND tx_message :dt :itx [0] :txn :apar :an :: STRING LIKE '%PACT LP Token'
-        AND tx_message :dt :itx [0] :txn :apar :au :: STRING = 'https://pact.fi/'
-        AND block_timestamp > '2022-02-02'
+        creator_address = 'DKUK6HUCW4USCSMWJQN5JL2GII52QPRGGNJZG6F2TLLWKWJ4XDV2YYOBKA'
 ),
-pactfi_app AS(
+wagmi_app AS(
     SELECT
         act.block_id,
         act.intra,
@@ -58,40 +54,39 @@ pactfi_app AS(
         asa
         ON act.tx_message :dt :itx [0] :txn :xaid :: NUMBER = asa.asset_id
     WHERE
-        block_timestamp :: DATE > '2022-02-01'
-        AND app_id IN (
+        app_id IN (
             SELECT
                 app_id
             FROM
-                pact_app_ids
+                wagmi_app_ids
         )
         AND TRY_BASE64_DECODE_STRING(
             tx_message :txn :apaa [0] :: STRING
-        ) = 'SWAP'
+        ) ILIKE 'swap'
         AND inner_tx = 'FALSE'
 ),
 from_pay_swaps AS(
     SELECT
-        pa.tx_group_id AS tx_group_id,
+        wa.tx_group_id AS tx_group_id,
         pt.intra,
         pt.sender AS swapper,
         'ALGO' AS from_asset_name,
         amount AS swap_from_amount,
         0 AS from_asset_id
     FROM
-        pactfi_app pa
+        wagmi_app wa
         LEFT JOIN {{ ref('silver_algorand__payment_transaction') }}
         pt
-        ON pa.tx_group_id = pt.tx_group_id
-        AND pa.swapper = pt.sender
-        AND pa.intra -1 = pt.intra
+        ON wa.tx_group_id = pt.tx_group_id
+        AND wa.swapper = pt.sender
+        AND wa.intra -1 = pt.intra
     WHERE
         pt.inner_tx = 'FALSE'
         AND pt.tx_group_id IS NOT NULL
 ),
 from_axfer_swaps AS(
     SELECT
-        pa.tx_group_id AS tx_group_id,
+        wa.tx_group_id AS tx_group_id,
         pt.intra,
         pt.sender AS swapper,
         A.asset_name AS from_asset_name,
@@ -104,17 +99,17 @@ from_axfer_swaps AS(
         END AS from_amount,
         pt.asset_id AS from_asset_id
     FROM
-        pactfi_app pa
+        wagmi_app wa
         LEFT JOIN {{ ref('silver_algorand__asset_transfer_transaction') }}
         pt
-        ON pa.tx_group_id = pt.tx_group_id
-        AND pa.intra -1 = pt.intra
+        ON wa.tx_group_id = pt.tx_group_id
+        AND wa.intra -1 = pt.intra
         LEFT JOIN {{ ref('silver_algorand__asset') }} A
         ON pt.asset_id = A.asset_id
     WHERE
         pt.inner_tx = 'FALSE'
         AND pt.tx_group_id IS NOT NULL
-        AND pa.swapper = pt.sender
+        AND wa.swapper = pt.sender
 ),
 from_swaps AS(
     SELECT
@@ -128,33 +123,33 @@ from_swaps AS(
         from_axfer_swaps
 )
 SELECT
-    pa.block_timestamp,
-    pa.block_id AS block_id,
-    pa.intra AS intra,
-    pa.tx_group_id AS tx_group_id,
-    pa.app_id,
+    wa.block_timestamp,
+    wa.block_id AS block_id,
+    wa.intra AS intra,
+    wa.tx_group_id AS tx_group_id,
+    wa.app_id,
     fs.swapper,
     fs.from_asset_id AS swap_from_asset_id,
-    fs.swap_from_amount :: DECIMAL AS from_to_amount,
-    pa.pool_address AS pool_address,
-    pa.to_asset_id AS swap_to_asset_id,
-    pa.swap_to_amount :: DECIMAL AS swap_to_amount,
+    fs.swap_from_amount :: DECIMAL AS swap_from_amount,
+    wa.pool_address AS pool_address,
+    wa.to_asset_id AS swap_to_asset_id,
+    wa.swap_to_amount :: DECIMAL AS swap_to_amount,
     concat_ws(
         '-',
-        pa.block_id :: STRING,
-        pa.intra :: STRING
+        wa.block_id :: STRING,
+        wa.intra :: STRING
     ) AS _unique_key,
-    pa._INSERTED_TIMESTAMP
+    wa._INSERTED_TIMESTAMP
 FROM
-    pactfi_app pa
+    wagmi_app wa
     LEFT JOIN from_swaps fs
-    ON pa.tx_group_id = fs.tx_group_id
-    AND pa.intra -1 = fs.intra
+    ON wa.tx_group_id = fs.tx_group_id
+    AND wa.intra -1 = fs.intra
 WHERE
     1 = 1
 
 {% if is_incremental() %}
-AND pa._INSERTED_TIMESTAMP >= (
+AND wa._INSERTED_TIMESTAMP >= (
     SELECT
         MAX(
             _INSERTED_TIMESTAMP

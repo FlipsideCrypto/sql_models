@@ -149,10 +149,10 @@ SELECT
     app_id,
     als.swapper,
     als.from_asset_id AS swap_from_asset_id,
-    als.swap_from_amount,
+    als.swap_from_amount :: DECIMAL AS swap_from_amount,
     ars.pool_address AS pool_address,
     ars.to_asset_id AS swap_to_asset_id,
-    ars.swap_to_amount,
+    ars.swap_to_amount :: DECIMAL AS swap_to_amount,
     concat_ws(
         '-',
         ta.block_id :: STRING,
@@ -168,6 +168,7 @@ FROM
 WHERE
     ars.tx_group_id IS NOT NULL
     AND als.tx_group_id IS NOT NULL
+
 {% if is_incremental() %}
 AND ta._INSERTED_TIMESTAMP >= (
     SELECT
