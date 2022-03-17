@@ -117,7 +117,7 @@ FROM
 WHERE
 
 {% if is_incremental() %}
-  block_timestamp >= getdate() - interval '7 days'
+  A.block_timestamp >= getdate() - interval '7 days'
 {% else %}
   TRUE
 {% endif %}

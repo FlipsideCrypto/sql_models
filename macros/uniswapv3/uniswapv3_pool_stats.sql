@@ -59,7 +59,7 @@ LEFT OUTER JOIN prices prices_0
 
 WHERE
 {% if is_incremental() %}
-  block_timestamp >= getdate() - interval '7 days'
+  stats.block_timestamp >= getdate() - interval '7 days'
 {% else %}
   TRUE
 {% endif %}
