@@ -8,6 +8,8 @@ models:
             - POOL_NAME
             - FROM_AMOUNT
             - TO_AMOUNT
+            - FROM_ASSET
+            - TO_ASSET
     columns:
       - name: BLOCK_ID
         tests:
@@ -17,7 +19,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 2
+              interval: 3
       - name: TX_ID
         tests:
           - not_null
