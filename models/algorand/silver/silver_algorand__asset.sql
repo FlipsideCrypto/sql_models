@@ -18,8 +18,8 @@ WITH asset_config AS(
   FROM
     {{ ref('silver_algorand__asset_configuration_transaction') }}
   WHERE
-    tx_message :caid :: NUMBER IS NULL
-    AND asset_parameters :an :: STRING IS NOT NULL
+    asset_parameters :an :: STRING IS NOT NULL
+    AND asset_parameters :t :: NUMBER IS NOT NULL
     AND asset_parameters IS NOT NULL
 )
 SELECT
