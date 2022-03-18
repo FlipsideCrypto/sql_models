@@ -53,11 +53,11 @@ sender_asset AS (
         A.asset_name AS from_asset_name,
         pt.asset_id AS from_asset_id,
         CASE
-            WHEN A.decimals > 0 THEN asset_amount / pow(
+            WHEN A.decimals > 0 THEN asset_amount :: FLOAT / pow(
                 10,
                 A.decimals
             )
-            ELSE asset_amount
+            ELSE asset_amount :: FLOAT
         END AS swap_from_amount
     FROM
         tinymanapp ta
@@ -97,7 +97,7 @@ receiver_asset AS (
         pt.asset_id AS to_asset_id,
         CASE
             WHEN A.decimals > 0 THEN ZEROIFNULL(
-                asset_amount / pow(
+                asset_amount :: FLOAT / pow(
                     10,
                     A.decimals
                 )
@@ -149,10 +149,10 @@ SELECT
     app_id,
     als.swapper,
     als.from_asset_id AS swap_from_asset_id,
-    als.swap_from_amount,
+    als.swap_from_amount :: FLOAT AS swap_from_amount,
     ars.pool_address AS pool_address,
-    ars.to_asset_id AS swap_to_asset_id,
-    ars.swap_to_amount,
+    ars.to_asset_id :: FLOAT AS swap_to_asset_id,
+    ars.swap_to_amount AS swap_to_amount,
     concat_ws(
         '-',
         ta.block_id :: STRING,
@@ -168,6 +168,7 @@ FROM
 WHERE
     ars.tx_group_id IS NOT NULL
     AND als.tx_group_id IS NOT NULL
+
 {% if is_incremental() %}
 AND ta._INSERTED_TIMESTAMP >= (
     SELECT
