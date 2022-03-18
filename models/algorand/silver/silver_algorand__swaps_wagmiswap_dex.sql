@@ -33,13 +33,13 @@ wagmi_app AS(
         END AS to_asset_id,
         CASE
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals > 0 THEN tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            AND asa.decimals > 0 THEN tx_message :dt :itx [0] :txn :aamt :: FLOAT / pow(
                 10,
                 asa.decimals
             )
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals = 0 THEN tx_message :dt :itx [0] :txn :aamt :: NUMBER
-            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
+            AND asa.decimals = 0 THEN tx_message :dt :itx [0] :txn :aamt :: FLOAT
+            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN tx_message :dt :itx [0] :txn :amt :: FLOAT / pow(
                 10,
                 6
             )
@@ -130,10 +130,10 @@ SELECT
     wa.app_id,
     fs.swapper,
     fs.from_asset_id AS swap_from_asset_id,
-    fs.swap_from_amount :: DECIMAL AS swap_from_amount,
+    fs.swap_from_amount :: FLOAT AS swap_from_amount,
     wa.pool_address AS pool_address,
     wa.to_asset_id AS swap_to_asset_id,
-    wa.swap_to_amount :: DECIMAL AS swap_to_amount,
+    wa.swap_to_amount :: FLOAT AS swap_to_amount,
     concat_ws(
         '-',
         wa.block_id :: STRING,
