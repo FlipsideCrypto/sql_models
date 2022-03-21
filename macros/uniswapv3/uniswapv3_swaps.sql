@@ -51,7 +51,7 @@ WHERE
 {% if is_incremental() %}
   swaps.block_timestamp >= getdate() - interval '7 days'
 {% else %}
-  swaps.block_timestamp >= getdate() - interval '9 months'
+  TRUE
 {% endif %}
 
 {%- endmacro %}

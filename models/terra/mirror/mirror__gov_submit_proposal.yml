@@ -23,6 +23,7 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 8 #propsosals are not submitted daily
+              enabled: False
       - name: TX_ID
         tests:
           - not_null

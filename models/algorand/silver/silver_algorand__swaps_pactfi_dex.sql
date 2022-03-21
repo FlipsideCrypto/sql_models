@@ -37,20 +37,20 @@ pactfi_app AS(
         END AS to_asset_id,
         CASE
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals > 0 THEN tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            AND asa.decimals > 0 THEN tx_message :dt :itx [0] :txn :aamt :: FLOAT / pow(
                 10,
                 asa.decimals
             )
             WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals = 0 THEN tx_message :dt :itx [0] :txn :aamt :: NUMBER
-            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
+            AND asa.decimals = 0 THEN tx_message :dt :itx [0] :txn :aamt :: FLOAT
+            WHEN tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN tx_message :dt :itx [0] :txn :amt :: FLOAT / pow(
                 10,
                 6
             )
         END AS swap_to_amount,
         algorand_decode_b64_addr(
             tx_message :dt :itx [0] :txn :snd :: STRING
-        ) AS pool_address --:dt:itx:txn:type:xaid::number
+        ) AS pool_address
     FROM
         {{ ref('silver_algorand__application_call_transaction') }}
         act
@@ -96,11 +96,11 @@ from_axfer_swaps AS(
         pt.sender AS swapper,
         A.asset_name AS from_asset_name,
         CASE
-            WHEN decimals > 0 THEN asset_amount / pow(
+            WHEN decimals > 0 THEN asset_amount :: FLOAT / pow(
                 10,
                 decimals
             )
-            ELSE asset_amount
+            ELSE asset_amount :: FLOAT
         END AS from_amount,
         pt.asset_id AS from_asset_id
     FROM
@@ -109,12 +109,12 @@ from_axfer_swaps AS(
         pt
         ON pa.tx_group_id = pt.tx_group_id
         AND pa.intra -1 = pt.intra
+        AND pa.swapper = pt.sender
         LEFT JOIN {{ ref('silver_algorand__asset') }} A
         ON pt.asset_id = A.asset_id
     WHERE
         pt.inner_tx = 'FALSE'
         AND pt.tx_group_id IS NOT NULL
-        AND pa.swapper = pt.sender
 ),
 from_swaps AS(
     SELECT
@@ -135,10 +135,10 @@ SELECT
     pa.app_id,
     fs.swapper,
     fs.from_asset_id AS swap_from_asset_id,
-    fs.swap_from_amount,
+    fs.swap_from_amount :: FLOAT AS swap_from_amount,
     pa.pool_address AS pool_address,
     pa.to_asset_id AS swap_to_asset_id,
-    pa.swap_to_amount,
+    pa.swap_to_amount :: FLOAT AS swap_to_amount,
     concat_ws(
         '-',
         pa.block_id :: STRING,
@@ -163,4 +163,3 @@ AND pa._INSERTED_TIMESTAMP >= (
         {{ this }}
 )
 {% endif %}
-
