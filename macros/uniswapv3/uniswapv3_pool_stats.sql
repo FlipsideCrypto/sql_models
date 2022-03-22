@@ -61,7 +61,7 @@ WHERE
 {% if is_incremental() %}
   stats.block_timestamp >= getdate() - interval '7 days'
 {% else %}
-  stats.block_timestamp >= getdate() - interval '9 months'
+  TRUE
 {% endif %}
 
 -- usd price will be added in later version (V2)

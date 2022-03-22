@@ -237,11 +237,12 @@ msg_actions AS (
   msg_value,
   tx_status,
   msg_index::NUMERIC AS msg_index,
-  OBJECT_KEYS(msg_value:execute_msg)[0]::STRING AS execute_msg_type,
+  f.key AS execute_msg_type,
   msg_value:contract::STRING AS contract,
   REGEXP_SUBSTR(msg_type,'[A-z]*$') AS parsed_type,
   COALESCE(execute_msg_type,parsed_type) AS label
-  FROM {{ ref('silver_terra__msgs') }}
+  FROM {{ ref('silver_terra__msgs') }},
+  lateral flatten(msg_value:execute_msg) f
   WHERE tx_id IN (SELECT tx_id FROM all_xfers)
   AND tx_status ='SUCCEEDED'
 

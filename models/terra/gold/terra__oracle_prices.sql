@@ -56,7 +56,7 @@ luna_rate AS (
     event = 'exchange_rate_update'
 
 {% if is_incremental() %}
-  AND block_timestamp >= getdate() - INTERVAL '1 days'
+  AND block_timestamp >= getdate() - INTERVAL '3 days'
 {% endif %}
 
 ),
@@ -76,7 +76,7 @@ WHERE asset_id IN('pylon-protocol',
                   '10767')
 
 {% if is_incremental() %}
-AND recorded_at >= getdate() - INTERVAL '1 days'
+AND recorded_at >= getdate() - INTERVAL '3 days'
 {% endif %}
 
 GROUP BY 1,
@@ -99,7 +99,7 @@ WHERE msg_value :execute_msg :feed_price IS NOT NULL
 AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-  AND block_timestamp >= getdate() - INTERVAL '1 days'
+  AND block_timestamp >= getdate() - INTERVAL '3 days'
 {% endif %}
 GROUP BY 1,2,3
 )

@@ -1,0 +1,1 @@
+{{ date_gaps(ref("anchor__reward_claims"), [], "block_timestamp") }}

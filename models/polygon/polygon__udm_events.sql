@@ -8,24 +8,15 @@
 
 WITH token_prices AS (
 
-    SELECT
-        p.symbol,
-        DATE_TRUNC('hour',recorded_at) AS HOUR,
-        LOWER(A.token_address) AS token_address,
-        AVG(price) AS price
-    FROM
-        {{ source('shared','prices_v2') }} p
-        JOIN {{ source('shared','market_asset_metadata') }} A
-        ON p.asset_id :: STRING = A.asset_id :: STRING
-    WHERE
-        A.platform in ('polygon','polygon-pos')
+    select symbol,
+    hour,
+    token_address,
+    price
+    from {{ ref('silver_polygon__prices') }} 
+    WHERE 1=1
     {% if is_incremental() %}
-    AND recorded_at::date >= (select max(block_timestamp::date) from {{ this }})
+    AND hour::date >= (select max(block_timestamp::date) from {{ this }})
     {% endif %}
-GROUP BY
-    p.symbol,
-    HOUR,
-    token_address
 ),
 poly_prices AS (
   SELECT

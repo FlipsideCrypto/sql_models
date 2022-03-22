@@ -5,6 +5,10 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
+            - LOG_INDEX
+      - date_gaps:
+           column_name: BLOCK_TIMESTAMP
+           enabled: False #there are two days worth of gaps that will cause this to fail - turn back on when the gaps are resolved
     columns:
       - name: BLOCKCHAIN
         tests:
@@ -15,13 +19,13 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: TX_ID
         tests:
           - not_null
       - name: POOL_ADDRESS
-        tests:
-          - not_null
-      - name: POOL_NAME
         tests:
           - not_null
       - name: PRICE_1_0
@@ -81,36 +85,26 @@ models:
       - name: TOKEN1_ADDRESS
         tests:
           - not_null
-      - name: TOKEN0_SYMBOL
-        tests:
-          - not_null
-      - name: TOKEN1_SYMBOL
-        tests:
-          - not_null
       - name: TOKEN0_PRICE
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: TOKEN1_PRICE
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: AMOUNT0_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: AMOUNT1_USD
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal

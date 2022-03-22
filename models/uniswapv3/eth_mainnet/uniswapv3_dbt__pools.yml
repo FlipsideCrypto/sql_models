@@ -1,0 +1,9 @@
+version: 2
+models:
+  - name: uniswapv3_dbt__pools
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 7

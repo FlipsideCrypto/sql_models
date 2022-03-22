@@ -90,12 +90,15 @@ SELECT
   t.value :l1_label :: STRING AS l1_label,
   t.value :l2_label :: STRING AS l2_label,
   t.value :address_name :: STRING AS address_name,
-  t.value :project_name :: STRING AS project_name
+  t.value :project_name :: STRING AS project_name, 
+  t.value :delete :: STRING AS delete_flag 
 FROM
   base_tables,
   LATERAL FLATTEN(
     input => record_content
   ) t
+
+  WHERE delete_flag IS NULL
 
 qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
 ORDER BY

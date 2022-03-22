@@ -1,0 +1,1 @@
+{{ date_gaps(ref('terra__validator_voting_power'), [], "block_timestamp") }}
