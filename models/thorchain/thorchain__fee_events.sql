@@ -5,7 +5,7 @@
   )
 }}
 
-SELECT
+SELECT DISTINCT
   to_timestamp(e.BLOCK_TIMESTAMP/1000000000) as block_timestamp,
   bl.height as block_id,
   e.TX as tx_id,

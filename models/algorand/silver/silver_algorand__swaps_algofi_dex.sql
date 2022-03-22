@@ -39,13 +39,13 @@ algofi_app AS(
         END AS swap_to_asset_id,
         CASE
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals > 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            AND asa.decimals > 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: FLOAT / pow(
                 10,
                 asa.decimals
             )
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals = 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER
-            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN act.tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
+            AND asa.decimals = 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: FLOAT
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN act.tx_message :dt :itx [0] :txn :amt :: FLOAT / pow(
                 10,
                 6
             )
@@ -77,10 +77,10 @@ from_pay_swapssfe AS(
         pt.intra,
         pt.sender AS swapper,
         'ALGO' AS from_asset_name,
-        amount - ref.tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
+        amount - ref.tx_message :dt :itx [0] :txn :amt / pow(
             10,
             6
-        ) AS swap_from_amount,
+        ) :: FLOAT AS swap_from_amount,
         0 AS from_asset_id
     FROM
         algofi_app pa
@@ -111,12 +111,12 @@ from_axfer_swapssfe AS(
             WHEN a2.decimals > 0 THEN asset_amount / pow(
                 10,
                 A.decimals
-            ) - ref.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            ) - ref.tx_message :dt :itx [0] :txn :aamt / pow(
                 10,
                 a2.decimals
             )
-            WHEN a2.decimals = 0 THEN asset_amount - ref.tx_message :dt :itx [0] :txn :aamt :: NUMBER
-        END AS swap_from_amount,
+            WHEN a2.decimals = 0 THEN asset_amount - ref.tx_message :dt :itx [0] :txn :aamt
+        END :: FLOAT AS swap_from_amount,
         pt.asset_id AS from_asset_id
     FROM
         algofi_app pa
@@ -197,13 +197,13 @@ algofi_appsef AS(
         END AS swap_to_asset_id,
         CASE
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals > 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER / pow(
+            AND asa.decimals > 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: FLOAT / pow(
                 10,
                 asa.decimals
             )
             WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'axfer'
-            AND asa.decimals = 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: NUMBER
-            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN act.tx_message :dt :itx [0] :txn :amt :: NUMBER / pow(
+            AND asa.decimals = 0 THEN act.tx_message :dt :itx [0] :txn :aamt :: FLOAT
+            WHEN act.tx_message :dt :itx [0] :txn :type :: STRING = 'pay' THEN act.tx_message :dt :itx [0] :txn :amt :: FLOAT / pow(
                 10,
                 6
             )
@@ -260,7 +260,7 @@ from_axfer_swapssef AS(
                 A.decimals
             )
             ELSE asset_amount
-        END AS swap_from_amount,
+        END :: FLOAT AS swap_from_amount,
         pt.asset_id AS from_asset_id
     FROM
         algofi_appsef pa
@@ -330,10 +330,10 @@ SELECT
     app_id,
     swapper,
     from_asset_id AS swap_from_asset_id,
-    swap_from_amount,
+    swap_from_amount :: FLOAT AS swap_from_amount,
     pool_address,
     swap_to_asset_id,
-    swap_to_amount,
+    swap_to_amount :: FLOAT AS swap_to_amount,
     concat_ws(
         '-',
         block_id :: STRING,
@@ -351,10 +351,10 @@ SELECT
     app_id,
     swapper,
     from_asset_id AS swap_from_asset_id,
-    swap_from_amount,
+    swap_from_amount :: FLOAT AS swap_from_amount,
     pool_address,
     swap_to_asset_id,
-    swap_to_amount,
+    swap_to_amount :: FLOAT AS swap_to_amount,
     concat_ws(
         '-',
         block_id :: STRING,
@@ -376,4 +376,3 @@ AND _INSERTED_TIMESTAMP >= (
         {{ this }}
 )
 {% endif %}
-
