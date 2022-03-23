@@ -19,9 +19,7 @@ WITH base_tables AS (
       'terra.balances.models.TerraDelegationsModel',
       'terra.balances.models.TerraBalancesModel',
       'terra.balances.models.Terra5BalancesModel',
-      'terra.balances.terra_synthetic_balances_model.Terra5SyntheticBalancesModel',
       'terra.balances.models.Terra5DelegationsModel',
-      'terra.balances.terra_synthetic_balances_model.TerraSyntheticBalancesModel',
       'terra.balances.models.TerraBalancesModel',
       'terra.balances.models.TerraDelegationsModel'
     )
