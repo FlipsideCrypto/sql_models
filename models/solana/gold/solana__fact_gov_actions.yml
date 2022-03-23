@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: solana__fact_gov_actions
+    columns:
+      - name: PROGRAM_NAME
+        description: "name of solana program"
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+      - name: SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+      - name: SIGNER
+        description: Address initiating the LOCK or EXIT action
+      - name: LOCKER_ACCOUNT
+        description: Account holding tokens for LOCK or EXIT
+      - name: MINT
+        description: Mint being locked
+      - name: ACTION
+        description: LOCK or EXIT action
+      - name: AMOUNT
+        description: Amount being locked or exited

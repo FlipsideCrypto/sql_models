@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: solana__fact_gauges_votes
+    columns:
+      - name: PROGRAM_NAME
+        description: "name of solana program"
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+      - name: SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+      - name: VOTER
+        description: Address performing the vote
+      - name: GAUGE
+        description: Gauge that is being voted on
+      - name: DELEGATED_SHARES
+        description: Number of shares delegated to vote for this Gauge
+      - name: POWER
+        description: Total voting power of the voter

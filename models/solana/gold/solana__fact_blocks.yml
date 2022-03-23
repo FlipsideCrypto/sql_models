@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: solana__fact_blocks
+    columns:
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: NETWORK
+        description: solana network name
+      - name: CHAIN_ID
+        description: chain identifier, this will always be solana.  Field is used in joins with crosschain tables
+      - name: TX_COUNT
+        description: number of transactions within this block
+      - name: BLOCK_HEIGHT
+        description: heigh of the block
+      - name: BLOCK_HASH
+        description: hash of the block
+      - name: PREVIOUS_BLOCK_ID
+        description: previous slot value
+      - name: PREVIOUS_BLOCK_HASH
+        description: previous block's hash value
