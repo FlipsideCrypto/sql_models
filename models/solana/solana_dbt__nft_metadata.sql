@@ -39,9 +39,9 @@ SELECT
     record_metadata :CreateTime :: INT / 1000
   ) :: TIMESTAMP AS system_created_at,
   record_content:model:blockchain :: STRING AS blockchain,
-  record_content:results[0]:contract_name :: STRING AS contract_name,
-  record_content:results[0]:token_id :: STRING AS token_id, 
-  record_content:results[0]:mint_address :: STRING AS mint, 
+  t.value :contract_name :: STRING AS contract_name,
+  t.value :token_id :: STRING AS token_id, 
+  t.value :mint_address :: STRING AS mint, 
   t.value :commission_rate :: FLOAT AS commission_rate,
   t.value :contract_address :: STRING AS contract_address,
   t.value :created_at_block_id :: bigint AS created_at_block_id,
