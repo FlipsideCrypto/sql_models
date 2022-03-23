@@ -156,6 +156,7 @@ sources:
     schema: core
     tables:
       - name: dim_labels
+      - name: dim_nft_metadata
       - name: fact_blocks
       - name: fact_events
       - name: fact_gauges_votes
