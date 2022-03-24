@@ -27,7 +27,8 @@ WITH allTXN AS (
     txn :txn :type :: STRING AS tx_type,
     txn :txn :gh :: STRING AS genesis_hash,
     txn AS tx_message,
-    extra
+    extra,
+    __HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
   FROM
     {{ source(
       'algorand',
@@ -61,7 +62,8 @@ innertx AS (
     VALUE :txn :type :: STRING AS tx_type,
     txn :txn :gh :: STRING AS genesis_hash,
     VALUE AS tx_message,
-    extra
+    extra,
+    __HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
   FROM
     {{ source(
       'algorand',
@@ -111,7 +113,7 @@ SELECT
     b.block_id :: STRING,
     b.intra :: STRING
   ) AS _unique_key,
-  ab._INSERTED_TIMESTAMP
+  b._INSERTED_TIMESTAMP
 FROM
   uniontxn b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
@@ -124,7 +126,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND ab._INSERTED_TIMESTAMP >= (
+AND b._INSERTED_TIMESTAMP >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
@@ -132,4 +134,5 @@ AND ab._INSERTED_TIMESTAMP >= (
   FROM
     {{ this }}
 )
+OR block_timestamp IS NULL
 {% endif %}
