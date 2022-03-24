@@ -19,7 +19,7 @@ SELECT
   flt.value :contract_info.code_id :: INTEGER AS code_id,
   flt.value :contract_info.creator :: STRING AS creator,
   flt.value :contract_info.init_msg :: variant AS init_msg,
-  _inserted_timestamp
+  SYSDATE() AS _inserted_timestamp
 FROM
   {{ source(
     'bronze',

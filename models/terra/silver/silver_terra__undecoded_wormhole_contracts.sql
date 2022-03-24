@@ -16,7 +16,7 @@ WHERE
   AND block_timestamp > '2021-06-01'
   AND token_contract NOT IN (
     SELECT
-      decoded_contract
+      address
     FROM
       {{ ref('silver_terra__contract_info') }}
   )

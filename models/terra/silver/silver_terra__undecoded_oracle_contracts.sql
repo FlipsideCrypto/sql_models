@@ -17,7 +17,7 @@ WHERE
   AND token_contract <> 'terra15gwkyepfc6xgca5t5zefzwy42uts8l2m4g40k6' --MIR contract is decoded
   AND token_contract NOT IN (
     SELECT
-      decoded_contract
+      address
     FROM
       {{ ref('silver_terra__contract_info') }}
   )
