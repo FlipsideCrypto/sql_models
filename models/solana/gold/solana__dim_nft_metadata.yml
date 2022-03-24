@@ -1,63 +1,31 @@
 version: 2
 models:
-  - name: solana__nft_metadata
-    description: Deprecating soon
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - CONTRACT_ADDRESS
-            - TOKEN_ID
+  - name: solana__dim_nft_metadata
+    description: Records with metadata for known nfts
     columns:
       - name: BLOCKCHAIN
-        description: The name of the blockchain the NFT is minted on. 
-        tests:
-          - not_null
+        description: In this table, always Solana. Used to join to cross-chain tables. 
       - name: CONTRACT_ADDRESS
         description: Address unique to an NFT series
-        tests:
-          - not_null
       - name: CONTRACT_NAME
         description: Name of the contract that identifies an NFT series. Example - tcgdragons
-        tests:
-          - not_null
       - name: CREATED_AT_TIMESTAMP
         description: timestamp in UTC that the NFT was minted at
-        tests:
-          - not_null
       - name: MINT
-        description: Address that is unique to each individual token. For SOL NFTs, this is how to join NFT table
-        tests:
-          - not_null: 
-              enabled: False # Data is not yet in  bronze
+        description: "{{ doc('mint') }}"
       - name: CREATOR_ADDRESS
         description: address provided by the creator of the project where mint payments and secondary market royalties are sent
-        tests:  
-          - not_null
       - name: CREATOR_NAME
         description: name of the project creator - this can be an individual or a company name
-        tests:
-          - not_null
       - name: IMAGE_URL
         description: URL that links to the image on the ipfs service
-        tests:
-          - not_null
       - name: PROJECT_NAME
         description: Name of the project the NFT token belongs to
-        tests:
-          - not_null
       - name: TOKEN_ID
         description: Numeric value that identifies the NFT within it's series
-        tests:
-          - not_null
       - name: TOKEN_METADATA
         description: a block of json that describes the traits of an NFT
-        tests:
-          - not_null
       - name: TOKEN_METADATA_URI
         description: URL that links to the token metadata on the ipfs service
-        tests:
-          - not_null
       - name: TOKEN_NAME
-        description: Name of the NFT token - this is unique to token. Example BAYC 7894
-        tests:
-          - not_null
+        description: Name of the NFT token - this is unique to token. Example SMB 284

@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__fact_nft_sales
+    description: Records with nft sales on specific marketplaces
     columns:
       - name: BLOCK_TIMESTAMP
         description: "{{ doc('block_timestamp') }}"
