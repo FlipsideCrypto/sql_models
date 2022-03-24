@@ -26,7 +26,7 @@ models:
         description: "Block ID that the app was created"
         tests:
           - not_null          
-      - name: PARAMs
+      - name: PARAMS
         description: "Block ID that the app was created"
         tests:
           - dbt_expectations.expect_column_to_exist 

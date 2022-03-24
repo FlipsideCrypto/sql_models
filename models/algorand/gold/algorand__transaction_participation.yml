@@ -9,17 +9,21 @@ models:
             - ADDRESS
     columns:
       - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
       - name: BLOCK_ID
+        description: "{{ doc('algo_block_id') }}"
         tests:
           - not_null
       - name: INTRA
+        description: "{{ doc('intra') }}"
         tests:
           - not_null
       - name: ADDRESS
+        description: "{{ doc('address') }}"
         tests:
           - not_null

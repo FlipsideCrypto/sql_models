@@ -18,21 +18,22 @@ WITH inner_tx_individual AS(
       'algorand',
       'TXN_PARTICIPATION'
     ) }}
+  WHERE
+    ROUND > 17069493
 
 {% if is_incremental() %}
-WHERE
-  DATEADD(
-    ms,
-    __HEVO__LOADED_AT,
-    '1970-01-01'
-  ) >= (
-    SELECT
-      MAX(
-        _INSERTED_TIMESTAMP
-      )
-    FROM
-      {{ this }}
-  )
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
 {% endif %}
 GROUP BY
   block_id,

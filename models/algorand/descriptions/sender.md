@@ -1,4 +1,4 @@
-{% docs block_id %}
+{% docs sender %}
 
 Address of the wallet creating the transaction
 

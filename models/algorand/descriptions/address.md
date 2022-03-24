@@ -1,4 +1,4 @@
-{% docs block_id %}
+{% docs address %}
 
 The account public key
 

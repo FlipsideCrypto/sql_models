@@ -1,4 +1,4 @@
-{% docs block_id %}
+{% docs app_id %}
 
 ID of the application
 

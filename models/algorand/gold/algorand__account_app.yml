@@ -16,7 +16,7 @@ models:
         tests:
           - not_null
       - name: APP_CLOSED
-      description: "Boolean of whether this application is currently deleted"
+        description: "Boolean of whether this application is currently deleted"
         tests:
           - not_null
       - name: CLOSED_AT

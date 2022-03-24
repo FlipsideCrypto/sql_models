@@ -12,7 +12,7 @@ models:
         tests:
           - not_null
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('algo_block_id') }}"
         tests:
           - not_null
       - name: INTRA
@@ -28,7 +28,7 @@ models:
         tests:
           - not_null
       - name: ASSET_ID
-        description: "{{ doc('asset_id') }}"
+        description: "{{ doc('algo_asset_id') }}"
         tests:
           - not_null:
               where: inner_tx = 'false'
@@ -45,7 +45,7 @@ models:
         tests:
           - not_null:
               where: inner_tx = 'true'     
-      - name: ASSET_SUPPLY
+      - name: ASSET_PARAMETERS
         description: "All parameters involved with the asset being created, modified or destroyed in the transaction"
         tests:
           - dbt_expectations.expect_column_to_exist  

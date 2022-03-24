@@ -1,4 +1,4 @@
-{% docs block_id %}
+{% docs tx_message %}
 
 Encoded JSON message associated with the transaction
 

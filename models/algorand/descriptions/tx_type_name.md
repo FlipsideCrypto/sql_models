@@ -1,4 +1,4 @@
-{% docs block_id %}
+{% docs tx_type_name %}
 
 Transaction type name
 

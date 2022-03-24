@@ -44,8 +44,7 @@ WITH allTXN AS (
     AND b.intra = ft.inner_intra
   WHERE
     txid IS NOT NULL
-    AND ROUND > 15969493
-    AND ROUND < 17969493
+    AND ROUND > 17069493
 ),
 innertx AS (
   SELECT

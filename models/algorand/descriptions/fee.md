@@ -1,4 +1,4 @@
-{% docs block_id %}
+{% docs fee %}
 
 Fee associated with the transaction, in ALGOs
 
