@@ -12,14 +12,15 @@ WITH inner_tx_individual AS(
     ROUND AS block_id,
     intra,
     addr :: text AS address,
-    __HEVO__LOADED_AT AS
+    __HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
   FROM
     {{ source(
       'algorand',
       'TXN_PARTICIPATION'
     ) }}
   WHERE
-    ROUND > 17069493
+    1 = 1
+    AND ROUND > 17069493
     AND ROUND < 19069493
 
 {% if is_incremental() %}
