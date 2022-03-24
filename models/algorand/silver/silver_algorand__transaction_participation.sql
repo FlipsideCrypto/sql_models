@@ -44,7 +44,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
+AND iti._INSERTED_TIMESTAMP >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
