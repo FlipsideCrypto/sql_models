@@ -8,36 +8,55 @@ models:
             - INTRA
     columns:
       - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
         tests:
           - not_null
       - name: block_id
+        description: "{{ doc('block_id') }}"
         tests:
           - not_null
       - name: INTRA
+        description: "{{ doc('intra') }}"
         tests:
           - not_null
       - name: TX_ID
+        description: "{{ doc('tx_id') }}"
         tests:
           - not_null
       - name: INNER_TX
+        description: "{{ doc('inner_tx') }}"
         tests:
           - not_null
       - name: SENDER
+        description: "{{ doc('sender') }}"
         tests:
           - not_null   
       - name: FEE
+      description:  "{{ doc('fee') }}"
         tests:
           - not_null:
-              where: inner_tx = 'true'             
-      - name: TX_TYPE
+              where: inner_tx = 'true'  
+      - name: APP_ID
+        description: "{{ doc('app_id') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist      
+      - name: TX_TYPE'
+        description: "{{ doc('tx_type') }}"
         tests:
           - not_null
       - name: TX_TYPE_NAME
+        description: "{{ doc('tx_type_name') }}"
         tests:
           - not_null
       - name: GENESIS_HASH
+        description: "{{ doc('genesis_hash') }}"
         tests:
           - not_null  
       - name: TX_MESSAGE
+        description: "{{ doc('tx_message') }}"
         tests:
           - not_null
+      - name: EXTRA
+        description: "{{ doc('extra') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   

@@ -8,41 +8,63 @@ models:
             - INTRA
     columns:
       - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
         tests:
           - not_null
       - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
         tests:
           - not_null
       - name: INTRA
+        description: "{{ doc('intra') }}"
         tests:
           - not_null
       - name: TX_ID
+        description: "{{ doc('tx_id') }}"
         tests:
           - not_null
       - name: INNER_TX
+        description: "{{ doc('inner_tx') }}"
         tests:
           - not_null
       - name: ASSET_ID
+        description: "{{ doc('asset_id') }}"
         tests:
           - not_null
       - name: ASSET_ADDRESS
+        description: "The address of the account whose asset is being frozen or unfrozen."
         tests:
           - not_null
+      - name: ASSET_FREEZE
+        description: "True to freeze the asset, otherwise null or false"
+        tests:
+          - dbt_expectations.expect_column_to_exist  
       - name: SENDER
+        description: "{{ doc('sender') }}"
         tests:
           - not_null   
       - name: FEE
+        description: "{{ doc('fee') }}"
         tests:
           - not_null    
       - name: TX_TYPE
+        description: "{{ doc('tx_type') }}"
         tests:
           - not_null
       - name: TX_TYPE_NAME
+        description: "{{ doc('tx_type_name') }}"
         tests:
           - not_null
       - name: GENESIS_HASH
+        description: "{{ doc('genesis_hash') }}"
         tests:
           - not_null
       - name: TX_MESSAGE
+        description: "{{ doc('tx_message') }}"
         tests:
           - not_null
+      - name: EXTRA
+        description: "{{ doc('extra') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   
+      

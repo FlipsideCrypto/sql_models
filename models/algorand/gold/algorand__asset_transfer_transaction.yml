@@ -4,21 +4,27 @@ models:
     tests:
     columns:
       - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
         tests:
           - not_null
       - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
         tests:
           - not_null
       - name: INTRA
+        description: "{{ doc('intra') }}"
         tests:
           - not_null
       - name: TX_ID
+        description: "{{ doc('tx_id') }}"
         tests:
           - not_null
       - name: INNER_TX
+        description: "{{ doc('inner_tx') }}"
         tests:
           - not_null
       - name: ASSET_ID
+        description: "{{ doc('asset_id') }}"
         tests:
           - not_null
       - name: SENDER

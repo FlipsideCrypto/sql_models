@@ -7,14 +7,26 @@ models:
             - APP_ID
     columns:
       - name: APP_ID
+        description: "{{ doc('app_id') }}"
         tests:
           - not_null
       - name: CREATOR_ADDRESS
+        description: "Wallet creator account address"
         tests:
           - not_null
       - name: APP_CLOSED
+        description: "Whether or not the app is currently deleted"
         tests:
           - not_null
+      - name: CLOSED_AT
+        description: "Block ID that the app was deleted"
+        tests:
+          - dbt_expectations.expect_column_to_exist
       - name: CREATED_AT
+        description: "Block ID that the app was created"
         tests:
           - not_null          
+      - name: PARAMs
+        description: "Block ID that the app was created"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
