@@ -12,7 +12,7 @@ WITH inner_tx_individual AS(
     ROUND AS block_id,
     intra,
     addr :: text AS address,
-    __HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
+    __HEVO__LOADED_AT AS
   FROM
     {{ source(
       'algorand',
@@ -21,10 +21,22 @@ WITH inner_tx_individual AS(
   WHERE
     ROUND > 17069493
     AND ROUND < 19069493
-  GROUP BY
-    block_id,
-    intra,
-    address
+
+{% if is_incremental() %}
+AND _INSERTED_TIMESTAMP >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+OR block_timestamp IS NULL
+{% endif %}
+GROUP BY
+  block_id,
+  intra,
+  address
 )
 SELECT
   ab.block_timestamp AS block_timestamp,
@@ -45,17 +57,3 @@ FROM
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
   ON iti.block_id = ab.block_id
-WHERE
-  1 = 1
-
-{% if is_incremental() %}
-AND iti._INSERTED_TIMESTAMP >= (
-  SELECT
-    MAX(
-      _INSERTED_TIMESTAMP
-    )
-  FROM
-    {{ this }}
-)
-OR block_timestamp IS NULL
-{% endif %}
