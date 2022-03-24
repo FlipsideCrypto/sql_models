@@ -1,0 +1,30 @@
+version: 2
+models:
+  - name: solana__fact_transactions
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: RECENT_BLOCK_HASH
+        description: Previous block's hash value
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+      - name: FEE
+        description: Transaction fee (in lamports)
+      - name: SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+      - name: SIGNERS
+        description: List of accounts that signed the transaction
+      - name: ACCOUNT_KEYS
+        description: List of accounts that are referenced by pre/post sol/token balances objects
+      - name: PRE_BALANCES
+        description: List of pre-transaction balances for different accounts
+      - name: POST_BALANCES
+        description: List of post-transaction balances for different accounts
+      - name: PRE_TOKEN_BALANCES
+        description: List of pre-transaction token balances for different token accounts
+      - name: POST_TOKEN_BALANCES
+        description: List of post-transaction token balances for different token accounts
+      - name: LOG_MESSAGES
+        description: Array of log messages written by the program for this transaction

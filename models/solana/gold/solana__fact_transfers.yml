@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: solana__fact_transfers
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+      - name: INDEX
+        description: "{{ doc('index') }}"
+      - name: TX_FROM
+        description: "{{ doc('tx_from') }}"
+      - name: TX_TO 
+        description: "{{ doc('tx_to') }}"
+      - name: AMOUNT 
+        description: "{{ doc('amount') }}"
+      - name: MINT
+        description: "{{ doc('mint') }}"

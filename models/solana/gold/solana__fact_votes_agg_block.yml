@@ -1,0 +1,10 @@
+version: 2
+models:
+  - name: solana__fact_votes_agg_block
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: NUM_VOTES
+        description: The number of vote events that occurred within the block
