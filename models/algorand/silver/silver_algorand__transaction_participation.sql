@@ -19,25 +19,8 @@ WITH inner_tx_individual AS(
       'TXN_PARTICIPATION'
     ) }}
   WHERE
-    1 = 1
-    AND ROUND > 17069493
+    ROUND > 17069493
     AND ROUND < 19069493
-
-{% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
-  SELECT
-    MAX(
-      _INSERTED_TIMESTAMP
-    )
-  FROM
-    {{ this }}
-)
-OR block_timestamp IS NULL
-{% endif %}
-GROUP BY
-  block_id,
-  intra,
-  address
 )
 SELECT
   ab.block_timestamp AS block_timestamp,
@@ -58,3 +41,17 @@ FROM
   LEFT JOIN {{ ref('silver_algorand__block') }}
   ab
   ON iti.block_id = ab.block_id
+WHERE
+  1 = 1
+
+{% if is_incremental() %}
+AND _INSERTED_TIMESTAMP >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+OR block_timestamp IS NULL
+{% endif %}

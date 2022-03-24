@@ -157,4 +157,5 @@ AND wa._INSERTED_TIMESTAMP >= (
     FROM
         {{ this }}
 )
+OR wa.block_timestamp IS NULL
 {% endif %}

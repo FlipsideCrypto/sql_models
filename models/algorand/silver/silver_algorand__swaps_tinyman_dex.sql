@@ -178,4 +178,5 @@ AND ta._INSERTED_TIMESTAMP >= (
     FROM
         {{ this }}
 )
+OR ta.block_timestamp IS NULL
 {% endif %}
