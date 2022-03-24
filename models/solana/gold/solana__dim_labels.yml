@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__dim_labels
+    description: Records with metadata for known addresses
     columns:
       - name: BLOCKCHAIN
         description: The name of the blockchain

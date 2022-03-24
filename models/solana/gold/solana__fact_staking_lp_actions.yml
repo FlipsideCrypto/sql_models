@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__fact_staking_lp_actions
+    description: Records with liquidity pool staking actions
     columns:
       - name: BLOCK_TIMESTAMP
         description: "{{ doc('block_timestamp') }}"

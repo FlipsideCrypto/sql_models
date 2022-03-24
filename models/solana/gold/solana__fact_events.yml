@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__fact_events
+    description: Records with each event(instruction) within a transaction
     columns:
       - name: BLOCK_TIMESTAMP
         description: "{{ doc('block_timestamp') }}"
