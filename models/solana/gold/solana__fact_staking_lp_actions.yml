@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: solana__fact_staking_lp_actions
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+      - name: INDEX
+        description: Location of the event within the instructions of a transaction
+      - name: SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+      - name: PROGRAM_ID
+        description: "{{ doc('program_id') }}"
+      - name: EVENT_TYPE
+        description: "{{ doc('event_type') }}"
+      - name: SIGNERS
+        description: List of accounts that signed the transaction
+      - name: ACCOUNT_KEYS
+        description: List of accounts that are referenced by pre/post sol/token balances objects
+      - name: INSTRUCTION
+        description: "{{ doc('instruction') }}"
+      - name: INNER_INSTRUCTION
+        description: "{{ doc('inner_instruction') }}"
+      - name: PRE_BALANCES
+        description: List of pre-transaction balances for different accounts
+      - name: POST_BALANCES
+        description: List of post-transaction balances for different accounts
+      - name: PRE_TOKEN_BALANCES
+        description: List of pre-transaction token balances for different token accounts
+      - name: POST_TOKEN_BALANCES
+        description: List of post-transaction token balances for different token accounts

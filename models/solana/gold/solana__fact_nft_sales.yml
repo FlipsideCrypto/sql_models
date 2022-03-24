@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: solana__fact_nft_sales
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+      - name: SUCCEEDED
+        description: "{{ doc('tx_succeeded') }}"
+      - name: PROGRAM_ID 
+        description: "{{ doc('program_id') }}"
+      - name: PURCHASER
+        description: "{{ doc('purchaser') }}"
+      - name: MINT
+        description: "{{ doc('mint') }}"
+      - name: SALES_AMOUNT
+        description: "{{ doc('sales_amount') }}"
