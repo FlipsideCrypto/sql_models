@@ -37,6 +37,7 @@ WITH allTXN AS (
     b
   WHERE
     txid IS NOT NULL
+    AND ROUND > 18993228
 ),
 innertx AS (
   SELECT
@@ -75,6 +76,7 @@ innertx AS (
   WHERE
     txn :dt :itx IS NOT NULL
     AND txid IS NOT NULL
+    AND ROUND > 18993228
 ),
 uniontxn AS(
   SELECT

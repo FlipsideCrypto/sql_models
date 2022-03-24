@@ -25,7 +25,14 @@
                 ms,
                 {{ delayed_column }},
                 '1970-01-01'
-            ) < CURRENT_TIMESTAMP - INTERVAL '4 HOURS'
+            ) < (
+                SELECT
+                    MAX(
+                        {{ delayed_column }}
+                    )
+                FROM
+                    {{ this }}
+            ) - INTERVAL '4 HOURS'
     )
 SELECT
     {{ partition_sql + "," if partition_sql }}
