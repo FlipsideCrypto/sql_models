@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__fact_transactions
+    description: Records of all transactions from solana slots except for votes
     columns:
       - name: BLOCK_TIMESTAMP
         description: "{{ doc('block_timestamp') }}"

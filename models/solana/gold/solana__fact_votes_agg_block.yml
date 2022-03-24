@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__fact_votes_agg_block
+    description: Records of number of votes per block
     columns:
       - name: BLOCK_TIMESTAMP
         description: "{{ doc('block_timestamp') }}"

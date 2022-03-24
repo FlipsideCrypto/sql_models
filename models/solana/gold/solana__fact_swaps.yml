@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__fact_swaps
+    description: Records with swaps on specific apps
     columns:
       - name: SWAP_PROGRAM
         description: name of decentralized exchange used to perform the swap

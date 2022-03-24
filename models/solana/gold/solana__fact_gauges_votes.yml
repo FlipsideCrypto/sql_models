@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: solana__fact_gauges_votes
+    description: Records with votes delegated to a gauge.  Specific to SABER at this time.
     columns:
       - name: PROGRAM_NAME
         description: "name of solana program"
