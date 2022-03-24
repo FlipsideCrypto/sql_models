@@ -1,22 +1,20 @@
 {{ config(
-  materialized = 'incremental',
-  unique_key = "token_contract",
-  incremental_strategy = 'merge',
-  tags = ['snowflake', 'terra', 'undecoded', 'terra_contracts']
+  materialized = 'view',
 ) }}
+(
 
+  SELECT
+    token_contract AS address
+  FROM
+    {{ ref("silver_terra__undecoded_oracle_contracts") }}
+  UNION ALL
+  SELECT
+    token_contract AS address
+  FROM
+    {{ ref("silver_terra__undecoded_wormhole_contracts") }}
+)
+EXCEPT
 SELECT
-  event_attributes :contract_address :: STRING AS token_contract,
-  'WORMHOLE' AS description,
-  SYSDATE() AS _inserted_timestamp
+  address
 FROM
-  {{ ref("silver_terra__msg_events") }}
-WHERE
-  event_attributes :creator = 'terra10nmmwe8r3g99a9newtqa7a75xfgs2e8z87r2sf' --wormhole contracts
-  AND block_timestamp > '2021-06-01'
-  AND token_contract NOT IN (
-    SELECT
-      address
-    FROM
-      {{ ref('silver_terra__contract_info') }}
-  )
+  {{ ref("silver_terra__contract_info") }}

@@ -6,7 +6,7 @@
 ) }}
 
 SELECT
-  DISTINCT concat_ws(
+  concat_ws(
     '-',
     DATA :name :: STRING,
     DATA :request_meta.path :: STRING,
@@ -43,3 +43,9 @@ AND src._inserted_timestamp >= COALESCE(
   '1900-01-01'
 )
 {% endif %}
+
+qualify ROW_NUMBER() over (
+  PARTITION BY _UK
+  ORDER BY
+    _inserted_timestamp
+) = 1
