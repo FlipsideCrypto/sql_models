@@ -3,9 +3,11 @@
   OR REPLACE PROCEDURE silver_terra.sp_bulk_get_contract_info() returns VARCHAR LANGUAGE SQL AS $$
 DECLARE
   RESULT VARCHAR;
-SET RESULT = (
+BEGIN
+  RESULT:= (
     SELECT
-      RESULT:= silver_terra.udf_bulk_get_contract_info()
+      silver_terra.terra_decode_contract()
   );
-RETURN RESULT $$
+RETURN RESULT;
+END;$$
 {% endmacro %}
