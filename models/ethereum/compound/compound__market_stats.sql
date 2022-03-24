@@ -183,7 +183,51 @@ comptr AS (
     ON date_trunc('hour',erd.block_timestamp) = p.block_hour
   WHERE 
     contract_address = '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b'
-    AND function_name = 'compSpeeds'
+    AND function_name in ('compSpeeds')
+    {% if is_incremental() %}
+        AND block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+        AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}    
+  GROUP BY 1,2,4
+),
+
+-- comp emitted by ctoken by hour - borrow
+comptr_borrow AS (
+  SELECT DISTINCT 
+    date_trunc('hour',erd.block_timestamp) as blockhour,
+    LOWER(REGEXP_REPLACE(inputs:c_token_address,'\"','')) as ctoken_address,
+    sum(erd.value_numeric / 1e18) as comp_speed,
+    p.token_price as comp_price,
+    comp_price * comp_speed as comp_speed_usd
+  FROM {{ref('silver_ethereum__reads')}} erd 
+  JOIN (SELECT * FROM prices WHERE symbol = 'COMP') p
+    ON date_trunc('hour',erd.block_timestamp) = p.block_hour
+  WHERE 
+    contract_address = '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b'
+    AND function_name in ('compBorrowSpeeds')
+    {% if is_incremental() %}
+        AND block_timestamp >= getdate() - interval '2 days'
+    {% else %}
+        AND block_timestamp >= getdate() - interval '9 months'
+    {% endif %}    
+  GROUP BY 1,2,4
+),
+
+-- comp emitted by ctoken by hour
+comptr_supply AS (
+  SELECT DISTINCT 
+    date_trunc('hour',erd.block_timestamp) as blockhour,
+    LOWER(REGEXP_REPLACE(inputs:c_token_address,'\"','')) as ctoken_address,
+    sum(erd.value_numeric / 1e18) as comp_speed,
+    p.token_price as comp_price,
+    comp_price * comp_speed as comp_speed_usd
+  FROM {{ref('silver_ethereum__reads')}} erd 
+  JOIN (SELECT * FROM prices WHERE symbol = 'COMP') p
+    ON date_trunc('hour',erd.block_timestamp) = p.block_hour
+  WHERE 
+    contract_address = '0x3d9819210a31b4961b30ef54be2aed79b9c9cd3b'
+    AND function_name in ('compSupplySpeeds')
     {% if is_incremental() %}
         AND block_timestamp >= getdate() - interval '2 days'
     {% else %}
@@ -251,17 +295,21 @@ SELECT
   b.comp_speed_usd,
   case 
     when borrows_usd != 0
-    then POWER((1 + ((b.comp_speed_usd * 24) / borrows_usd)),365)-1
+    then POWER((1 + ((COALESCE(b.comp_speed_usd, b_borrow.comp_speed_usd) * 24) / borrows_usd)),365)-1
     else null
   end as comp_apy_borrow,
   case 
     when supply_usd != 0
-    then POWER((1 + ((b.comp_speed_usd * 24) / supply_usd)),365)-1
+    then POWER((1 + ((COALESCE(b.comp_speed_usd, b_supply.comp_speed_usd) * 24) / supply_usd)),365)-1
     else null
   end as comp_apy_supply
 FROM markets a 
 JOIN comptr b 
   ON a.ctoken_address = b.ctoken_address AND a.block_hour = b.blockhour
+JOIN comptr_borrow b_borrow
+  ON a.ctoken_address = b_borrow.ctoken_address AND a.block_hour = b_borrow.blockhour
+JOIN comptr_supply b_supply
+  ON a.ctoken_address = b_supply.ctoken_address AND a.block_hour = b_supply.blockhour
 LEFT JOIN supply
   ON a.ctoken_address = supply.ctoken_address AND a.block_hour = supply.blockhour
 LEFT JOIN borrow
