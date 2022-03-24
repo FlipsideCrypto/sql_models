@@ -67,4 +67,5 @@ AND b._INSERTED_TIMESTAMP >= (
   FROM
     {{ this }}
 )
+OR block_timestamp IS NULL
 {% endif %}

@@ -20,6 +20,7 @@ WITH inner_tx_individual AS(
     ) }}
   WHERE
     ROUND > 17069493
+    AND ROUND < 19069493
   GROUP BY
     block_id,
     intra,
@@ -38,7 +39,7 @@ SELECT
     intra :: STRING,
     address :: STRING
   ) AS _unique_key,
-  iti._INSERTED_TIMESTAMP
+  iti._INSERTED_TIMESTAMP AS _INSERTED_TIMESTAMP
 FROM
   inner_tx_individual iti
   LEFT JOIN {{ ref('silver_algorand__block') }}
