@@ -25,26 +25,18 @@ WITH allTXN AS (
       6
     ) AS fee,
     txn :txn :type :: STRING AS tx_type,
-    CASE
-      WHEN b.txid IS NULL THEN ft.genesis_hash :: text
-      ELSE txn :txn :gh :: STRING
-    END AS genesis_hash,
+    txn :txn :gh :: STRING AS genesis_hash,
     txn AS tx_message,
-    extra,
-    b.__HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
+    extra
   FROM
     {{ source(
       'algorand',
       'TXN'
     ) }}
     b
-    LEFT JOIN {{ ref('silver_algorand__inner_txids') }}
-    ft
-    ON b.round = ft.inner_round
-    AND b.intra = ft.inner_intra
   WHERE
     txid IS NOT NULL
-    AND ROUND > 17069493
+    AND b.round > 18969493
 ),
 innertx AS (
   SELECT
@@ -69,8 +61,7 @@ innertx AS (
     VALUE :txn :type :: STRING AS tx_type,
     txn :txn :gh :: STRING AS genesis_hash,
     VALUE AS tx_message,
-    extra,
-    b.__HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
+    extra
   FROM
     {{ source(
       'algorand',
@@ -83,6 +74,7 @@ innertx AS (
   WHERE
     txn :dt :itx IS NOT NULL
     AND txid IS NOT NULL
+    AND b.round > 18969493
 ),
 uniontxn AS(
   SELECT
@@ -119,7 +111,7 @@ SELECT
     b.block_id :: STRING,
     b.intra :: STRING
   ) AS _unique_key,
-  b._INSERTED_TIMESTAMP
+  ab._INSERTED_TIMESTAMP
 FROM
   uniontxn b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
@@ -132,7 +124,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND b._INSERTED_TIMESTAMP >= (
+AND ab._INSERTED_TIMESTAMP >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP

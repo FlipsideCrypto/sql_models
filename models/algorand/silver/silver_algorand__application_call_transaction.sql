@@ -27,17 +27,6 @@ WITH allTXN AS (
     b
   WHERE
     tx_type = 'appl'
-
-{% if is_incremental() %}
-AND b._INSERTED_TIMESTAMP >= (
-  SELECT
-    MAX(
-      _INSERTED_TIMESTAMP
-    )
-  FROM
-    {{ this }}
-)
-{% endif %}
 )
 SELECT
   block_timestamp,
@@ -68,3 +57,14 @@ FROM
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
+
+{% if is_incremental() %}
+AND b._INSERTED_TIMESTAMP >= (
+  SELECT
+    MAX(
+      _INSERTED_TIMESTAMP
+    )
+  FROM
+    {{ this }}
+)
+{% endif %}

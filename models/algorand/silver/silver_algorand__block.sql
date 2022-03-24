@@ -14,11 +14,7 @@ SELECT
   header :prev :: STRING AS prev_block_hash,
   header :txn :: STRING AS txn_root,
   header,
-  DATEADD(
-    ms,
-    __HEVO__LOADED_AT,
-    '1970-01-01'
-  ) AS _INSERTED_TIMESTAMP
+  __HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
 FROM
   {{ source(
     'algorand',
@@ -28,11 +24,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND DATEADD(
-  ms,
-  __HEVO__LOADED_AT,
-  '1970-01-01'
-) >= (
+AND __HEVO__LOADED_AT >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP

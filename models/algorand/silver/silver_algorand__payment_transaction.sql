@@ -9,6 +9,7 @@
 WITH allTXN AS (
 
   SELECT
+    block_timestamp,
     intra,
     block_id,
     tx_group_id,
@@ -64,9 +65,6 @@ FROM
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
-  LEFT JOIN {{ ref('silver_algorand__block') }}
-  ab
-  ON b.block_id = ab.block_id
 WHERE
   1 = 1
 
