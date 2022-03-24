@@ -295,12 +295,12 @@ SELECT
   b.comp_speed_usd,
   case 
     when borrows_usd != 0
-    then POWER((1 + ((COALESCE(b.comp_speed_usd, b_borrow.comp_speed_usd) * 24) / borrows_usd)),365)-1
+    then POWER((1 + ((COALESCE(NULLIF(b.comp_speed_usd, 0), b_borrow.comp_speed_usd) * 24) / borrows_usd)),365)-1
     else null
   end as comp_apy_borrow,
   case 
     when supply_usd != 0
-    then POWER((1 + ((COALESCE(b.comp_speed_usd, b_supply.comp_speed_usd) * 24) / supply_usd)),365)-1
+    then POWER((1 + ((COALESCE(NULLIF(b.comp_speed_usd, 0), b_supply.comp_speed_usd) * 24) / supply_usd)),365)-1
     else null
   end as comp_apy_supply
 FROM markets a 
