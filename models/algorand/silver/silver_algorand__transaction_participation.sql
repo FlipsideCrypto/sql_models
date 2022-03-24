@@ -20,7 +20,6 @@ WITH inner_tx_individual AS(
     ) }}
   WHERE
     ROUND > 17069493
-    AND ROUND < 19069493
 )
 SELECT
   ab.block_timestamp AS block_timestamp,
