@@ -18,8 +18,6 @@ WITH inner_tx_individual AS(
       'algorand',
       'TXN_PARTICIPATION'
     ) }}
-  WHERE
-    ROUND > 17069493
 )
 SELECT
   ab.block_timestamp AS block_timestamp,
