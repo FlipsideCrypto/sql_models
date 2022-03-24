@@ -10,7 +10,7 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null:
-              where: DATEADD(ms,_INSERTED_TIMESTAMP,'1970-01-01') <  (select max(_inserted_timestamp) from {{ this }}) - INTERVAL '4 HOURS'
+              where: DATEADD(ms,_INSERTED_TIMESTAMP,'1970-01-01') <  CURRENT_TIMESTAMP - INTERVAL '8 HOURS'
       - name: BLOCK_ID
         tests:
           - not_null

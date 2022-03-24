@@ -34,7 +34,7 @@ SELECT
     intra :: STRING,
     address :: STRING
   ) AS _unique_key,
-  iti._INSERTED_TIMESTAMP AS _INSERTED_TIMESTAMP
+  ab._INSERTED_TIMESTAMP AS _INSERTED_TIMESTAMP
 FROM
   inner_tx_individual iti
   LEFT JOIN {{ ref('silver_algorand__block') }}
@@ -44,13 +44,12 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND iti._INSERTED_TIMESTAMP >= (
+AND ab._INSERTED_TIMESTAMP >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}
-)
-OR block_timestamp IS NULL
+) - INTERVAL '4 HOURS'
 {% endif %}

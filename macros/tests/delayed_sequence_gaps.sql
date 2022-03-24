@@ -25,13 +25,17 @@
                 ms,
                 {{ delayed_column }},
                 '1970-01-01'
-            ) < (
-                SELECT
-                    MAX(
-                        {{ delayed_column }}
-                    )
-                FROM
-                    {{ this }}
+            ) < DATEADD(
+                ms,
+                (
+                    SELECT
+                        MAX(
+                            {{ delayed_column }}
+                        )
+                    FROM
+                        {{ this }}
+                ),
+                '1970-01-01'
             ) - INTERVAL '4 HOURS'
     )
 SELECT

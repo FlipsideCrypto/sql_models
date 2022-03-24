@@ -160,6 +160,5 @@ AND pa._INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-)
-OR pa.block_timestamp IS NULL
+) - INTERVAL '4 HOURS'
 {% endif %}
