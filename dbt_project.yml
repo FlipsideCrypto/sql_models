@@ -50,4 +50,4 @@ vars:
 
 on-run-start:
   - "{{ create_udfs() }}"
-  - "{{ create_sps() }}"
+  - "{{ sp_bulk_get_contract_info() }}"
