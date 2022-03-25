@@ -1,0 +1,17 @@
+version: 2
+models:
+  - name: ethereum__dim_contracts
+    description:  '{{ ethereum-models.contracts_table_doc }}'
+    # '{{ ethereum_models.doc("contracts_table_doc") }}'
+
+    columns:
+      - name: ADDRESS
+        description:  '{{ethereum-models.contracts_contract_address }}'   
+      - name: SYMBOL
+        description: '{{ethereum-models.contracts_symbol}}'
+      - name: NAME
+        description: '{{ethereum-models.contracts_name}}'
+      - name: DECIMALS
+        description: '{{ethereum-models.decimals  }}'
+      - name: CONTRACT_METADATA
+        description: '{{ethereum-models.contracts_metadata}}'
