@@ -21,22 +21,14 @@
         FROM
             {{ table }}
         WHERE
-            DATEADD(
-                ms,
-                {{ delayed_column }},
-                '1970-01-01'
-            ) < DATEADD(
-                ms,
-                (
-                    SELECT
-                        MAX(
-                            {{ delayed_column }}
-                        )
-                    FROM
-                        {{ this }}
-                ),
-                '1970-01-01'
-            ) - INTERVAL '4 HOURS'
+            {{ delayed_column }} < (
+                SELECT
+                    MAX(
+                        {{ delayed_column }}
+                    )
+                FROM
+                    {{ this }}
+            ) - INTERVAL '8 HOURS'
     )
 SELECT
     {{ partition_sql + "," if partition_sql }}

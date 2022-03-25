@@ -36,7 +36,6 @@ WITH allTXN AS (
     b
   WHERE
     txid IS NOT NULL
-    AND ROUND > 18993228
 ),
 innertx AS (
   SELECT
@@ -74,7 +73,6 @@ innertx AS (
   WHERE
     txn :dt :itx IS NOT NULL
     AND txid IS NOT NULL
-    AND ROUND > 18993228
 ),
 uniontxn AS(
   SELECT
@@ -111,7 +109,7 @@ SELECT
     b.block_id :: STRING,
     b.intra :: STRING
   ) AS _unique_key,
-  ab._INSERTED_TIMESTAMP
+  ab._inserted_timestamp
 FROM
   uniontxn b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
@@ -125,11 +123,13 @@ WHERE
 
 {% if is_incremental() %}
 AND ab._INSERTED_TIMESTAMP >= (
-  SELECT
-    MAX(
-      _INSERTED_TIMESTAMP
-    )
-  FROM
-    {{ this }}
-) - INTERVAL '4 HOURS'
+  (
+    SELECT
+      MAX(
+        _INSERTED_TIMESTAMP
+      )
+    FROM
+      {{ this }}
+  ) - INTERVAL '4 HOURS'
+)
 {% endif %}

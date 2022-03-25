@@ -19,7 +19,6 @@ WITH inner_tx_individual AS(
       'TXN_PARTICIPATION'
     ) }}
   WHERE
-    ROUND > 18993228
 )
 SELECT
   ab.block_timestamp AS block_timestamp,
@@ -34,7 +33,7 @@ SELECT
     intra :: STRING,
     address :: STRING
   ) AS _unique_key,
-  ab._INSERTED_TIMESTAMP AS _INSERTED_TIMESTAMP
+  ab._INSERTED_TIMESTAMP
 FROM
   inner_tx_individual iti
   LEFT JOIN {{ ref('silver_algorand__block') }}

@@ -22,7 +22,8 @@ WITH allTXN AS (
     tx_message :txn :votefst AS vote_first,
     tx_message :txn :votelst AS vote_last,
     tx_message :txn :votekd AS vote_keydilution,
-    tx_message :txn :type :: STRING AS tx_type,
+    tx_type,
+    tx_type_name,
     genesis_hash,
     tx_message,
     extra,
@@ -53,8 +54,8 @@ SELECT
   vote_first,
   vote_last,
   vote_keydilution,
-  csv.type AS tx_type,
-  csv.name AS tx_type_name,
+  tx_type,
+  tx_type_name,
   genesis_hash,
   tx_message,
   extra,
@@ -66,9 +67,6 @@ SELECT
   b._INSERTED_TIMESTAMP
 FROM
   allTXN b
-  LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
-  csv
-  ON b.tx_type = csv.type
 WHERE
   1 = 1
 

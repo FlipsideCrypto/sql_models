@@ -6,7 +6,7 @@ models:
       - name: BLOCK_TIMESTAMP
         description: "{{ doc('block_timestamp') }}"
         tests:
-          - not_null
+          - dbt_expectations.expect_column_to_exist   
       - name: BLOCK_ID
         description: "{{ doc('algo_block_id') }}"
         tests:

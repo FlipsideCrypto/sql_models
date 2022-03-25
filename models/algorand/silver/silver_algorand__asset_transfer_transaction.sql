@@ -23,6 +23,7 @@ WITH allTXN AS (
     tx_message :txn :aamt AS asset_amount,
     tx_message :txn :xaid AS asset_transferred,
     tx_type,
+    tx_type_name,
     genesis_hash,
     tx_message,
     extra,
@@ -53,8 +54,8 @@ SELECT
   ) AS asset_receiver,
   asset_amount,
   asset_transferred,
-  csv.type AS tx_type,
-  csv.name AS tx_type_name,
+  tx_type,
+  tx_type_name,
   genesis_hash,
   tx_message,
   extra,
@@ -66,9 +67,6 @@ SELECT
   b._INSERTED_TIMESTAMP
 FROM
   allTXN b
-  LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
-  csv
-  ON b.tx_type = csv.type
 WHERE
   1 = 1
 

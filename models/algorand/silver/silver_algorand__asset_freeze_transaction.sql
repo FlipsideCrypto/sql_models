@@ -20,6 +20,7 @@ WITH allTXN AS (
     tx_message :txn :snd :: text AS sender,
     fee,
     tx_type,
+    tx_type_name,
     genesis_hash,
     tx_message,
     extra,
@@ -46,8 +47,8 @@ SELECT
     sender
   ) AS sender,
   fee,
-  csv.type AS tx_type,
-  csv.name AS tx_type_name,
+  tx_type,
+  tx_type_name,
   genesis_hash,
   tx_message,
   extra,
@@ -59,9 +60,6 @@ SELECT
   b._INSERTED_TIMESTAMP
 FROM
   allTXN b
-  LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
-  csv
-  ON b.tx_type = csv.type
 WHERE
   1 = 1
 
