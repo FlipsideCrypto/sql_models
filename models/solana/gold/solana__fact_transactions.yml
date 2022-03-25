@@ -4,17 +4,17 @@ models:
     description: Records of all transactions from solana slots except for votes
     columns:
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: RECENT_BLOCK_HASH
         description: Previous block's hash value
       - name: TX_ID
-        description: "{{ doc('tx_id') }}"
+        description: "{{ doc('solana_tx_id') }}"
       - name: FEE
         description: Transaction fee (in lamports)
       - name: SUCCEEDED
-        description: "{{ doc('tx_succeeded') }}"
+        description: "{{ doc('solana_tx_succeeded') }}"
       - name: SIGNERS
         description: List of accounts that signed the transaction
       - name: ACCOUNT_KEYS
