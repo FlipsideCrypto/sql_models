@@ -1,0 +1,29 @@
+version: 2
+models:
+  - name: solana__votes_block_agg
+    description: Deprecating soon
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+          where: block_timestamp::date >= current_date - 2
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: The time the block began
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: BLOCK_ID
+        description: Unique sequential number that identifies the current block
+        tests:
+          - not_null
+      - name: BLOCKCHAIN 
+        description: In this table, blockchain should always be solana. Field is useful for joining to crosschain tables 
+        tests: 
+          - not_null
+      - name: NUM_VOTES
+        description: The number of votes that occurred during the block
+        tests: 
+          - not_null
