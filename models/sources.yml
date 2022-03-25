@@ -155,12 +155,15 @@ sources:
     database: solana
     schema: core
     tables:
-      - name: fact_blocks
-      - name: fact_transactions
-      - name: fact_events
-      - name: fact_nft_sales
-      - name: fact_transfers
-      - name: fact_swaps
-      - name: fact_votes_agg_block
-      - name: fact_staking_lp_actions
       - name: dim_labels
+      - name: dim_nft_metadata
+      - name: fact_blocks
+      - name: fact_events
+      - name: fact_gauges_votes
+      - name: fact_gov_actions
+      - name: fact_nft_sales
+      - name: fact_staking_lp_actions
+      - name: fact_swaps
+      - name: fact_transactions
+      - name: fact_transfers
+      - name: fact_votes_agg_block
