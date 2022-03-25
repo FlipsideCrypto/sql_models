@@ -19,6 +19,7 @@ WITH inner_tx_individual AS(
       'TXN_PARTICIPATION'
     ) }}
   WHERE
+    1 = 1
 )
 SELECT
   ab.block_timestamp AS block_timestamp,
