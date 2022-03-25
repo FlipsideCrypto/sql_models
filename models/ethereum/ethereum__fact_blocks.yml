@@ -1,0 +1,44 @@
+version: 2
+models:
+  - name: ethereum__fact_blocks
+    description: '{{ doc("blocks_table_doc") }}'   
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("block_number") }}'   
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("block_timestamp") }}'
+      - name: NETWORK
+        description: '{{ doc("network") }}'
+      - name: BLOCKCHAIN
+        description: '{{ doc("blockchain") }}'
+      - name: TX_COUNT
+        description: '{{ doc("tx_count") }}'
+      - name: DIFFICULTY
+        description: '{{ doc("difficulty") }}'
+      - name: TOTAL_DIFFICULTY
+        description: '{{ doc("total_difficulty") }}'
+      - name: EXTRA_DATA
+        description: '{{ doc("extra_data") }}'
+      - name: GAS_LIMIT
+        description: '{{ doc("gas_limit") }}'
+      - name: GAS_USED
+        description: '{{ doc("gas_used") }}'
+      - name: HASH
+        description: '{{ doc("blocks_hash") }}'
+      - name: PARENT_HASH
+        description: '{{ doc("parent_hash") }}'
+      - name: MINER
+        description: '{{ doc("miner") }}'
+      - name: NONCE
+        description: '{{ doc("blocks_nonce") }}'
+      - name: RECEIPTS_ROOT
+        description: '{{ doc("receipts_root") }}'
+      - name: SHA3_UNCLES
+        description: '{{ doc("sha3_uncles") }}'
+      - name: SIZE
+        description: '{{ doc("size") }}' 
+      - name: UNCLE_BLOCKS
+        description: '{{ doc("uncle_blocks") }}' 
+      - name: BLOCK_HEADER_JSON
+        description: '{{ doc("block_header_json") }}'

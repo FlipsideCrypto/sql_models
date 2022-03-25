@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: ethereum__fact_event_logs
+    description: '{{ doc("logs_table_doc") }}'
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("block_number") }}'   
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("logs_tx_hash") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("event_index") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("logs_contract_address") }}'
+      - name: EVENT_NAME
+        description: '{{ doc("event_name") }}'
+      - name: EVENT_INPUTS
+        description: '{{ doc("event_inputs") }}'
+      - name: TOPICS
+        description: '{{ doc("topics") }}'
+      - name: DATA
+        description: '{{ doc("logs_data") }}'
+      - name: EVENT_REMOVED
+        description: '{{ doc("event_removed") }}'  
+      - name: _LOG_ID
+        description: '{{ doc("_log_id_events") }}'  

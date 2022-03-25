@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: ethereum__fact_token_transfers
+    description: '{{ doc("transfer_table_doc") }}'
+      
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("block_number") }}'   
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("block_timestamp") }}'
+      - name: TX_HASH
+        description: '{{ doc("transfer_tx_hash") }}'
+      - name: CONTRACT_ADDRESS
+        description: '{{ doc("transfer_contract_address") }}'
+      - name: FROM_ADDRESS
+        description: '{{ doc("transfer_from_address") }}'
+      - name: TO_ADDRESS
+        description: '{{ doc("transfer_to_address") }}'
+      - name: RAW_AMOUNT
+        description: '{{ doc("transfer_raw_amount") }}'
+      - name: _LOG_ID
+        description: '{{ doc("_log_id_transfers") }}'

@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: ethereum__fact_hourly_token_prices
+    description: '{{ doc("prices_table_doc") }}'
+      
+    columns:
+      - name: HOUR
+        description: '{{ doc("prices_hour") }}'   
+      - name: TOKEN_ADDRESS
+        description: '{{ doc("prices_address") }}' 
+      - name: SYMBOL
+        description: '{{ doc("prices_symbol") }}' 
+      - name: DECIMALS
+        description: '{{ doc("prices_decimals") }}' 
+      - name: PRICE
+        description: '{{ doc("prices_price") }}' 
+      - name: IS_IMPUTED
+        description: '{{ doc("prices_imputed") }}' 
+
+        

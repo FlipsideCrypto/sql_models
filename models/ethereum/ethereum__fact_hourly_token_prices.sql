@@ -6,12 +6,7 @@
 ) }}
 
 SELECT
-    HOUR,
-    token_address,
-    symbol,
-    decimals,
-    price,
-    is_imputed
+    *
 FROM
     {{ source(
         'ethereum_db',

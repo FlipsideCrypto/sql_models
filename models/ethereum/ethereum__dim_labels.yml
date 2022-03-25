@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: ethereum__dim_labels
+    description: '{{ doc("labels_table") }}'
+
+    columns:
+      - name: BLOCKCHAIN
+        description: '{{ doc("label_blockchain") }}'
+      - name: CREATOR
+        description: '{{ doc("label_creator") }}'
+      - name: ADDRESS
+        description: '{{ doc("label_address") }}'
+      - name: ADDRESS_NAME
+        description: '{{ doc("labels_table") }}'
+      - name: LABEL_TYPE
+        description: '{{ doc("label_type") }}'
+      - name: LABEL_SUBTYPE
+        description: '{{ doc("label_subtype") }}'
+      - name: LABEL
+        description: '{{ doc("label") }}'
+
+
