@@ -4,8 +4,8 @@ models:
     description: Records of number of votes per block
     columns:
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: NUM_VOTES
         description: The number of vote events that occurred within the block
