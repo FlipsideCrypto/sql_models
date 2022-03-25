@@ -6,6 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - TX_ID
+            - MSG_TYPE
             - EVENT_AMOUNT
             - EVENT_CURRENCY
             - EVENT_TO

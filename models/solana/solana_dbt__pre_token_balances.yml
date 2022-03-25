@@ -38,7 +38,8 @@ models:
       - name: OWNER
         description: Address of the owner of the account
         tests: 
-          - not_null 
+          - not_null: 
+              enabled: FALSE 
       - name: DECIMAL 
         description: Number of decimals in the token value, need to divide amount by 10^decimal
         tests: 

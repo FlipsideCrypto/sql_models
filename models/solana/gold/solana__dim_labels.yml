@@ -1,0 +1,17 @@
+version: 2
+models:
+  - name: solana__dim_labels
+    description: Records with metadata for known addresses
+    columns:
+      - name: BLOCKCHAIN
+        description: The name of the blockchain
+      - name: CREATOR
+        description: The name of the creator of the label
+      - name: LABEL_TYPE
+        description: A high-level category describing the addresses main function or ownership
+      - name: LABEL_SUBTYPE
+        description: A sub-category nested within label type providing further detail
+      - name: LABEL
+        description: Name of the controlling entity of the address
+      - name: ADDRESS
+        description: Address that the label is for. This is the field that should be used to join other tables with labels. 

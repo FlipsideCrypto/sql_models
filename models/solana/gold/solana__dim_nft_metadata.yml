@@ -1,0 +1,31 @@
+version: 2
+models:
+  - name: solana__dim_nft_metadata
+    description: Records with metadata for known nfts
+    columns:
+      - name: BLOCKCHAIN
+        description: In this table, always Solana. Used to join to cross-chain tables. 
+      - name: CONTRACT_ADDRESS
+        description: Address unique to an NFT series
+      - name: CONTRACT_NAME
+        description: Name of the contract that identifies an NFT series. Example - tcgdragons
+      - name: CREATED_AT_TIMESTAMP
+        description: timestamp in UTC that the NFT was minted at
+      - name: MINT
+        description: "{{ doc('mint') }}"
+      - name: CREATOR_ADDRESS
+        description: address provided by the creator of the project where mint payments and secondary market royalties are sent
+      - name: CREATOR_NAME
+        description: name of the project creator - this can be an individual or a company name
+      - name: IMAGE_URL
+        description: URL that links to the image on the ipfs service
+      - name: PROJECT_NAME
+        description: Name of the project the NFT token belongs to
+      - name: TOKEN_ID
+        description: Numeric value that identifies the NFT within it's series
+      - name: TOKEN_METADATA
+        description: a block of json that describes the traits of an NFT
+      - name: TOKEN_METADATA_URI
+        description: URL that links to the token metadata on the ipfs service
+      - name: TOKEN_NAME
+        description: Name of the NFT token - this is unique to token. Example SMB 284
