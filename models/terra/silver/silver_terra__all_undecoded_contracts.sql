@@ -1,5 +1,6 @@
 {{ config(
   materialized = 'view',
+  post_hook = "call silver_terra.sp_bulk_get_contract_info()"
 ) }}
 (
 
