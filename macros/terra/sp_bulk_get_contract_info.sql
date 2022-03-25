@@ -6,7 +6,7 @@ DECLARE
 BEGIN
   RESULT:= (
     SELECT
-      silver_terra.terra_decode_contract()
+      silver_terra.udf_bulk_get_contract_info()
   );
 RETURN RESULT;
 END;$$
