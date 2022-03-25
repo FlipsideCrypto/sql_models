@@ -6,13 +6,13 @@ models:
       - name: SWAP_PROGRAM
         description: name of decentralized exchange used to perform the swap
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: TX_ID
-        description: "{{ doc('tx_id') }}"
+        description: "{{ doc('solana_tx_id') }}"
       - name: SUCCEEDED
-        description: "{{ doc('tx_succeeded') }}" 
+        description: "{{ doc('solana_tx_succeeded') }}" 
       - name: SWAPPER
         description: Address that initiated the swap 
       - name: SWAP_FROM_AMOUNT

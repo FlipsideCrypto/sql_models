@@ -4,9 +4,9 @@ models:
     description: Records with slots that have a block.  Slots without any blocks are not included
     columns:
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: NETWORK
         description: solana network name
       - name: CHAIN_ID

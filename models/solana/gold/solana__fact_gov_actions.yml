@@ -6,13 +6,13 @@ models:
       - name: PROGRAM_NAME
         description: "name of solana program"
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: TX_ID
-        description: "{{ doc('tx_id') }}"
+        description: "{{ doc('solana_tx_id') }}"
       - name: SUCCEEDED
-        description: "{{ doc('tx_succeeded') }}"
+        description: "{{ doc('solana_tx_succeeded') }}"
       - name: SIGNER
         description: Address initiating the LOCK or EXIT action
       - name: LOCKER_ACCOUNT
