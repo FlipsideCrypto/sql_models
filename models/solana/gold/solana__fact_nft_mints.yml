@@ -4,20 +4,20 @@ models:
     description: Records of all NFT mints on Solana. 
     columns:
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: TX_ID
-        description: "{{ doc('tx_id') }}"
+        description: "{{ doc('solana_tx_id') }}"
       - name: SUCCEEDED
-        description: "{{ doc('tx_succeeded') }}"
+        description: "{{ doc('solana_tx_succeeded') }}"
       - name: PROGRAM_ID 
-        description: "{{ doc('program_id') }}"
+        description: "{{ doc('solana_program_id') }}"
       - name: PURCHASER
-        description: "{{ doc('purchaser') }}"
+        description: "{{ doc('solana_purchaser') }}"
       - name: MINT_PRICE
         description: The price one paid to mint the NFT in SOL or another currency.
       - name: MINT_CURRENCY
         description: The currency used to pay for the NFT mint
       - name: MINT
-        description: "{{ doc('mint') }}"
+        description: "{{ doc('solana_mint') }}"
