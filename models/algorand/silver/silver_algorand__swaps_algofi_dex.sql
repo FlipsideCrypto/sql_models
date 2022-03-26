@@ -374,5 +374,5 @@ AND _INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-)
+) - INTERVAL '4 HOURS'
 {% endif %}

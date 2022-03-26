@@ -7,14 +7,38 @@ models:
             - ASSET_ID
     columns:
       - name: ASSET_ID
+        description: "{{ doc('algo_asset_id') }}"
         tests:
           - not_null
       - name: CREATOR_ADDRESS
+        description: "Address of the asset creator"
         tests:
           - not_null
+      - name: TOTAL_SUPPLY
+        description: "Total supply of the asset"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: ASSET_NAME
+        description: "Name of the asset"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: ASSET_URL
+        description: "The url to the asset website"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: DECIMALS
+        description: "Number of decimals this asset has"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
       - name: ASSET_DELETED
+        description: "whether or not the asset is currently deleted"
         tests:
           - not_null          
       - name: CREATED_AT
+        description: "Block ID that the asset was created"
         tests:
           - not_null   
+      - name: CLOSED_AT
+        description: "Whether or not the asset is currently deleted from the user"
+        tests:
+          - dbt_expectations.expect_column_to_exist
