@@ -8,18 +8,27 @@ models:
             - APP_ID
     columns:
       - name: ADDRESS
+        description: "{{ doc('address') }}"
         tests:
           - not_null
       - name: APP_ID
+        description: "{{ doc('app_id') }}"
         tests:
           - not_null
       - name: APP_CLOSED
+        description: "Boolean of whether this application is currently deleted"
         tests:
           - not_null
+      - name: CLOSED_AT
+        description: "Block ID that the app(app_id) was last removed from the account"
+        tests:
+          - dbt_expectations.expect_column_to_exist
       - name: CREATED_AT
+        description: "Block ID that the app(app_id)  was added to an account"
         tests:
           - not_null
       - name: APP_INFO
+        description: "Is the app currently deleted from the account? If not it will have json about current status"
         tests:
           - not_null:
               where: APP_CLOSED = FALSE

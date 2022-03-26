@@ -4,26 +4,52 @@ models:
     tests:
     columns:
       - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
         tests:
-          - not_null
+          - dbt_expectations.expect_column_to_exist   
       - name: BLOCK_ID
+        description: "{{ doc('algo_block_id') }}"
         tests:
           - not_null
       - name: INTRA
+        description: "{{ doc('intra') }}"
         tests:
           - not_null
       - name: TX_ID
+        description: "{{ doc('tx_id') }}"
         tests:
           - not_null
       - name: INNER_TX
+        description: "{{ doc('inner_tx') }}"
         tests:
           - not_null
       - name: ASSET_ID
+        description: "{{ doc('algo_asset_id') }}"
         tests:
           - not_null
       - name: SENDER
         tests:
           - not_null     
+      - name: FEE
+        description: "{{ doc('fee') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist  
+      - name: ASSET_SENDER
+        description: "The sender of the transfer. The regular sender field should be used and this one set to the zero value for regular transfers between accounts. If this value is nonzero, it indicates a clawback transaction where the sender is the asset's clawback address and the asset sender is the address from which the funds will be withdrawn."
+        tests:
+          - dbt_expectations.expect_column_to_exist  
+      - name: ASSET_RECEIVER
+        description: "The recipient of the asset transfer."
+        tests:
+          - dbt_expectations.expect_column_to_exist  
+      - name: ASSET_AMOUNT
+        description: "The amount of the asset to be transferred. A zero amount transferred to self allocates that asset in the account's Asset map."
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: ASSET_TRANSFERRED
+        description: "The Asset ID of the asset transferred in the asset transfer transaction."
+        tests:
+          - dbt_expectations.expect_column_to_exist 
       - name: TX_TYPE
         tests:
           - not_null
@@ -36,3 +62,7 @@ models:
       - name: TX_MESSAGE
         tests:
           - not_null
+      - name: EXTRA
+        description: "{{ doc('extra') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist
