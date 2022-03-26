@@ -8,18 +8,22 @@ models:
             - ASSET_ID
     columns:
       - name: ADDRESS
+        description: "{{ doc('address') }}"
         tests:
           - not_null
       - name: ASSET_ID
+        description: "{{ doc('algo_asset_id') }}"
         tests:
           - not_null
       - name: AMOUNT
+        description: "Amount of asset the wallet currently holds"
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
       - name: ASSET_ADDED_AT
+        description: "Block that the asset was added to an account"
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
@@ -28,6 +32,11 @@ models:
       - name: FROZEN
         tests:
           - not_null
+      - name: ASSET_LAST_REMOVED
+        description: "Block ID that the asset was last removed from the account"
+        tests:
+          - dbt_expectations.expect_column_to_exist
       - name: ASSET_CLOSED
+        description: "Whether or not the asset is currently deleted from the user"
         tests:
           - not_null

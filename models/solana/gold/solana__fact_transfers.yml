@@ -4,18 +4,18 @@ models:
     description: Records of all transfer/transferChecked events
     columns:
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: TX_ID
-        description: "{{ doc('tx_id') }}"
+        description: "{{ doc('solana_tx_id') }}"
       - name: INDEX
-        description: "{{ doc('index') }}"
+        description: "{{ doc('solana_index') }}"
       - name: TX_FROM
-        description: "{{ doc('tx_from') }}"
+        description: "{{ doc('solana_tx_from') }}"
       - name: TX_TO 
-        description: "{{ doc('tx_to') }}"
+        description: "{{ doc('solana_tx_to') }}"
       - name: AMOUNT 
-        description: "{{ doc('amount') }}"
+        description: "{{ doc('solana_amount') }}"
       - name: MINT
-        description: "{{ doc('mint') }}"
+        description: "{{ doc('solana_mint') }}"

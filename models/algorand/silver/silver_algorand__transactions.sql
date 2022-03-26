@@ -9,20 +9,14 @@
 WITH allTXN AS (
 
   SELECT
-    ab.block_timestamp AS block_timestamp,
     b.intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
-    CASE
-      WHEN b.txid IS NULL THEN ft.txn_txn_id :: text
-      ELSE b.txid :: text
-    END AS tx_id,
-    CASE
-      WHEN b.txid IS NULL THEN 'true'
-      ELSE 'false'
-    END AS inner_tx,
+    b.txid :: text AS tx_id,
+    'false' AS inner_tx,
     CASE
       WHEN txn :txn :type :: STRING = 'appl' THEN NULL
+      WHEN txn :txn :type :: STRING = 'pay' THEN 0
       ELSE asset
     END AS asset_id,
     txn :txn :snd :: text AS sender,
@@ -31,31 +25,70 @@ WITH allTXN AS (
       6
     ) AS fee,
     txn :txn :type :: STRING AS tx_type,
-    CASE
-      WHEN b.txid IS NULL THEN ft.genesis_hash :: text
-      ELSE txn :txn :gh :: STRING
-    END AS genesis_hash,
+    txn :txn :gh :: STRING AS genesis_hash,
     txn AS tx_message,
-    extra,
-    b.__HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
+    extra
   FROM
     {{ source(
       'algorand',
       'TXN'
     ) }}
     b
-    LEFT JOIN {{ ref('silver_algorand__inner_txids') }}
-    ft
-    ON b.round = ft.inner_round
-    AND b.intra = ft.inner_intra
-    LEFT JOIN {{ ref('silver_algorand__block') }}
-    ab
-    ON b.round = ab.block_id
+  WHERE
+    txid IS NOT NULL
+),
+innertx AS (
+  SELECT
+    b.intra + INDEX + 1,
+    b.round AS block_id,
+    txn :txn :grp :: STRING AS tx_group_id,
+    b.txid :: text AS tx_id,
+    'TRUE' AS inner_tx,
+    CASE
+      WHEN VALUE :txn :type :: STRING = 'appl' THEN NULL
+      WHEN VALUE :txn :type :: STRING = 'pay' THEN 0
+      ELSE VALUE :txn :xaid :: STRING
+    END AS asset_id,
+    VALUE :txn :snd :: text AS sender,
+    CASE
+      WHEN VALUE :txn :fee IS NULL THEN 0
+      ELSE VALUE :txn :fee / pow(
+        10,
+        6
+      )
+    END AS fee,
+    VALUE :txn :type :: STRING AS tx_type,
+    txn :txn :gh :: STRING AS genesis_hash,
+    VALUE AS tx_message,
+    extra
+  FROM
+    {{ source(
+      'algorand',
+      'TXN'
+    ) }}
+    b,
+    LATERAL FLATTEN(
+      input => txn :dt :itx
+    ) f
+  WHERE
+    txn :dt :itx IS NOT NULL
+    AND txid IS NOT NULL
+),
+uniontxn AS(
+  SELECT
+    *
+  FROM
+    allTXN
+  UNION
+  SELECT
+    *
+  FROM
+    innertx
 )
 SELECT
-  block_timestamp,
-  intra,
-  block_id,
+  ab.block_timestamp AS block_timestamp,
+  b.intra,
+  b.block_id,
   tx_group_id,
   HEX_DECODE_STRING(
     tx_id
@@ -68,30 +101,35 @@ SELECT
   fee,
   csv.type AS tx_type,
   csv.name AS tx_type_name,
-  genesis_hash,
+  b.genesis_hash,
   tx_message,
   extra,
   concat_ws(
     '-',
-    block_id :: STRING,
-    intra :: STRING
+    b.block_id :: STRING,
+    b.intra :: STRING
   ) AS _unique_key,
-  b._INSERTED_TIMESTAMP
+  ab._inserted_timestamp
 FROM
-  allTXN b
+  uniontxn b
   LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
   csv
   ON b.tx_type = csv.type
+  LEFT JOIN {{ ref('silver_algorand__block') }}
+  ab
+  ON b.block_id = ab.block_id
 WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND b._INSERTED_TIMESTAMP >= (
-  SELECT
-    MAX(
-      _INSERTED_TIMESTAMP
-    )
-  FROM
-    {{ this }}
+AND ab._INSERTED_TIMESTAMP >= (
+  (
+    SELECT
+      MAX(
+        _INSERTED_TIMESTAMP
+      )
+    FROM
+      {{ this }}
+  ) - INTERVAL '4 HOURS'
 )
 {% endif %}
