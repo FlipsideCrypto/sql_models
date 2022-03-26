@@ -1,0 +1,21 @@
+version: 2
+models:
+  - name: solana__fact_nft_sales
+    description: Records with nft sales on specific marketplaces
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('solana_block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('solana_block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('solana_tx_id') }}"
+      - name: SUCCEEDED
+        description: "{{ doc('solana_tx_succeeded') }}"
+      - name: PROGRAM_ID 
+        description: "{{ doc('solana_program_id') }}"
+      - name: PURCHASER
+        description: "{{ doc('solana_purchaser') }}"
+      - name: MINT
+        description: "{{ doc('solana_mint') }}"
+      - name: SALES_AMOUNT
+        description: "{{ doc('solana_sales_amount') }}"

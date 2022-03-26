@@ -1,0 +1,25 @@
+version: 2
+models:
+  - name: solana__fact_swaps
+    description: Records with swaps on specific apps
+    columns:
+      - name: SWAP_PROGRAM
+        description: name of decentralized exchange used to perform the swap
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('solana_block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('solana_block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('solana_tx_id') }}"
+      - name: SUCCEEDED
+        description: "{{ doc('solana_tx_succeeded') }}" 
+      - name: SWAPPER
+        description: Address that initiated the swap 
+      - name: SWAP_FROM_AMOUNT
+        description: Total amount of the token sent in to initiate the swap 
+      - name: SWAP_FROM_MINT
+        description: Token being sent or swapped from
+      - name: SWAP_TO_AMOUNT
+        description: Total amount of the token received in the swap
+      - name: SWAP_TO_MINT
+        description: Token being received or swapped for 
