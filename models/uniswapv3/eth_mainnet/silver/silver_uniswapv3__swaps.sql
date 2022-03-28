@@ -84,8 +84,8 @@ SELECT
   block_id,
   block_timestamp,
   blockchain,
-  liquidity,
-  liquidity_adjusted,
+  COALESCE(liquidity, 0) as liquidity,
+  COALESCE(liquidity_adjusted, 0) as liquidity_adjusted,
   log_index,
   pool_address,
   price,
@@ -97,6 +97,8 @@ SELECT
   tick,
   tx_id
 FROM
-  silver qualify(ROW_NUMBER() over(PARTITION BY tx_id, log_index
+  silver
+WHERE
+  price > 0 qualify(ROW_NUMBER() over(PARTITION BY tx_id, log_index
 ORDER BY
   system_created_at DESC)) = 1

@@ -5,7 +5,9 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
-            - NF_TOKEN_ID
+      - date_gaps:
+           column_name: BLOCK_TIMESTAMP
+           enabled: False #there are two days worth of gaps that will cause this to fail - turn back on when the gaps are resolved
     columns:
       - name: ACTION
         tests:
@@ -30,6 +32,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: BLOCKCHAIN
         tests:
           - not_null
@@ -48,12 +53,6 @@ models:
                 - decimal
                 - float
       - name: LIQUIDITY_PROVIDER
-        tests:
-          - not_null
-      - name: NF_POSITION_MANAGER_ADDRESS
-        tests:
-          - not_null
-      - name: NF_TOKEN_ID
         tests:
           - not_null
       - name: POOL_ADDRESS

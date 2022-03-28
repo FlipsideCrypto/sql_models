@@ -1,0 +1,16 @@
+version: 2
+models:
+  - name: silver_ethereum__prices
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TOKEN_ADDRESS
+            - SYMBOL
+            - HOUR
+    columns:
+      - name: HOUR
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1

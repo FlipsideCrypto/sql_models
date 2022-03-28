@@ -12,7 +12,7 @@ WITH emptyROUNDS AS (
     intra,
     txn,
     extra,
-    _FIVETRAN_SYNCED
+    __HEVO__LOADED_AT
   FROM
     {{ source(
       'algorand',
@@ -47,7 +47,11 @@ SELECT
     er.round :: STRING,
     er.intra :: STRING
   ) AS _unique_key,
-  _FIVETRAN_SYNCED
+  DATEADD(
+    ms,
+    __HEVO__LOADED_AT,
+    '1970-01-01'
+  ) AS _INSERTED_TIMESTAMP
 FROM
   emptyROUNDS er
   LEFT JOIN fulljson f
@@ -57,10 +61,14 @@ WHERE
   f.round IS NOT NULL
 
 {% if is_incremental() %}
-AND _FIVETRAN_SYNCED >= (
+AND DATEADD(
+  ms,
+  __HEVO__LOADED_AT,
+  '1970-01-01'
+) >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}

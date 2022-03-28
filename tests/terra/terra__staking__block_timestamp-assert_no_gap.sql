@@ -1,0 +1,1 @@
+{{ date_gaps(ref("terra__staking"), [], "block_timestamp") }}

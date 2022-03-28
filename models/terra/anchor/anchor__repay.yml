@@ -39,8 +39,9 @@ models:
           - not_null
       - name: BORROWER
         description: the sender address for this transaction
-        tests:
-          - not_null
+        tests: 
+          - not_null: 
+              enabled: FALSE # Converted this test to a null threshold test
       - name: AMOUNT
         description: the repay amount in the currency listed in the CURRENCY column
         tests:

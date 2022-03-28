@@ -1,0 +1,47 @@
+version: 2
+models:
+  - name: silver_algorand__swaps_wagmiswap_dex
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - block_id
+            - intra
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: intra
+        tests:
+          - not_null
+      - name: tx_group_id
+        tests:
+          - not_null
+      - name: app_id
+        tests:
+          - not_null
+      - name: swapper
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
+      - name: swap_from_asset_id
+        tests:
+          - not_null
+      - name: swap_from_amount
+        tests:
+          - not_null
+      - name: pool_address
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
+      - name: swap_to_asset_id
+        tests:
+          - not_null
+      - name: swap_to_amount
+        tests:
+          - not_null

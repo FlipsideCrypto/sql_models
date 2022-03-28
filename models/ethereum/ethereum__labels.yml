@@ -21,7 +21,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin']
+              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin', 'project']
       - name: LABEL_SUBTYPE
         description: A sub-category nested within label type providing further detail
         tests:

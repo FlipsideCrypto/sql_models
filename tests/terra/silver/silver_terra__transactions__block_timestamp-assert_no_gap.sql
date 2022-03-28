@@ -1,0 +1,1 @@
+{{ date_gaps(ref("silver_terra__transactions"), [], "block_timestamp") }}

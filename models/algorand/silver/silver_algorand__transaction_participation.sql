@@ -12,16 +12,14 @@ WITH inner_tx_individual AS(
     ROUND AS block_id,
     intra,
     addr :: text AS address,
-    MIN(_FIVETRAN_SYNCED) AS _FIVETRAN_SYNCED
+    __HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
   FROM
     {{ source(
       'algorand',
       'TXN_PARTICIPATION'
     ) }}
-  GROUP BY
-    block_id,
-    intra,
-    address
+  WHERE
+    1 = 1
 )
 SELECT
   ab.block_timestamp AS block_timestamp,
@@ -33,10 +31,10 @@ SELECT
   concat_ws(
     '-',
     iti.block_id :: STRING,
-    iti.intra :: STRING,
-    iti.address :: STRING
+    intra :: STRING,
+    address :: STRING
   ) AS _unique_key,
-  iti._FIVETRAN_SYNCED
+  ab._INSERTED_TIMESTAMP
 FROM
   inner_tx_individual iti
   LEFT JOIN {{ ref('silver_algorand__block') }}
@@ -46,12 +44,12 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND iti._FIVETRAN_SYNCED >= (
+AND ab._INSERTED_TIMESTAMP >= (
   SELECT
     MAX(
-      _FIVETRAN_SYNCED
+      _INSERTED_TIMESTAMP
     )
   FROM
     {{ this }}
-)
+) - INTERVAL '4 HOURS'
 {% endif %}

@@ -12,7 +12,7 @@ models:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 2
+              interval: 3
       - name: BLOCK_ID
         tests:
           - not_null
@@ -26,7 +26,6 @@ models:
         tests:
           - not_null:
               where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'
-
       - name: ASSET_AMOUNT
         tests:
           - not_null

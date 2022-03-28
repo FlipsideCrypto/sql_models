@@ -276,3 +276,4 @@ FROM
   ON m.tx_id = b.tx_id
 WHERE
   unlocked_amount IS NOT NULL
+  AND burn_amount IS NOT NULL

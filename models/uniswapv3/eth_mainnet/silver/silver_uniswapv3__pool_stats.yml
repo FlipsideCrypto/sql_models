@@ -6,6 +6,9 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - POOL_ADDRESS
+      - date_gaps:
+           column_name: BLOCK_TIMESTAMP
+           enabled: False #there are two days worth of gaps that will cause this to fail - turn back on when the gaps are resolved
     columns:
       - name: BLOCK_ID
         tests:
@@ -13,6 +16,9 @@ models:
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: BLOCKCHAIN
         tests:
           - not_null

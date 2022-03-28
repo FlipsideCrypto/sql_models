@@ -1,13 +1,17 @@
 version: 2
 models:
   - name: thorchain__upgrades
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - IDENTIFIED_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 2
+              interval: 3
       - name: BLOCK_ID
         tests:
           - not_null

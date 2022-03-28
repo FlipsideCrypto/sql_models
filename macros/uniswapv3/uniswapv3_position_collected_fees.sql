@@ -10,12 +10,6 @@
             token0,
             token1
         FROM {{ src_pools_table }} p
-        WHERE
-        {% if is_incremental() %}
-        p.block_timestamp >= getdate() - interval '7 days'
-        {% else %}
-        p.block_timestamp >= getdate() - interval '9 months'
-        {% endif %}
     ),
     pool_txs as (
         SELECT 
@@ -25,11 +19,6 @@
         INNER JOIN pools p ON p.pool_address = ee.contract_address
         WHERE 
             event_name = 'Collect' 
-            {% if is_incremental() %}
-            AND ee.block_timestamp >= getdate() - interval '7 days'
-            {% else %}
-            AND ee.block_timestamp >= getdate() - interval '9 months'
-            {% endif %}
     ),
     burns as (
         SELECT
@@ -43,11 +32,6 @@
             ee.tx_id IN (SELECT tx_id FROM pool_txs)
             AND event_name = 'Burn'
             AND (ee.event_inputs:amount0 > 0 or ee.event_inputs:amount1 > 0)
-            {% if is_incremental() %}
-            AND ee.block_timestamp >= getdate() - interval '7 days'
-            {% else %}
-            AND ee.block_timestamp >= getdate() - interval '9 months'
-            {% endif %}
     ),
     -- Get nf position info by looking at corresponding nf pos event
     nf_positions as (
@@ -62,11 +46,6 @@
             AND contract_address NOT IN (SELECT pool_address FROM pool_txs)
             AND event_inputs:tokenId is not null 
             AND event_name = 'Collect'
-            {% if is_incremental() %}
-            AND ee.block_timestamp >= getdate() - interval '7 days'
-            {% else %}
-            AND ee.block_timestamp >= getdate() - interval '9 months'
-            {% endif %}
     ),
     lp_providers as (
         SELECT * FROM (
@@ -90,6 +69,7 @@
         ee.block_id,
         ee.block_timestamp,
         ee.tx_id,
+        ee.event_index,
         contract_address as pool_address,
         p.pool_name,
         coalesce(
@@ -151,12 +131,7 @@
         -- We don't want collect events where nothing was collected. If there are multiple collect events
         -- in a tx, and there are burn events we want to ensure we're pairing up the burns against collect
         -- events with actual amounts. Otherwise we end up with negative collects.
-        and (ee.event_inputs:amount0 > 0 or ee.event_inputs:amount1 > 0)
-        {% if is_incremental() %}
-        AND ee.block_timestamp >= getdate() - interval '7 days'
-        {% else %}
-        AND ee.block_timestamp >= getdate() - interval '9 months'
-        {% endif %}
+        AND (ee.event_inputs:amount0 > 0 or ee.event_inputs:amount1 > 0)
     HAVING (amount0_adjusted >= 0 or amount1_adjusted >= 0)
 
 {%- endmacro %}
