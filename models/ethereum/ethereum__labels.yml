@@ -42,5 +42,4 @@ models:
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
               where: BLOCKCHAIN = 'ethereum'
-              enabled: False
       
