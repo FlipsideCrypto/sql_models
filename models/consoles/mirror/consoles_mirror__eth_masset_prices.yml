@@ -1,0 +1,35 @@
+version: 2
+models:
+  - name: consoles_mirror__eth_masset_prices
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DATE
+            - SYMBOL
+            - TOKEN_ADDRESS
+            - METRIC_VALUE
+    columns:
+      - name: DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: SYMBOL
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - varchar 
+      - name: TOKEN_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - varchar 
+      - name: METRIC_VALUE
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - number
