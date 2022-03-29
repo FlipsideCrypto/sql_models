@@ -70,27 +70,7 @@ AND (
     {{ this }}
 )
 {% endif %}
-), 
-
-delete_table AS (
-    SELECT 
-        CASE WHEN blockchain IN (
-            'algorand',
-            'solana'
-        ) THEN t.value :address :: STRING
-        ELSE LOWER(
-            t.value :address :: STRING
-        ) END AS address,
-        t.value :delete :: STRING AS delete_flag 
-  
-        FROM base_tables,
-        LATERAL FLATTEN(
-            input => record_content
-        ) t
-        
-        WHERE delete_flag = 'true'
 )
-
 SELECT
   (
     record_metadata :CreateTime :: INT / 1000
@@ -111,22 +91,12 @@ SELECT
   t.value :l2_label :: STRING AS l2_label,
   t.value :address_name :: STRING AS address_name,
   t.value :project_name :: STRING AS project_name, 
-    d.delete_flag
+  t.value :delete :: STRING AS delete_flag 
 FROM
-  base_tables b
-  
-  LEFT OUTER JOIN TABLE(FLATTEN(record_content)) t
-  
-  INNER JOIN delete_table d
-  ON d.address = CASE
-    WHEN blockchain IN (
-      'algorand',
-      'solana'
-    ) THEN t.value :address :: STRING
-    ELSE LOWER(
-      t.value :address :: STRING
-    )
-  END 
+  base_tables,
+  LATERAL FLATTEN(
+    input => record_content
+  ) t
 
   WHERE delete_flag IS NULL
 
