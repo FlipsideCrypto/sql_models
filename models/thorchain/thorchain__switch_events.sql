@@ -4,6 +4,7 @@
 ) }}
 
 SELECT
+  _FIVETRAN_ID AS identified_id,
   TO_TIMESTAMP(
     e.block_timestamp / 1000000000
   ) AS block_timestamp,
@@ -16,16 +17,22 @@ SELECT
 FROM
   {{ source(
     'thorchain_midgard',
-    'midgard_switch_events'
+    'switch_events'
   ) }}
   e
   INNER JOIN {{ source(
     'thorchain_midgard',
-    'midgard_block_log'
+    'block_log'
   ) }}
   bl
   ON bl.timestamp = e.block_timestamp
+WHERE
+  (
+    e._FIVETRAN_DELETED IS NULL
+    OR e._FIVETRAN_DELETED = FALSE
+  )
 GROUP BY
+  identified_id,
   block_timestamp,
   block_id,
   burn_asset,
