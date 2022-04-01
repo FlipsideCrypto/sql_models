@@ -5,6 +5,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
+            - BLOCK_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

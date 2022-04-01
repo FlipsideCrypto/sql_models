@@ -8,6 +8,7 @@ models:
             - POOL_DEDUCT
             - ASSET
             - ASSET_E8
+            - BLOCK_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
