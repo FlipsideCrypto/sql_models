@@ -13,11 +13,11 @@ WITH token_symbols as (
   SELECT 
     DISTINCT symbol, 
     contract_address
-  FROM ethereum.erc20_balances
+  FROM {{ ref('ethereum__erc20_balances') }}
   WHERE contract_label = 'mirror' 
     AND (symbol LIKE 'm%' OR symbol = 'MIR')
     AND balance_date >= CURRENT_DATE - 30
-  
+
 )
 
 , from_to_addresses as (
@@ -26,12 +26,17 @@ WITH token_symbols as (
     to_address AS address, --TO address
     s.symbol,
     min(block_timestamp) AS start_date
-  FROM ethereum.udm_events u 
+  FROM {{ ref('ethereum__udm_events') }} u 
   
   LEFT JOIN token_symbols s 
     ON u.contract_address = s.contract_address
   
   WHERE u.contract_address IN (select contract_address from token_symbols)
+  
+  {% if is_incremental() %}
+    AND u.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+  
   GROUP BY 1,2
   
   UNION
@@ -40,12 +45,17 @@ WITH token_symbols as (
     from_address AS address, --FROM address
     s.symbol,
     min(block_timestamp) AS start_date
-  FROM ethereum.udm_events u 
+  FROM {{ ref('ethereum__udm_events') }} u 
   
   LEFT JOIN token_symbols s  
     ON u.contract_address = s.contract_address
   
   WHERE u.contract_address IN (SELECT contract_address FROM token_symbols)
+  
+  {% if is_incremental() %}
+    AND u.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+  
   GROUP BY 1,2
 
 )

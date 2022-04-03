@@ -1,7 +1,15 @@
+{{ config(
+  materialized = 'table',
+  unique_key = 'day_date',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['day_date'],
+  tags = ['snowflake', 'mirror', 'console', 'mirror_terra_masset_prices']
+) }}
+
 -- original by cryptoicicle https://app.flipsidecrypto.com/velocity/queries/8620a68c-587d-47f7-95c9-4ad1aca7d5cc
 WITH jdata as (
 
-  select '{
+  SELECT '{
     "vault_data":
     [
      {
@@ -366,23 +374,37 @@ WITH jdata as (
 )
 
 , labels as (
+
   SELECT 
     value:ADDRESS::string as ADDRESS,
     value:ADDRESS_NAME::string as ADDRESS_NAME
-  FROM jdata, lateral flatten (input => parse_json(jdata):vault_data)
+
+  FROM jdata, 
+  lateral flatten (input => parse_json(jdata):vault_data)
 ),
 
 prices as (
-SELECT date_trunc('day', block_timestamp) as day_date,
-    address_name,
-    avg(price_usd) as price
-    FROM terra.oracle_prices p
-    left join labels l
-    on l.address = p.currency
-    WHERE lower(address_name) LIKE 'm%'
-    --AND date(block_timestamp) >= current_date - 90
-    GROUP BY day_date, address_name
-  )
+
+SELECT 
+  date_trunc('day', block_timestamp) as day_date,
+  address_name,
+  avg(price_usd) as price
+FROM {{ ref('terra__oracle_prices') }} p
+    
+LEFT JOIN labels l
+  ON l.address = p.currency
+    
+WHERE lower(address_name) LIKE 'm%'
+
+{% if is_incremental() %}
+  AND p.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
+
+GROUP BY day_date, address_name
+
+)
 
 
-select * from prices
+SELECT 
+  * 
+FROM prices

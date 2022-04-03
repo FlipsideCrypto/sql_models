@@ -30,8 +30,13 @@ SELECT
     ELSE 'Smaller Wallets'
   END as label,
  sum(balance) as amount
-FROM ethereum.erc20_balances
+FROM {{ ref('ethereum__erc20_balances') }}
 WHERE contract_address = '0x09a3ecafa817268f77be1283176b946c4ff2e608' 
   AND balance_date = CURRENT_DATE - 1
+
+{% if is_incremental() %}
+  AND balance_date :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
+
 GROUP BY 1,2
 HAVING amount > 0

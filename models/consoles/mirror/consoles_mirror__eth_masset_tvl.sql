@@ -11,13 +11,15 @@
 
 WITH label as (
 
-  SELECT user_address, symbol
-  FROM ethereum.erc20_balances
+  SELECT 
+    user_address, 
+    symbol
+  FROM {{ ref('ethereum__erc20_balances') }}
   WHERE contract_label = 'mirror' 
     AND label = 'uniswap' 
     AND balance_date >= CURRENT_DATE - 30 
     AND user_address != '0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
- 
+
  )
 
 , balance_usd as (
@@ -29,9 +31,13 @@ WITH label as (
       WHEN symbol = 'UST' then balance
       ELSE amount_usd
     END as amount_usd
-  FROM ethereum.erc20_balances
-  WHERE user_address IN (SELECT user_address FROM label)
-
+  FROM {{ ref('ethereum__erc20_balances') }}
+  WHERE user_address IN (SELECT user_address 
+                         FROM label)
+  
+  {% if is_incremental() %}
+    AND balance_date :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
 )
 
 , liquidity_contract as (

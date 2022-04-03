@@ -12,9 +12,14 @@ SELECT
   to_char(date_trunc('day', balance_date), 'YYYY-MM-DD HH24:MI:SS') AS date,
   symbol,
   sum(balance) as amount
-FROM ethereum.erc20_balances
+FROM {{ ref('ethereum__erc20_balances') }}
 WHERE contract_label = 'mirror' 
   AND (symbol LIKE 'm%' OR symbol = 'MIR')
+
+{% if is_incremental() %}
+  AND balance_date :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
+
 GROUP BY 1,2
 
 UNION 
@@ -23,7 +28,12 @@ SELECT
   to_char(date_trunc('day', balance_date), 'YYYY-MM-DD HH24:MI:SS') AS date,
   'Total' symbol,
   sum(balance) as amount
-FROM ethereum.erc20_balances
+FROM {{ ref('ethereum__erc20_balances') }}
 WHERE contract_label = 'mirror' 
   AND (symbol LIKE 'm%' OR symbol = 'MIR')
+
+{% if is_incremental() %}
+  AND balance_date :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
+
 GROUP BY 1,2

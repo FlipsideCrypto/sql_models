@@ -12,23 +12,29 @@ WITH token_symbols as (
   SELECT 
     DISTINCT symbol, 
     contract_address
-  FROM ethereum.erc20_balances
+  FROM {{ ref('ethereum__erc20_balances') }}
   WHERE contract_label = 'mirror' 
     AND (symbol LIKE 'm%' OR symbol = 'MIR')
-    AND balance_date >= CURRENT_DATE - 30 AND user_address != '0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
-  
+    AND balance_date >= CURRENT_DATE - 30 
+    AND user_address != '0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
+
 )
 
 SELECT 
   to_char(date_trunc('day', block_timestamp), 'YYYY-MM-DD HH24:MI:SS') AS date, --TO address
   s.symbol,
   count(DISTINCT tx_id) AS tx_count
-FROM ethereum.udm_events u 
+FROM {{ ref('ethereum__udm_events') }} u 
 
 LEFT JOIN token_symbols s 
   ON u.contract_address = s.contract_address
 
 WHERE u.contract_address IN (select contract_address from token_symbols)
+
+{% if is_incremental() %}
+  AND u.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
+
 GROUP BY 1,2
   
 UNION 
@@ -36,8 +42,11 @@ UNION
 SELECT to_char(date_trunc('day', block_timestamp), 'YYYY-MM-DD HH24:MI:SS') AS date, --TO address
   'Total' as symbol,
 count(DISTINCT tx_id) AS tx_count
-FROM ethereum.udm_events
+FROM {{ ref('ethereum__udm_events') }}
 WHERE contract_address IN (select contract_address from token_symbols)
-GROUP BY 1,2
-ORDER BY 1
 
+{% if is_incremental() %}
+  AND block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+{% endif %}
+
+GROUP BY 1,2

@@ -1,7 +1,15 @@
+{{ config(
+  materialized = 'table',
+  unique_key = 'date',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['date'],
+  tags = ['snowflake', 'mirror', 'console', 'mirror_terra_avg_gas_fee']
+) }}
+
 -- original by FlipoCrypto https://app.flipsidecrypto.com/velocity/queries/083e239d-bc88-4032-8a57-a77823737495
 WITH jdata as (
 
-  select '{
+  SELECT '{
     "vault_data":
     [
      {
@@ -366,39 +374,73 @@ WITH jdata as (
 )
 
 , labels as (
+  
   SELECT 
     value:ADDRESS::string as ADDRESS,
     value:ADDRESS_NAME::string as ADDRESS_NAME
-  FROM jdata, lateral flatten (input => parse_json(jdata):vault_data)
+  FROM jdata, 
+  lateral flatten (input => parse_json(jdata):vault_data)
+
 ) 
   
 , gas_tx as (
-  SELECT date_trunc('day', block_timestamp) as day, TX_ID, IFF(FEE[0]:amount[0] IS NOT NULL, FEE[0]:amount[0]:amount::decimal, FEE[0]:amount) as raw_amount, --Consider changes post Col-5 in transactions
-  	 raw_amount / POW (10, 6) as amount, IFF(FEE[0]:amount[0] IS NOT NULL, FEE[0]:amount[0]:denom::string, FEE[0]:denom::string) as denom
-  FROM terra.transactions 
-  WHERE TX_STATUS = 'SUCCEEDED' and (FEE[0]:amount[0] IS NOT NULL OR FEE[0]:amount IS NOT NULL) and FEE[0]:amount <> '[]' --Check for post-Col 5 changes in transactions contract
+
+  SELECT 
+    date_trunc('day', block_timestamp) as date, 
+    TX_ID, 
+    IFF(FEE[0]:amount[0] IS NOT NULL, FEE[0]:amount[0]:amount::decimal, FEE[0]:amount) as raw_amount, --Consider changes post Col-5 in transactions
+  	raw_amount / POW (10, 6) as amount, IFF(FEE[0]:amount[0] IS NOT NULL, FEE[0]:amount[0]:denom::string, FEE[0]:denom::string) as denom
+  FROM {{ ref('terra__transactions') }}
+  WHERE TX_STATUS = 'SUCCEEDED' 
+    AND (FEE[0]:amount[0] IS NOT NULL OR FEE[0]:amount IS NOT NULL) 
+    AND FEE[0]:amount <> '[]' --Check for post-Col 5 changes in transactions contract
+
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+
+
 )
 
 , prices as (
-  SELECT date_trunc('day', block_timestamp) as day, currency, symbol, avg(price_usd) as conversion_price_usd
-  from terra.oracle_prices
+
+  SELECT 
+    date_trunc('day', block_timestamp) as date, 
+    currency, 
+    symbol, 
+    avg(price_usd) as conversion_price_usd
+  FROM {{ ref('terra__oracle_prices') }}
   WHERE currency IS NOT NULL
+  
+  {% if is_incremental() %}
+    AND block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+
   GROUP BY 1, 2, 3
+
 )
 
 , gas_conversion as (
-  SELECT g.day, TX_ID, amount * conversion_price_usd as gas_usd, symbol
-  FROM gas_tx g INNER JOIN prices p ON g.day = p.day and g.denom = p.currency
-  -- LIMIT 500
+
+  SELECT 
+    g.date, 
+    TX_ID, 
+    amount * conversion_price_usd as gas_usd, 
+    symbol
+  FROM gas_tx g 
+
+  INNER JOIN prices p 
+    ON g.date = p.date
+    AND g.denom = p.currency
+  
 )
 
 , mirror_tx as (
+
   SELECT 
     date_trunc('day', block_timestamp) as date,
     TX_ID,
     MSG_VALUE,
-    -- -- MSG_VALUE:coins::string,
-    -- MSG_VALUE:coins[0]:amount / POW(10,6) as ustamount
     MSG_VALUE:contract::string as contract,
     l.ADDRESS_NAME as mAsset,
   	CASE 
@@ -406,22 +448,36 @@ WITH jdata as (
 	  WHEN CONTAINS(mAsset, 'Pair') THEN REGEXP_SUBSTR(mAsset, 'Terraswap (\\w+)-UST Pair', 1, 1, 'e')
 	  ELSE mAsset
     END as base_masset
-  FROM terra.msgs INNER JOIN labels l ON MSG_VALUE:contract::string = l.ADDRESS --OR EVENT_ATTRIBUTES:ask_asset::string = l.ADDRESS
+  FROM {{ ref('terra__msgs') }} m
+  
+  INNER JOIN labels l 
+    ON MSG_VALUE:contract::string = l.ADDRESS 
+
   WHERE tx_status = 'SUCCEEDED' and MSG_TYPE = 'wasm/MsgExecuteContract' 
-  -- and date > CURRENT_DATE - 3 -- and MSG_VALUE:execute_msg:send:msg:open_position:short_params IS NOT NULL
-  -- LIMIT 500
+  
+  {% if is_incremental() %}
+    AND m.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+
 )
 
 , daily_avg as (
-  SELECT to_char(date, 'YYYY-MM-DD') as day, base_masset, avg(gas_usd) as avg_gas_usd
-  FROM mirror_tx m INNER JOIN gas_conversion g ON m.tx_id = g.tx_id
+
+  SELECT 
+    to_char(m.date, 'YYYY-MM-DD') as date, 
+    base_masset, 
+    avg(gas_usd) as avg_gas_usd
+  FROM mirror_tx m 
+  
+  INNER JOIN gas_conversion g 
+    ON m.tx_id = g.tx_id
   GROUP BY 1, 2
-  ORDER BY 1
+
 )
 
-SELECT day, base_masset, avg_gas_usd,
-  AVG(avg_gas_usd) OVER (PARTITION BY base_masset ORDER BY DAY ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) as "7_DMA"
+SELECT 
+  date, 
+  base_masset, 
+  avg_gas_usd,
+  AVG(avg_gas_usd) OVER (PARTITION BY base_masset ORDER BY DATE ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) as "SEVEN_DMA"
 FROM daily_avg
--- WHERE base_masset IN ('mNFLX', 'mAMZN')
-ORDER BY 1
-

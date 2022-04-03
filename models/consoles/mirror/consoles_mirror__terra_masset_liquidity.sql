@@ -1,8 +1,16 @@
+{{ config(
+  materialized = 'table',
+  unique_key = 'date',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['date'],
+  tags = ['snowflake', 'mirror', 'console', 'mirror_terra_masset_liquidity']
+) }}
+
 -- original by FlipoCrypto https://app.flipsidecrypto.com/velocity/queries/6fe65fc9-d3dc-4ff4-b40d-42f1034c4192
 
 WITH jdata as (
 
-  select '{
+  SELECT '{
     "vault_data":
     [
      {
@@ -135,32 +143,54 @@ WITH jdata as (
 )
 
 , labels as (
+
   SELECT 
     value:ADDRESS::string as ADDRESS,
     value:ADDRESS_NAME::string as ADDRESS_NAME
-  FROM jdata, lateral flatten (input => parse_json(jdata):vault_data)
+  FROM jdata, 
+  lateral flatten (input => parse_json(jdata):vault_data)
+
 )
 
 , per_lp as (
-  SELECT b.date,
-  l.ADDRESS_NAME as mAsset,
-  CASE 
-    WHEN CONTAINS(mAsset, 'LP') THEN REGEXP_SUBSTR(mAsset, 'Terraswap (\\w+)-UST LP', 1, 1, 'e')
-    WHEN CONTAINS(mAsset, 'Pair') THEN REGEXP_SUBSTR(mAsset, 'Terraswap (\\w+)-UST Pair', 1, 1, 'e')
-    ELSE mAsset
-  END as base_masset,
-  balance_usd,
-  balance
-  FROM terra.daily_balances b inner join labels l on b.address = l.address
-  WHERE b.balance_usd > 0 and currency = 'UST' and b.date >= CURRENT_DATE - 90
+
+  SELECT 
+    b.date,
+    l.ADDRESS_NAME as mAsset,
+    CASE 
+      WHEN CONTAINS(mAsset, 'LP') THEN REGEXP_SUBSTR(mAsset, 'Terraswap (\\w+)-UST LP', 1, 1, 'e')
+      WHEN CONTAINS(mAsset, 'Pair') THEN REGEXP_SUBSTR(mAsset, 'Terraswap (\\w+)-UST Pair', 1, 1, 'e')
+      ELSE mAsset
+    END AS base_masset,
+    balance_usd,
+    balance
+  FROM {{ ref('terra__daily_balances') }} b 
+  
+  INNER JOIN labels l 
+    ON b.address = l.address
+  
+  WHERE b.balance_usd > 0 
+    AND currency = 'UST' 
+    AND b.date >= CURRENT_DATE - 90
+
+  {% if is_incremental() %}
+    AND b.date :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+
 )
 
-SELECT to_char(date, 'YYYY-MM-DD HH24:MI:SS') AS date, base_masset, SUM(balance) * 2 as TVL
+SELECT 
+  to_char(date, 'YYYY-MM-DD HH24:MI:SS') AS date, 
+  base_masset, 
+  SUM(balance) * 2 as TVL
 FROM per_lp
 GROUP BY 1, 2
 
 UNION
 
-SELECT to_char(date, 'YYYY-MM-DD HH24:MI:SS') AS date, 'Total' as base_masset, SUM(balance) * 2 as TVL
+SELECT 
+  to_char(date, 'YYYY-MM-DD HH24:MI:SS') AS date, 
+  'Total' as base_masset, 
+  SUM(balance) * 2 as TVL
 FROM per_lp
 GROUP BY 1, 2

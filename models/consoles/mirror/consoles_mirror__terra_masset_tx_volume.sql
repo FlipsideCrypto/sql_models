@@ -1,7 +1,15 @@
+{{ config(
+  materialized = 'table',
+  unique_key = 'date',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['date'],
+  tags = ['snowflake', 'mirror', 'console', 'mirror_terra_masset_tx_volume']
+) }}
+
 -- original by FlipoCrypto https://app.flipsidecrypto.com/velocity/queries/81ae7f2c-6098-4921-8021-591652f63ab5 
 WITH jdata as (
 
-  select '{
+  SELECT '{
     "vault_data":
     [
      {
@@ -369,16 +377,16 @@ WITH jdata as (
   SELECT 
     value:ADDRESS::string as ADDRESS,
     value:ADDRESS_NAME::string as ADDRESS_NAME
-  FROM jdata, lateral flatten (input => parse_json(jdata):vault_data)
+  FROM jdata, 
+  lateral flatten (input => parse_json(jdata):vault_data)
 )
 
 , tx as (
+
 SELECT 
     date_trunc('day', block_timestamp) as date,
     TX_ID,
     MSG_VALUE,
-    -- -- MSG_VALUE:coins::string ,
-    -- MSG_VALUE:coins[0]:amount / POW(10,6) as ustamount
     MSG_VALUE:contract::string as contract,
     l.ADDRESS_NAME as mAsset,
   	CASE 
@@ -386,19 +394,34 @@ SELECT
 	  WHEN CONTAINS(mAsset, 'Pair') THEN REGEXP_SUBSTR(mAsset, 'Terraswap (\\w+)-UST Pair', 1, 1, 'e')
 	  ELSE mAsset
     END as base_masset
-  FROM terra.msgs INNER JOIN labels l ON MSG_VALUE:contract::string = l.ADDRESS --OR EVENT_ATTRIBUTES:ask_asset::string = l.ADDRESS
-  WHERE tx_status = 'SUCCEEDED' and MSG_TYPE = 'wasm/MsgExecuteContract' 
-  -- and date > CURRENT_DATE - 3 -- and MSG_VALUE:execute_msg:send:msg:open_position:short_params IS NOT NULL
-  -- LIMIT 500
+  FROM {{ ref('terra__msgs') }} m
+  
+  INNER JOIN labels l 
+    ON MSG_VALUE:contract::string = l.ADDRESS
+  
+  WHERE tx_status = 'SUCCEEDED' 
+  AND MSG_TYPE = 'wasm/MsgExecuteContract' 
+
+  {% if is_incremental() %}
+    AND m.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+
+
 )
 
-SELECT date, base_masset, COUNT(DISTINCT tx_id) as num_tx
+SELECT 
+  date, 
+  base_masset, 
+  COUNT(DISTINCT tx_id) as num_tx
 FROM tx
 GROUP BY 1, 2
 
 UNION 
 
-SELECT date, 'Total' as base_masset, COUNT(DISTINCT tx_id) as num_tx
+SELECT 
+  date, 
+  'Total' as base_masset, 
+  COUNT(DISTINCT tx_id) as num_tx
 FROM tx
 GROUP BY 1, 2
 ORDER BY 1

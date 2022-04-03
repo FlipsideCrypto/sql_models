@@ -1,7 +1,15 @@
+{{ config(
+  materialized = 'table',
+  unique_key = 'date',
+  incremental_strategy = 'delete+insert',
+  cluster_by = ['date'],
+  tags = ['snowflake', 'mirror', 'console', 'mirror_terra_active_acct']
+) }}
+
 -- original by cryptoicicle https://app.flipsidecrypto.com/velocity/queries/4a1ff7a7-bdb1-43fe-a1b1-c259a7b9aef0
 WITH jdata as (
 
-  select '{
+  SELECT '{
     "vault_data":
     [
      {
@@ -369,7 +377,8 @@ WITH jdata as (
   SELECT 
     value:ADDRESS::string as ADDRESS,
     value:ADDRESS_NAME::string as ADDRESS_NAME
-  FROM jdata, lateral flatten (input => parse_json(jdata):vault_data)
+  FROM jdata, 
+  lateral flatten (input => parse_json(jdata):vault_data)
 )
 
 , tx as (
@@ -384,20 +393,32 @@ SELECT
 	  ELSE mAsset
     END as base_masset,
   rank() over (partition by sender,base_masset order by date asc) as rank
-    
-  -- *
-  FROM terra.msgs INNER JOIN labels l ON MSG_VALUE:contract::string = l.ADDRESS --OR EVENT_ATTRIBUTES:ask_asset::string = l.ADDRESS
-  WHERE tx_status = 'SUCCEEDED' and MSG_TYPE = 'wasm/MsgExecuteContract' 
-  -- and date > CURRENT_DATE - 3 -- and MSG_VALUE:execute_msg:send:msg:open_position:short_params IS NOT NULL
-  -- LIMIT 500
+  FROM {{ ref('terra__msgs') }} m
+  
+  INNER JOIN labels l 
+    ON MSG_VALUE:contract::string = l.ADDRESS 
+  
+  WHERE tx_status = 'SUCCEEDED' 
+    AND MSG_TYPE = 'wasm/MsgExecuteContract' 
+  
+  {% if is_incremental() %}
+    AND m.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE )FROM {{ ref('silver_terra__msgs') }})
+  {% endif %}
+
 )
-SELECT date, base_masset, COUNT(DISTINCT sender) as no_of_users
+
+SELECT 
+  date, 
+  base_masset, 
+  COUNT(DISTINCT sender) as no_of_users
 FROM tx
 GROUP BY 1, 2
 
 UNION 
 
-SELECT date, 'Total' as base_masset, COUNT(DISTINCT sender) as no_of_users
+SELECT 
+  date, 
+  'Total' as base_masset, 
+  COUNT(DISTINCT sender) as no_of_users
 FROM tx
 GROUP BY 1, 2
-ORDER BY 1
