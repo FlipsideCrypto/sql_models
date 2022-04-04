@@ -6,8 +6,7 @@ models:
           combination_of_columns:
             - BLOCK_ID
             - ASSET
-            - RUNE_AMOUNT
-            - ASSET_AMOUNT
+            - REASON
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

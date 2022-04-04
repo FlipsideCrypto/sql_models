@@ -6,7 +6,12 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
-
+            - TX_ID
+            - TO_ADDRESS
+            - FROM_ADDRESS
+            - ASSET
+            - ASSET_E8
+            - ASSET_2ND
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
