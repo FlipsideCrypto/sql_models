@@ -4,12 +4,12 @@
 ) }}
 
 SELECT
-  TO_TIMESTAMP(
+  DISTINCT TO_TIMESTAMP(
     e.block_timestamp / 1000000000
   ) AS block_timestamp,
   bl.height AS block_id,
   e.tx AS tx_id,
-  e.to_addr AS to_addres,
+  e.to_addr AS to_address,
   e.from_addr AS from_address,
   e.memo,
   e.asset,
