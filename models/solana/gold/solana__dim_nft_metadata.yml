@@ -12,7 +12,7 @@ models:
       - name: CREATED_AT_TIMESTAMP
         description: timestamp in UTC that the NFT was minted at
       - name: MINT
-        description: "{{ doc('mint') }}"
+        description: "{{ doc('solana_mint') }}"
       - name: CREATOR_ADDRESS
         description: address provided by the creator of the project where mint payments and secondary market royalties are sent
       - name: CREATOR_NAME

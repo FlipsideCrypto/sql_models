@@ -18,7 +18,7 @@ SELECT
     ms,
     __HEVO__LOADED_AT,
     '1970-01-01'
-  ) AS _INSERTED_TIMESTAMP
+  ) AS _inserted_timestamp
 FROM
   {{ source(
     'algorand',
@@ -28,11 +28,7 @@ WHERE
   1 = 1
 
 {% if is_incremental() %}
-AND DATEADD(
-  ms,
-  __HEVO__LOADED_AT,
-  '1970-01-01'
-) >= (
+AND _inserted_timestamp >= (
   SELECT
     MAX(
       _INSERTED_TIMESTAMP

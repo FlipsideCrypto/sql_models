@@ -19,6 +19,7 @@ WITH swaps AS (
 AND block_timestamp >= getdate() - INTERVAL '2 days'
 {% endif %}
 )
+
 SELECT
   se.block_timestamp,
   se.block_id,
@@ -26,7 +27,8 @@ SELECT
   blockchain,
   se.pool_name,
   from_address,
-  to_address,
+  SPLIT(memo, ':')[2]::string AS native_to_address,
+  to_address AS to_pool_address,
   from_asset,
   to_asset,
   COALESCE(from_e8 / pow(10, 8), 0) AS from_amount,

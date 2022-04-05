@@ -32,7 +32,10 @@ models:
       - name: FROM_ADDRESS
         tests:
           - not_null
-      - name: TO_ADDRESS
+      - name: NATIVE_TO_ADDRESS
+        tests:
+          - not_null
+      - name: TO_POOL_ADDRESS
         tests:
           - not_null
       - name: FROM_ASSET

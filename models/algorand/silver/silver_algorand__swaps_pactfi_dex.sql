@@ -16,7 +16,6 @@ WITH pact_app_ids AS (
         AND tx_message :dt :itx [0] :txn :type :: STRING = 'acfg'
         AND tx_message :dt :itx [0] :txn :apar :an :: STRING LIKE '%PACT LP Token'
         AND tx_message :dt :itx [0] :txn :apar :au :: STRING = 'https://pact.fi/'
-        AND block_timestamp > '2022-02-02'
 ),
 pactfi_app AS(
     SELECT
@@ -161,5 +160,5 @@ AND pa._INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-)
+) - INTERVAL '4 HOURS'
 {% endif %}

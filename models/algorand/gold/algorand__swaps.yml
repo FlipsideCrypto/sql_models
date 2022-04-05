@@ -8,45 +8,57 @@ models:
             - intra
     columns:
       - name: swap_program
+        description: "The DEX or program used to make the swap"
         tests:
           - not_null
       - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
         tests:
-          - not_null
+          - dbt_expectations.expect_column_to_exist   
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
       - name: BLOCK_ID
+        description: "{{ doc('algo_block_id') }}"
         tests:
           - not_null
       - name: intra
+        description: "{{ doc('intra') }}"
         tests:
           - not_null
       - name: tx_group_id
+        description: "{{ doc('tx_group_id') }}"
         tests:
           - not_null
       - name: app_id
+        description: "{{ doc('app_id') }}"
         tests:
           - not_null
       - name: swapper
+        description: "Address that initiated the swap"
         tests:
           - not_null
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
       - name: swap_from_asset_id
+        description: "Token being sent or swapped from"
         tests:
           - not_null
       - name: swap_from_amount
+        description: "Total amount of the token sent in to initiate the swap"
         tests:
           - not_null
       - name: pool_address
+        description: "Address of the pool the swap is coming from"
         tests:
           - not_null
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
       - name: swap_to_asset_id
+        description: "Token being received or swapped for"
         tests:
           - not_null
       - name: swap_to_amount
+        description: "Total amount of the token received in the swap"
         tests:
           - not_null
