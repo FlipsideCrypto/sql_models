@@ -28,7 +28,6 @@ WHERE
   msg_value :execute_msg :swap IS NOT NULL
   AND contract_label IS NOT NULL
   AND block_timestamp >= CURRENT_DATE - 7
-  AND TRY_TO_NUMERIC(msg_value :execute_msg :swap :offer_asset :amount :: string) is not null
 GROUP BY
   contract_label,
   contract_address

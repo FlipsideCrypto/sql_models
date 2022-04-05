@@ -1,15 +1,24 @@
-{{ 
-  config(
-    materialized='view', 
-    tags=['snowflake', 'thorchain', 'set_mimir_events']
-  )
-}}
+{{ config(
+  materialized = 'view',
+  tags = ['snowflake', 'thorchain', 'set_mimir_events']
+) }}
 
 SELECT
-  to_timestamp(e.BLOCK_TIMESTAMP/1000000000) as block_timestamp,
-  bl.height as block_id,
+  TO_TIMESTAMP(
+    e.block_timestamp / 1000000000
+  ) AS block_timestamp,
+  bl.height AS block_id,
   e.key,
   e.value
-FROM {{source('thorchain_midgard', 'set_mimir_events')}} e
-INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = e.BLOCK_TIMESTAMP
-WHERE (e._FIVETRAN_DELETED IS NULL OR e._FIVETRAN_DELETED = False)
+FROM
+  {{ source(
+    'thorchain_midgard',
+    'midgard_set_mimir_events'
+  ) }}
+  e
+  INNER JOIN {{ source(
+    'thorchain_midgard',
+    'midgard_block_log'
+  ) }}
+  bl
+  ON bl.timestamp = e.block_timestamp

@@ -47,7 +47,3 @@ models:
 
 vars:
   "dbt_date:time_zone": GMT
-
-on-run-start:
-  - "{{ create_udfs() }}"
-  - "{{ sp_bulk_get_contract_info() }}"
