@@ -14,7 +14,6 @@ WITH allTXN AS (
     tx_group_id,
     tx_id,
     inner_tx,
-    asset_id,
     tx_message :txn :snd :: text AS sender,
     fee,
     tx_message :txn :votekey :: text AS participation_key,
@@ -40,7 +39,6 @@ SELECT
   tx_group_id,
   tx_id,
   TO_BOOLEAN(inner_tx) AS inner_tx,
-  asset_id,
   algorand_decode_b64_addr(
     sender
   ) AS sender,

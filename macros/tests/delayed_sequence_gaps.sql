@@ -28,7 +28,7 @@
                     )
                 FROM
                     {{ this }}
-            ) - INTERVAL '8 HOURS'
+            ) - INTERVAL '15 HOURS'
     )
 SELECT
     {{ partition_sql + "," if partition_sql }}
