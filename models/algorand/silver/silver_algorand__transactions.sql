@@ -94,7 +94,7 @@ SELECT
     tx_id
   ) AS tx_id,
   TO_BOOLEAN(inner_tx) AS inner_tx,
-  asset_id,
+  asset_id AS NUMBER,
   algorand_decode_b64_addr(
     sender
   ) AS sender,
