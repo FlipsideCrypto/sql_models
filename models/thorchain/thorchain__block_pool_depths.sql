@@ -15,15 +15,20 @@ SELECT
 FROM
   {{ source(
     'thorchain_midgard',
-    'midgard_block_pool_depths'
+    'block_pool_depths'
   ) }}
   d
   INNER JOIN {{ source(
     'thorchain_midgard',
-    'midgard_block_log'
+    'block_log'
   ) }}
   bl
   ON bl.timestamp = d.block_timestamp
+WHERE
+  (
+    d._FIVETRAN_DELETED IS NULL
+    OR d._FIVETRAN_DELETED = FALSE
+  )
 GROUP BY
   block_timestamp,
   block_id,

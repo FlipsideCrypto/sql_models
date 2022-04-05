@@ -8,6 +8,7 @@ SELECT
     e.block_timestamp / 1000000000
   ) AS block_timestamp,
   bl.height AS block_id,
+  e._FIVETRAN_ID AS event_id,
   e.tx AS tx_id,
   e.chain AS blockchain,
   e.pool AS pool_name,
@@ -26,12 +27,17 @@ SELECT
 FROM
   {{ source(
     'thorchain_midgard',
-    'midgard_unstake_events'
+    'unstake_events'
   ) }}
   e
   INNER JOIN {{ source(
     'thorchain_midgard',
-    'midgard_block_log'
+    'block_log'
   ) }}
   bl
   ON bl.timestamp = e.block_timestamp
+WHERE
+  (
+    e._FIVETRAN_DELETED IS NULL
+    OR e._FIVETRAN_DELETED = FALSE
+  )

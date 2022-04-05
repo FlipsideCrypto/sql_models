@@ -2,7 +2,9 @@ version: 2
 models:
   - name: thorchain__liquidity_actions
     tests:
-
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - EVENT_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -13,7 +15,9 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-
+      - name: EVENT_ID
+        tests:
+          - not_null
       - name: LP_ACTION
         tests:
           - not_null

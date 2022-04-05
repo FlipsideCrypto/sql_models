@@ -2,7 +2,9 @@ version: 2
 models:
   - name: thorchain__bond_actions
     tests:
-
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - EVENT_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -16,7 +18,9 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-
+      - name: EVENT_ID
+        tests:
+          - not_null
       - name: TX_ID
         tests:
           - not_null

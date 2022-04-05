@@ -1,6 +1,10 @@
 version: 2
 models:
   - name: thorchain__upgrades
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - IDENTIFIED_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

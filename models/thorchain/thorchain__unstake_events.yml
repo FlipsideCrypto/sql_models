@@ -19,3 +19,6 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
+      - name: EVENT_ID
+        tests:
+          - not_null

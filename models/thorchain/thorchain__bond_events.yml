@@ -4,6 +4,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
+            - EVENT_ID
             - TX_ID
             - BLOCK_ID
             - ASSET
@@ -22,7 +23,9 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-
+      - name: EVENT_ID
+        tests:
+          - not_null
       - name: TX_ID
         tests:
           - not_null
