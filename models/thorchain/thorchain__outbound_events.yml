@@ -4,12 +4,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - UNIQUE_ID
             - IN_TX
             - ASSET
             - TO_ADDRESS
             - FROM_ADDRESS
             - TX_ID
+            - BLOCK_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

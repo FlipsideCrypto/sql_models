@@ -2,9 +2,7 @@ version: 2
 models:
   - name: thorchain__transfer_events
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - EVENT_ID
+
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -18,9 +16,7 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: EVENT_ID
-        tests:
-          - not_null
+
       - name: ASSET
         tests:
           - not_null
