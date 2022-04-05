@@ -34,7 +34,7 @@ SELECT
   be.block_id,
   tx_id,
   from_address,
-  to_addres AS to_address,
+  to_address AS to_address,
   asset,
   blockchain,
   bond_type,

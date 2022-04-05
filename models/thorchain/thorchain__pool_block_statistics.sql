@@ -38,15 +38,14 @@ pool_status AS (
     (
       SELECT
         DATE(block_timestamp) AS DAY,
-        block_id,
         asset AS pool_name,
         status,
-        MAX(block_id) over (PARTITION BY pool_name, DATE(block_timestamp)) AS max_block_id
+		ROW_NUMBER() OVER (PARTITION BY pool_name, date(block_timestamp) ORDER BY block_timestamp DESC, status) AS rn
       FROM
         {{ ref("thorchain__pool_events") }}
     )
   WHERE
-    block_id = max_block_id
+    rn = 1
 ),
 add_liquidity_tbl AS (
   SELECT
