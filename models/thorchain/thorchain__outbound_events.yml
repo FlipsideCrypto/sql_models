@@ -10,6 +10,7 @@ models:
             - TO_ADDRESS
             - FROM_ADDRESS
             - TX_ID
+            - BLOCK_ID
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

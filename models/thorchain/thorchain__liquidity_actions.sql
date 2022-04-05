@@ -1,7 +1,7 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'event_id',
+  unique_key = "concat_ws('-', 'tx_id', 'lp_action', 'pool_name', 'from_address', 'to_address')",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain', 'thorchain_liquidity_actions']
 ) }}
@@ -18,7 +18,6 @@ WITH stakes AS (
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '2 days'
 {% else %}
-  AND block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 ),
 unstakes AS (
@@ -32,13 +31,11 @@ unstakes AS (
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '2 days'
 {% else %}
-  AND block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 )
 SELECT
   se.block_timestamp,
   se.block_id,
-  se.event_id,
   rune_tx_id AS tx_id,
   'add_liquidity' AS lp_action,
   se.pool_name,
@@ -78,7 +75,6 @@ UNION
 SELECT
   ue.block_timestamp,
   ue.block_id,
-  ue.event_id,
   tx_id,
   'remove_liquidity' AS lp_action,
   ue.pool_name,

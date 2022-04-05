@@ -4,8 +4,7 @@
 ) }}
 
 SELECT
-  _FIVETRAN_ID AS identified_id,
-  TO_TIMESTAMP(
+  DISTINCT TO_TIMESTAMP(
     e.block_timestamp / 1000000000
   ) AS block_timestamp,
   bl.height AS block_id,

@@ -1,28 +1,36 @@
-{{ 
-  config(
-    materialized='view', 
-    tags=['snowflake', 'thorchain', 'swap_events']
-  )
-}}
+{{ config(
+  materialized = 'view',
+  tags = ['snowflake', 'thorchain', 'swap_events']
+) }}
 
 SELECT
-    _FIVETRAN_ID AS unique_id,
-    to_timestamp(e.BLOCK_TIMESTAMP/1000000000) as block_timestamp,
-    bl.height as block_id,
-    e.TX as tx_id,
-    e.CHAIN as blockchain,
-    e.TO_ADDR as to_address,
-    e.FROM_ADDR as from_address,
-    e.TO_ASSET,
-    e.FROM_ASSET,
-    e.SWAP_SLIP_BP,
-    e.LIQ_FEE_IN_RUNE_E8,
-    e.LIQ_FEE_E8,    
-    e.TO_E8,
-    e.POOL as pool_name,
-    e.MEMO,
-    e.TO_E8_MIN,
-    e.FROM_E8
-FROM {{source('thorchain_midgard', 'swap_events')}} e
-INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = e.BLOCK_TIMESTAMP
-WHERE (e._FIVETRAN_DELETED IS NULL OR e._FIVETRAN_DELETED = False)
+  DISTINCT TO_TIMESTAMP(
+    e.block_timestamp / 1000000000
+  ) AS block_timestamp,
+  bl.height AS block_id,
+  e.tx AS tx_id,
+  e.chain AS blockchain,
+  e.to_addr AS to_address,
+  e.from_addr AS from_address,
+  e.to_asset,
+  e.from_asset,
+  e.swap_slip_bp,
+  e.liq_fee_in_rune_e8,
+  e.liq_fee_e8,
+  e.to_e8,
+  e.pool AS pool_name,
+  e.memo,
+  e.to_e8_min,
+  e.from_e8
+FROM
+  {{ source(
+    'thorchain_midgard',
+    'midgard_swap_events'
+  ) }}
+  e
+  INNER JOIN {{ source(
+    'thorchain_midgard',
+    'midgard_block_log'
+  ) }}
+  bl
+  ON bl.timestamp = e.block_timestamp
