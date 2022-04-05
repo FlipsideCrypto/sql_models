@@ -11,6 +11,15 @@ WITH raw_table AS (
   SELECT 
     *
   FROM {{ ref('terra_dbt__msg_events_actions') }} 
+  {% if is_incremental() %}
+  WHERE
+    _inserted_timestamp >= (
+      SELECT
+        MAX(_inserted_timestamp)
+      FROM
+        {{ this }}
+    )
+  {% endif %}
 )
 
 SELECT DISTINCT
