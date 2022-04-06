@@ -15,6 +15,7 @@ SELECT
   COALESCE(asset_e8 / pow(10, 8), 0) AS asset_amount,
   COALESCE(asset_e8 / pow(10, 8) * asset_usd, 0) AS asset_amount_usd,
   COALESCE(synth_e8 / pow(10, 8), 0) AS synth_amount
+  COALESCE(synth_e8 / pow(10, 8) * asset_usd, 0) AS synth_amount_usd,
 FROM
   {{ ref('thorchain__block_pool_depths') }}
   bpd
