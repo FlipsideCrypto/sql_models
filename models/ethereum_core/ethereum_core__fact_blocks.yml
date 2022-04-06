@@ -1,44 +1,44 @@
 version: 2
 models:
   - name: ethereum_core__fact_blocks
-    description: '{{ doc("blocks_table_doc") }}'   
+    description: '{{ doc("eth_blocks_table_doc") }}'   
 
     columns:
       - name: BLOCK_NUMBER
-        description: '{{ doc("block_number") }}'   
+        description: '{{ doc("eth_block_number") }}'   
       - name: BLOCK_TIMESTAMP
-        description: '{{ doc("block_timestamp") }}'
+        description: '{{ doc("eth_block_timestamp") }}'
       - name: NETWORK
-        description: '{{ doc("network") }}'
+        description: '{{ doc("eth_network") }}'
       - name: BLOCKCHAIN
-        description: '{{ doc("blockchain") }}'
+        description: '{{ doc("eth_blockchain") }}'
       - name: TX_COUNT
-        description: '{{ doc("tx_count") }}'
+        description: '{{ doc("eth_tx_count") }}'
       - name: DIFFICULTY
-        description: '{{ doc("difficulty") }}'
+        description: '{{ doc("eth_difficulty") }}'
       - name: TOTAL_DIFFICULTY
-        description: '{{ doc("total_difficulty") }}'
+        description: '{{ doc("eth_total_difficulty") }}'
       - name: EXTRA_DATA
-        description: '{{ doc("extra_data") }}'
+        description: '{{ doc("eth_extra_data") }}'
       - name: GAS_LIMIT
-        description: '{{ doc("gas_limit") }}'
+        description: '{{ doc("eth_gas_limit") }}'
       - name: GAS_USED
-        description: '{{ doc("gas_used") }}'
+        description: '{{ doc("eth_gas_used") }}'
       - name: HASH
-        description: '{{ doc("blocks_hash") }}'
+        description: '{{ doc("eth_blocks_hash") }}'
       - name: PARENT_HASH
-        description: '{{ doc("parent_hash") }}'
+        description: '{{ doc("eth_parent_hash") }}'
       - name: MINER
-        description: '{{ doc("miner") }}'
+        description: '{{ doc("eth_miner") }}'
       - name: NONCE
-        description: '{{ doc("blocks_nonce") }}'
+        description: '{{ doc("eth_blocks_nonce") }}'
       - name: RECEIPTS_ROOT
-        description: '{{ doc("receipts_root") }}'
+        description: '{{ doc("eth_receipts_root") }}'
       - name: SHA3_UNCLES
-        description: '{{ doc("sha3_uncles") }}'
+        description: '{{ doc("eth_sha3_uncles") }}'
       - name: SIZE
-        description: '{{ doc("size") }}' 
+        description: '{{ doc("eth_size") }}' 
       - name: UNCLE_BLOCKS
-        description: '{{ doc("uncle_blocks") }}' 
+        description: '{{ doc("eth_uncle_blocks") }}' 
       - name: BLOCK_HEADER_JSON
-        description: '{{ doc("block_header_json") }}'
+        description: '{{ doc("eth_block_header_json") }}'

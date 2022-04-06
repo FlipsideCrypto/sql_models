@@ -1,18 +1,18 @@
 version: 2
 models:
   - name: ethereum_core__dim_contracts
-    description: '{{ doc("contracts_table_doc") }}'
+    description: '{{ doc("eth_contracts_table_doc") }}'
     
     columns:
       - name: ADDRESS
-        description: '{{ doc("contracts_contract_address") }}'    
+        description: '{{ doc("eth_contracts_contract_address") }}'    
       - name: SYMBOL
-        description: '{{ doc("contracts_symbol") }}'
+        description: '{{ doc("eth_contracts_symbol") }}'
       - name: NAME
-        description: '{{ doc("contracts_name") }}'
+        description: '{{ doc("eth_contracts_name") }}'
       - name: DECIMALS
-        description: '{{ doc("decimals") }}'  
+        description: '{{ doc("eth_decimals") }}'  
       - name: CONTRACT_METADATA
-        description: '{{ doc("contracts_metadata") }}'
+        description: '{{ doc("eth_contracts_metadata") }}'
 
 

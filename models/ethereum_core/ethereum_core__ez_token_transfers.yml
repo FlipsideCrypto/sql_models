@@ -1,39 +1,39 @@
 version: 2
 models:
   - name: ethereum_core__ez_token_transfers
-    description: '{{ doc("ez_transfer_table_doc") }}'
+    description: '{{ doc("eth_ez_transfer_table_doc") }}'
 
     columns:
       - name: BLOCK_NUMBER
-        description: '{{ doc("block_number") }}'
+        description: '{{ doc("eth_block_number") }}'
       - name: BLOCK_TIMESTAMP
-        description: '{{ doc("block_timestamp") }}'
+        description: '{{ doc("eth_block_timestamp") }}'
       - name: TX_HASH
-        description: '{{ doc("transfer_tx_hash") }}'
+        description: '{{ doc("eth_transfer_tx_hash") }}'
       - name: CONTRACT_ADDRESS
-        description: '{{ doc("transfer_contract_address") }}'
+        description: '{{ doc("eth_transfer_contract_address") }}'
       - name: FROM_ADDRESS
-        description: '{{ doc("transfer_from_address") }}'
+        description: '{{ doc("eth_transfer_from_address") }}'
       - name: TO_ADDRESS
-        description: '{{ doc("transfer_to_address") }}'
+        description: '{{ doc("eth_transfer_to_address") }}'
       - name: RAW_AMOUNT
-        description: '{{ doc("transfer_raw_amount") }}'
+        description: '{{ doc("eth_transfer_raw_amount") }}'
       - name: DECIMALS
-        description: '{{ doc("decimals") }}'  
+        description: '{{ doc("eth_decimals") }}'  
       - name: SYMBOL
-        description: '{{ doc("contracts_symbol") }}'
+        description: '{{ doc("eth_contracts_symbol") }}'
       - name: TOKEN_PRICE
-        description: '{{ doc("transfer_token_price") }}'
+        description: '{{ doc("eth_transfer_token_price") }}'
       - name: AMOUNT
-        description: '{{ doc("transfer_amount") }}'
+        description: '{{ doc("eth_transfer_amount") }}'
       - name: AMOUNT_USD
-        description: '{{ doc("transfer_amount_usd") }}' 
+        description: '{{ doc("eth_transfer_amount_usd") }}' 
       - name: HAS_PRICE
-        description: '{{ doc("transfer_has_price") }}' 
+        description: '{{ doc("eth_transfer_has_price") }}' 
       - name: HAS_DECIMAL
-        description: '{{ doc("transfer_has_decimal") }}'
+        description: '{{ doc("eth_transfer_has_decimal") }}'
       - name: _LOG_ID
-        description: '{{ doc("_log_id_transfers") }}'
+        description: '{{ doc("eth_log_id_transfers") }}'
       - name: INGESTED_AT
-        description: '{{ doc("ingested_at") }}'
+        description: '{{ doc("eth_ingested_at") }}'
 
