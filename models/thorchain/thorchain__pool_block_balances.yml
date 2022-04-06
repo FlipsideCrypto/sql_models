@@ -32,7 +32,7 @@ models:
       - name: ASSET_AMOUNT_USD
         tests:
           - not_null
-      - name: SYNTH_AMOUNT_USD
+      - name: SYNTH_AMOUNT
         tests:
           - not_null
       - name: SYNTH_AMOUNT_USD
