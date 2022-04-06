@@ -2,7 +2,8 @@
         table,
         partition_by,
         column,
-        delayed_column
+        delayed_column,
+        delayed_period
     ) %}
     {%- set partition_sql = partition_by | join(", ") -%}
     {%- set previous_column = "prev_" ~ column -%}
@@ -28,7 +29,7 @@
                     )
                 FROM
                     {{ this }}
-            ) - INTERVAL '15 HOURS'
+            ) - INTERVAL '{{ delayed_period }}'
     )
 SELECT
     {{ partition_sql + "," if partition_sql }}
