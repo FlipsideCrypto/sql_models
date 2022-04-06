@@ -55,4 +55,3 @@ AND (
     {{ this }}
 )
 {% endif %}
-order by block_id asc
