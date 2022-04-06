@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__fact_event_logs
+  - name: ethereum_core__fact_event_logs
     description: '{{ doc("logs_table_doc") }}'
 
     columns:

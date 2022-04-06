@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__ez_token_transfers
+  - name: ethereum_core__ez_token_transfers
     description: '{{ doc("ez_transfer_table_doc") }}'
 
     columns:

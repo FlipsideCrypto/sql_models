@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__fact_blocks
+  - name: ethereum_core__fact_blocks
     description: '{{ doc("blocks_table_doc") }}'   
 
     columns:

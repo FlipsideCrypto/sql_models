@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__dim_labels
+  - name: ethereum_core__dim_labels
     description: '{{ doc("labels_table") }}'
 
     columns:

@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__fact_token_transfers
+  - name: ethereum_core__fact_token_transfers
     description: '{{ doc("transfer_table_doc") }}'
       
     columns:

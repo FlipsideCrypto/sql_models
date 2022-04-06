@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__fact_transactions
+  - name: ethereum_core__fact_transactions
     description: '{{ doc("tx_table_doc") }}'  
 
     columns:

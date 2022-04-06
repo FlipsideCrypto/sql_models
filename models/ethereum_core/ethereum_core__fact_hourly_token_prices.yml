@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__fact_hourly_token_prices
+  - name: ethereum_core__fact_hourly_token_prices
     description: '{{ doc("prices_table_doc") }}'
       
     columns:

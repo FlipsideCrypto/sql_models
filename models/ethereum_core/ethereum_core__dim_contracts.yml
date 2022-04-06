@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: ethereum__dim_contracts
+  - name: ethereum_core__dim_contracts
     description: '{{ doc("contracts_table_doc") }}'
     
     columns:
