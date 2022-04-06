@@ -23,9 +23,6 @@ models:
       - name: INNER_TX
         tests:
           - not_null
-      - name: ASSET_ID
-        tests:
-          - not_null
       - name: SENDER
         tests:
           - not_null   

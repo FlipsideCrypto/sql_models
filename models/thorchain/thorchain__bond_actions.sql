@@ -1,7 +1,7 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = 'event_id',
+  unique_key = "concat_ws('-', 'blockchain','tx_id', 'asset', 'bond_type', 'pool_name', 'from_address', 'to_address')",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain', 'thorchain_bond_actions']
 ) }}
@@ -27,16 +27,14 @@ bond_events AS (
 {% if is_incremental() %}
 AND block_timestamp >= getdate() - INTERVAL '2 days'
 {% else %}
-  AND block_timestamp >= getdate() - INTERVAL '9 months'
 {% endif %}
 )
 SELECT
   be.block_timestamp,
   be.block_id,
-  event_id,
   tx_id,
   from_address,
-  to_addres AS to_address,
+  to_address AS to_address,
   asset,
   blockchain,
   bond_type,

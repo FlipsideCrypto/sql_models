@@ -70,36 +70,74 @@ AND (
     {{ this }}
 )
 {% endif %}
+),
+delete_table AS (
+  SELECT
+    CASE
+      WHEN blockchain IN (
+        'algorand',
+        'solana'
+      ) THEN t.value :address :: STRING
+      ELSE LOWER(
+        t.value :address :: STRING
+      )
+    END AS address,
+    t.value :delete :: STRING AS delete_flag
+  FROM
+    base_tables,
+    LATERAL FLATTEN(
+      input => record_content
+    ) t
+  WHERE
+    delete_flag = 'true'
+),
+flat_table AS (
+  SELECT
+    (
+      record_metadata :CreateTime :: INT / 1000
+    ) :: TIMESTAMP AS system_created_at,
+    insert_date,
+    blockchain,
+    CASE
+      WHEN blockchain IN (
+        'algorand',
+        'solana'
+      ) THEN t.value :address :: STRING
+      ELSE LOWER(
+        t.value :address :: STRING
+      )
+    END AS address,
+    t.value :creator :: STRING AS creator,
+    t.value :l1_label :: STRING AS l1_label,
+    t.value :l2_label :: STRING AS l2_label,
+    t.value :address_name :: STRING AS address_name,
+    t.value :project_name :: STRING AS project_name,
+    t.value :delete :: STRING AS delete_flag
+  FROM
+    base_tables,
+    LATERAL FLATTEN(
+      input => record_content
+    ) t qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
+  ORDER BY
+    insert_date DESC)) = 1
 )
 SELECT
-  (
-    record_metadata :CreateTime :: INT / 1000
-  ) :: TIMESTAMP AS system_created_at,
+  system_created_at,
   insert_date,
   blockchain,
-  CASE
-    WHEN blockchain IN (
-      'algorand',
-      'solana'
-    ) THEN t.value :address :: STRING
-    ELSE LOWER(
-      t.value :address :: STRING
-    )
-  END AS address,
-  t.value :creator :: STRING AS creator,
-  t.value :l1_label :: STRING AS l1_label,
-  t.value :l2_label :: STRING AS l2_label,
-  t.value :address_name :: STRING AS address_name,
-  t.value :project_name :: STRING AS project_name, 
-  t.value :delete :: STRING AS delete_flag 
+  address,
+  creator,
+  l1_label,
+  l2_label,
+  address_name,
+  project_name,
+  delete_flag
 FROM
-  base_tables,
-  LATERAL FLATTEN(
-    input => record_content
-  ) t
-
-  WHERE delete_flag IS NULL
-
-qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator
-ORDER BY
-  insert_date DESC)) = 1
+  flat_table
+WHERE
+  address NOT IN (
+    SELECT
+      address
+    FROM
+      delete_table
+  )

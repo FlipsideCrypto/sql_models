@@ -4,10 +4,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - BLOCK_TIMESTAMP
             - BLOCK_ID
-            - EVENT_ID
             - RUNE_TX_ID
+            - POOL_NAME
+            - ASSET_TX_ID
+            - ASSET_ADDRESS
+            - RUNE_ADDRESS
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

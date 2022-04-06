@@ -1,23 +1,31 @@
-{{ 
-  config(
-    materialized='view', 
-    tags=['snowflake', 'thorchain', 'bond_events']
-  )
-}}
+{{ config(
+  materialized = 'view',
+  tags = ['snowflake', 'thorchain', 'bond_events']
+) }}
 
 SELECT
-  to_timestamp(e.BLOCK_TIMESTAMP/1000000000) as block_timestamp,
-  bl.height as block_id,
-  e._FIVETRAN_ID AS event_id,
-  e.TX as tx_id,
-  e.TO_ADDR as to_addres,
-  e.FROM_ADDR as from_address,
-  e.MEMO,
-  e.ASSET,
-  e.CHAIN as blockchain,
-  e.BOND_TYPE,
-  e.E8,
-  e.ASSET_E8
-FROM {{source('thorchain_midgard', 'bond_events')}} e
-INNER JOIN {{source('thorchain_midgard', 'block_log')}} bl ON bl.timestamp = e.BLOCK_TIMESTAMP
-WHERE (e._FIVETRAN_DELETED IS NULL OR e._FIVETRAN_DELETED = False)
+  DISTINCT TO_TIMESTAMP(
+    e.block_timestamp / 1000000000
+  ) AS block_timestamp,
+  bl.height AS block_id,
+  e.tx AS tx_id,
+  e.to_addr AS to_address,
+  e.from_addr AS from_address,
+  e.memo,
+  e.asset,
+  e.chain AS blockchain,
+  e.bond_type,
+  e.e8,
+  e.asset_e8
+FROM
+  {{ source(
+    'thorchain_midgard',
+    'midgard_bond_events'
+  ) }}
+  e
+  INNER JOIN {{ source(
+    'thorchain_midgard',
+    'midgard_block_log'
+  ) }}
+  bl
+  ON bl.timestamp = e.block_timestamp
