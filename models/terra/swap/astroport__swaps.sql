@@ -58,10 +58,10 @@ source_address_labels AS (
 astro_pairs AS (
   SELECT 
     event_attributes :pair_contract_addr::STRING AS contract_address
-  FROM source_msg_events
+  FROM {{ ref('silver_terra__msg_events') }}
   WHERE tx_id IN (SELECT
                     tx_id
-                  FROM source_msgs
+                  FROM {{ ref('silver_terra__msgs') }}
                   WHERE msg_value :execute_msg :create_pair IS NOT NULL
   				  AND msg_value :contract = 'terra1fnywlw4edny3vw44x04xd67uzkdqluymgreu7g'
                  )
@@ -318,6 +318,8 @@ swaps AS (
     ON pool_address = l.address 
     AND l.blockchain = 'terra' 
     AND l.creator = 'flipside'
+
+  WHERE pool_address IN (SELECT contract_address FROM astro_pairs)
 ),
 
 -----------------
