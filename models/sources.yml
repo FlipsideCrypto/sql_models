@@ -162,6 +162,7 @@ sources:
       - name: fact_events
       - name: fact_gauges_votes
       - name: fact_gov_actions
+      - name: fact_nft_mints
       - name: fact_nft_sales
       - name: fact_staking_lp_actions
       - name: fact_swaps
