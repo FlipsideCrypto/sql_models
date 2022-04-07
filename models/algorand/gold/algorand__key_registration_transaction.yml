@@ -8,38 +8,71 @@ models:
             - INTRA
     columns:
       - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
         tests:
-          - not_null
+          - dbt_expectations.expect_column_to_exist   
       - name: BLOCK_ID
+        description: "{{ doc('algo_block_id') }}"
         tests:
           - not_null
       - name: INTRA
+        description: "{{ doc('intra') }}"
         tests:
           - not_null
       - name: TX_ID
+        description: "{{ doc('tx_id') }}"
         tests:
           - not_null
       - name: INNER_TX
-        tests:
-          - not_null
-      - name: ASSET_ID
+        description: "{{ doc('inner_tx') }}"
         tests:
           - not_null
       - name: SENDER
         tests:
-          - not_null   
-      - name: FEE
-        tests:
           - not_null     
+      - name: FEE
+        description: "{{ doc('fee') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist      
+      - name: PARTICIPATION_KEY
+        description: "The root participation public key."
+        tests:
+          - dbt_expectations.expect_column_to_exist   
+      - name: VRF_PUBLIC_KEY
+        description: "The VRF public key."
+        tests:
+          - dbt_expectations.expect_column_to_exist   
+      - name: VOTE_FIRST
+        description: "The first round that the participation key is valid. Not to be confused with the FirstValid round of the keyreg transaction."
+        tests:
+          - dbt_expectations.expect_column_to_exist  
+      - name: VOTE_LAST
+        description: "The last round that the participation key is valid. Not to be confused with the LastValid round of the keyreg transaction."
+        tests:
+          - dbt_expectations.expect_column_to_exist  
+      - name: VOTE_KEYDILUTION
+        description: "This is the dilution for the 2-level participation key."
+        tests:
+          - dbt_expectations.expect_column_to_exist  
       - name: TX_TYPE
+        description: "{{ doc('tx_type') }}"
         tests:
           - not_null
       - name: TX_TYPE_NAME
+        description: "{{ doc('tx_type_name') }}"
+        tests:
+          - not_null
         tests:
           - not_null
       - name: GENESIS_HASH
+        description: "{{ doc('genesis_hash') }}"
         tests:
           - not_null
       - name: TX_MESSAGE
+        description: "{{ doc('tx_message') }}"
         tests:
           - not_null
+      - name: EXTRA
+        description: "{{ doc('extra') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   

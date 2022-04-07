@@ -6,10 +6,13 @@ models:
           combination_of_columns:
             - TX_ID
             - POOL_NAME
-            - FROM_AMOUNT
-            - TO_AMOUNT
+            - FROM_ADDRESS
+            - TO_POOL_ADDRESS
             - FROM_ASSET
             - TO_ASSET
+            - NATIVE_TO_ADDRESS
+            - FROM_AMOUNT
+            - TO_AMOUNT
     columns:
       - name: BLOCK_ID
         tests:
@@ -32,7 +35,10 @@ models:
       - name: FROM_ADDRESS
         tests:
           - not_null
-      - name: TO_ADDRESS
+      - name: NATIVE_TO_ADDRESS
+        tests:
+          - not_null
+      - name: TO_POOL_ADDRESS
         tests:
           - not_null
       - name: FROM_ASSET

@@ -67,42 +67,42 @@ sources:
       - name: flow_delegator_addresses
       - name: terra_vesting_schedule
   - name: thorchain_midgard
-    schema: BRONZE_MIDGARD_20211112_MIDGARD
+    schema: BRONZE_MIDGARD_2_6_9
     tables:
-      - name: active_vault_events
-      - name: add_events
-      - name: asgard_fund_yggdrasil_events
-      - name: block_log
-      - name: block_pool_depths
-      - name: bond_events
-      - name: constants
-      - name: errata_events
-      - name: fee_events
-      - name: gas_events
-      - name: inactive_vault_events
-      - name: message_events
-      - name: new_node_events
-      - name: outbound_events
-      - name: pending_liquidity_events
-      - name: pool_balance_change_events
-      - name: pool_events
-      - name: refund_events
-      - name: reserve_events
-      - name: rewards_event_entries
-      - name: rewards_events
-      - name: set_ip_address_events
-      - name: set_mimir_events
-      - name: set_node_keys_events
-      - name: set_version_events
-      - name: slash_amounts
-      - name: stake_events
-      - name: swap_events
-      - name: switch_events
-      - name: thorname_change_events
-      - name: transfer_events
-      - name: unstake_events
-      - name: update_node_account_status_events
-      - name: validator_request_leave_events
+      - name: midgard_active_vault_events
+      - name: midgard_add_events
+      - name: midgard_asgard_fund_yggdrasil_events
+      - name: midgard_block_log
+      - name: midgard_block_pool_depths
+      - name: midgard_bond_events
+      - name: midgard_constants
+      - name: midgard_errata_events
+      - name: midgard_fee_events
+      - name: midgard_gas_events
+      - name: midgard_inactive_vault_events
+      - name: midgard_message_events
+      - name: midgard_new_node_events
+      - name: midgard_outbound_events
+      - name: midgard_pending_liquidity_events
+      - name: midgard_pool_balance_change_events
+      - name: midgard_pool_events
+      - name: midgard_refund_events
+      - name: midgard_reserve_events
+      - name: midgard_rewards_event_entries
+      - name: midgard_rewards_events
+      - name: midgard_set_ip_address_events
+      - name: midgard_set_mimir_events
+      - name: midgard_set_node_keys_events
+      - name: midgard_set_version_events
+      - name: midgard_slash_amounts
+      - name: midgard_stake_events
+      - name: midgard_swap_events
+      - name: midgard_switch_events
+      - name: midgard_thorname_change_events
+      - name: midgard_transfer_events
+      - name: midgard_unstake_events
+      - name: midgard_update_node_account_status_events
+      - name: midgard_validator_request_leave_events
   - name: terra
     schema: silver
     tables:
@@ -114,6 +114,7 @@ sources:
     tables:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
+      - name: prod_terra_api
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
       - name: JIM_TEST_REST_PROXY_1507016047
@@ -163,6 +164,7 @@ sources:
       - name: fact_events
       - name: fact_gauges_votes
       - name: fact_gov_actions
+      - name: fact_nft_mints
       - name: fact_nft_sales
       - name: fact_staking_lp_actions
       - name: fact_swaps
@@ -182,3 +184,4 @@ sources:
       - name: fact_token_transfers
       - name: fact_transactions
       - name: ez_token_transfers
+

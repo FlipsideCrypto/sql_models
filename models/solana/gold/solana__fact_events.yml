@@ -4,17 +4,17 @@ models:
     description: Records with each event(instruction) within a transaction
     columns:
       - name: BLOCK_TIMESTAMP
-        description: "{{ doc('block_timestamp') }}"
+        description: "{{ doc('solana_block_timestamp') }}"
       - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
+        description: "{{ doc('solana_block_id') }}"
       - name: TX_ID
-        description: "{{ doc('tx_id') }}"
+        description: "{{ doc('solana_tx_id') }}"
       - name: INDEX
         description: Location of the event within the instructions of a transaction
       - name: PROGRAM_ID
-        description: "{{ doc('program_id') }}"
+        description: "{{ doc('solana_program_id') }}"
       - name: EVENT_TYPE
-        description: "{{ doc('event_type') }}"
+        description: "{{ doc('solana_event_type') }}"
       - name: INSTRUCTION
         description: An instruction specifies which program it is calling, which accounts it wants to read or modify, and additional data that serves as auxiliary input to the program
       - name: INNER_INSTRUCTION

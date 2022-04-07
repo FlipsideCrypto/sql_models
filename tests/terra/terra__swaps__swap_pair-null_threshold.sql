@@ -1,1 +1,1 @@
-{{ null_threshold(ref('terra__swaps'), "swap_pair", 0.9) }}
+{{ null_threshold(ref('terra__swaps'), "swap_pair", 0.8) }}

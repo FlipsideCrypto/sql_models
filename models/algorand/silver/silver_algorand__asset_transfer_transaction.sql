@@ -9,49 +9,28 @@
 WITH allTXN AS (
 
   SELECT
-    ab.block_timestamp AS block_timestamp,
+    block_timestamp,
     b.intra,
-    b.round AS block_id,
-    txn :txn :grp :: STRING AS tx_group_id,
-    CASE
-      WHEN b.txid IS NULL THEN ft.txn_txn_id :: text
-      ELSE b.txid :: text
-    END AS tx_id,
-    CASE
-      WHEN b.txid IS NULL THEN 'true'
-      ELSE 'false'
-    END AS inner_tx,
-    asset AS asset_id,
-    txn :txn :snd :: text AS sender,
-    txn :txn :fee / pow(
-      10,
-      6
-    ) AS fee,
-    txn :txn :asnd :: text AS asset_sender,
-    txn :txn :arcv :: text AS asset_receiver,
-    txn :txn :aamt AS asset_amount,
-    txn :txn :xaid AS asset_transferred,
-    txn :txn :type :: STRING AS tx_type,
-    CASE
-      WHEN b.txid IS NULL THEN ft.genesis_hash :: text
-      ELSE txn :txn :gh :: STRING
-    END AS genesis_hash,
-    txn AS tx_message,
+    block_id,
+    tx_group_id,
+    tx_id,
+    inner_tx,
+    asset_id,
+    tx_message :txn :snd :: text AS sender,
+    fee,
+    tx_message :txn :asnd :: text AS asset_sender,
+    tx_message :txn :arcv :: text AS asset_receiver,
+    tx_message :txn :aamt AS asset_amount,
+    tx_message :txn :xaid AS asset_transferred,
+    tx_type,
+    tx_type_name,
+    genesis_hash,
+    tx_message,
     extra,
-    b.__HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
+    _INSERTED_TIMESTAMP
   FROM
-    {{ source(
-      'algorand',
-      'TXN'
-    ) }}
+    {{ ref('silver_algorand__transactions') }}
     b
-    LEFT JOIN {{ ref('silver_algorand__inner_txids') }}
-    ft
-    ON b.round = ft.inner_round
-    AND b.intra = ft.inner_intra
-    LEFT JOIN {{ ref('silver_algorand__block') }}
-    ab
-    ON b.round = ab.block_id
   WHERE
     tx_type = 'axfer'
 )
@@ -60,9 +39,7 @@ SELECT
   intra,
   block_id,
   tx_group_id,
-  HEX_DECODE_STRING(
-    tx_id
-  ) AS tx_id,
+  tx_id,
   TO_BOOLEAN(inner_tx) AS inner_tx,
   asset_id,
   algorand_decode_b64_addr(
@@ -77,22 +54,19 @@ SELECT
   ) AS asset_receiver,
   asset_amount,
   asset_transferred,
-  csv.type AS tx_type,
-  csv.name AS tx_type_name,
+  tx_type,
+  tx_type_name,
   genesis_hash,
   tx_message,
   extra,
   concat_ws(
     '-',
-    block_id :: STRING,
-    intra :: STRING
+    b.block_id :: STRING,
+    b.intra :: STRING
   ) AS _unique_key,
   b._INSERTED_TIMESTAMP
 FROM
   allTXN b
-  LEFT JOIN {{ ref('silver_algorand__transaction_types') }}
-  csv
-  ON b.tx_type = csv.type
 WHERE
   1 = 1
 
@@ -104,5 +78,5 @@ AND b._INSERTED_TIMESTAMP >= (
     )
   FROM
     {{ this }}
-)
+) - INTERVAL '4 HOURS'
 {% endif %}

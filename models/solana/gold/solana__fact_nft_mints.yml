@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: solana__fact_nft_mints
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('solana_block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('solana_block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('solana_tx_id') }}"
+      - name: SUCCEEDED
+        description: "{{ doc('solana_tx_succeeded') }}"
+      - name: PROGRAM_ID 
+        description: "{{ doc('solana_program_id') }}"
+      - name: PURCHASER
+        description: "{{ doc('solana_purchaser') }}"
+      - name: MINT_PRICE
+        description: Price that it cost to mint the NFT in SOL or other currency.
+      - name: MINT_CURRENCY
+        description: Currency used to pay for the NFT mint.
+      - name: MINT
+        description: "{{ doc('solana_mint') }}"
