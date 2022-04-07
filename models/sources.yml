@@ -67,7 +67,7 @@ sources:
       - name: flow_delegator_addresses
       - name: terra_vesting_schedule
   - name: thorchain_midgard
-    schema: BRONZE_MIDGARD_2_6_9
+    schema: BRONZE_MIDGARD_2_6_9_20220405
     tables:
       - name: midgard_active_vault_events
       - name: midgard_add_events
@@ -184,4 +184,3 @@ sources:
       - name: fact_token_transfers
       - name: fact_transactions
       - name: ez_token_transfers
-
