@@ -1,0 +1,38 @@
+version: 2
+models:
+  - name: ethereum_core__fact_transactions
+    description: '{{ doc("eth_tx_table_doc") }}'  
+
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("eth_block_number") }}'   
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("eth_block_timestamp") }}'
+      - name: BLOCK_HASH
+        description: '{{ doc("eth_tx_block_hash") }}' 
+      - name: TX_HASH
+        description: '{{ doc("eth_tx_hash") }}' 
+      - name: NONCE
+        description: '{{ doc("eth_tx_nonce") }}' 
+      - name: POSITION
+        description: '{{ doc("eth_tx_position") }}' 
+      - name: FROM_ADDRESS
+        description: '{{ doc("eth_from_address") }}' 
+      - name: TO_ADDRESS
+        description: '{{ doc("eth_to_address") }}' 
+      - name: ETH_VALUE
+        description: '{{ doc("eth_value") }}' 
+      - name: TX_FEE
+        description: '{{ doc("eth_tx_fee") }}' 
+      - name: GAS_PRICE
+        description: '{{ doc("eth_tx_gas_price") }}' 
+      - name: GAS_LIMIT
+        description: '{{ doc("eth_tx_gas_limit") }}' 
+      - name: GAS_USED
+        description: '{{ doc("eth_tx_gas_used") }}'
+      - name: CUMULATIVE_GAS_USED
+        description: '{{ doc("eth_cumulative_gas_used") }}' 
+      - name: STATUS
+        description: '{{ doc("eth_tx_status") }}' 
+      - name: TX_JSON
+        description: '{{ doc("eth_tx_json") }}' 
