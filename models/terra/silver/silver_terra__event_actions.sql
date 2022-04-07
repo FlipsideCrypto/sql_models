@@ -11,6 +11,18 @@ WITH raw_table AS (
   SELECT 
     *
   FROM {{ ref('terra_dbt__msg_events_actions') }} 
+  {% if is_incremental() %}
+  WHERE
+    _inserted_timestamp >= (
+      SELECT
+        MAX(_inserted_timestamp)
+      FROM
+        {{ this }}
+    )
+  {% endif %}
+  qualify(RANK() over(PARTITION BY tx_id
+  ORDER BY
+    block_id DESC)) = 1
 ),
 
 clean_table AS (
@@ -21,6 +33,7 @@ clean_table AS (
     chain_id, 
     tx_id, 
     SPLIT(key, '_')[0]::INTEGER AS action_index, 
+    msg_index,
     value:contract_address::STRING AS action_contract_address, 
     COALESCE(value:action_log:action::STRING, value:action_log:method::STRING) AS action_method, 
     object_delete(value:action_log, 'action', 'method') AS action_log
