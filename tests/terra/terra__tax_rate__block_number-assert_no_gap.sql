@@ -1,1 +1,1 @@
-{{ sequence_gaps(ref('terra__tax_rate'), [], "block_number") }}
+{{ sequence_gaps_buffered_look_back(ref('terra__tax_rate'), [], "block_number", "block_timestamp", "2 HOURS") }}
