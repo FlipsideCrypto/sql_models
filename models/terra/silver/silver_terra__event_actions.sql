@@ -11,15 +11,6 @@ WITH raw_table AS (
   SELECT 
     *
   FROM {{ ref('terra_dbt__msg_events_actions') }} 
-  {% if is_incremental() %}
-  WHERE
-    _inserted_timestamp >= (
-      SELECT
-        MAX(_inserted_timestamp)
-      FROM
-        {{ this }}
-    )
-  {% endif %}
   qualify(RANK() over(PARTITION BY tx_id
   ORDER BY
     block_id DESC)) = 1
