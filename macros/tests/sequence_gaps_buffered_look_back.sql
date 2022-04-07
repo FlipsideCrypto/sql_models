@@ -1,4 +1,4 @@
-{% macro delayed_sequence_gaps(
+{% macro sequence_gaps_buffered_look_back(
         table,
         partition_by,
         column,
@@ -18,18 +18,17 @@
                 {{ "PARTITION BY " ~ partition_sql if partition_sql }}
                 ORDER BY
                     {{ column }} ASC
-            ) AS {{ previous_column }}
+            ) AS {{ previous_column }},
+            LAG(
+                {{ delayed_column }},
+                1
+            ) over (
+                {{ "PARTITION BY " ~ partition_sql if partition_sql }}
+                ORDER BY
+                    {{ column }} ASC
+            ) AS {{ delayed_column }}
         FROM
             {{ table }}
-        WHERE
-            {{ delayed_column }} < (
-                SELECT
-                    MAX(
-                        {{ delayed_column }}
-                    )
-                FROM
-                    {{ this }}
-            ) - INTERVAL '{{ delayed_period }}'
     )
 SELECT
     {{ partition_sql + "," if partition_sql }}
@@ -41,6 +40,13 @@ FROM
     source
 WHERE
     {{ column }} - {{ previous_column }} <> 1
-ORDER BY
-    gap DESC
+AND 
+    {{ delayed_column }} < (
+        SELECT
+            MAX(
+                {{ delayed_column }}
+            )
+        FROM
+            {{ this }}
+    ) - INTERVAL '{{ delayed_period }}'
 {% endmacro %}
