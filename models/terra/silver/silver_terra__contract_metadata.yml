@@ -9,3 +9,6 @@ models:
       - name: CONTRACT_ADDRESS
         tests:
           - not_null
+      - name: IS_WORMHOLE
+        tests:
+          - not_null
