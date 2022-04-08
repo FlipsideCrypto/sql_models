@@ -28,6 +28,7 @@ qualify(RANK() over(PARTITION BY tx_id
 ORDER BY
   block_id DESC)) = 1
 )
+
 SELECT
   *
 FROM
