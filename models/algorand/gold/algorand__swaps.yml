@@ -37,17 +37,20 @@ models:
       - name: swapper
         description: "Address that initiated the swap"
         tests:
-          - not_null
+          - not_null:
+              where: BLOCK_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
       - name: swap_from_asset_id
         description: "Token being sent or swapped from"
         tests:
-          - not_null
+          - not_null:
+              where: BLOCK_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: swap_from_amount
         description: "Total amount of the token sent in to initiate the swap"
         tests:
-          - not_null
+          - not_null:
+              where: BLOCK_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: pool_address
         description: "Address of the pool the swap is coming from"
         tests:
