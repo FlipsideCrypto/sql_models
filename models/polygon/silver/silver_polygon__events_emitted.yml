@@ -26,13 +26,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-      - name: CONTRACT_NAME
-        tests:
-          - not_null
       - name: EVENT_INDEX
-        tests:
-          - not_null
-      - name: EVENT_INPUTS
         tests:
           - not_null
       - name: EVENT_NAME
@@ -53,6 +47,4 @@ models:
       - name: TX_SUCCEEDED
         tests:
           - not_null
-      - name: TX_TO
-        tests:
-          - not_null
+
