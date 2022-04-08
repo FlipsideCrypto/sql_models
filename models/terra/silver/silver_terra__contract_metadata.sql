@@ -60,6 +60,7 @@ contract_msgs AS (
   WHERE
      msg_type IN ('wasm/MsgInstantiateContract', 'wasm/MsgExecuteContract')
      AND (msg_value :execute_msg :execute :proposal_id IS NOT NULL OR msg_value :init_msg IS NOT NULL)
+     
 
 {% if is_incremental() %}
 AND tm.block_timestamp >= getdate() - INTERVAL '1 days'
@@ -71,7 +72,7 @@ wormhole_txs AS (
     block_timestamp,
     tx_id,
     event_attributes :contract_address :: STRING AS token_contract,
-    TRUE AS is_wormhole_token
+    TRUE AS is_wormhole
   FROM
     {{ ref("silver_terra__msg_events") }}
   WHERE
@@ -115,7 +116,7 @@ SELECT
   init_msg :decimals :: numeric AS decimals,
   init_msg :name :: STRING AS contract_name,
   init_msg :symbol :: STRING AS symbol,
-  is_wormhole_token
+  is_wormhole
 FROM
     {{ ref('silver_terra__contract_info') }} i
     LEFT JOIN wormhole_txs w
@@ -131,28 +132,34 @@ WHERE
     ) --bLUNA,bETH,ASTRO,TEST,PSI already decoded
 )
 
+SELECT DISTINCT * FROM (
 SELECT
-  block_timestamp,
-  tx_id,
-  contract_address,
-  decimals,
-  contract_name,
-  symbol,
-  is_wormhole
+  c.block_timestamp,
+  c.tx_id,
+  c.contract_address,
+  coalesce(c.decimals, d.decimals) AS decimals,
+  coalesce(c.contract_name, d.contract_name) AS contract_name,
+  coalesce(c.symbol, d.symbol) AS symbol,
+  c.is_wormhole
 FROM
-  contract_msgs
+  contract_msgs c
+  LEFT JOIN decoded_contracts d ON c.contract_address = d.contract_address
+ 
 
 UNION ALL
 
-SELECT DISTINCT
+SELECT
   coalesce(c.block_timestamp, m.block_timestamp) AS block_timestamp,
   coalesce(c.tx_id, m.tx_id) AS tx_id,
   c.contract_address,
   decimals,
   contract_name,
   symbol,
-  CASE WHEN c.is_wormhole_token = TRUE THEN TRUE
+  CASE WHEN c.is_wormhole = TRUE THEN TRUE
   ELSE FALSE END AS is_wormhole
 FROM 
 decoded_contracts c
 LEFT JOIN mASSETS m ON c.contract_address = m.contract_address
+
+)
+WHERE tx_id IS NOT NULL
