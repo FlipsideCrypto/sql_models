@@ -67,7 +67,7 @@ sources:
       - name: flow_delegator_addresses
       - name: terra_vesting_schedule
   - name: thorchain_midgard
-    schema: BRONZE_MIDGARD_2_6_9
+    schema: BRONZE_MIDGARD_2_6_9_20220405
     tables:
       - name: midgard_active_vault_events
       - name: midgard_add_events
@@ -152,6 +152,8 @@ sources:
     tables:
       - name: solana_blocks
       - name: solana_txs
+      - name: ethereum_blocks
+      - name: ethereum_txs
   - name: solana
     database: solana
     schema: core
@@ -169,3 +171,16 @@ sources:
       - name: fact_transactions
       - name: fact_transfers
       - name: fact_votes_agg_block
+  - name: ethereum_db
+    database: ethereum
+    schema: core
+    tables:
+      - name: dim_contracts
+      - name: dim_dates
+      - name: dim_labels
+      - name: fact_blocks
+      - name: fact_event_logs
+      - name: fact_hourly_token_prices
+      - name: fact_token_transfers
+      - name: fact_transactions
+      - name: ez_token_transfers

@@ -29,9 +29,6 @@ models:
       - name: EVENT_INDEX
         tests:
           - not_null
-      - name: EVENT_INPUTS
-        tests:
-          - not_null
       - name: EVENT_NAME
         tests:
           - not_null

@@ -296,6 +296,13 @@ AND HOUR >= getdate() - INTERVAL '5 days'
 )
 WHERE
   rn = 1
+),
+decimals AS (
+  SELECT
+    LOWER(address) AS address,
+    meta :decimals :: INTEGER AS decimals
+  FROM
+    {{ ref('ethereum__contracts') }}
 )
 SELECT
   nft.event_platform,
@@ -312,7 +319,10 @@ SELECT
   nft.event_from :: STRING AS event_from,
   nft.event_to :: STRING AS event_to,
   nft.price,
-  nft.price * p.price AS price_usd,
+  CASE
+    WHEN decimals IS NULL THEN NULL
+    ELSE nft.price * p.price
+  END AS price_usd,
   nft.platform_fee,
   nft.creator_fee,
   nft.tx_currency
@@ -330,3 +340,5 @@ FROM
   ON nft.contract_address = contract_labels.address
   AND contract_labels.blockchain = 'ethereum'
   AND contract_labels.creator = 'flipside'
+  LEFT JOIN decimals
+  ON nft.contract_address = decimals.address

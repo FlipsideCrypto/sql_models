@@ -30,20 +30,8 @@ where
     (
       record_content:model.name = 'terra-5_astroport_pool_reserves'
         and 
-      record_content:model.run_id = 'v2022.03.07.0'
+      record_content:model.run_id = 'v2022.04.07.0'
     )
-      or
-    (
-      record_content:model.name = 'terra-5_astroport_pool_reserves_backfill'
-        and 
-      record_content:model.run_id = 'v2022.03.11.0'
-    )
-      or
-     (
-       record_content:model.name = 'terra-5_astroport_pool_reserves_backfill'
-         and 
-       record_content:model.run_id = 'v2022.04.05.0'
-     )
 AND block_id >= 5840738
 {% if is_incremental() %}
 AND (

@@ -36,8 +36,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
-                - decimal
-                - float
+                - NUMBER
       - name: GAS_USED
         tests:
           - not_null
@@ -56,11 +55,10 @@ models:
       - name: SYSTEM_CREATED_AT
         tests:
           - not_null
-      - name: TO_ADDRESS
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+      # - name: TO_ADDRESS
+      #   tests:
+      #     - dbt_expectations.expect_column_values_to_match_regex:
+      #         regex: 0[xX][0-9a-fA-F]+
       - name: TX_ID
         tests:
           - not_null
