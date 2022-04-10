@@ -7,7 +7,6 @@ models:
             - DATE
             - SYMBOL
             - TOKEN_ADDRESS
-            - METRIC_VALUE
     columns:
       - name: DATE
         tests:
@@ -27,9 +26,3 @@ models:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - varchar 
-      - name: METRIC_VALUE
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - number

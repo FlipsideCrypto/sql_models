@@ -6,7 +6,6 @@ models:
           combination_of_columns:
             - DAY_DATE
             - ADDRESS_NAME
-            - PRICE
     columns:
       - name: DAY_DATE
         tests:
@@ -20,9 +19,9 @@ models:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - varchar 
-      - name: PRICE
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - number
+      # - name: PRICE
+      #   tests:
+      #     - not_null
+      #     - dbt_expectations.expect_column_values_to_be_in_type_list:
+      #         column_type_list:
+      #           - number
