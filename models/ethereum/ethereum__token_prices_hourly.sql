@@ -151,10 +151,6 @@ FINAL AS (
   SELECT
     p.hour AS HOUR,
     p.token_address,
-    -- CASE
-    --   WHEN symbol IS NOT NULL THEN symbol
-    --   ELSE lag_symbol
-    -- END AS symbol,
     CASE
       WHEN decimals IS NOT NULL THEN decimals
       ELSE lag_decimals
