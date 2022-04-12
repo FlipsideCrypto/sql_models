@@ -14,11 +14,6 @@ WITH stakes AS (
     {{ ref('thorchain__stake_events') }}
   WHERE
     TRUE
-
-{% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '2 days'
-{% else %}
-{% endif %}
 ),
 unstakes AS (
   SELECT
@@ -27,11 +22,6 @@ unstakes AS (
     {{ ref('thorchain__unstake_events') }}
   WHERE
     TRUE
-
-{% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '2 days'
-{% else %}
-{% endif %}
 )
 SELECT
   se.block_timestamp,
