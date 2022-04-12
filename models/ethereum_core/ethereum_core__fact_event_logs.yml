@@ -14,6 +14,8 @@ models:
         description: '{{ doc("eth_event_index") }}'
       - name: CONTRACT_ADDRESS
         description: '{{ doc("eth_logs_contract_address") }}'
+      - name: CONTRACT_NAME
+        description: '{{ doc("eth_logs_contract_name") }}'
       - name: EVENT_NAME
         description: '{{ doc("eth_event_name") }}'
       - name: EVENT_INPUTS

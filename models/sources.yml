@@ -184,3 +184,4 @@ sources:
       - name: fact_token_transfers
       - name: fact_transactions
       - name: ez_token_transfers
+      - name: dim_dex_liquidity_pools
