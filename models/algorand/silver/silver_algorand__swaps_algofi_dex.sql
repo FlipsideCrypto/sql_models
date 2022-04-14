@@ -12,11 +12,18 @@ WITH algofi_app_ids AS (
     FROM
         {{ ref('silver_algorand__transactions') }}
     WHERE
-        inner_tx = 'FALSE'
-        AND tx_message :dt :itx [2] :txn :type :: STRING = 'acfg'
-        AND tx_message :dt :itx [2] :txn :apar :an :: STRING LIKE 'AF-POOL-%'
-        AND tx_message :dt :itx [2] :txn :apar :au :: STRING = 'https://algofi.org'
-        AND block_timestamp > '2022-02-02'
+        (
+            inner_tx = 'FALSE'
+            AND tx_message :dt :itx [2] :txn :type :: STRING = 'acfg'
+            AND tx_message :dt :itx [2] :txn :apar :an :: STRING LIKE 'AF-POOL-%'
+            AND tx_message :dt :itx [2] :txn :apar :au :: STRING = 'https://algofi.org'
+        )
+        OR (
+            inner_tx = 'FALSE'
+            AND tx_message :dt :itx [1] :txn :type :: STRING = 'acfg'
+            AND tx_message :dt :itx [1] :txn :apar :an :: STRING LIKE 'AF-POOL-%'
+            AND tx_message :dt :itx [1] :txn :apar :au :: STRING = 'https://algofi.org'
+        )
 ),
 algofi_app AS(
     SELECT
@@ -77,10 +84,12 @@ from_pay_swapssfe AS(
         pt.intra,
         pt.sender AS swapper,
         'ALGO' AS from_asset_name,
-        amount - ref.tx_message :dt :itx [0] :txn :amt / pow(
-            10,
-            6
-        ) :: FLOAT AS swap_from_amount,
+        amount - ZEROIFNULL(
+            ref.tx_message :dt :itx [0] :txn :amt / pow(
+                10,
+                6
+            ) :: FLOAT
+        ) AS swap_from_amount,
         0 AS from_asset_id
     FROM
         algofi_app pa
@@ -92,6 +101,7 @@ from_pay_swapssfe AS(
         LEFT JOIN {{ ref('silver_algorand__application_call_transaction') }}
         ref
         ON pa.tx_group_id = ref.tx_group_id
+        AND pa.intra + 2 = ref.intra
     WHERE
         pt.inner_tx = 'FALSE'
         AND pt.tx_group_id IS NOT NULL
@@ -106,16 +116,20 @@ from_axfer_swapssfe AS(
         pa.tx_group_id AS tx_group_id,
         pt.intra,
         pt.sender AS swapper,
-        a2.asset_name AS from_asset_name,
+        A.asset_name AS from_asset_name,
         CASE
-            WHEN a2.decimals > 0 THEN asset_amount / pow(
+            WHEN A.decimals > 0 THEN asset_amount / pow(
                 10,
                 A.decimals
-            ) - ref.tx_message :dt :itx [0] :txn :aamt / pow(
-                10,
-                a2.decimals
+            ) - ZEROIFNULL(
+                ref.tx_message :dt :itx [0] :txn :aamt / pow(
+                    10,
+                    A.decimals
+                )
             )
-            WHEN a2.decimals = 0 THEN asset_amount - ref.tx_message :dt :itx [0] :txn :aamt
+            WHEN A.decimals = 0 THEN asset_amount - ZEROIFNULL(
+                ref.tx_message :dt :itx [0] :txn :aamt
+            )
         END :: FLOAT AS swap_from_amount,
         pt.asset_id AS from_asset_id
     FROM
@@ -129,6 +143,7 @@ from_axfer_swapssfe AS(
         LEFT JOIN {{ ref('silver_algorand__application_call_transaction') }}
         ref
         ON pa.tx_group_id = ref.tx_group_id
+        AND pa.intra + 2 = ref.intra
         LEFT JOIN {{ ref('silver_algorand__asset') }}
         a2
         ON ref.tx_message :dt :itx [0] :txn :xaid :: NUMBER = a2.asset_id
@@ -323,7 +338,7 @@ allsef AS(
         fs.tx_group_id IS NOT NULL
 )
 SELECT
-    block_timestamp,
+    DISTINCT block_timestamp,
     block_id,
     intra,
     tx_group_id,
@@ -344,7 +359,7 @@ FROM
     allsef
 UNION
 SELECT
-    block_timestamp,
+    DISTINCT block_timestamp,
     block_id,
     intra,
     tx_group_id,
