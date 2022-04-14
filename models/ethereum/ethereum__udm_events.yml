@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: ethereum__udm_events
-    description: Deprecating soon
+
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
