@@ -12,11 +12,18 @@ WITH algofi_app_ids AS (
     FROM
         {{ ref('silver_algorand__transactions') }}
     WHERE
-        inner_tx = 'FALSE'
-        AND tx_message :dt :itx [2] :txn :type :: STRING = 'acfg'
-        AND tx_message :dt :itx [2] :txn :apar :an :: STRING LIKE 'AF-POOL-%'
-        AND tx_message :dt :itx [2] :txn :apar :au :: STRING = 'https://algofi.org'
-        AND block_timestamp > '2022-02-02'
+        (
+            inner_tx = 'FALSE'
+            AND tx_message :dt :itx [2] :txn :type :: STRING = 'acfg'
+            AND tx_message :dt :itx [2] :txn :apar :an :: STRING LIKE 'AF-POOL-%'
+            AND tx_message :dt :itx [2] :txn :apar :au :: STRING = 'https://algofi.org'
+        )
+        OR (
+            inner_tx = 'FALSE'
+            AND tx_message :dt :itx [1] :txn :type :: STRING = 'acfg'
+            AND tx_message :dt :itx [1] :txn :apar :an :: STRING LIKE 'AF-POOL-%'
+            AND tx_message :dt :itx [1] :txn :apar :au :: STRING = 'https://algofi.org'
+        )
 ),
 algofi_app AS(
     SELECT
