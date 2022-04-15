@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: silver_algorand__prices
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - block_hour
+            - asset_id
+    columns:
+      - name: BLOCK_HOUR
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: PRICE
+        Tests:
+          - not_null
+  
