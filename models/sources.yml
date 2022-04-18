@@ -184,3 +184,10 @@ sources:
       - name: fact_token_transfers
       - name: fact_transactions
       - name: ez_token_transfers
+      - name: dim_dex_liquidity_pools
+      - name: ez_dex_swaps 
+  - name: ethereum_db_sushi
+    database: ethereum
+    schema: sushi
+    tables:
+      - name: ez_swaps

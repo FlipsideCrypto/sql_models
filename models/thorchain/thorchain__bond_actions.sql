@@ -23,11 +23,6 @@ bond_events AS (
     {{ ref('thorchain__bond_events') }}
   WHERE
     TRUE
-
-{% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '2 days'
-{% else %}
-{% endif %}
 )
 SELECT
   be.block_timestamp,

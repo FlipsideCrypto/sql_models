@@ -172,6 +172,13 @@ token_transfer_events AS (
 AND block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
 ),
+decimals AS (
+  SELECT
+    LOWER(address) AS address,
+    meta :decimals :: INTEGER AS decimals
+  FROM
+    {{ ref('ethereum__contracts') }}
+),
 -- find the amount paid
 tx_paid AS (
   SELECT
@@ -181,8 +188,11 @@ tx_paid AS (
     contract_address AS tx_currency_contract
   FROM
     token_transfer_events
+    LEFT JOIN decimals
+    ON LOWER(contract_address) = address
   WHERE
     from_address = buyer
+    AND decimals IS NOT NULL
 ),
 -- find how much is paid to opensea
 platform_fees AS (
@@ -193,7 +203,7 @@ platform_fees AS (
     token_transfer_events
   WHERE
     to_address = '0x5b3256965e7c3cf26e11fcaf296dfc8807c01073'
-) -- we're joining on the original NFT transfers CTE
+) -- we're joining on the original NFT transfers CTE,
 SELECT
   'opensea' AS event_platform,
   tt.tx_id,
