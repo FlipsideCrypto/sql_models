@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: thorchain__block_rewards
+  - name: silver_thorchain__daily_earnings
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -12,19 +12,34 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 3
-      - name: LIQUIDITY_FEE
+      - name: LIQUIDITY_FEES
+        tests:
+          - not_null
+      - name: LIQUIDITY_FEES_USD
         tests:
           - not_null
       - name: BLOCK_REWARDS
         tests:
           - not_null
-      - name: EARNINGS
+      - name: BLOCK_REWARDS_USD
         tests:
           - not_null
-      - name: BONDING_EARNINGS
+      - name: TOTAL_EARNINGS
         tests:
           - not_null
-      - name: LIQUIDITY_EARNINGS
+      - name: TOTAL_EARNINGS_USD
+        tests:
+          - not_null
+      - name: EARNINGS_TO_NODES
+        tests:
+          - not_null
+      - name: EARNINGS_TO_NODES_USD
+        tests:
+          - not_null
+      - name: EARNINGS_TO_POOLS
+        tests:
+          - not_null
+      - name: EARNINGS_TO_POOLS_USD
         tests:
           - not_null
       - name: AVG_NODE_COUNT

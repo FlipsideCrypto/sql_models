@@ -1,17 +1,14 @@
 version: 2
 models:
-  - name: thorchain__refund_events
+  - name: silver_thorchain__bond_events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
-            - TX_ID
+            - ASSET
             - TO_ADDRESS
             - FROM_ADDRESS
-            - ASSET
-            - ASSET_E8
-            - ASSET_2ND
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -25,6 +22,16 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: BLOCKCHAIN
+
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: BOND_TYPE
+        tests:
+          - not_null
+      - name: E8
+        tests:
+          - not_null
+      - name: ASSET_E8
         tests:
           - not_null

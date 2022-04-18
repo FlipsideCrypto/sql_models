@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'thorchain', 'block_pool_depths']
+  tags = ['snowflake', 'silver_thorchain', 'block_pool_depths']
 ) }}
 
 SELECT
@@ -13,15 +13,9 @@ SELECT
   d.synth_e8,
   d.pool AS pool_name
 FROM
-  {{ source(
-    'thorchain_midgard',
-    'midgard_block_pool_depths'
-  ) }}
+  {{ ref('thorchain_dbt__block_pool_depths') }}
   d
-  INNER JOIN {{ source(
-    'thorchain_midgard',
-    'midgard_block_log'
-  ) }}
+  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = d.block_timestamp
 GROUP BY

@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'thorchain', 'swap_events']
+  tags = ['snowflake', 'silver_thorchain', 'swap_events']
 ) }}
 
 SELECT
@@ -23,14 +23,8 @@ SELECT
   e.to_e8_min,
   e.from_e8
 FROM
-  {{ source(
-    'thorchain_midgard',
-    'midgard_swap_events'
-  ) }}
+  {{ ref('thorchain_dbt__swap_events') }}
   e
-  INNER JOIN {{ source(
-    'thorchain_midgard',
-    'midgard_block_log'
-  ) }}
+  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp

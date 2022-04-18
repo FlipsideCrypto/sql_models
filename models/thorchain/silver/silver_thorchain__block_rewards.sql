@@ -2,7 +2,7 @@
   config(
     materialized='table', 
     unique_key='day', 
-    tags=['snowflake', 'thorchain', 'thorchain_block_rewards']
+    tags=['snowflake', 'silver_thorchain', 'thorchain_block_rewards']
   )
 }}
 
@@ -10,7 +10,7 @@ WITH all_block_id AS (
   SELECT DISTINCT
     block_id,
     block_timestamp
-  FROM {{ ref('thorchain__block_pool_depths') }} 
+  FROM {{ ref('silver_thorchain__block_pool_depths') }} 
 ),
 
 avg_nodes_tbl AS (
@@ -18,7 +18,7 @@ avg_nodes_tbl AS (
     block_id,
     block_timestamp,
     SUM(CASE WHEN current_status = 'Active' THEN 1 WHEN former_status = 'Active' THEN -1 else 0 END) AS delta
-  FROM {{ ref('thorchain__update_node_account_status_events') }} 
+  FROM {{ ref('silver_thorchain__update_node_account_status_events') }} 
   GROUP BY 1,2
 ),
 
@@ -56,7 +56,7 @@ liquidity_fee_tbl AS (
   SELECT 
     date(block_timestamp) AS day,
     COALESCE(SUM(LIQ_FEE_IN_RUNE_E8), 0) AS liquidity_fee
-  FROM {{ ref('thorchain__swap_events') }} 
+  FROM {{ ref('silver_thorchain__swap_events') }} 
   GROUP BY 1 
 ),
 
@@ -64,7 +64,7 @@ bond_earnings_tbl AS (
   SELECT
     date(block_timestamp) AS day,
     SUM(bond_e8) AS bond_earnings
-  FROM {{ ref('thorchain__rewards_events') }} 
+  FROM {{ ref('silver_thorchain__rewards_events') }} 
   GROUP BY 1
 ),
 
@@ -72,7 +72,7 @@ total_pool_rewards_tbl AS (
   SELECT
     date(block_timestamp) AS day,
     SUM(rune_e8) AS total_pool_rewards
-  FROM {{ ref('thorchain__rewards_event_entries') }} 
+  FROM {{ ref('silver_thorchain__rewards_event_entries') }} 
   GROUP BY 1
 )
 

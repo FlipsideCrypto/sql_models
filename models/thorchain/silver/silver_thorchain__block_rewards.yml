@@ -1,33 +1,32 @@
 version: 2
 models:
-  - name: thorchain__prices
+  - name: silver_thorchain__block_rewards
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - BLOCK_ID
-            - POOL_NAME
+            - DAY
     columns:
-      - name: BLOCK_ID
-        tests:
-          - not_null
-      - name: BLOCK_TIMESTAMP::DATE
+      - name: DAY
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 3
-      - name: PRICE_RUNE_ASSET
+      - name: LIQUIDITY_FEE
         tests:
           - not_null
-      - name: PRICE_ASSET_RUNE
+      - name: BLOCK_REWARDS
         tests:
           - not_null
-      - name: ASSET_USD
+      - name: EARNINGS
         tests:
           - not_null
-      - name: RUNE_USD
+      - name: BONDING_EARNINGS
         tests:
           - not_null
-      - name: POOL_NAME
+      - name: LIQUIDITY_EARNINGS
+        tests:
+          - not_null
+      - name: AVG_NODE_COUNT
         tests:
           - not_null

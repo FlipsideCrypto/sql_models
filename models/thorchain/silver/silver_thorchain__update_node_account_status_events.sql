@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'thorchain', 'update_node_account_status_events']
+  tags = ['snowflake', 'silver_thorchain', 'update_node_account_status_events']
 ) }}
 
 SELECT
@@ -12,14 +12,8 @@ SELECT
   e."CURRENT" AS current_status,
   e.former AS former_status
 FROM
-  {{ source(
-    'thorchain_midgard',
-    'midgard_update_node_account_status_events'
-  ) }}
+  {{ ref('thorchain_dbt__update_node_account_status_events') }}
   e
-  INNER JOIN {{ source(
-    'thorchain_midgard',
-    'midgard_block_log'
-  ) }}
+  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp

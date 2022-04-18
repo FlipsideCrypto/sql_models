@@ -1,11 +1,19 @@
 version: 2
 models:
-  - name: thorchain__rewards_event_entries
+  - name: silver_thorchain__swap_events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
+            - TX_ID
             - POOL_NAME
+            - FROM_ASSET
+            - TO_ASSET
+            - FROM_ASSET
+            - TO_ADDRESS
+            - FROM_ADDRESS
+            - TO_E8
+            - FROM_E8
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

@@ -13,14 +13,8 @@ SELECT
   e.vault_key,
   e.asset_e8
 FROM
-  {{ source(
-    'thorchain_midgard',
-    'midgard_asgard_fund_yggdrasil_events'
-  ) }}
+  {{ ref('thorchain_dbt__asgard_fund_yggdrasil_events') }}
   e
-  INNER JOIN {{ source(
-    'thorchain_midgard',
-    'midgard_block_log'
-  ) }}
+  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp

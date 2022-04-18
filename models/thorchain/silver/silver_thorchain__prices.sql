@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "CONCAT_WS('-', block_id, pool_name)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'thorchain', 'thorchain_prices']
+  tags = ['snowflake', 'silver_thorchain', 'thorchain_prices']
 ) }}
 -- block level prices by pool
 -- step 1 what is the USD pool with the highest balance (aka deepest pool)
@@ -13,7 +13,7 @@ WITH max_pool_blocks AS (
     MAX(block_id) AS max_block,
     pool_name
   FROM
-    {{ ref('thorchain__block_pool_depths') }}
+    {{ ref('silver_thorchain__block_pool_depths') }}
   WHERE
     pool_name IN (
       'BNB.USDT-6D8',
@@ -35,7 +35,7 @@ reference_pool AS (
     bpd.pool_name,
     rune_e8
   FROM
-    {{ ref('thorchain__block_pool_depths') }}
+    {{ ref('silver_thorchain__block_pool_depths') }}
     bpd
     JOIN max_pool_blocks mpb
     ON bpd.pool_name = mpb.pool_name
@@ -57,7 +57,7 @@ rune_usd_max_tbl AS (
     block_id,
     asset_e8 / rune_e8 AS rune_usd_max
   FROM
-    {{ ref('thorchain__block_pool_depths') }}
+    {{ ref('silver_thorchain__block_pool_depths') }}
     bpd
   WHERE
     pool_name = (
@@ -84,7 +84,7 @@ rune_usd_sup_tbl AS (
         block_id,
         asset_e8 / rune_e8 AS rune_usd
       FROM
-        {{ ref('thorchain__block_pool_depths') }}
+        {{ ref('silver_thorchain__block_pool_depths') }}
         bpd
       WHERE
         rune_e8 > 0
@@ -148,7 +148,7 @@ SELECT
   ) AS rune_usd,
   pool_name
 FROM
-  {{ ref('thorchain__block_pool_depths') }}
+  {{ ref('silver_thorchain__block_pool_depths') }}
   bpd
   JOIN rune_usd ru
   ON bpd.block_id = ru.block_id

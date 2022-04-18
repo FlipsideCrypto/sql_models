@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'thorchain', 'refund_events']
+  tags = ['snowflake', 'silver_thorchain', 'refund_events']
 ) }}
 
 SELECT
@@ -20,14 +20,8 @@ SELECT
   e.to_addr AS to_address,
   e.from_addr AS from_address
 FROM
-  {{ source(
-    'thorchain_midgard',
-    'midgard_refund_events'
-  ) }}
+  {{ ref('thorchain_dbt__refund_events') }}
   e
-  INNER JOIN {{ source(
-    'thorchain_midgard',
-    'midgard_block_log'
-  ) }}
+  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp
