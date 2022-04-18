@@ -5,6 +5,7 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
+            - SWAP_PROGRAM
             - BLOCK_ID
             - TX_ID
     columns:
