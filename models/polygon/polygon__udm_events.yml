@@ -10,14 +10,12 @@ models:
     columns:
       - name: AMOUNT
         tests:
-          # - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
                 - float
       - name: AMOUNT_USD
         tests:
-          # - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -33,12 +31,10 @@ models:
               interval: 1
       - name: CONTRACT_ADDRESS
         tests:
-          # - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: FROM_ADDRESS
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: ORIGIN_ADDRESS
@@ -51,7 +47,6 @@ models:
           - not_null
       - name: TO_ADDRESS
         tests:
-          - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
       - name: TX_ID

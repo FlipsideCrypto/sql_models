@@ -13,6 +13,11 @@
     token_contract AS address
   FROM
     {{ ref("silver_terra__undecoded_wormhole_contracts") }}
+  UNION ALL
+  SELECT
+    token_contract AS address
+  FROM
+    {{ ref("silver_terra__undecoded_token_contracts") }}
 )
 EXCEPT
 SELECT
