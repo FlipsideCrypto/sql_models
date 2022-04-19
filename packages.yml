@@ -2,4 +2,4 @@ packages:
   - package: calogica/dbt_expectations
     version: [">=0.4.0", "<0.9.0"]
   - git: "git@github.com:FlipsideCrypto/ethereum-models.git"
-    revision: add/beta-flag
+    revision: AN-1071/dex_swaps

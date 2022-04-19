@@ -36,3 +36,7 @@ models:
         description: '{{ doc("eth_tx_status") }}' 
       - name: TX_JSON
         description: '{{ doc("eth_tx_json") }}' 
+      - name: INPUT_DATA
+        description: '{{ doc("eth_tx_input_data") }}'
+      - name: ORIGIN_FUNCTION_SIGNATURE 
+        description: '{{ doc("eth_tx_origin_sig") }}'
