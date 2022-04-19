@@ -145,7 +145,7 @@ terra_balances AS (
     base_balances
     qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
   ORDER BY
-    balance DESC)) = 1
+    block_timestamp DESC)) = 1
 ),
 balance_tmp AS (
   SELECT
