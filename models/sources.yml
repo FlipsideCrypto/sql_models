@@ -184,3 +184,8 @@ sources:
       - name: fact_token_transfers
       - name: fact_transactions
       - name: ez_token_transfers
+  - name: ethereum_db_external
+    database: ethereum
+    schema: silver
+    tables:
+      - name: nft_metadata_api
