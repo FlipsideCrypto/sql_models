@@ -1,0 +1,126 @@
+version: 2
+models:
+  - name: silver_thorchain__daily_pool_stats
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DAY
+            - POOL_NAME
+    columns:
+      - name: DAY
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: POOL_NAME
+        tests:
+          - not_null
+      - name: SYSTEM_REWARDS
+        tests:
+          - not_null
+      - name: SYSTEM_REWARDS_USD
+        tests:
+          - not_null
+      - name: ASSET_LIQUIDITY
+        tests:
+          - not_null
+      - name: ASSET_PRICE
+        tests:
+          - not_null
+      - name: ASSET_PRICE_USD
+        tests:
+          - not_null
+      - name: RUNE_LIQUIDITY
+        tests:
+          - not_null
+      - name: RUNE_PRICE
+        tests:
+          - not_null
+      - name: RUNE_PRICE_USD
+        tests:
+          - not_null
+      - name: ADD_LIQUIDITY_COUNT
+        tests:
+          - not_null
+      - name: ADD_ASSET_LIQUIDITY
+        tests:
+          - not_null
+      - name: ADD_ASSET_LIQUIDITY_USD
+        tests:
+          - not_null
+      - name: ADD_RUNE_LIQUIDITY_USD
+        tests:
+          - not_null
+      - name: WITHDRAW_COUNT
+        tests:
+          - not_null
+      - name: WITHDRAW_ASSET_LIQUIDITY
+        tests:
+          - not_null
+      - name: WITHDRAW_ASSET_LIQUIDITY_USD
+        tests:
+          - not_null
+      - name: WITHDRAW_RUNE_LIQUIDITY
+        tests:
+          - not_null
+      - name: WITHDRAW_RUNE_LIQUIDITY_USD
+        tests:
+          - not_null
+      - name: IL_PROTECTION_PAID
+        tests:
+          - not_null
+      - name: IL_PROTECTION_PAID_USD
+        tests:
+          - not_null
+      - name: AVERAGE_SLIP
+        tests:
+          - not_null
+      - name: TO_ASSET_AVERAGE_SLIP
+        tests:
+          - not_null
+      - name: TO_RUNE_AVERAGE_SLIP
+        tests:
+          - not_null
+      - name: SWAP_COUNT
+        tests:
+          - not_null
+      - name: TO_ASSET_SWAP_COUNT
+        tests:
+          - not_null
+      - name: TO_RUNE_SWAP_COUNT
+        tests:
+          - not_null
+      - name: SWAP_VOLUME_RUNE
+        tests:
+          - not_null
+      - name: SWAP_VOLUME_RUNE_USD
+        tests:
+          - not_null
+      - name: TO_ASSET_SWAP_VOLUME
+        tests:
+          - not_null
+      - name: TO_RUNE_SWAP_VOLUME
+        tests:
+          - not_null
+      - name: TOTAL_SWAP_FEES_RUNE
+        tests:
+          - not_null
+      - name: TOTAL_SWAP_FEES_USD
+        tests:
+          - not_null
+      - name: TOTAL_ASSET_SWAP_FEES
+        tests:
+          - not_null
+      - name: TOTAL_ASSET_RUNE_FEES
+        tests:
+          - not_null
+      - name: UNIQUE_MEMBER_COUNT
+        tests:
+          - not_null
+      - name: UNIQUE_SWAPPER_COUNT
+        tests:
+          - not_null
+      - name: LIQUIDITY_UNITS
+        tests:
+          - not_null
