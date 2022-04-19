@@ -52,7 +52,7 @@ liquidations AS (
         COUNT(
             DISTINCT tx_id
         ) AS n_tx,
-        SUM(liquidated_amount) AS amount,
+        SUM(liquidated_amount_usd) AS amount,
         'Liquidation' AS description
     FROM
         {{ ref('anchor__liquidations') }}
