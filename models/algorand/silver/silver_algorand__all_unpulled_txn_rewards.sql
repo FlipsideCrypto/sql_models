@@ -4,7 +4,7 @@
 
 SELECT
   sender AS account,
-  tx_id
+  tx_id AS txid
 FROM
   {{ ref("silver_algorand__transactions") }}
   -- EXCEPT
