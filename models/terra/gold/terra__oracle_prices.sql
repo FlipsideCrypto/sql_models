@@ -185,8 +185,12 @@ SELECT
   ee.block_timestamp,
   ee.currency,
   l.address_name AS symbol,
-  pp.price / ee.price_usd AS luna_exchange_rate,
-  ee.price_usd,
+  CASE WHEN ee.currency = 'terra1z3e2e4jpk4n0xzzwlkgcfvc95pc5ldq0xcny58'
+  THEN pp.price / (ee.price_usd * POW(10,2))
+  ELSE pp.price / ee.price_usd END AS luna_exchange_rate,
+  CASE WHEN ee.currency = 'terra1z3e2e4jpk4n0xzzwlkgcfvc95pc5ldq0xcny58'
+  THEN ee.price_usd * POW(10,2)
+  ELSE ee.price_usd END AS price_usd,
   'oracle' AS source
 FROM feed_prices ee
   

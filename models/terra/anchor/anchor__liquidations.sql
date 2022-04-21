@@ -388,6 +388,7 @@ AND tx_status = 'SUCCEEDED'
 
 )
 
+SELECT DISTINCT * FROM (
 SELECT
   BLOCKCHAIN,
   CHAIN_ID::STRING AS CHAIN_ID,
@@ -431,3 +432,4 @@ FROM multiple_repay_tbl mt
 LEFT OUTER JOIN premium_rate pr
   ON mt.tx_id = pr.tx_id
   AND mt.liquidated_currency = pr.collateral_token
+)

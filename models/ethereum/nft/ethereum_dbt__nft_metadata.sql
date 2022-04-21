@@ -74,9 +74,32 @@ SELECT
   t.value :token_id :: STRING AS token_id,
   t.value :token_metadata :: OBJECT AS token_metadata,
   t.value :token_metadata_uri :: STRING AS token_metadata_uri,
-  t.value :token_name :: STRING AS token_name,*
+  t.value :token_name :: STRING AS token_name
 FROM
   base_tables,
   LATERAL FLATTEN(
     input => record_content: results
   ) t
+UNION ALL
+SELECT
+  system_created_at,
+  blockchain,
+  commission_rate,
+  contract_address,
+  contract_name,
+  created_at_block_id,
+  created_at_timestamp,
+  created_at_tx_id,
+  creator_address,
+  creator_name,
+  image_url,
+  project_name,
+  token_id,
+  token_metadata,
+  token_metadata_uri,
+  token_name
+FROM
+  {{ source(
+    'ethereum_db_external',
+    'nft_metadata_api'
+  ) }}

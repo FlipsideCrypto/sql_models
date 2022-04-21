@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_terra__contract_metadata
+  - name: terra_scored__contract_metadata
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
