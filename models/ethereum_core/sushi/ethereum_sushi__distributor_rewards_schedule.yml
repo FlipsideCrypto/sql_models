@@ -1,0 +1,13 @@
+version: 2
+models:
+  - name: ethereum_sushi__distributor_rewards_schedule
+    description: ''
+    columns:
+      - name: ADDRESS
+        description: 'Address of the sushi user eligible for reward'
+      - name: INDEX
+        description: ''
+      - name: AMOUNT
+        description: 'The amount that the address is eligible to receive'
+      - name: PROOF
+        description: ''
