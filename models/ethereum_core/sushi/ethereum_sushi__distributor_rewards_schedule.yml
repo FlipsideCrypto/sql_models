@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: ethereum_sushi__distributor_rewards_schedule
-    description: ''
+    description: 'A table that tracks eligibility for sushi rewards with the unclaimed amounts as of Oct 12th 2021 at 7:10 PM EDT'
     columns:
       - name: ADDRESS
         description: 'Address of the sushi user eligible for reward'
