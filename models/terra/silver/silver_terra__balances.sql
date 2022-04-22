@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'incremental',
-  unique_key = 'block_timestamp::date',
+  unique_key = "CONCAT_WS('-', address, balance_type, block_number, currency)",
   incremental_strategy = 'delete+insert',
   cluster_by = ['block_timestamp::date'],
   tags = ['snowflake', 'silver_terra', 'balances']
@@ -48,6 +48,7 @@ WITH tbl AS (
       block_number,
       block_timestamp,
       case when block_number <= 3820000 then 'columbus-3'
+           when blockchain = 'terra-5' then 'columbus-5'
            else 'columbus-4' end AS blockchain,
       currency,
       '2000-01-01 00:00:00'::timestamp as system_created_at,
