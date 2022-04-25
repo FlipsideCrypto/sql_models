@@ -119,8 +119,71 @@ AND block_timestamp :: DATE >= (
     {{ ref('silver_terra__msgs') }}
 )
 {% endif %}
+),
+
+deposits AS (
+SELECT
+  a.blockchain,
+  a.chain_id,
+  a.block_id,
+  a.block_timestamp,
+  a.tx_id,
+  a.msg_index,
+  action_index,
+  action_log :depositor :: STRING AS sender,
+  action_log :deposit_amount / pow(
+    10,
+    6
+  ) AS deposit_amount,
+  coalesce(msg_value :coins [0] :denom :: STRING, 'uusd') AS deposit_currency,
+  action_contract_address AS contract_address
+FROM {{ ref('silver_terra__event_actions') }} a
+LEFT JOIN {{ ref('silver_terra__msgs') }} m
+  ON a.tx_id = m.tx_id AND a.msg_index = m.msg_index
+WHERE action_method = 'deposit_stable'
+
+{% if is_incremental() %}
+AND a.block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
 )
-SELECT DISTINCT
+{% endif %}
+),
+
+mints AS (
+SELECT
+  block_timestamp,
+  tx_id,
+  msg_index,
+  action_index,
+  action_log :amount / pow(
+    10,
+    6
+  ) AS mint_amount,
+  action_contract_address AS mint_currency
+FROM {{ ref('silver_terra__event_actions') }}
+WHERE action_method = 'mint'
+AND action_contract_address = 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu' --aUST
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+)
+
+SELECT DISTINCT * 
+FROM (
+SELECT
   blockchain,
   chain_id,
   block_id,
@@ -139,3 +202,43 @@ FROM
   msgs m
   JOIN events e
   ON m.tx_id = e.tx_id
+
+UNION
+
+SELECT
+  d.blockchain,
+  chain_id,
+  block_id,
+  d.block_timestamp,
+  d.tx_id,
+  sender,
+  deposit_amount,
+  deposit_amount * o.price AS deposit_amount_usd,
+  deposit_currency,
+  mint_amount,
+  mint_amount * p.price AS mint_amount_usd,
+  mint_currency,
+  contract_address,
+  l.address_name AS contract_label
+FROM
+  deposits d
+  JOIN mints m
+  ON d.tx_id = m.tx_id 
+  AND d.msg_index = m.msg_index
+  AND d.action_index = m.action_index
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+    ON contract_address = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
+LEFT OUTER JOIN prices o
+    ON DATE_TRUNC(
+      'hour',
+      d.block_timestamp
+    ) = o.hour
+    AND deposit_currency = o.currency
+LEFT OUTER JOIN prices p
+    ON DATE_TRUNC(
+      'hour',
+      d.block_timestamp
+    ) = p.hour
+    AND mint_currency = p.currency
+
+)

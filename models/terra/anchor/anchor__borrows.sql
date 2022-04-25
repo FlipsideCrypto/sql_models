@@ -36,6 +36,49 @@ GROUP BY
   2,
   3
 )
+
+SELECT DISTINCT * 
+FROM (
+SELECT
+  a.blockchain,
+  chain_id,
+  block_id,
+  block_timestamp,
+  tx_id,
+  action_log :borrower::STRING AS sender,
+  action_log :borrow_amount / POW(10,6) AS amount,
+  amount * price AS amount_usd,
+  'uusd' AS currency,
+  action_contract_address AS contract_address,
+  l.address_name AS contract_label
+FROM
+  {{ ref('silver_terra__event_actions') }}
+  a
+  LEFT OUTER JOIN prices o
+  ON DATE_TRUNC(
+    'hour',
+    block_timestamp
+  ) = o.hour
+  AND 'uusd' = o.currency
+  LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+  ON action_contract_address = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
+WHERE
+  action_method = 'borrow_stable' -- Anchor Borrow
+  AND action_contract_address = 'terra1sepfj7s0aeg5967uxnfk4thzlerrsktkpelm5s' -- Anchor Market Contract
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
+)
+{% endif %}
+
+UNION
+
 SELECT
   m.blockchain,
   chain_id,
@@ -77,3 +120,4 @@ AND block_timestamp :: DATE >= (
     {{ ref('silver_terra__msgs') }}
 )
 {% endif %}
+)
