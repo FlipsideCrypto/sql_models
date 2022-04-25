@@ -1,9 +1,9 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', block_hour, asset_id)",
+    unique_key = "CONCAT_WS('-', block_hour, asset_id, price_source)",
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_hour'],
-    tags = ['snowflake', 'algorand', 'transactions', 'algorand__swaps', 'algorand__swap_prices']
+    tags = ['snowflake', 'algorand', 'transactions', 'algorand__swaps', 'algorand__prices']
 ) }}
 
 WITH swaps AS (
@@ -13,7 +13,8 @@ WITH swaps AS (
         swap_from_asset_id,
         swap_from_amount,
         swap_to_asset_id,
-        swap_to_amount
+        swap_to_amount,
+        dex
     FROM
         (
             SELECT
@@ -75,9 +76,11 @@ WITH swaps AS (
 {% if is_incremental() %}
 AND block_hour >(
     SELECT
-        DATEADD('hour', -8, MAX(block_hour))
+        DATEADD('hour', -24, MAX(block_hour))
     FROM
-        {{ this }})
+        {{ this }}
+    WHERE
+        price_source = 'swaps')
     {% endif %}
 ),
 swap_range AS (
@@ -264,7 +267,9 @@ combo_1 AS (
         block_hour,
         from_asset_id asset_id,
         from_asset_name asset_name,
-        from_usd price
+        from_usd price,
+        dex,
+        from_amt amt
     FROM
         usd
     WHERE
@@ -277,7 +282,9 @@ combo_1 AS (
         block_hour,
         to_asset_id,
         to_asset_name,
-        to_usd
+        to_usd,
+        dex,
+        to_amt amt
     FROM
         usd
     WHERE
@@ -290,7 +297,9 @@ combo_1 AS (
         block_hour,
         to_asset_id,
         to_asset_name,
-        to_usd
+        to_usd,
+        dex,
+        to_amt amt
     FROM
         algo
     WHERE
@@ -300,7 +309,9 @@ combo_1 AS (
         block_hour,
         from_asset_id,
         from_asset_name,
-        from_usd
+        from_usd,
+        dex,
+        from_amt amt
     FROM
         algo
     WHERE
@@ -317,7 +328,9 @@ combo_2 AS (
         ) over (
             PARTITION BY asset_id,
             block_hour
-        ) stddev_price
+        ) stddev_price,
+        dex,
+        amt
     FROM
         combo_1
 ),
@@ -335,15 +348,18 @@ combo_3 AS (
         AVG(price) over(
             PARTITION BY asset_ID,
             block_hour
-        ) avg_price
+        ) avg_price,
+        dex,
+        amt
     FROM
         combo_2
 ),
-FINAL AS (
+final_dex AS (
     SELECT
         block_hour,
         asset_id,
         asset_name,
+        dex,
         AVG(
             CASE
                 WHEN exclude_from_pricing = FALSE THEN price
@@ -360,16 +376,68 @@ FINAL AS (
         ) - MIN(
             price
         ) AS volatility_measure,
-        AVG(
-            price
-        ) - AVG(
-            CASE
-                WHEN exclude_from_pricing = FALSE THEN price
-            END
-        ) AS avg_adjustment_amount,
-        COUNT(1) swaps_in_hour
+        COUNT(1) swaps_in_hour,
+        SUM(amt) total_amt
     FROM
         combo_3
+    GROUP BY
+        1,
+        2,
+        3,
+        4
+),
+weights AS (
+    SELECT
+        dex,
+        asset_id,
+        total_amt / SUM(total_amt) over(
+            PARTITION BY asset_id
+        ) vol_weight,
+        swaps_in_day / SUM(swaps_in_day) over(
+            PARTITION BY asset_id
+        ) swaps_weight
+    FROM
+        (
+            SELECT
+                dex,
+                asset_id,
+                SUM(total_amt) total_amt,
+                SUM(swaps_in_hour) swaps_in_day
+            FROM
+                final_dex
+            WHERE
+                block_hour >= DATEADD(
+                    'hour',
+                    -24,(
+                        SELECT
+                            max_date
+                        FROM
+                            swap_range
+                    )
+                )
+            GROUP BY
+                1,
+                2
+        ) z
+),
+FINAL AS (
+    SELECT
+        block_hour,
+        A.asset_id,
+        asset_name,
+        MIN(min_price_usd_hour) AS min_price_usd_hour,
+        MAX(max_price_usd_hour) AS max_price_usd_hour,
+        MAX(max_price_usd_hour) - MIN(min_price_usd_hour) AS volatility_measure,
+        SUM(swaps_in_hour) AS swaps_in_hour,
+        SUM(total_amt) AS volume_in_hour,
+        SUM(
+            avg_price_usd_hour_excludes * vol_weight
+        ) price
+    FROM
+        final_dex A
+        JOIN weights b
+        ON A.asset_ID = b.asset_id
+        AND A.dex = b.dex
     GROUP BY
         1,
         2,
@@ -386,12 +454,12 @@ not_in_final AS (
         ) block_hour,
         asset_id,
         asset_name,
-        price,
         0 AS min_price_usd_hour,
         0 AS max_price_usd_hour,
         0 AS volatility_measure,
-        0 AS avg_adjustment_amount,
-        0 AS swaps_in_hour
+        0 AS swaps_in_hour,
+        0 AS volume_in_hour,
+        price
     FROM
         {{ this }}
     WHERE
@@ -401,6 +469,7 @@ not_in_final AS (
             FROM
                 FINAL
         )
+        AND price_source = 'swaps'
 )
 {% endif %},
 fill_in_the_blanks_temp AS (
@@ -408,12 +477,12 @@ fill_in_the_blanks_temp AS (
         A.hour AS block_hour,
         b.asset_id,
         b.asset_name,
-        C.avg_price_usd_hour_excludes AS price,
+        C.price,
         C.min_price_usd_hour,
         C.max_price_usd_hour,
         C.volatility_measure,
-        C.avg_adjustment_amount,
-        C.swaps_in_hour
+        C.swaps_in_hour,
+        C.volume_in_hour
     FROM
         (
             SELECT
@@ -431,6 +500,8 @@ WHERE
             MAX(block_hour)
         FROM
             {{ this }}
+        WHERE
+            price_source = 'swaps'
     )
     AND HOUR <= (
         SELECT
@@ -458,6 +529,8 @@ SELECT
     asset_name
 FROM
     {{ this }}
+WHERE
+    price_source = 'swaps'
 {% endif %}
 ) b
 LEFT JOIN (
@@ -491,8 +564,9 @@ SELECT
     min_price_usd_hour,
     max_price_usd_hour,
     volatility_measure,
-    avg_adjustment_amount,
-    swaps_in_hour
+    swaps_in_hour,
+    volume_in_hour,
+    'swaps' AS price_source
 FROM
     fill_in_the_blanks_temp qualify(LAST_VALUE(price ignore nulls) over(PARTITION BY asset_id
 ORDER BY
