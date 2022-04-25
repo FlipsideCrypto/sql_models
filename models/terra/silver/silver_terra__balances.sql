@@ -26,6 +26,26 @@ WITH tbl AS (
         SELECT MAX(_inserted_timestamp)
         FROM {{ this }}
     )
+
+    UNION
+
+    SELECT 
+      address,
+      balance,
+      balance_type,
+      block_number,
+      block_timestamp,
+      case when block_number <= 3820000 then 'columbus-3'
+           when blockchain = 'terra-5' then 'columbus-5'
+           else 'columbus-4' end AS blockchain,
+      currency,
+      '2000-01-01 00:00:00'::timestamp as system_created_at,
+      '2000-01-01 00:00:00'::timestamp as _inserted_timestamp
+    FROM {{ source('shared', 'terra_balances') }}
+    where block_timestamp::date >= (
+      select max(block_timestamp::date)
+      from {{this}}
+    )
   {% else %}
     SELECT 
       address,
