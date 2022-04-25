@@ -1,0 +1,31 @@
+version: 2
+models:
+  - name: algorand__prices
+    description: "This table can be used to price assets with the Algorand blockchain"
+    columns:
+      - name: BLOCK_HOUR
+        description: "The hour for which the price is valid"
+        tests:
+          - not_null
+      - name: ASSET_ID
+        description: "{{ doc('algo_asset_id') }}"
+        tests:
+          - not null
+      - name: ASSET_NAME
+        description: "Name of the asset"
+        tests:
+          - not_null
+      - name: PRICE
+        description: "The price of the asset in USD"
+      - name: min_price_usd_hour
+        description: "The lowest price found in the hour"
+      - name: max_price_usd_hour
+        description: "The highest price found in the hour"
+      - name: volatility_measure
+        description: "The difference between the min and max price for the hour"
+      - name: swaps_in_hour
+        description: "The number of swap transactions in the hour"
+      - name: volume_in_hour
+        description: "The volumne of swap transactions (in USD) in the hour"
+      - name: price_source
+        description: "The source of the price. Could be from swaps, pool balances, or external feed"
