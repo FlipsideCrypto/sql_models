@@ -11,7 +11,10 @@ WITH full_decimals AS (
   SELECT
     LOWER(address) AS contract_address,
     meta :decimals :: INT AS decimals,
-    meta :symbol :: STRING AS symbol
+    COALESCE(
+      meta :symbol :: STRING,
+      NAME
+    ) AS symbol
   FROM
     {{ ref('silver_ethereum__contracts') }}
   WHERE
@@ -169,7 +172,7 @@ FINAL AS (
     price IS NOT NULL
 )
 SELECT
-  f.HOUR,
+  f.hour,
   f.token_address,
   d.symbol,
   f.decimals,
@@ -177,7 +180,7 @@ SELECT
   f.is_imputed
 FROM
   FINAL f
-left outer join full_decimals d on d.contract_address = f.token_address
-qualify(ROW_NUMBER() over(PARTITION BY f.HOUR, f.token_address, d.symbol
+  LEFT OUTER JOIN full_decimals d
+  ON d.contract_address = f.token_address qualify(ROW_NUMBER() over(PARTITION BY f.hour, f.token_address, d.symbol
 ORDER BY
   f.decimals DESC) = 1)

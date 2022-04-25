@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_terra__contract_metadata
+  - name: silver_terra__dex_contracts
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -13,8 +13,5 @@ models:
         tests:
           - not_null
       - name: CONTRACT_ADDRESS
-        tests:
-          - not_null
-      - name: IS_WORMHOLE
         tests:
           - not_null

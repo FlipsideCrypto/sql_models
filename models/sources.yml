@@ -191,3 +191,9 @@ sources:
     schema: sushi
     tables:
       - name: ez_swaps
+      - name: dim_distributor_reward_schedule
+  - name: ethereum_db_external
+    database: ethereum
+    schema: silver
+    tables:
+      - name: nft_metadata_api
