@@ -1,8 +1,6 @@
 version: 2
 models:
-  - name: thorchain__transfers
-    tests:
-
+  - name: silver_thorchain__upgrades
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -10,21 +8,21 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 3
-
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: ASSET
       - name: FROM_ADDRESS
         tests:
           - not_null
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: thor[0-9a-zA-Z]{39}
+      - name: ASSET
       - name: TO_ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: thor[0-9a-zA-Z]{39}
+      - name: BURN_ASSET
+        tests:
+          - not_null
       - name: RUNE_AMOUNT
         tests:
           - not_null

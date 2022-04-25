@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'thorchain', 'validator_request_leave_events']
+  tags = ['snowflake', 'silver_thorchain', 'validator_request_leave_events']
 ) }}
 
 SELECT
@@ -12,14 +12,8 @@ SELECT
   e.from_addr AS from_address,
   e.node_addr AS node_address
 FROM
-  {{ source(
-    'thorchain_midgard',
-    'midgard_validator_request_leave_events'
-  ) }}
+  {{ ref('thorchain_dbt__validator_request_leave_events') }}
   e
-  INNER JOIN {{ source(
-    'thorchain_midgard',
-    'midgard_block_log'
-  ) }}
+  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp

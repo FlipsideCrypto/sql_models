@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "CONCAT_WS('-', tx_id, to_asset, from_asset)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'thorchain', 'thorchain_swaps']
+  tags = ['snowflake', 'silver_thorchain', 'swaps']
 ) }}
 
 WITH swaps AS (
@@ -11,7 +11,7 @@ WITH swaps AS (
   SELECT
     *
   FROM
-    {{ ref('thorchain__swap_events') }}
+    {{ ref('silver_thorchain__swap_events') }}
   WHERE
     TRUE
 
@@ -59,7 +59,7 @@ SELECT
   END AS liq_fee_asset_usd
 FROM
   swaps se
-  LEFT JOIN {{ ref('thorchain__prices') }}
+  LEFT JOIN {{ ref('silver_thorchain__prices') }}
   p
   ON se.block_id = p.block_id
   AND se.pool_name = p.pool_name

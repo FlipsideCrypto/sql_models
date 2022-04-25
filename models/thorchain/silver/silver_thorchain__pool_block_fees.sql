@@ -10,7 +10,7 @@ WITH all_block_id AS (
   SELECT DISTINCT
     date(block_timestamp) AS day,
     pool_name
-  FROM {{ ref('thorchain__block_pool_depths') }} 
+  FROM {{ ref('silver_thorchain__block_pool_depths') }} 
 ),
 
 total_pool_rewards_tbl AS (
@@ -18,7 +18,7 @@ total_pool_rewards_tbl AS (
     date(block_timestamp) AS day,
     pool_name,
     SUM(rune_e8) AS rewards
-  FROM {{ ref('thorchain__rewards_event_entries') }} 
+  FROM {{ ref('silver_thorchain__rewards_event_entries') }} 
   GROUP BY 1,2
 ),
 
@@ -27,7 +27,7 @@ total_liquidity_fees_rune_tbl AS (
     date(block_timestamp) AS day,
     pool_name,
     SUM(LIQ_FEE_IN_RUNE_E8) AS total_liquidity_fees_rune
-  FROM {{ ref('thorchain__swap_events') }} 
+  FROM {{ ref('silver_thorchain__swap_events') }} 
   GROUP BY 1,2
 ),
 
@@ -41,7 +41,7 @@ liquidity_fees_asset_tbl AS (
       block_timestamp,
       pool_name,
       CASE WHEN to_asset = 'THOR.RUNE' THEN 0 ELSE LIQ_FEE_E8 END AS asset_fee
-    FROM {{ ref('thorchain__swap_events') }} 
+    FROM {{ ref('silver_thorchain__swap_events') }} 
   )
   GROUP BY 1,2
 ),

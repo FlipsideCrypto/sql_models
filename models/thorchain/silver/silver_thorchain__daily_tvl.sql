@@ -2,7 +2,7 @@
   config(
     materialized='table', 
     unique_key='day', 
-    tags=['snowflake', 'thorchain', 'thorchain_daily_tvl']
+    tags=['snowflake', 'silver_thorchain', 'daily_tvl']
   )
 }}
 
@@ -10,7 +10,7 @@ WITH max_daily_block AS (
   SELECT 
     max(block_id) AS block_id,
     date_trunc('day', block_timestamp) AS day
-  FROM {{ ref('thorchain__prices') }}
+  FROM {{ ref('silver_thorchain__prices') }}
   GROUP BY day
 ),
 
@@ -19,7 +19,7 @@ daily_rune_price AS (
     p.block_id,
     day,
     AVG(rune_usd) AS rune_usd
-    FROM {{ ref('thorchain__prices') }} p
+    FROM {{ ref('silver_thorchain__prices') }} p
   JOIN max_daily_block mdb WHERE p.block_id = mdb.block_id
   GROUP BY day, p.block_id
 )
@@ -32,7 +32,7 @@ SELECT
   total_value_bonded * rune_usd AS total_value_bonded_usd,
   total_value_locked AS total_value_locked,
   total_value_locked * rune_usd AS total_value_locked_usd
-FROM {{ ref('thorchain__total_value_locked') }} br
+FROM {{ ref('silver_thorchain__total_value_locked') }} br
 
 JOIN daily_rune_price drp 
 ON br.day = drp.day

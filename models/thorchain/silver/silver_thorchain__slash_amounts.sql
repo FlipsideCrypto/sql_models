@@ -1,6 +1,6 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'thorchain', 'slash_amounts']
+  tags = ['snowflake', 'silver_thorchain', 'slash_amounts']
 ) }}
 
 SELECT
@@ -12,14 +12,8 @@ SELECT
   e.pool AS pool_name,
   e.asset
 FROM
-  {{ source(
-    'thorchain_midgard',
-    'midgard_slash_amounts'
-  ) }}
+  {{ ref('thorchain_dbt__slash_amounts') }}
   e
-  INNER JOIN {{ source(
-    'thorchain_midgard',
-    'midgard_block_log'
-  ) }}
+  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp

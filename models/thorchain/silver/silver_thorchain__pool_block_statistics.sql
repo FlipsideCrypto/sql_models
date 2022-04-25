@@ -22,7 +22,7 @@ WITH pool_depth AS (
         asset_e8,
         MAX(block_id) over (PARTITION BY pool_name, DATE(block_timestamp)) AS max_block_id
       FROM
-        {{ ref("thorchain__block_pool_depths") }}
+        {{ ref("silver_thorchain__block_pool_depths") }}
       WHERE
         asset_e8 > 0
     )
@@ -42,7 +42,7 @@ pool_status AS (
         status,
 		ROW_NUMBER() OVER (PARTITION BY pool_name, date(block_timestamp) ORDER BY block_timestamp DESC, status) AS rn
       FROM
-        {{ ref("thorchain__pool_events") }}
+        {{ ref("silver_thorchain__pool_events") }}
     )
   WHERE
     rn = 1
@@ -56,7 +56,7 @@ add_liquidity_tbl AS (
     SUM(asset_e8) AS add_asset_liquidity_volume,
     SUM(stake_units) AS added_stake
   FROM
-    {{ ref("thorchain__stake_events") }}
+    {{ ref("silver_thorchain__stake_events") }}
   GROUP BY
     1,
     2
@@ -71,7 +71,7 @@ withdraw_tbl AS (
     SUM(stake_units) AS withdrawn_stake,
     SUM(imp_loss_protection_e8) AS impermanent_loss_protection_paid
   FROM
-    {{ ref("thorchain__unstake_events") }}
+    {{ ref("silver_thorchain__unstake_events") }}
   GROUP BY
     1,
     2
@@ -91,7 +91,7 @@ swap_total_tbl AS (
           ELSE from_e8
         END AS volume
       FROM
-        {{ ref("thorchain__swap_events") }}
+        {{ ref("silver_thorchain__swap_events") }}
     )
   GROUP BY
     1,
@@ -122,7 +122,7 @@ swap_to_asset_tbl AS (
           ELSE liq_fee_e8
         END AS asset_fee
       FROM
-        {{ ref("thorchain__swap_events") }}
+        {{ ref("silver_thorchain__swap_events") }}
     )
   GROUP BY
     to_tune_asset,
@@ -156,7 +156,7 @@ swap_to_rune_tbl AS (
           ELSE liq_fee_e8
         END AS asset_fee
       FROM
-        {{ ref("thorchain__swap_events") }}
+        {{ ref("silver_thorchain__swap_events") }}
     )
   GROUP BY
     to_tune_asset,
@@ -171,7 +171,7 @@ average_slip_tbl AS (
     pool_name,
     AVG(swap_slip_bp) AS average_slip
   FROM
-    {{ ref("thorchain__swap_events") }}
+    {{ ref("silver_thorchain__swap_events") }}
   GROUP BY
     pool_name,
     DAY
@@ -185,7 +185,7 @@ unique_swapper_tbl AS (
       DISTINCT from_address
     ) AS unique_swapper_count
   FROM
-    {{ ref("thorchain__swap_events") }}
+    {{ ref("silver_thorchain__swap_events") }}
   GROUP BY
     pool_name,
     DAY
@@ -196,7 +196,7 @@ stake_amount AS (
     pool_name,
     SUM(stake_units) AS units
   FROM
-    {{ ref("thorchain__stake_events") }}
+    {{ ref("silver_thorchain__stake_events") }}
   GROUP BY
     pool_name,
     DAY
@@ -208,7 +208,7 @@ unstake_umc AS (
     pool_name,
     SUM(stake_units) AS unstake_liquidity_units
   FROM
-    {{ ref("thorchain__unstake_events") }}
+    {{ ref("silver_thorchain__unstake_events") }}
   GROUP BY
     from_address,
     pool_name,
@@ -221,7 +221,7 @@ stake_umc AS (
     pool_name,
     SUM(stake_units) AS liquidity_units
   FROM
-    {{ ref("thorchain__stake_events") }}
+    {{ ref("silver_thorchain__stake_events") }}
   WHERE
     rune_address IS NOT NULL
   GROUP BY
@@ -235,7 +235,7 @@ stake_umc AS (
     pool_name,
     SUM(stake_units) AS liquidity_units
   FROM
-    {{ ref("thorchain__stake_events") }}
+    {{ ref("silver_thorchain__stake_events") }}
   WHERE
     asset_address IS NOT NULL
     AND rune_address IS NULL
@@ -288,7 +288,7 @@ asset_price_usd_tbl AS (
         pool_name,
         asset_usd
       FROM
-        {{ ref("thorchain__prices") }}
+        {{ ref("silver_thorchain__prices") }}
     )
   WHERE
     block_id = max_block_id

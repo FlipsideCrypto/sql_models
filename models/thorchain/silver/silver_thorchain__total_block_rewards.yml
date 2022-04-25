@@ -1,11 +1,11 @@
 version: 2
 models:
-  - name: thorchain__pool_block_balances
+  - name: silver_thorchain__total_block_rewards
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
-            - POOL_NAME
+            - REWARD_ENTITY
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
@@ -16,7 +16,7 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: POOL_NAME
+      - name: REWARD_ENTITY
         tests:
           - not_null
       - name: RUNE_AMOUNT
@@ -26,15 +26,3 @@ models:
         tests:
           - not_null:
               where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'
-      - name: ASSET_AMOUNT
-        tests:
-          - not_null
-      - name: ASSET_AMOUNT_USD
-        tests:
-          - not_null
-      - name: SYNTH_AMOUNT
-        tests:
-          - not_null
-      - name: SYNTH_AMOUNT_USD
-        tests:
-          - not_null

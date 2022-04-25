@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: thorchain__pool_block_fees
+  - name: silver_thorchain__pool_block_fees
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

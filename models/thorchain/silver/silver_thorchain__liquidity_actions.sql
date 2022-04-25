@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "concat_ws('-', 'tx_id', 'lp_action', 'pool_name', 'from_address', 'to_address')",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'thorchain', 'thorchain_liquidity_actions']
+  tags = ['snowflake', 'silver_thorchain', 'liquidity_actions']
 ) }}
 
 WITH stakes AS (
@@ -11,7 +11,7 @@ WITH stakes AS (
   SELECT
     *
   FROM
-    {{ ref('thorchain__stake_events') }}
+    {{ ref('silver_thorchain__stake_events') }}
   WHERE
     TRUE
 ),
@@ -19,7 +19,7 @@ unstakes AS (
   SELECT
     *
   FROM
-    {{ ref('thorchain__unstake_events') }}
+    {{ ref('silver_thorchain__unstake_events') }}
   WHERE
     TRUE
 )
@@ -57,7 +57,7 @@ SELECT
   NULL AS unstake_basis_points
 FROM
   stakes se
-  LEFT JOIN {{ ref('thorchain__prices') }}
+  LEFT JOIN {{ ref('silver_thorchain__prices') }}
   p
   ON se.block_id = p.block_id
   AND se.pool_name = p.pool_name
@@ -90,7 +90,7 @@ SELECT
   basis_points AS unstake_basis_points
 FROM
   unstakes ue
-  LEFT JOIN {{ ref('thorchain__prices') }}
+  LEFT JOIN {{ ref('silver_thorchain__prices') }}
   p
   ON ue.block_id = p.block_id
   AND ue.pool_name = p.pool_name
