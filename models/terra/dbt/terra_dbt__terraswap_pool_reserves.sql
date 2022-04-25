@@ -30,6 +30,8 @@ where
     (record_content:model.name = 'terra-5_terraswap_pool_reserves' and record_content:model.run_id = 'v2022.01.25.0')
     or 
     (record_content:model.name = 'terra-5_terraswap_pool_reserves_backfill' and record_content:model.run_id = 'v2022.03.08.0')
+    or 
+    (record_content:model.name = 'terra-5_terraswap_pool_reserves_bison' and record_content:model.run_id = 'v2022.04.12.0')
 {% if is_incremental() %}
 AND (
   record_metadata :CreateTime :: INT / 1000
