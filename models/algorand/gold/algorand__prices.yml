@@ -10,7 +10,7 @@ models:
       - name: ASSET_ID
         description: "{{ doc('algo_asset_id') }}"
         tests:
-          - not null
+          - not_null
       - name: ASSET_NAME
         description: "Name of the asset"
         tests:
