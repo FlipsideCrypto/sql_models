@@ -3,7 +3,7 @@
     unique_key = "CONCAT_WS('-', block_hour, asset_id, price_source)",
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_hour'],
-    tags = ['snowflake', 'algorand', 'transactions', 'algorand__swaps', 'algorand__prices']
+    tags = ['snowflake', 'algorand', 'transactions', 'algorand_swaps', 'algorand_prices']
 ) }}
 
 WITH swaps AS (
@@ -74,14 +74,15 @@ WITH swaps AS (
         AND swap_to_amount > 0
 
 {% if is_incremental() %}
-AND block_hour >(
+AND block_hour >=(
     SELECT
-        DATEADD('hour', -24, MAX(block_hour))
+        DATEADD('day', -1, MAX(block_hour :: DATE))
     FROM
         {{ this }}
     WHERE
-        price_source = 'swaps')
-    {% endif %}
+        price_source = 'swaps'
+)
+{% endif %}
 ),
 swap_range AS (
     SELECT
@@ -357,6 +358,7 @@ combo_3 AS (
 final_dex AS (
     SELECT
         block_hour,
+        block_hour :: DATE AS block_date,
         asset_id,
         asset_name,
         dex,
@@ -384,40 +386,36 @@ final_dex AS (
         1,
         2,
         3,
-        4
+        4,
+        5
 ),
 weights AS (
     SELECT
         dex,
         asset_id,
+        block_date,
         total_amt / SUM(total_amt) over(
-            PARTITION BY asset_id
+            PARTITION BY asset_id,
+            block_date
         ) vol_weight,
         swaps_in_day / SUM(swaps_in_day) over(
-            PARTITION BY asset_id
+            PARTITION BY asset_id,
+            block_date
         ) swaps_weight
     FROM
         (
             SELECT
                 dex,
                 asset_id,
+                block_hour :: DATE block_date,
                 SUM(total_amt) total_amt,
                 SUM(swaps_in_hour) swaps_in_day
             FROM
                 final_dex
-            WHERE
-                block_hour >= DATEADD(
-                    'hour',
-                    -24,(
-                        SELECT
-                            max_date
-                        FROM
-                            swap_range
-                    )
-                )
             GROUP BY
                 1,
-                2
+                2,
+                3
         ) z
 ),
 FINAL AS (
@@ -431,13 +429,17 @@ FINAL AS (
         SUM(swaps_in_hour) AS swaps_in_hour,
         SUM(total_amt) AS volume_in_hour,
         SUM(
-            avg_price_usd_hour_excludes * vol_weight
+            avg_price_usd_hour_excludes * COALESCE(
+                vol_weight,
+                1
+            )
         ) price
     FROM
         final_dex A
-        JOIN weights b
+        LEFT JOIN weights b
         ON A.asset_ID = b.asset_id
         AND A.dex = b.dex
+        AND A.block_date = b.block_date
     GROUP BY
         1,
         2,
