@@ -7,16 +7,6 @@
 ) }}
 
 
-WITH raw_table AS (
-  SELECT 
-    *
-  FROM {{ ref('terra_dbt__msg_events_actions') }} 
-  qualify(RANK() over(PARTITION BY tx_id
-  ORDER BY
-    block_id DESC)) = 1
-),
-
-clean_table AS (
   SELECT DISTINCT
     blockchain, 
     block_id, 
@@ -28,8 +18,20 @@ clean_table AS (
     value:contract_address::STRING AS action_contract_address, 
     COALESCE(value:action_log:action::STRING, value:action_log:method::STRING) AS action_method, 
     object_delete(value:action_log, 'action', 'method') AS action_log
-  FROM raw_table r,
+  FROM {{ ref('terra_dbt__msg_events_actions') }} r,
   lateral flatten(input => r.event_attributes_actions)
-)
 
-SELECT * FROM clean_table
+  {% if is_incremental() %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp)
+    FROM
+      {{ ref('terra_dbt__msg_events_actions') }}
+  )
+{% endif %}
+
+  qualify(RANK() over(PARTITION BY tx_id
+  ORDER BY
+    block_id DESC)) = 1
+
