@@ -83,6 +83,10 @@ AND block_hour >=(
         price_source = 'swaps'
 )
 {% endif %}
+
+qualify(RANK() over(
+ORDER BY
+    block_hour DESC)) <> 1
 ),
 swap_range AS (
     SELECT
