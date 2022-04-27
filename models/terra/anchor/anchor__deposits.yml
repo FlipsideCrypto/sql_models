@@ -6,6 +6,8 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - SENDER
+            - DEPOSIT_AMOUNT
     columns:
       - name: BLOCKCHAIN
         description: the blockchain this transaction sit on
@@ -77,4 +79,3 @@ models:
       - name: CONTRACT_LABEL
         description: Anchor contract address in the label
         tests:
-          - not_null 
