@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', block_hour, asset_id, price_source)",
+    unique_key = "CONCAT_WS('-', block_hour, asset_id)",
     incremental_strategy = 'delete+insert',
     cluster_by = ['block_hour'],
     tags = ['snowflake', 'algorand', 'transactions', 'algorand_swaps', 'algorand_prices']
@@ -79,8 +79,6 @@ AND block_hour >=(
         DATEADD('day', -1, MAX(block_hour :: DATE))
     FROM
         {{ this }}
-    WHERE
-        price_source = 'swaps'
 )
 {% endif %}
 
@@ -465,7 +463,7 @@ not_in_final AS (
         0 AS volatility_measure,
         0 AS swaps_in_hour,
         0 AS volume_in_hour,
-        price
+        price_usd
     FROM
         {{ this }}
     WHERE
@@ -475,7 +473,6 @@ not_in_final AS (
             FROM
                 FINAL
         )
-        AND price_source = 'swaps'
 )
 {% endif %},
 fill_in_the_blanks_temp AS (
@@ -506,8 +503,6 @@ WHERE
             MAX(block_hour)
         FROM
             {{ this }}
-        WHERE
-            price_source = 'swaps'
     )
     AND HOUR <= (
         SELECT
@@ -535,8 +530,6 @@ SELECT
     asset_name
 FROM
     {{ this }}
-WHERE
-    price_source = 'swaps'
 {% endif %}
 ) b
 LEFT JOIN (
@@ -566,13 +559,12 @@ SELECT
         PARTITION BY asset_id
         ORDER BY
             block_hour ASC rows unbounded preceding
-    ) AS price,
+    ) AS price_usd,
     min_price_usd_hour,
     max_price_usd_hour,
     volatility_measure,
     swaps_in_hour,
-    volume_in_hour,
-    'swaps' AS price_source
+    volume_in_hour AS volume_usd_in_hour
 FROM
     fill_in_the_blanks_temp qualify(LAST_VALUE(price ignore nulls) over(PARTITION BY asset_id
 ORDER BY

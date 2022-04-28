@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_algorand__prices
+  - name: silver_algorand__prices_swap
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

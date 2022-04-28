@@ -15,4 +15,4 @@ SELECT
     volume_in_hour,
     price_source
 FROM
-    {{ ref('silver_algorand__prices') }}
+    {{ ref('silver_algorand__prices_swap') }}
