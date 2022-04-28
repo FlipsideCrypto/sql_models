@@ -7,12 +7,11 @@ SELECT
     block_hour,
     asset_id,
     asset_name,
-    price,
+    price_usd,
     min_price_usd_hour,
     max_price_usd_hour,
     volatility_measure,
     swaps_in_hour,
-    volume_in_hour,
-    price_source
+    volume_usd_in_hour
 FROM
     {{ ref('silver_algorand__prices_swap') }}

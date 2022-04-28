@@ -213,7 +213,7 @@ algo_price_hour AS (
     FROM
         usd_4
     GROUP BY
-        1
+        block_hour
 ),
 algo AS (
     SELECT
@@ -385,11 +385,11 @@ final_dex AS (
     FROM
         combo_3
     GROUP BY
-        1,
-        2,
-        3,
-        4,
-        5
+        block_hour,
+        block_hour :: DATE,
+        asset_id,
+        asset_name,
+        dex
 ),
 weights AS (
     SELECT
@@ -415,9 +415,9 @@ weights AS (
             FROM
                 final_dex
             GROUP BY
-                1,
-                2,
-                3
+                dex,
+                asset_id,
+                block_hour :: DATE
         ) z
 ),
 FINAL AS (
@@ -441,11 +441,15 @@ FINAL AS (
         LEFT JOIN weights b
         ON A.asset_ID = b.asset_id
         AND A.dex = b.dex
-        AND A.block_date = b.block_date
+        AND DATEADD(
+            'day',
+            -1,
+            A.block_date
+        ) = b.block_date
     GROUP BY
-        1,
-        2,
-        3
+        block_hour,
+        A.asset_id,
+        asset_name
 )
 
 {% if is_incremental() %},
