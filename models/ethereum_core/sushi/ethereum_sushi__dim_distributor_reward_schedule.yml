@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: ethereum_sushi__dim_distributor_reward_schedule
-    description: 'A table that tracks eligibility for sushi rewards for each merkle distributor with the unclaimed amounts as of the rewards_snapshot date'
+    description: 'A table that tracks eligibility for sushi rewards for each merkle distributor with the unclaimed amounts as of the rewards_snapshot timestamp'
     columns:
       - name: ADDRESS
         description: 'Address of the sushi user eligible for reward'
