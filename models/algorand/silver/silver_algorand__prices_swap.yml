@@ -21,9 +21,9 @@ models:
         tests:
           - not_null
       - name: min_price_usd_hour
-        description: "The lowest price found in the hour"
+        description: "The lowest price found in the hour in USD"
       - name: max_price_usd_hour
-        description: "The highest price found in the hour"
+        description: "The highest price found in the hour in USD"
       - name: volatility_measure
         description: "The difference between the min and max price for the hour"
       - name: swaps_in_hour

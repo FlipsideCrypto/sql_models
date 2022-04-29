@@ -18,9 +18,9 @@ models:
       - name: PRICE_USD
         description: "The price of the asset in USD -- This is calculated by using all swaps within two standard deviations from the hour average price, calculating the average price at the dex level, then weighting the dex price by the previous day's volume to create an weighted average acorss all dexes "
       - name: min_price_usd_hour
-        description: "The lowest price found in the hour"
+        description: "The lowest price found in the hour in USD"
       - name: max_price_usd_hour
-        description: "The highest price found in the hour"
+        description: "The highest price found in the hour in USD"
       - name: volatility_measure
         description: "The difference between the min and max price for the hour"
       - name: swaps_in_hour
