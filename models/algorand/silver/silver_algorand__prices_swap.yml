@@ -16,7 +16,18 @@ models:
       - name: ASSET_ID
         tests:
           - not_null
-      - name: PRICE
-        Tests:
+      - name: PRICE_USD
+        description: "The price of the asset in USD"
+        tests:
           - not_null
+      - name: min_price_usd_hour
+        description: "The lowest price found in the hour"
+      - name: max_price_usd_hour
+        description: "The highest price found in the hour"
+      - name: volatility_measure
+        description: "The difference between the min and max price for the hour"
+      - name: swaps_in_hour
+        description: "The number of swap transactions in the hour"
+      - name: volume_usd_in_hour
+        description: "The volumne of swap transactions (in USD) in the hour"
   
