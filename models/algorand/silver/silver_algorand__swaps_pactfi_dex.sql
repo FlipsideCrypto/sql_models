@@ -134,10 +134,14 @@ SELECT
     pa.app_id,
     fs.swapper,
     fs.from_asset_id AS swap_from_asset_id,
-    fs.swap_from_amount :: FLOAT AS swap_from_amount,
+    ZEROIFNULL(
+        fs.swap_from_amount
+    ) :: FLOAT AS swap_from_amount,
     pa.pool_address AS pool_address,
     pa.to_asset_id AS swap_to_asset_id,
-    pa.swap_to_amount :: FLOAT AS swap_to_amount,
+    ZEROIFNULL(
+        pa.swap_to_amount
+    ) :: FLOAT AS swap_to_amount,
     concat_ws(
         '-',
         pa.block_id :: STRING,

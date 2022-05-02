@@ -1,0 +1,29 @@
+version: 2
+models:
+  - name: algorand__prices_swap
+    description: "This table can be used to price assets within the Algorand blockchain using on-chain swaps. Price is calculated by using all swaps within two standard deviations from the hour average price, calculating the average price at the dex level, then weighting the dex price by the previous day's volume to create an weighted average acorss all dexes "
+    columns:
+      - name: BLOCK_HOUR
+        description: "The hour for which the price is valid"
+        tests:
+          - not_null
+      - name: ASSET_ID
+        description: "{{ doc('algo_asset_id') }}"
+        tests:
+          - not_null
+      - name: ASSET_NAME
+        description: "Name of the asset"
+        tests:
+          - not_null
+      - name: PRICE_USD
+        description: "The price of the asset in USD -- This is calculated by using all swaps within two standard deviations from the hour average price, calculating the average price at the dex level, then weighting the dex price by the previous day's volume to create an weighted average acorss all dexes "
+      - name: min_price_usd_hour
+        description: "The lowest price found in the hour"
+      - name: max_price_usd_hour
+        description: "The highest price found in the hour"
+      - name: volatility_measure
+        description: "The difference between the min and max price for the hour"
+      - name: swaps_in_hour
+        description: "The number of swap transactions in the hour"
+      - name: volume_usd_in_hour
+        description: "The volumne of swap transactions (in USD) in the hour"
