@@ -186,11 +186,16 @@ sources:
       - name: ez_token_transfers
       - name: dim_dex_liquidity_pools
       - name: ez_dex_swaps 
+      - name: ez_nft_sales
+      - name: ez_nft_mints
+      - name: ez_nft_transfers
+      - name: fact_traces
   - name: ethereum_db_sushi
     database: ethereum
     schema: sushi
     tables:
       - name: ez_swaps
+      - name: dim_distributor_reward_schedule
   - name: ethereum_db_external
     database: ethereum
     schema: silver
