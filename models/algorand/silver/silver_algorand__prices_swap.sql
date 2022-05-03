@@ -300,7 +300,13 @@ combo_1 AS (
         block_hour,
         to_asset_id,
         to_asset_name,
-        to_usd,
+        CASE
+            WHEN to_asset_id IN (
+                '31566704',
+                '312769'
+            ) THEN 1
+            ELSE to_usd
+        END to_usd,
         dex,
         to_amt amt
     FROM
@@ -312,7 +318,13 @@ combo_1 AS (
         block_hour,
         from_asset_id,
         from_asset_name,
-        from_usd,
+        CASE
+            WHEN from_asset_id IN (
+                '31566704',
+                '312769'
+            ) THEN 1
+            ELSE from_usd
+        END from_usd,
         dex,
         from_amt amt
     FROM
@@ -420,24 +432,88 @@ weights AS (
                 block_hour :: DATE
         ) z
 ),
+ignore_weights AS (
+    SELECT
+        A.block_hour,
+        A.asset_ID
+    FROM
+        (
+            SELECT
+                block_hour,
+                block_date,
+                asset_id,
+                SUM(swaps_in_hour) tx_count,
+                COUNT(
+                    DISTINCT dex
+                ) dex_count_final
+            FROM
+                final_dex
+            GROUP BY
+                block_hour,
+                block_date,
+                asset_id
+        ) A
+        LEFT JOIN (
+            SELECT
+                block_date,
+                asset_id,
+                COUNT(1) dex_count_weight
+            FROM
+                weights
+            GROUP BY
+                block_date,
+                asset_id
+        ) b
+        ON A.asset_ID = b.asset_id
+        AND DATEADD(
+            'day',
+            -1,
+            A.block_date
+        ) = b.block_date
+    WHERE
+        (
+            tx_count < 5
+            OR A.dex_count_final < 4
+        )
+        AND NOT dex_count_final = dex_count_weight
+),
 FINAL AS (
     SELECT
-        block_hour,
+        A.block_hour,
         A.asset_id,
-        asset_name,
+        A.asset_name,
         MIN(min_price_usd_hour) AS min_price_usd_hour,
         MAX(max_price_usd_hour) AS max_price_usd_hour,
         MAX(max_price_usd_hour) - MIN(min_price_usd_hour) AS volatility_measure,
         SUM(swaps_in_hour) AS swaps_in_hour,
         SUM(total_amt) AS volume_in_hour,
         SUM(
-            avg_price_usd_hour_excludes * COALESCE(
-                vol_weight,
-                1
-            )
+            avg_price_usd_hour_excludes * CASE
+                WHEN C.asset_ID IS NULL THEN vol_weight
+                ELSE current_hour_weight
+            END
         ) price
     FROM
-        final_dex A
+        (
+            SELECT
+                block_hour,
+                block_date,
+                asset_id,
+                asset_name,
+                dex,
+                avg_price_usd_hour_excludes,
+                min_price_usd_hour,
+                max_price_usd_hour,
+                volatility_measure,
+                swaps_in_hour,
+                total_amt,
+                swaps_in_hour * 1.00 / SUM(swaps_in_hour) over(
+                    PARTITION BY block_hour,
+                    asset_id
+                ) current_hour_weight
+            FROM
+                final_dex
+        ) A
         LEFT JOIN weights b
         ON A.asset_ID = b.asset_id
         AND A.dex = b.dex
@@ -446,10 +522,14 @@ FINAL AS (
             -1,
             A.block_date
         ) = b.block_date
+        LEFT JOIN ignore_weights C
+        ON A.asset_ID = C.asset_id
+        AND A.block_hour = C.block_hour
     GROUP BY
-        block_hour,
+        A.block_hour,
         A.asset_id,
-        asset_name
+        A.asset_name,
+        C.asset_ID
 )
 
 {% if is_incremental() %},
