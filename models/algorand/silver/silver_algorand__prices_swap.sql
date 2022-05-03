@@ -109,7 +109,7 @@ usd AS (
             WHEN swap_from_asset_id IN (
                 '31566704',
                 '312769'
-            ) THEN swap_from_amount
+            ) THEN 1
             ELSE swap_to_amount / NULLIF(
                 swap_from_amount,
                 0
@@ -124,7 +124,7 @@ usd AS (
             WHEN swap_to_asset_id IN (
                 '31566704',
                 '312769'
-            ) THEN swap_to_amount
+            ) THEN 1
             ELSE swap_from_amount / NULLIF(
                 swap_to_amount,
                 0
@@ -568,7 +568,7 @@ SELECT
     max_price_usd_hour,
     volatility_measure,
     swaps_in_hour,
-    volume_in_hour AS volume_usd_in_hour
+    volume_in_hour * price AS volume_usd_in_hour
 FROM
     fill_in_the_blanks_temp qualify(LAST_VALUE(price ignore nulls) over(PARTITION BY asset_id
 ORDER BY

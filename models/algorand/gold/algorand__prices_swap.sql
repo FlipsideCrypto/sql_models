@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view',
-    tags = ['snowflake', 'algorand_views', 'algorand_swaps', 'algorand_prices', 'gold'],
+    tags = ['snowflake', 'algorand_views', 'algorand_swaps', 'algorand_prices_swap', 'gold'],
 ) }}
 
 SELECT
