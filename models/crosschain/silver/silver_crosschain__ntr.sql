@@ -21,7 +21,8 @@ SELECT
     VALUE :dex_swap :: FLOAT AS dex_swap,
     TO_BOOLEAN(LOWER(VALUE :first_is_bounty :: STRING)) AS first_is_bounty,
     TO_BOOLEAN(LOWER(VALUE :did_hunt :: STRING)) AS did_hunt,
-    TO_BOOLEAN(LOWER(VALUE :did_new_user :: STRING)) AS did_new_user
+    TO_BOOLEAN(LOWER(VALUE :did_new_user :: STRING)) AS did_new_user,
+    TO_BOOLEAN(LOWER(VALUE :did_bounty :: STRING)) AS did_bounty
 FROM
     (
         SELECT

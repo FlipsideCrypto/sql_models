@@ -40,4 +40,6 @@ models:
         description: indicates if the address participated in a scavenger hunt for this token
       - name: DID_NEW_USER
         description: indicates if the address participated in a new user bounty for this token
+      - name: DID_BOUNTY
+        description: indicates if the address participated in a bounty for this token (excluding new user bounties)
       
