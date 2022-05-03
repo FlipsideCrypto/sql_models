@@ -1,0 +1,23 @@
+version: 2
+models:
+  - name: thorchain__total_value_locked
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DAY
+    columns:
+      - name: DAY
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: TOTAL_VALUE_POOLED
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_BONDED
+        tests:
+          - not_null
+      - name: TOTAL_VALUE_LOCKED
+        tests:
+          - not_null

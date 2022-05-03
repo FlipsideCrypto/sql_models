@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: thorchain__total_block_rewards
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - REWARD_ENTITY
+    columns:
+      - name: BLOCK_TIMESTAMP::DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: REWARD_ENTITY
+        tests:
+          - not_null
+      - name: RUNE_AMOUNT
+        tests:
+          - not_null
+      - name: RUNE_AMOUNT_USD
+        tests:
+          - not_null:
+              where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'

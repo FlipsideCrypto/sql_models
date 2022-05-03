@@ -4,11 +4,10 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - TX_ID
-            - POOL_DEDUCT
+            - TX
             - ASSET
-            - ASSET_E8
-            - BLOCK_ID
+            - POOL_DEDUCT
+            - BLOCK_TIMESTAMP
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

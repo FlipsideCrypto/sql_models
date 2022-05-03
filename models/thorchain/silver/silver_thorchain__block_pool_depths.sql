@@ -25,3 +25,7 @@ GROUP BY
   asset_e8,
   synth_e8,
   pool_name
+
+qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id, asset, vault_key
+ORDER BY
+  d.__HEVO__INGESTED_AT DESC)) = 1

@@ -4,22 +4,24 @@
 ) }}
 
 SELECT
-  TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
-  e.tx AS tx_id,
-  e.rune_e8,
-  e.chain AS blockchain,
-  e.asset_e8,
-  e.pool AS pool_name,
-  e.memo,
-  e.to_addr AS to_address,
-  e.from_addr AS from_address,
-  e.asset
+  TX,
+  CHAIN,
+  FROM_ADDR,
+  TO_ADDR,
+  ASSET,
+  ASSET_E8,
+  MEMO,
+  RUNE_E8,
+  POOL,
+  BLOCK_TIMESTAMP,
+  __HEVO_XMIN,
+  __HEVO__DATABASE_NAME,
+  __HEVO__SCHEMA_NAME,
+  __HEVO__INGESTED_AT,
+  __HEVO__LOADED_AT
 FROM
   {{ ref('thorchain_dbt__add_events') }}
-  e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
+
+qualify(ROW_NUMBER() over(PARTITION BY TX, CHAIN, FROM_ADDR, TO_ADDR, ASSET, MEMO, POOL
+ORDER BY
+  e.__HEVO__INGESTED_AT DESC)) = 1

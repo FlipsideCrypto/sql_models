@@ -4,14 +4,25 @@
 ) }}
 
 SELECT
-  TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
-  e.add_asgard_addr
+  ADD_ASGARD_ADDR,
+  BLOCK_TIMESTAMP,
+  __HEVO_XMIN,
+  __HEVO__DATABASE_NAME,
+  __HEVO__SCHEMA_NAME,
+  __HEVO__INGESTED_AT,
+  __HEVO__LOADED_AT
 FROM
   {{ ref('thorchain_dbt__active_vault_events') }}
-  e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
+
+qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id, pool_name, to_address, from_address, asset
+ORDER BY
+  e.__HEVO__INGESTED_AT DESC)) = 1
+
+{% if is_incremental() %}
+WHERE __HEVO__LOADED_AT >= (
+  SELECT
+    MAX(__HEVO__LOADED_AT)
+  FROM
+    {{ this }}
+)
+{% endif %}

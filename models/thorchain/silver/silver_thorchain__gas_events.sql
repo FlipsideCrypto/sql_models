@@ -4,17 +4,28 @@
 ) }}
 
 SELECT
-  TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
-  e.rune_e8,
-  e.tx_count,
-  e.asset_e8,
-  e.asset
+  ASSET,
+  ASSET_E8,
+  RUNE_E8,
+  TX_COUNT,
+  BLOCK_TIMESTAMP,
+  __HEVO_XMIN,
+  __HEVO__DATABASE_NAME,
+  __HEVO__SCHEMA_NAME,
+  __HEVO__INGESTED_AT,
+  __HEVO__LOADED_AT
 FROM
   {{ ref('thorchain_dbt__gas_events') }}
-  e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
+
+qualify(ROW_NUMBER() over(PARTITION BY ASSET, TX_COUNT, BLOCK_TIMESTAMP
+ORDER BY
+  __HEVO__INGESTED_AT DESC)) = 1
+
+{% if is_incremental() %}
+WHERE __HEVO_loaded_at >= (
+  SELECT
+    MAX(__HEVO_loaded_at)
+  FROM
+    {{ this }}
+)
+{% endif %}

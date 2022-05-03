@@ -3,23 +3,25 @@
   tags = ['snowflake', 'silver_thorchain', 'bond_events']
 ) }}
 
-SELECT
-  DISTINCT TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
-  e.tx AS tx_id,
-  e.to_addr AS to_address,
-  e.from_addr AS from_address,
-  e.memo,
-  e.asset,
-  e.chain AS blockchain,
-  e.bond_type,
-  e.e8,
-  e.asset_e8
+SELECT 
+  TX,
+  CHAIN,
+  FROM_ADDR,
+  TO_ADDR,
+  ASSET,
+  ASSET_E8,
+  MEMO,
+  BOND_TYPE,
+  E8,
+  BLOCK_TIMESTAMP,
+  __HEVO_XMIN,
+  __HEVO__DATABASE_NAME,
+  __HEVO__SCHEMA_NAME,
+  __HEVO__INGESTED_AT,
+  __HEVO__LOADED_AT
 FROM
   {{ ref('thorchain_dbt__bond_events') }}
-  e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
+
+qualify(ROW_NUMBER() over(PARTITION BY TX, CHAIN, FROM_ADDR, TO_ADDR, ASSET, BOND_TYPE
+ORDER BY
+  __HEVO__INGESTED_AT DESC)) = 1

@@ -1,13 +1,11 @@
 {{ config(
   materialized = 'view',
-  tags = ['snowflake', 'thorchain', 'asgard_fund_yggdrasil_events']
+  tags = ['snowflake', 'silver_thorchain', 'asgard_fund_yggdrasil_events']
 ) }}
 
 SELECT
-  TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
+  block_timestamp,
+  height AS block_id,
   e.asset,
   e.tx AS tx_id,
   e.vault_key,
@@ -18,3 +16,7 @@ FROM
   INNER JOIN {{ ref('thorchain_dbt__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp
+
+qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id, asset, vault_key
+ORDER BY
+  e.__HEVO__INGESTED_AT DESC)) = 1
