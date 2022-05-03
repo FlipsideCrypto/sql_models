@@ -8,4 +8,4 @@ SET table_names = (
    FROM ref({'mdao_harmony__information_schema__tables'})
    WHERE table_schema = 'PROD'); 
 
-{{ create_views($table_names) }} 
+{{ create_views(table_names) }} 
