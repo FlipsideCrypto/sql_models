@@ -24,18 +24,14 @@ WITH base_tables AS (
     )
 
 {% if is_incremental() %}
-  AND _inserted_timestamp >= (
-    SELECT
-      MAX(_inserted_timestamp)
-    FROM
-      {{ source(
-      'bronze',
-      'prod_terra_sink_645110886'
-      ) }}
-  )
+AND _inserted_timestamp >= (
+  SELECT
+    MAX(_inserted_timestamp)
+  FROM
+    {{ this }}
+)
 {% endif %}
 )
-
 SELECT
   (
     record_metadata :CreateTime :: INT / 1000
