@@ -115,6 +115,7 @@ sources:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
       - name: prod_terra_api
+      - name: algorand_api
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
       - name: JIM_TEST_REST_PROXY_1507016047
@@ -185,7 +186,7 @@ sources:
       - name: fact_transactions
       - name: ez_token_transfers
       - name: dim_dex_liquidity_pools
-      - name: ez_dex_swaps 
+      - name: ez_dex_swaps
   - name: ethereum_db_sushi
     database: ethereum
     schema: sushi
