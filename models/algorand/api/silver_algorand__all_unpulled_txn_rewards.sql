@@ -2,22 +2,25 @@
   materialized = 'view'
 ) }}
 
+WITH tx AS (
+
+  SELECT
+    sender AS account_id,
+    tx_id
+  FROM
+    {{ ref("silver_algorand__transactions") }}
+)
 SELECT
-  sender AS account,
-  tx_id AS txid
+  account_id,
+  tx_id
 FROM
-  {{ ref("silver_algorand__transactions") }}
-  {# EXCEPT
+  tx
+EXCEPT
 SELECT
-  address,
+  account_id,
   tx_id
 FROM
   {{ source(
-    "bronze",
-    "algorand_api"
+    "external_tables",
+    "algorand_txn_rewards"
   ) }}
-  #}
-ORDER BY
-  block_timestamp DESC
-LIMIT
-  10000

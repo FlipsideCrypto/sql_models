@@ -203,3 +203,33 @@ sources:
     schema: silver
     tables:
       - name: nft_metadata_api
+  - name: external_tables
+    schema: bronze
+    loader: S3
+    tables:
+      - name: algorand_txn_rewards
+        external:
+          location: "@{{ target.database }}.bronze.ANALYTICS_EXTERNAL_TABLES/ALGORAND_DEV/TXN_REWARDS"
+          file_format: "( type = json, strip_outer_array = TRUE )"
+          auto_refresh: true
+          partitions:
+            - name: _partition_by_date
+              data_type: date
+              expression: to_date(split_part(metadata$filename, '/', 3) || split_part(metadata$filename, '/', 4) || split_part(metadata$filename, '/', 5), 'YYYYMMDD')
+        columns:
+          - name: account_id
+            data_type: string
+            description: "account_id used in request"
+            expression: value:account_id::string
+          - name: tx_id
+            data_type: string
+            description: "txid used in request"
+            expression: value:tx_id::string
+          - name: metadata
+            data_type: variant
+            description: "raw indexer response"
+            expression: value:metadata::variant
+          - name: data
+            data_type: variant
+            description: "raw indexer response"
+            expression: value:data::variant
