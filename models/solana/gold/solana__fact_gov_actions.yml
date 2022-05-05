@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: solana__fact_gov_actions
-    description: Records with lock/exit governance actions.  Specific to SABER at this time.
+    description: Records with lock/exit governance actions.  Currently supporting SABER and MARINADE governance actions.
     columns:
       - name: PROGRAM_NAME
         description: "name of solana program"
