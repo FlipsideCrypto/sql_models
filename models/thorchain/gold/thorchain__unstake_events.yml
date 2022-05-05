@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_thorchain__unstake_events
+  - name: thorchain__unstake_events
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

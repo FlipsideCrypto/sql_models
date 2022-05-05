@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_thorchain__transfers
+  - name: thorchain__transfers
     tests:
 
     columns:

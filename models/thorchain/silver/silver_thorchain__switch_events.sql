@@ -16,14 +16,16 @@ SELECT
 FROM
   {{ ref('thorchain_dbt__switch_events') }}
   e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
-GROUP BY
-  block_timestamp,
-  block_id,
-  burn_asset,
-  burn_e8,
-  to_address,
-  tx,
-  from_address
+
+qualify(ROW_NUMBER() over(PARTITION BY BLOCK_ID, BURN_ASSET, BLOCK_TIMESTAMP, TO_ADDRESS, FROM_ADDRESS
+ORDER BY
+  __HEVO__INGESTED_AT DESC)) = 1
+
+{% if is_incremental() %}
+WHERE __HEVO_loaded_at >= (
+  SELECT
+    MAX(__HEVO_loaded_at)
+  FROM
+    {{ this }}
+)
+{% endif %}

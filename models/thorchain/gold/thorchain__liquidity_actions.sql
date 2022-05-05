@@ -57,7 +57,7 @@ SELECT
   NULL AS unstake_basis_points
 FROM
   stakes se
-  LEFT JOIN {{ ref('silver_thorchain__prices') }}
+  LEFT JOIN {{ ref('thorchain__prices') }}
   p
   ON se.block_id = p.block_id
   AND se.pool_name = p.pool_name
@@ -90,7 +90,7 @@ SELECT
   basis_points AS unstake_basis_points
 FROM
   unstakes ue
-  LEFT JOIN {{ ref('silver_thorchain__prices') }}
+  LEFT JOIN {{ ref('thorchain__prices') }}
   p
   ON ue.block_id = p.block_id
   AND ue.pool_name = p.pool_name

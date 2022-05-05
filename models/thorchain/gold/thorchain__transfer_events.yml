@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_thorchain__transfer_events
+  - name: thorchain__transfer_events
     tests:
 
     columns:

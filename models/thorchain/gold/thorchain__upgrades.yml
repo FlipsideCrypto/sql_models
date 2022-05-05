@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_thorchain__upgrades
+  - name: thorchain__upgrades
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

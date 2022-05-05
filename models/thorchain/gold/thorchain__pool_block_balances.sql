@@ -17,9 +17,9 @@ SELECT
   COALESCE(synth_e8 / pow(10, 8), 0) AS synth_amount,
   COALESCE(synth_e8 / pow(10, 8) * asset_usd, 0) AS synth_amount_usd
 FROM
-  {{ ref('silver_thorchain__block_pool_depths') }}
+  {{ ref('thorchain__block_pool_depths') }}
   bpd
-  LEFT JOIN {{ ref('silver_thorchain__prices') }}
+  LEFT JOIN {{ ref('thorchain__prices') }}
   p
   ON bpd.block_id = p.block_id
   AND bpd.pool_name = p.pool_name

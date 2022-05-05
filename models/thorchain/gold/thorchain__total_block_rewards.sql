@@ -3,7 +3,7 @@
   sort = 'block_timestamp',
   unique_key = "CONCAT_WS('-', block_id, reward_entity)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'silver_thorchain', 'total_block_rewards']
+  tags = ['snowflake', 'thorchain', 'total_block_rewards']
 ) }}
 --total_block_rewards
 WITH block_prices AS (
@@ -12,7 +12,7 @@ WITH block_prices AS (
     AVG(rune_usd) AS rune_usd,
     block_id
   FROM
-    {{ ref('silver_thorchain__prices') }}
+    {{ ref('thorchain__prices') }}
   GROUP BY
     block_id
 )
@@ -25,7 +25,7 @@ SELECT
 FROM
   {{ ref('silver_thorchain__rewards_event_entries') }}
   ree
-  LEFT JOIN {{ ref('silver_thorchain__prices') }}
+  LEFT JOIN {{ ref('thorchain__prices') }}
   p
   ON ree.block_id = p.block_id
   AND ree.pool_name = p.pool_name

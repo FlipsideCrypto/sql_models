@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_thorchain__pool_balance_change_events
+  - name: thorchain__pool_balance_change_events
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

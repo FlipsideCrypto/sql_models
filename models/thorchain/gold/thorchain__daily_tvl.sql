@@ -10,7 +10,7 @@ WITH max_daily_block AS (
   SELECT 
     max(block_id) AS block_id,
     date_trunc('day', block_timestamp) AS day
-  FROM {{ ref('silver_thorchain__prices') }}
+  FROM {{ ref('thorchain__prices') }}
   {% if is_incremental() %}
   WHERE block_timestamp >= getdate() - INTERVAL '5 days'
   {% endif %}
@@ -22,7 +22,7 @@ daily_rune_price AS (
     p.block_id,
     day,
     AVG(rune_usd) AS rune_usd
-    FROM {{ ref('silver_thorchain__prices') }} p
+    FROM {{ ref('thorchain__prices') }} p
   {% if is_incremental() %}
   WHERE day >= getdate() - INTERVAL '5 days'
   {% endif %}
@@ -38,7 +38,7 @@ SELECT
   total_value_bonded * rune_usd AS total_value_bonded_usd,
   total_value_locked AS total_value_locked,
   total_value_locked * rune_usd AS total_value_locked_usd
-FROM {{ ref('silver_thorchain__total_value_locked') }} br
+FROM {{ ref('thorchain__total_value_locked') }} br
 
 JOIN daily_rune_price drp 
 ON br.day = drp.day

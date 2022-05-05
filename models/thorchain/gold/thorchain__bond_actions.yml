@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_thorchain__bond_actions
+  - name: thorchain__bond_actions
     tests:
 
     columns:

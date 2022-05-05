@@ -4,15 +4,19 @@
 ) }}
 
 SELECT
-  DISTINCT TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
-  e.pool AS pool_name,
-  e.rune_e8
+  *
 FROM
   {{ ref('thorchain_dbt__rewards_event_entries') }}
-  e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY block_id, pool_name, block_timestamp
+ORDER BY
+  __HEVO__INGESTED_AT DESC)) = 1
+
+{% if is_incremental() %}
+WHERE
+  __HEVO_loaded_at >= (
+    SELECT
+      MAX(__HEVO_loaded_at)
+    FROM
+      {{ this }}
+  )
+{% endif %}

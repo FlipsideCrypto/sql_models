@@ -3,23 +3,11 @@
   tags = ['snowflake', 'silver_thorchain', 'pending_liquidity_events']
 ) }}
 
-SELECT
-  DISTINCT TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
-  e.rune_tx AS rune_tx_id,
-  e.pool AS pool_name,
-  e.pending_type,
-  e.rune_e8,
-  e.asset_tx AS asset_tx_id,
-  e.asset_e8,
-  e.rune_addr AS rune_address,
-  e.asset_addr AS asset_address,
-  e.asset_chain AS asset_blockchain
+SELECT 
+  *
 FROM
   {{ ref('thorchain_dbt__pending_liquidity_events') }}
-qualify(ROW_NUMBER() over(PARTITION BY ASSET, TX_COUNT, BLOCK_TIMESTAMP
+qualify(ROW_NUMBER() over(PARTITION BY BLOCK_ID, RUNE_TX_ID, BLOCK_TIMESTAMP, POOL_NAME, PENDING_TYPE, ASSET_TX_ID, RUNE_ADDRESS, ASSET_ADDRESS
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

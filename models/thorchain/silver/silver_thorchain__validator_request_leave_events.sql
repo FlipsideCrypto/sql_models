@@ -14,6 +14,15 @@ SELECT
 FROM
   {{ ref('thorchain_dbt__validator_request_leave_events') }}
   e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
+qualify(ROW_NUMBER() over(PARTITION BY BLOCK_ID, TX_ID, BLOCK_TIMESTAMP, FROM_ADDRESS, NODE_ADDRESS
+ORDER BY
+  __HEVO__INGESTED_AT DESC)) = 1
+
+{% if is_incremental() %}
+WHERE __HEVO_loaded_at >= (
+  SELECT
+    MAX(__HEVO_loaded_at)
+  FROM
+    {{ this }}
+)
+{% endif %}

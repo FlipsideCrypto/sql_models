@@ -17,6 +17,6 @@ SELECT
 FROM
   {{ ref('silver_thorchain__pool_balance_change_events') }}
   e
-  INNER JOIN {{ ref('siler_thorchain__block_log') }}
+  INNER JOIN {{ ref('silver_thorchain__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp

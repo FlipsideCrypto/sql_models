@@ -65,7 +65,7 @@ total_pool_depth AS (
     asset_e8,
     MAX(block_id) over (PARTITION BY pool_name, DATE(block_timestamp)) AS max_block_id
   FROM
-    {{ ref('silver_thorchain__block_pool_depths') }}
+    {{ ref('thorchain__block_pool_depths') }}
 
 {% if is_incremental() %}
 WHERE

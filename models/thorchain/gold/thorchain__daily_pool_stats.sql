@@ -12,7 +12,7 @@ WITH daily_rune_price AS (
     AVG(rune_usd) AS rune_usd,
     AVG(asset_usd) AS asset_usd
   FROM
-    {{ ref('silver_thorchain__prices') }}
+    {{ ref('thorchain__prices') }}
     p
   {% if is_incremental() %}
   WHERE block_timestamp >= getdate() - INTERVAL '5 days'
@@ -32,7 +32,7 @@ pool_fees AS (
     rune_liquidity_fees,
     rune_liquidity_fees * rune_usd AS rune_liquidity_fees_usd
   FROM
-    {{ ref('silver_thorchain__pool_block_fees') }}
+    {{ ref('thorchain__pool_block_fees') }}
     pbf
     {% if is_incremental() %}
   WHERE pbf.day >= getdate() - INTERVAL '5 days'
@@ -130,7 +130,7 @@ SELECT
     0
   ) AS liquidity_units
 FROM
-  {{ ref('silver_thorchain__pool_block_statistics') }}
+  {{ ref('thorchain__pool_block_statistics') }}
   pbs
 {% if is_incremental() %}
   WHERE pbs.day >= getdate() - INTERVAL '5 days'

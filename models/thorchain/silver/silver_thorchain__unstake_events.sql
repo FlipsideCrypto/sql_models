@@ -28,6 +28,15 @@ FROM
     'thorchain_dbt__unstake_events'
   ) }}
   e
-  INNER JOIN {{ ref('thorchain_dbt__block_log') }}
-  bl
-  ON bl.timestamp = e.block_timestamp
+qualify(ROW_NUMBER() over(PARTITION BY BLOCK_ID, TX_ID, BLOCK_TIMESTAMP, POOL_NAME, ASSET, FROM_ADDRESS, TO_ADDRESS
+ORDER BY
+  __HEVO__INGESTED_AT DESC)) = 1
+
+{% if is_incremental() %}
+WHERE __HEVO_loaded_at >= (
+  SELECT
+    MAX(__HEVO_loaded_at)
+  FROM
+    {{ this }}
+)
+{% endif %}

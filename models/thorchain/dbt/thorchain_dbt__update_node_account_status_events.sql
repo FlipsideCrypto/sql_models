@@ -3,9 +3,9 @@
   tags = ['snowflake', 'thorchain_dbt', 'update_node_account_status_events']
 ) }}
 
-SELECT
-  NODE_ADDR,
-  CURRENT,
+SELECT 
+  TRY_CAST("NODE_ADDR" AS VARCHAR) AS node_addr,
+  TRY_CAST("CURRENT" AS VARCHAR) AS "current",
   FORMER,
   BLOCK_TIMESTAMP,
   __HEVO_XMIN,

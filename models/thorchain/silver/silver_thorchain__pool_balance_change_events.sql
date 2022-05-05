@@ -3,20 +3,11 @@
   tags = ['snowflake', 'silver_thorchain', 'pool_balance_change_events']
 ) }}
 
-SELECT
-  TO_TIMESTAMP(
-    e.block_timestamp / 1000000000
-  ) AS block_timestamp,
-  bl.height AS block_id,
-  e.reason,
-  e.asset,
-  e.rune_amt AS rune_amount,
-  e.asset_add,
-  e.asset_amt AS asset_amount,
-  e.rune_add
+SELECT 
+  *
 FROM
   {{ ref('thorchain_dbt__pool_balance_change_events') }}
-qualify(ROW_NUMBER() over(PARTITION BY ASSET, TX_COUNT, BLOCK_TIMESTAMP
+qualify(ROW_NUMBER() over(PARTITION BY BLOCK_ID, ASSET, BLOCK_TIMESTAMP
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

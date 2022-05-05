@@ -352,7 +352,7 @@ asset_price_usd_tbl AS (
         pool_name,
         asset_usd
       FROM
-        {{ ref("silver_thorchain__prices") }}
+        {{ ref("thorchain__prices") }}
     )
   WHERE
     block_id = max_block_id
