@@ -1,0 +1,23 @@
+version: 2
+models:
+  - name: solana__fact_proposal_votes
+    description: Records with votes delegated to a proposal.  Specific to MARINADE at this time.
+    columns:
+      - name: PROGRAM_NAME
+        description: "name of solana program"
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('solana_block_timestamp') }}"
+      - name: BLOCK_ID
+        description: "{{ doc('solana_block_id') }}"
+      - name: TX_ID
+        description: "{{ doc('solana_tx_id') }}"
+      - name: SUCCEEDED
+        description: "{{ doc('solana_tx_succeeded') }}"
+      - name: VOTER
+        description: Address voting on the proposal
+      - name: VOTER_ACCOUNT
+        description: NFT mint used in this vote
+      - name: VOTER_NFT
+        description: Account with locked tokens linked to the NFT (determines voting power)
+      - name: PROPOSAL
+        description: Address representing the proposal being voted on
