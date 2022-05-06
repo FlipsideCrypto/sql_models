@@ -1,7 +1,7 @@
-{% macro generate_near_views() %}
+{% macro generate_near_views(PREFIX) %}
     {% set sql %}
     
-    CREATE OR REPLACE PROCEDURE silver.generate_near_views()
+    CREATE OR REPLACE PROCEDURE silver.generate_near_views(PREFIX STRING)
         RETURNS STRING
         LANGUAGE JAVASCRIPT
         AS
