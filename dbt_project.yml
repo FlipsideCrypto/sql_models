@@ -51,3 +51,4 @@ vars:
 on-run-start:
   - "{{ create_udfs() }}"
   - "{{ sp_bulk_get_contract_info() }}"
+  - "{{ generate_harmony_views() }}"

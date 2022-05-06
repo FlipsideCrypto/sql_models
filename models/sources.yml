@@ -203,3 +203,8 @@ sources:
     schema: silver
     tables:
       - name: nft_metadata_api
+  - name: mdao_harmony
+    database: mdao_harmony
+    schema: information_schema
+    tables: 
+      - name: tables

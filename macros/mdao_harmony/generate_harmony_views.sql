@@ -1,6 +1,7 @@
-{% macro generate_views_code() %}
+{% macro generate_harmony_views() %}
     {% set sql %}
-    CREATE OR REPLACE PROCEDURE generate_views_code(PREFIX)
+    
+    CREATE OR REPLACE PROCEDURE silver.generate_harmony_views()
         RETURNS STRING
         LANGUAGE JAVASCRIPT
         AS
