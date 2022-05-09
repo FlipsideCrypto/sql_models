@@ -17,8 +17,14 @@ SELECT
     sender AS asset_sender,
     receiver,
     0 AS asset_id,
-    amount,
-    fee,
+    IFNULL(
+        amount,
+        0
+    ) AS amount,
+    IFNULL(
+        fee,
+        0
+    ) AS fee,
     tx_type,
     tx_type_name,
     genesis_hash,
@@ -60,14 +66,20 @@ SELECT
     ) AS asset_sender,
     asset_receiver AS receiver,
     assetTransfer.asset_id AS asset_id,
-    CASE
-        WHEN asset.decimals > 0 THEN asset_amount :: FLOAT / pow(
-            10,
-            asset.decimals
-        )
-        ELSE asset_amount :: FLOAT
-    END AS amount,
-    fee,
+    IFNULL(
+        CASE
+            WHEN asset.decimals > 0 THEN asset_amount :: FLOAT / pow(
+                10,
+                asset.decimals
+            )
+            ELSE asset_amount :: FLOAT
+        END,
+        0
+    ) AS amount,
+    IFNULL(
+        fee,
+        0
+    ) AS fee,
     tx_type,
     tx_type_name,
     genesis_hash,
