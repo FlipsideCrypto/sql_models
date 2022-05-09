@@ -1,1 +1,0 @@
-{{ date_gaps(ref("silver_terra__event_actions"), [], "block_timestamp") }}

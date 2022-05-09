@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: terra__event_actions
+    description: Row based event actions table curated from terra.msg_events event attributes. Actions or methods in the 'from_contract' event type are displayed as records based on contract address.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -42,7 +43,7 @@ models:
         tests:
           - not_null
       - name: ACTION_CONTRACT_ADDRESS
-        description: The contract address for this action
+        description: Contract address that kicked off this event action
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
@@ -53,6 +54,6 @@ models:
         description: The action or method within an event
         tests:
       - name: ACTION_LOG
-        description: The log that provides detail to an action
+        description: The log that provides detail (amounts, to, from, etc.) to an action or method
         tests:
           - not_null
