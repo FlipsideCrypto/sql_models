@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', blockchain, symbol, address)",
+    unique_key = "CONCAT_WS('-', blockchain, symbol, address, xfer_date)",
     incremental_strategy = 'delete+insert',
     tags = ['snowflake', 'ntr', 'crosschain']
 ) }}
@@ -12,6 +12,7 @@ SELECT
     VALUE :blockchain :: STRING AS blockchain,
     VALUE :symbol :: STRING AS symbol,
     VALUE :address :: STRING AS address,
+    VALUE :date :: DATE AS xfer_date,
     VALUE :reward :: FLOAT AS reward,
     VALUE :hodl :: FLOAT AS hodl,
     VALUE :unlabeled_transfer :: FLOAT AS unlabeled_transfer,
@@ -32,7 +33,10 @@ FROM
                 SELECT
                     *
                 FROM
-                    {{ source('bronze','prod_data_science_uploads_1748940988') }}
+                    {{ source(
+                        'bronze',
+                        'prod_data_science_uploads_1748940988'
+                    ) }}
                 WHERE
                     TRIM(
                         record_metadata :key :: STRING,
@@ -43,19 +47,20 @@ FROM
                 input => record_content
             ) AS f
     )
+WHERE
+    xfer_date IS NOT NULL
 
 {% if is_incremental() %}
-WHERE
-    (
-        record_metadata :CreateTime :: INT / 1000
-    ) :: timestamp_ntz :: DATE >= (
-        SELECT
-            DATEADD('day', -1, MAX(system_created_at :: DATE))
-        FROM
-            {{ this }}
-    )
+AND (
+    record_metadata :CreateTime :: INT / 1000
+) :: timestamp_ntz :: DATE >= (
+    SELECT
+        DATEADD('day', -1, MAX(system_created_at :: DATE))
+    FROM
+        {{ this }}
+)
 {% endif %}
 
-qualify(ROW_NUMBER() over(PARTITION BY blockchain, symbol, address
+qualify(ROW_NUMBER() over(PARTITION BY blockchain, symbol, address, xfer_date
 ORDER BY
     system_created_at DESC)) = 1

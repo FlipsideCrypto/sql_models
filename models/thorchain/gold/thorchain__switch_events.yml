@@ -1,14 +1,6 @@
 version: 2
 models:
   - name: thorchain__switch_events
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - BLOCK_ID
-            - TX
-            - BURN_ASSET
-            - TO_ADDRESS
-            - FROM_ADDRESS
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
