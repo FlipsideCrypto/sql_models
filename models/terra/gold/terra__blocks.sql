@@ -8,6 +8,7 @@ SELECT
   block_timestamp,
   blockchain,
   chain_id,
-  proposer_address
+  proposer_address,
+  tx_count
 FROM
   {{ ref('silver_terra__blocks') }}
