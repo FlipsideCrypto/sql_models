@@ -5,14 +5,20 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX
-            - POOL
+            - CHAIN
+            - FROM_ADDR
+            - TO_ADDR
             - FROM_ASSET
-            - TO_ASSET
-            - FROM_ASSET
-            - TO_ADDRESS
-            - FROM_ADDRESS
-            - TO_E8
             - FROM_E8
+            - TO_ASSET
+            - TO_E8
+            - MEMO
+            - POOL
+            - TO_E8_MIN
+            - SWAP_SLIP_BP
+            - LIQ_FEE_E8
+            - LIQ_FEE_IN_RUNE_E8
+            - _DIRECTION
             - BLOCK_TIMESTAMP
     columns:
       - name: TX
