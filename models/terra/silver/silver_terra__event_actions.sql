@@ -29,6 +29,7 @@ ORDER BY
 )
 
   SELECT
+    _inserted_timestamp,
     blockchain, 
     block_id, 
     block_timestamp, 
