@@ -12,8 +12,8 @@ models:
         tests:
           - dbt_expectations.expect_column_to_exist   
           - dbt_expectations.expect_row_values_to_have_recent_data:
-          datepart: day
-          interval: 1
+              datepart: day
+              interval: 1
       - name: BLOCK_ID
         description: "{{ doc('algo_block_id') }}"
         tests:
