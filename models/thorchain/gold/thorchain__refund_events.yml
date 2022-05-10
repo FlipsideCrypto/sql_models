@@ -12,6 +12,7 @@ models:
             - ASSET
             - ASSET_E8
             - ASSET_2ND
+            - MEMO
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:

@@ -27,11 +27,7 @@ models:
         tests:
           - not_null:
               where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'
-
       - name: ASSET_AMOUNT
-        tests:
-          - not_null
-      - name: ASSET_AMOUNT_USD
         tests:
           - not_null
       - name: STAKE_UNITS
