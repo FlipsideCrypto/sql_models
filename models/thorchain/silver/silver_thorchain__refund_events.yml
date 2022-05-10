@@ -1,0 +1,47 @@
+version: 2
+models:
+  - name: silver_thorchain__refund_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX
+            - CHAIN
+            - FROM_ADDR
+            - TO_ADDR
+            - ASSET
+            - ASSET_2ND
+            - MEMO
+            - CODE
+            - REASON
+            - BLOCK_TIMESTAMP
+    columns:
+      - name: TX
+        tests:
+          - not_null
+      - name: CHAIN
+        tests:
+          - not_null
+      - name: FROM_ADDR
+        tests:
+          - not_null
+      - name: TO_ADDR
+        tests:
+          - not_null
+      - name: ASSET
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: ASSET_2ND_E8
+        tests:
+          - not_null
+      - name: CODE
+        tests:
+          - not_null
+      - name: REASON
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null

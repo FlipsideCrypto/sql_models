@@ -1,0 +1,37 @@
+version: 2
+models:
+  - name: silver_thorchain__add_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX
+            - CHAIN
+            - POOL
+            - FROM_ADDR
+            - TO_ADDR
+            - MEMO
+    columns:
+      - name: TX
+        tests:
+          - not_null
+      - name: FROM_ADDR
+        tests:
+          - not_null
+      - name: TO_ADDR
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: MEMO
+        tests:
+          - not_null
+      - name: RUNE_E8
+        tests:
+          - not_null
+      - name: POOL
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null

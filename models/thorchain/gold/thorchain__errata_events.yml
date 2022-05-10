@@ -1,0 +1,31 @@
+version: 2
+models:
+  - name: thorchain__errata_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - IN_TX
+            - BLOCK_ID
+            - ASSET
+    columns:
+      - name: BLOCK_TIMESTAMP::DATE
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: RUNE_E8
+        tests:
+          - not_null
+      - name: IN_TX
+        tests:
+          - not_null
+      - name: ASSET
+        tests:
+          - not_null

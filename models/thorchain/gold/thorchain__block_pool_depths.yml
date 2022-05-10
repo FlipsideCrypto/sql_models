@@ -1,0 +1,25 @@
+version: 2
+models:
+  - name: thorchain__block_pool_depths
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - BLOCK_TIMESTAMP
+            - POOL_NAME
+    columns:
+      - name: BLOCK_TIMESTAMP::DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: POOL_NAME
+        tests:
+          - not_null

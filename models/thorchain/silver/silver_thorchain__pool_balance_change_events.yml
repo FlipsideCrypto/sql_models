@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: silver_thorchain__pool_balance_change_events
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: ASSET
+        tests:
+          - not_null
+      - name: RUNE_AMT
+        tests:
+          - not_null
+      - name: RUNE_ADD
+        tests:
+          - not_null
+      - name: ASSET_AMT
+        tests:
+          - not_null
+      - name: ASSET_ADD
+        tests:
+          - not_null
+      - name: REASON
+        tests:
+          - not_null
+
