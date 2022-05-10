@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__set_version_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, node_address, block_timestamp, version
+  qualify(ROW_NUMBER() over(PARTITION BY block_timestamp, version
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

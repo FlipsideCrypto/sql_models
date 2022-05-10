@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__swap_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id, blockchain, to_address, from_address
+  qualify(ROW_NUMBER() over(PARTITION BY tx, to_addr, from_addr
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

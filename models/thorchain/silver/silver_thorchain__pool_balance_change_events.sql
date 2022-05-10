@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__pool_balance_change_events') }}
-qualify(ROW_NUMBER() over(PARTITION BY BLOCK_ID, ASSET, BLOCK_TIMESTAMP
+qualify(ROW_NUMBER() over(PARTITION BY ASSET, BLOCK_TIMESTAMP
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

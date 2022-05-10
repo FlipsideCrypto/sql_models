@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__slash_amounts') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, asset, pool_name, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY asset, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__set_ip_address_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, ip_addr, block_timestamp, node_address
+  qualify(ROW_NUMBER() over(PARTITION BY ip_addr, block_timestamp, node_addr
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

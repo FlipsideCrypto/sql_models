@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__set_mimir_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, key, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY key, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

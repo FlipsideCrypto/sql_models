@@ -11,7 +11,7 @@ WITH swaps AS (
   SELECT
     *
   FROM
-    {{ ref('silver_thorchain__swap_events') }}
+    {{ ref('thorchain__swap_events') }}
   WHERE
     TRUE
 

@@ -23,7 +23,7 @@ SELECT
   COALESCE(rune_e8 / pow(10, 8), 0) AS rune_amount,
   COALESCE(rune_e8 / pow(10, 8) * rune_usd, 0) AS rune_amount_usd
 FROM
-  {{ ref('silver_thorchain__rewards_event_entries') }}
+  {{ ref('thorchain__rewards_event_entries') }}
   ree
   LEFT JOIN {{ ref('thorchain__prices') }}
   p
@@ -43,7 +43,7 @@ SELECT
     8
   ) * rune_usd AS rune_amount_usd
 FROM
-  {{ ref('silver_thorchain__rewards_events') }}
+  {{ ref('thorchain__rewards_events') }}
   re
   LEFT JOIN block_prices p
   ON re.block_id = p.block_id

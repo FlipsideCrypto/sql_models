@@ -8,7 +8,7 @@ SELECT
 FROM
   {{ ref('thorchain_dbt__block_pool_depths') }}
 
-qualify(ROW_NUMBER() over(PARTITION BY block_id, block_timestamp, pool_name
+qualify(ROW_NUMBER() over(PARTITION BY POOL, BLOCK_TIMESTAMP
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

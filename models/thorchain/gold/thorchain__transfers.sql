@@ -25,7 +25,7 @@ SELECT
   COALESCE(amount_e8 / pow(10, 8), 0) AS rune_amount,
   COALESCE(amount_e8 / pow(10, 8) * rune_usd, 0) AS rune_amount_usd
 FROM
-  {{ ref('silver_thorchain__transfer_events') }}
+  {{ ref('thorchain__transfer_events') }}
   se
   LEFT JOIN block_prices p
   ON se.block_id = p.block_id

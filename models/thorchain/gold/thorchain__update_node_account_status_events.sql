@@ -9,7 +9,7 @@ SELECT
   ) AS block_timestamp,
   bl.height AS block_id,
   e.node_addr AS node_address,
-  e."CURRENT" AS current_status,
+  e."CURRENT_FLAG" AS current_status,
   e.former AS former_status
 FROM
   {{ ref('silver_thorchain__update_node_account_status_events') }}

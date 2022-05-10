@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__refund_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, code, block_timestamp, asset, asset_2nd, to_address, from_address
+  qualify(ROW_NUMBER() over(PARTITION BY code, block_timestamp, asset, asset_2nd
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

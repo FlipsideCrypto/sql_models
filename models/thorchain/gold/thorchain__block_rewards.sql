@@ -10,7 +10,7 @@ WITH all_block_id AS (
   SELECT DISTINCT
     block_id,
     block_timestamp
-  FROM {{ ref('silver_thorchain__block_pool_depths') }} 
+  FROM {{ ref('thorchain__block_pool_depths') }} 
   {% if is_incremental() %}
   WHERE block_timestamp >= getdate() - INTERVAL '5 days'
   {% endif %}
@@ -21,7 +21,7 @@ avg_nodes_tbl AS (
     block_id,
     block_timestamp,
     SUM(CASE WHEN current_status = 'Active' THEN 1 WHEN former_status = 'Active' THEN -1 else 0 END) AS delta
-  FROM {{ ref('silver_thorchain__update_node_account_status_events') }} 
+  FROM {{ ref('thorchain__update_node_account_status_events') }} 
   {% if is_incremental() %}
   WHERE block_timestamp >= getdate() - INTERVAL '5 days'
   {% endif %}

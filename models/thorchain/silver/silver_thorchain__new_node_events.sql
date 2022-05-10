@@ -8,7 +8,7 @@ SELECT
 FROM
   {{ ref('thorchain_dbt__new_node_events') }}
 
-qualify(ROW_NUMBER() over(PARTITION BY BLOCK_ID, NODE_ADDRESS, BLOCK_TIMESTAMP
+qualify(ROW_NUMBER() over(PARTITION BY NODE_ADDR, BLOCK_TIMESTAMP
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

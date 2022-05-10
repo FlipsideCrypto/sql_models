@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__set_node_keys_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, node_address, block_timestamp, validator_consensus
+  qualify(ROW_NUMBER() over(PARTITION BY block_timestamp, validator_consensus
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

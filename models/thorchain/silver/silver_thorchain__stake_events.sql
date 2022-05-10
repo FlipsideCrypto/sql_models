@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__stake_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, rune_tx_id, pool_name, rune_address, asset_tx_id, asset, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY pool, rune_addr, asset_tx, asset_addr, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

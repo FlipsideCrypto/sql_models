@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__reserve_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY block_id, tx_id, blockchain, address, from_address, to_address, asset
+  qualify(ROW_NUMBER() over(PARTITION BY from_addr, to_addr, asset
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

@@ -20,7 +20,7 @@ bond_events AS (
   SELECT
     *
   FROM
-    {{ ref('silver_thorchain__bond_events') }}
+    {{ ref('thorchain__bond_events') }}
   WHERE
     TRUE
 )

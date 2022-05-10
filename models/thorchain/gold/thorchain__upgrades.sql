@@ -31,7 +31,7 @@ SELECT
     8
   ) * rune_usd AS rune_amount_usd
 FROM
-  {{ ref('silver_thorchain__switch_events') }}
+  {{ ref('thorchain__switch_events') }}
   se
   LEFT JOIN block_prices p
   ON se.block_id = p.block_id

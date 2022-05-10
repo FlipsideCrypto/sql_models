@@ -5,9 +5,8 @@
 
 SELECT
   block_timestamp,
-  block_id,
   asset,
-  tx_id,
+  tx AS tx_id,
   vault_key,
   asset_e8
 FROM

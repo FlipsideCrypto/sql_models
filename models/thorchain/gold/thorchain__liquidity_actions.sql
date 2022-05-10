@@ -11,7 +11,7 @@ WITH stakes AS (
   SELECT
     *
   FROM
-    {{ ref('silver_thorchain__stake_events') }}
+    {{ ref('thorchain__stake_events') }}
   WHERE
     TRUE
 ),
@@ -19,7 +19,7 @@ unstakes AS (
   SELECT
     *
   FROM
-    {{ ref('silver_thorchain__unstake_events') }}
+    {{ ref('thorchain__unstake_events') }}
   WHERE
     TRUE
 )
