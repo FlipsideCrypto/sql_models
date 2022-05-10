@@ -24,7 +24,7 @@ bond_events AS (
   WHERE
     TRUE
   {% if is_incremental() %}
-    AND be.block_timestamp >= getdate() - INTERVAL '5 days'
+    AND block_timestamp >= getdate() - INTERVAL '5 days'
   {% endif %}
 )
 SELECT
