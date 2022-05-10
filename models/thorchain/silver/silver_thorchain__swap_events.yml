@@ -5,7 +5,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX
-            - POOL_NAME
+            - POOL
             - FROM_ASSET
             - TO_ASSET
             - FROM_ASSET
