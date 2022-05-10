@@ -21,6 +21,6 @@ SELECT
   tx_id
 FROM
   {{ source(
-    "external_tables",
-    "algorand_txn_rewards"
+    "algorand_db_external",
+    "algorand_indexer_tx"
   ) }}
