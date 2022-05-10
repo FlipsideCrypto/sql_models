@@ -23,6 +23,9 @@ bond_events AS (
     {{ ref('thorchain__bond_events') }}
   WHERE
     TRUE
+  {% if is_incremental() %}
+    AND be.block_timestamp >= getdate() - INTERVAL '5 days'
+  {% endif %}
 )
 SELECT
   be.block_timestamp,
@@ -40,8 +43,5 @@ SELECT
   ) AS asset_usd
 FROM
   bond_events be
-  {% if is_incremental() %}
-  WHERE be.block_timestamp >= getdate() - INTERVAL '5 days'
-  {% endif %}
   LEFT JOIN block_prices p
   ON be.block_id = p.block_id

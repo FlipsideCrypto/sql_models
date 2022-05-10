@@ -5,7 +5,7 @@
 
 SELECT
   TO_TIMESTAMP(
-    d.block_timestamp / 1000000000
+    block_timestamp / 1000000000
   ) AS block_timestamp,
   asset,
   tx AS tx_id,
