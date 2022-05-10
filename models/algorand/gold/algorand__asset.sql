@@ -24,5 +24,5 @@ SELECT
     'https://algorand.foundation/' AS asset_url,
     6 AS decimals,
     'FALSE' AS asset_deleted,
-    closed_at,
+    NULL AS closed_at,
     0 AS created_at
