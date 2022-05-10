@@ -3,11 +3,11 @@
   tags = ['snowflake', 'silver_thorchain', 'add_events']
 ) }}
 
-SELECT 
+SELECT
   *
 FROM
   {{ ref('thorchain_dbt__add_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY tx, chain, from_addr, to_addr, asset, memo, pool
+  qualify(ROW_NUMBER() over(PARTITION BY tx, chain, from_addr, to_addr, asset, memo, pool, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

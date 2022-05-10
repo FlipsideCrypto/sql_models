@@ -3,12 +3,11 @@
   tags = ['snowflake', 'silver_thorchain', 'block_log']
 ) }}
 
-SELECT 
+SELECT
   *
 FROM
   {{ ref('thorchain_dbt__block_log') }}
-
-qualify(ROW_NUMBER() over(PARTITION BY HEIGHT, TIMESTAMP, HASH, AGG_STATE
+  qualify(ROW_NUMBER() over(PARTITION BY height, TIMESTAMP, HASH, agg_state
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 
@@ -20,6 +19,3 @@ AND __HEVO_loaded_at >= (
     {{ this }}
 )
 {% endif %}
-
-
-

@@ -4,18 +4,60 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - TX_ID
-            - BLOCK_ID
+            - TX
+            - CHAIN
+            - FROM_ADDR
+            - TO_ADDR
+            - ASSET
+            - MEMO
+            - POOL
+            - BLOCK_TIMESTAMP
     columns:
-      - name: BLOCK_TIMESTAMP::DATE
+      - name: TX
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3
+      - name: CHAIN
+        tests:
+          - not_null
+      - name: FROM_ADDR
+        tests:
+          - not_null
+      - name: TO_ADDR
+        tests:
+          - not_null
+      - name: ASSET
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: EMIT_ASSET_E8
+        tests:
+          - not_null
+      - name: EMIT_RUNE_E8
+        tests:
+          - not_null
+      - name: MEMO
+        tests:
+          - not_null
+      - name: POOL
+        tests:
+          - not_null
+      - name: STAKE_UNITS
+        tests:
+          - not_null
+      - name: BASIS_POINTS
+        tests:
+          - not_null
+      - name: ASYMMETRY
+        tests:
+          - not_null
+      - name: IMP_LOSS_PROTECTION_E8
+        tests:
+          - not_null
+      - name: _EMIT_ASSET_IN_RUNE_E8
+        tests:
+          - not_null
       - name: BLOCK_TIMESTAMP
-        tests:
-          - not_null
-      - name: BLOCK_ID
         tests:
           - not_null

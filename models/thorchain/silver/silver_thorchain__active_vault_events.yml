@@ -5,36 +5,11 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_TIMESTAMP
-            - BLOCK_ID
             - ADD_ASGARD_ADDR
     columns:
-      - name: BLOCK_TIMESTAMP::DATE
-        tests:
-          - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
-      - name: BLOCK_ID
-        tests:
-          - not_null
       - name: ADD_ASGARD_ADDR
-        tests:
-          - not_null
-      - name: __HEVO_XMIN
-        tests:
-          - not_null
-      - name: __HEVO__DATABASE_NAME
-        tests:
-          - not_null
-      - name: __HEVO__SCHEMA_NAME
-        tests:
-          - not_null
-      - name: __HEVO__INGESTED_AT
-        tests:
-          - not_null
-      - name: __HEVO__LOADED_AT
         tests:
           - not_null

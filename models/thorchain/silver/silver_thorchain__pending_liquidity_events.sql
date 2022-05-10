@@ -3,19 +3,20 @@
   tags = ['snowflake', 'silver_thorchain', 'pending_liquidity_events']
 ) }}
 
-SELECT 
+SELECT
   *
 FROM
   {{ ref('thorchain_dbt__pending_liquidity_events') }}
-qualify(ROW_NUMBER() over(PARTITION BY BLOCK_TIMESTAMP, POOL, PENDING_TYPE, ASSET_TX, RUNE_ADDR, ASSET_ADDR
+  qualify(ROW_NUMBER() over(PARTITION BY pool, asset_tx, asset_chain, asset_addr, rune_tx, rune_addr, pending_type, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 
 {% if is_incremental() %}
-WHERE __HEVO_loaded_at >= (
-  SELECT
-    MAX(__HEVO_loaded_at)
-  FROM
-    {{ this }}
-)
+WHERE
+  __HEVO_loaded_at >= (
+    SELECT
+      MAX(__HEVO_loaded_at)
+    FROM
+      {{ this }}
+  )
 {% endif %}

@@ -4,21 +4,24 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - BLOCK_ID
             - TX
             - BURN_ASSET
-            - TO_ADDRESS
-            - FROM_ADDRESS
+            - TO_ADDR
+            - FROM_ADDR
+            - BLOCK_TIMESTAMP
     columns:
-      - name: BLOCK_TIMESTAMP::DATE
-        tests:
-          - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
-      - name: BLOCK_ID
+      - name: TO_ADDR
+        tests:
+          - not_null
+      - name: BURN_ASSET
+        tests:
+          - not_null
+      - name: FROM_ADDR
+        tests:
+          - not_null
+      - name: BURN_E8
         tests:
           - not_null

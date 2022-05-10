@@ -4,27 +4,44 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - TX_ID
-            - BLOCK_ID
-            - TX_ID
-            - TO_ADDRESS
-            - FROM_ADDRESS
+            - TX
+            - CHAIN
+            - FROM_ADDR
+            - TO_ADDR
             - ASSET
-            - ASSET_E8
             - ASSET_2ND
+            - MEMO
+            - CODE
+            - REASON
+            - BLOCK_TIMESTAMP
     columns:
-      - name: BLOCK_TIMESTAMP::DATE
+      - name: TX
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3
+      - name: CHAIN
+        tests:
+          - not_null
+      - name: FROM_ADDR
+        tests:
+          - not_null
+      - name: TO_ADDR
+        tests:
+          - not_null
+      - name: ASSET
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: ASSET_2ND_E8
+        tests:
+          - not_null
+      - name: CODE
+        tests:
+          - not_null
+      - name: REASON
+        tests:
+          - not_null
       - name: BLOCK_TIMESTAMP
-        tests:
-          - not_null
-      - name: BLOCK_ID
-        tests:
-          - not_null
-      - name: BLOCKCHAIN
         tests:
           - not_null

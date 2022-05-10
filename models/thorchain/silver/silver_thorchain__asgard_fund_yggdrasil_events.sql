@@ -3,11 +3,11 @@
   tags = ['snowflake', 'silver_thorchain', 'asgard_fund_yggdrasil_events']
 ) }}
 
-SELECT *
+SELECT
+  *
 FROM
   {{ ref('thorchain_dbt__asgard_fund_yggdrasil_events') }}
-
-qualify(ROW_NUMBER() over(PARTITION BY TX, ASSET, ASSET_E8, VAULT_KEY, BLOCK_TIMESTAMP
+  qualify(ROW_NUMBER() over(PARTITION BY tx, asset, asset_e8, vault_key, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

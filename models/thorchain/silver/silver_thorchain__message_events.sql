@@ -3,16 +3,17 @@
   tags = ['snowflake', 'silver_thorchain', 'message_events']
 ) }}
 
-SELECT 
+SELECT
   *
 FROM
   {{ ref('thorchain_dbt__message_events') }}
 
 {% if is_incremental() %}
-WHERE __HEVO_loaded_at >= (
-  SELECT
-    MAX(__HEVO_loaded_at)
-  FROM
-    {{ this }}
-)
+WHERE
+  __HEVO_loaded_at >= (
+    SELECT
+      MAX(__HEVO_loaded_at)
+    FROM
+      {{ this }}
+  )
 {% endif %}

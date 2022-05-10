@@ -4,22 +4,30 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - BLOCK_ID
-            - RUNE_TX_ID
-            - POOL_NAME
-            - ASSET_TX_ID
-            - ASSET_ADDRESS
-            - RUNE_ADDRESS
+          - POOL
+          - ASSET_TX
+          - ASSET_CHAIN
+          - ASSET_ADDR
+          - STAKE_UNITS
+          - RUNE_TX
+          - RUNE_ADDR
+          - BLOCK_TIMESTAMP
     columns:
-      - name: BLOCK_TIMESTAMP::DATE
+      - name: POOL
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 3
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: STAKE_UNITS
+        tests:
+          - not_null
+      - name: RUNE_E8
+        tests:
+          - not_null
+      - name: _ASSET_IN_RUNE_E8
+        tests:
+          - not_null
       - name: BLOCK_TIMESTAMP
-        tests:
-          - not_null
-      - name: BLOCK_ID
         tests:
           - not_null
