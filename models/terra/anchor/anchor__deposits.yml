@@ -79,3 +79,7 @@ models:
       - name: CONTRACT_LABEL
         description: Anchor contract address in the label
         tests:
+      - name: SOURCE
+        description: The transaction source, either the Terra blockchain or sent via Wormhole
+        tests:
+          - not_null 

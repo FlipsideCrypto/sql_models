@@ -40,7 +40,12 @@ SELECT
  amount * p.price AS amount_usd,
  COALESCE(msg_value :coins [0] :denom :: STRING, 'uusd') AS currency,
  action_contract_address AS contract_address,
- l.address_name AS contract_label
+ l.address_name AS contract_label,
+ CASE WHEN
+ msg_value :execute_msg :process_anchor_message IS NOT NULL
+ THEN 'Wormhole'
+ ELSE 'Terra'
+ END AS source
 FROM {{ ref('silver_terra__event_actions') }} a
 
 LEFT JOIN {{ ref('silver_terra__msgs') }} m
@@ -59,5 +64,5 @@ WHERE action_method = 'repay_stable'
 AND COALESCE(action_log :repay_amount, action_log :withdraw_amount_ust) IS NOT NULL
 
 {% if is_incremental() %}
-AND a.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE) FROM {{ ref('silver_terra__event_actions') }})
+AND a.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}

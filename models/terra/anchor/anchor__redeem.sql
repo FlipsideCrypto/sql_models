@@ -76,7 +76,8 @@ SELECT
     10,
     6
   ) AS amount,
-  action_contract_address AS contract_address
+  action_contract_address AS contract_address,
+  'Wormhole' AS source
 FROM {{ ref('silver_terra__event_actions') }} a
 WHERE action_method = 'redeem_stable'
 AND tx_id IN (SELECT tx_id FROM {{ ref('silver_terra__msgs') }} WHERE msg_value :execute_msg :process_anchor_message IS NOT NULL)
@@ -88,7 +89,7 @@ AND block_timestamp :: DATE >= (
       block_timestamp :: DATE
     )
   FROM
-    {{ ref('silver_terra__event_actions') }}
+    {{ ref('silver_terra__msgs') }}
 )
 {% endif %}
 ),
@@ -100,6 +101,7 @@ SELECT
   a.block_id,
   a.block_timestamp,
   a.tx_id,
+  m.msg_index,
   msg_value :sender::STRING AS sender,
   action_log:redeem_amount::FLOAT / pow(
     10,
@@ -112,6 +114,7 @@ ON a.tx_id = m.tx_id AND a.msg_index = m.msg_index
 WHERE action_method = 'redeem_stable'
 AND msg_value :execute_msg :process_anchor_message IS NULL
 AND a.tx_id NOT IN (SELECT DISTINCT tx_id FROM redeem_events)
+AND m.msg_index IS NOT NULL
 
 {% if is_incremental() %}
 AND a.block_timestamp :: DATE >= (
@@ -120,7 +123,7 @@ AND a.block_timestamp :: DATE >= (
       block_timestamp :: DATE
     )
   FROM
-    {{ ref('silver_terra__event_actions') }}
+    {{ ref('silver_terra__msgs') }}
 )
 {% endif %}
 )
@@ -140,7 +143,8 @@ SELECT DISTINCT * FROM (
   amount * price AS amount_usd,
   msg_value :contract :: STRING AS currency,
   COALESCE(msg_value :execute_msg :send :contract :: STRING, '') AS contract_address,
-  COALESCE(l.address_name, '') AS contract_label
+  COALESCE(l.address_name, '') AS contract_label,
+  'Terra' AS source
 FROM redeem_events e
 JOIN {{ ref('silver_terra__msgs') }} m
 ON e.tx_id = m.tx_id
@@ -168,7 +172,8 @@ SELECT
   amount * price AS amount_usd,
   action_contract_address AS currency,
   contract_address,
-  COALESCE(l.address_name, '') AS contract_label
+  COALESCE(l.address_name, '') AS contract_label,
+  source
 FROM wormhole_txs w
 LEFT JOIN {{ ref('silver_terra__event_actions') }} e
 ON w.tx_id = e.tx_id
@@ -196,7 +201,8 @@ SELECT
   amount * price AS amount_usd,
   action_contract_address AS currency,
   contract_address,
-  COALESCE(l.address_name, '') AS contract_label
+  COALESCE(l.address_name, '') AS contract_label,
+  'Terra' AS source
 FROM other_txs o
 LEFT JOIN {{ ref('silver_terra__event_actions') }} e
 ON o.tx_id = e.tx_id

@@ -70,14 +70,8 @@ msgs AS (
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND
+  block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 events AS (
@@ -140,7 +134,12 @@ SELECT
     6
   ) AS mint_amount,
   coalesce(msg_value :coins [0] :denom :: STRING, 'uusd') AS deposit_currency,
-  action_contract_address AS contract_address
+  action_contract_address AS contract_address,
+  CASE WHEN
+  msg_value :execute_msg :process_anchor_message IS NOT NULL
+  THEN 'Wormhole'
+  ELSE 'Terra'
+  END AS source
 FROM {{ ref('silver_terra__event_actions') }} a
 LEFT JOIN {{ ref('silver_terra__msgs') }} m
   ON a.tx_id = m.tx_id AND a.msg_index = m.msg_index
@@ -174,7 +173,8 @@ SELECT
   mint_amount_usd,
   mint_currency,
   contract_address,
-  contract_label
+  contract_label,
+  'Terra' AS source
 FROM
   msgs m
   JOIN events e
@@ -196,7 +196,8 @@ SELECT
   mint_amount * p.price AS mint_amount_usd,
   action_contract_address AS mint_currency,
   contract_address,
-  l.address_name AS contract_label
+  l.address_name AS contract_label,
+  source
 FROM
   deposits d
   LEFT JOIN {{ ref('silver_terra__event_actions') }} m
