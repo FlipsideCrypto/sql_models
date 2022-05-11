@@ -1,0 +1,76 @@
+version: 2
+models:
+  - name: algorand__transfers
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - INTRA
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
+        description: "{{ doc('algo_block_id') }}"
+        tests:
+          - not_null
+      - name: INTRA
+        description: "{{ doc('intra') }}"
+        tests:
+          - not_null
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+        tests:
+          - not_null
+      - name: INNER_TX
+        description: "{{ doc('inner_tx') }}"
+        tests:
+          - not_null
+      - name: asset_sender
+        description: "The wallet address from which the asset is transferred from. This can be different from the asset_sender if a wallet has opted in to allow another address to send an asset from its wallet(https://developer.algorand.org/docs/get-details/transactions/transactions/#asset-transfer-transaction)."
+        tests:
+          - not_null  
+      - name: tx_sender
+        description: "The wallet address from which the transaction is initiated from and pays the fee. The tx_sender can send assets from a different asset_sender address if the asset_sender has opted into this action. This relates to clawback transactions: see asset_sender for more details."
+        tests:
+          - not_null    
+      - name: receiver
+        description: "The recipient of the asset transfer."
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: asset_id
+        description: "{{ doc('algo_asset_id') }}"
+        tests:
+          - not_null 
+      - name: amount
+        description: "The amount of the asset to be transferred. Can be 0."
+        tests:
+          - not_null 
+      - name: fee
+        description: "{{ doc('fee') }}"
+        tests:
+          - not_null 
+      - name: TX_TYPE
+        description: "{{ doc('tx_type') }}"
+        tests:
+          - not_null
+      - name: TX_TYPE_NAME
+        description: "{{ doc('tx_type_name') }}"
+        tests:
+          - not_null
+      - name: GENESIS_HASH
+        description: "{{ doc('genesis_hash') }}"
+        tests:
+          - not_null
+      - name: TX_MESSAGE
+        description: "{{ doc('tx_message') }}"
+        tests:
+          - not_null
+      - name: EXTRA
+        description: "{{ doc('extra') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   

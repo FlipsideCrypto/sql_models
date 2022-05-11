@@ -5,9 +5,6 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - TX_ID
-      - date_gaps:
-           column_name: BLOCK_TIMESTAMP
-           enabled: False #there are two days worth of gaps that will cause this to fail - turn back on when the gaps are resolved
     columns:
       - name: BLOCKCHAIN
         tests:

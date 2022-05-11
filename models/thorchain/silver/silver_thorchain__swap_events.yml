@@ -1,0 +1,71 @@
+version: 2
+models:
+  - name: silver_thorchain__swap_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX
+            - CHAIN
+            - FROM_ADDR
+            - TO_ADDR
+            - FROM_ASSET
+            - FROM_E8
+            - TO_ASSET
+            - TO_E8
+            - MEMO
+            - POOL
+            - TO_E8_MIN
+            - SWAP_SLIP_BP
+            - LIQ_FEE_E8
+            - LIQ_FEE_IN_RUNE_E8
+            - _DIRECTION
+            - BLOCK_TIMESTAMP
+    columns:
+      - name: TX
+        tests:
+          - not_null
+      - name: CHAIN
+        tests:
+          - not_null
+      - name: FROM_ADDR
+        tests:
+          - not_null
+      - name: TO_ADDR
+        tests:
+          - not_null
+      - name: FROM_ASSET
+        tests:
+          - not_null
+      - name: FROM_E8
+        tests:
+          - not_null
+      - name: TO_ASSET
+        tests:
+          - not_null
+      - name: TO_E8
+        tests:
+          - not_null
+      - name: MEMO
+        tests:
+          - not_null
+      - name: POOL
+        tests:
+          - not_null
+      - name: TO_E8_MIN
+        tests:
+          - not_null
+      - name: SWAP_SLIP_BP
+        tests:
+          - not_null
+      - name: LIQ_FEE_E8
+        tests:
+          - not_null
+      - name: LIQ_FEE_IN_RUNE_E8
+        tests:
+          - not_null
+      - name: _DIRECTION
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null

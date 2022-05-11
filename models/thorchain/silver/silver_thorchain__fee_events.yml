@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: silver_thorchain__fee_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX
+            - ASSET
+            - POOL_DEDUCT
+            - BLOCK_TIMESTAMP
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: TX
+        tests:
+          - not_null
+      - name: ASSET
+        tests:
+          - not_null
+      - name: POOL_DEDUCT
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
