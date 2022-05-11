@@ -1,0 +1,31 @@
+version: 2
+models:
+  - name: thorchain__refund_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TX_ID
+            - BLOCK_ID
+            - TX_ID
+            - TO_ADDRESS
+            - FROM_ADDRESS
+            - ASSET
+            - ASSET_E8
+            - ASSET_2ND
+            - MEMO
+    columns:
+      - name: BLOCK_TIMESTAMP::DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: BLOCKCHAIN
+        tests:
+          - not_null

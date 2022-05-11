@@ -1,0 +1,23 @@
+version: 2
+models:
+  - name: silver_thorchain__block_log
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - HEIGHT
+            - TIMESTAMP
+            - HASH
+            - AGG_STATE
+    columns:
+      - name: TIMESTAMP
+        tests:
+          - not_null
+      - name: HEIGHT
+        tests:
+          - not_null
+      - name: HASH
+        tests:
+          - not_null
+      - name: AGG_STATE
+        tests:
+          - not_null

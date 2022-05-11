@@ -6,18 +6,30 @@
   tags = ['snowflake', 'terra_silver', 'event_actions']
 ) }}
 
+WITH event_actions_uncle_blocks_removed AS (
 
-WITH raw_table AS (
-  SELECT 
+  SELECT
     *
-  FROM {{ ref('terra_dbt__msg_events_actions') }} 
-  qualify(RANK() over(PARTITION BY tx_id
-  ORDER BY
-    block_id DESC)) = 1
-),
+  FROM
+    {{ ref('terra_dbt__msg_events_actions') }}
 
-clean_table AS (
-  SELECT DISTINCT
+{% if is_incremental() %}
+WHERE
+  _inserted_timestamp >= (
+    SELECT
+      MAX(_inserted_timestamp)
+    FROM
+      {{ this }}
+  )
+{% endif %}
+
+qualify(RANK() over(PARTITION BY tx_id
+ORDER BY
+  block_id DESC)) = 1
+)
+
+  SELECT
+    _inserted_timestamp,
     blockchain, 
     block_id, 
     block_timestamp, 
@@ -28,8 +40,10 @@ clean_table AS (
     value:contract_address::STRING AS action_contract_address, 
     COALESCE(value:action_log:action::STRING, value:action_log:method::STRING) AS action_method, 
     object_delete(value:action_log, 'action', 'method') AS action_log
-  FROM raw_table r,
+  FROM event_actions_uncle_blocks_removed r,
   lateral flatten(input => r.event_attributes_actions)
-)
 
-SELECT * FROM clean_table
+qualify(ROW_NUMBER() over(PARTITION BY chain_id, block_id, tx_id, msg_index, action_index, action_contract_address, action_method
+ORDER BY
+  system_created_at DESC)) = 1
+

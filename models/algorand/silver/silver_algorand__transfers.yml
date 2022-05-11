@@ -1,0 +1,61 @@
+version: 2
+models:
+  - name: silver_algorand__transfers
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - INTRA
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: INTRA
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: INNER_TX
+        tests:
+          - not_null
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: tx_sender
+        tests:
+          - not_null    
+      - name: asset_sender
+        tests:
+          - not_null  
+      - name: receiver
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: asset_id
+        tests:
+          - not_null 
+      - name: amount
+        tests:
+          - not_null 
+      - name: fee
+        tests:
+          - not_null 
+      - name: TX_TYPE
+        tests:
+          - not_null
+      - name: TX_TYPE_NAME
+        tests:
+          - not_null
+      - name: GENESIS_HASH
+        tests:
+          - not_null
+      - name: TX_MESSAGE
+        tests:
+          - not_null

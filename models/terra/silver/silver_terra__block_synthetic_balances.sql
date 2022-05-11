@@ -21,6 +21,15 @@ WITH address_ranges AS (
     ) AS max_block_date
   FROM {{ ref('terra_dbt__synthetic_balances') }},
   LATERAL FLATTEN(input => value_obj :balances) b
+  where 1 = 1
+  {% if is_incremental() %}
+AND block_timestamp::date >= (
+  SELECT
+    MAX(date)
+  FROM
+    {{ this }}
+)
+{% endif %}
   GROUP BY address, currency, balance_type, blockchain
 ),
 
@@ -63,10 +72,17 @@ synth_balances AS (
   FROM
     {{ ref('terra_dbt__synthetic_balances') }},
     LATERAL FLATTEN(input => value_obj :balances) b
-
+    where 1=1{% if is_incremental() %}
+AND block_timestamp::date >= (
+  SELECT
+    MAX(date)
+  FROM
+    {{ this }}
+)
+{% endif %}
     qualify(ROW_NUMBER() over(PARTITION BY address, currency, block_timestamp :: DATE, balance_type
   ORDER BY
-    balance DESC)) = 1
+    block_timestamp DESC)) = 1
 ),
 
 synth_balance_tmp AS (
