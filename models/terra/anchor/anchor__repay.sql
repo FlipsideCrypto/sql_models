@@ -62,6 +62,7 @@ LEFT OUTER JOIN prices p
 
 WHERE action_method = 'repay_stable'
 AND COALESCE(action_log :repay_amount, action_log :withdraw_amount_ust) IS NOT NULL
+AND m.msg_index IS NOT NULL
 
 {% if is_incremental() %}
 AND a.block_timestamp :: DATE >= (SELECT MAX( block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
