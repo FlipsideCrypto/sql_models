@@ -1,5 +1,6 @@
 {{ config(
-  materialized = 'view'
+  materialized = 'view',
+  post_hook = "call silver_algorand.sp_bulk_get_tx()"
 ) }}
 
 WITH tx AS (
