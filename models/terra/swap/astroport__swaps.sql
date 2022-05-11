@@ -70,7 +70,7 @@ astro_pairs AS (
   AND event_type = 'from_contract'
 )
 
-SELECT
+SELECT DISTINCT
       e.blockchain,
       chain_id,
       block_id,

@@ -70,7 +70,7 @@ source_address_labels AS (
   FROM {{ ref('silver_crosschain__address_labels') }}
 )
 
-    SELECT
+    SELECT DISTINCT
       e.blockchain,
       chain_id,
       block_id,
