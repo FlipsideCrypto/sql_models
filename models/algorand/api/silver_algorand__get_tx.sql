@@ -10,6 +10,10 @@ WITH tx AS (
     tx_id
   FROM
     {{ ref("silver_algorand__transactions") }}
+  WHERE
+    block_timestamp >= '2022-04-01'
+  ORDER BY
+    block_timestamp DESC
 )
 SELECT
   account_id,
