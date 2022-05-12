@@ -1,0 +1,19 @@
+version: 2
+models:
+  - name: silver_thorchain__transfer_events
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: ASSET
+        tests:
+          - not_null
+      - name: AMOUNT_E8
+        tests:
+          - not_null
+      - name: FROM_ADDR
+        tests:
+          - not_null
+      - name: TO_ADDR
+        tests:
+          - not_null

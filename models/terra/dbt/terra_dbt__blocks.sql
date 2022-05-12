@@ -39,7 +39,8 @@ SELECT
   t.value :block_id :: INT AS block_id,
   t.value :block_timestamp :: TIMESTAMP AS block_timestamp,
   t.value :blockchain :: STRING AS blockchain,
-  t.value :proposer_address :: STRING AS proposer_address
+  t.value :proposer_address :: STRING AS proposer_address,
+  t.value :num_txs :: int AS tx_count
 FROM
   base_tables,
   LATERAL FLATTEN(
