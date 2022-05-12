@@ -1,14 +1,6 @@
 version: 2
 models:
   - name: silver_thorchain__switch_events
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - TX
-            - BURN_ASSET
-            - TO_ADDR
-            - FROM_ADDR
-            - BLOCK_TIMESTAMP
     columns:
       - name: BLOCK_TIMESTAMP
         tests:

@@ -1,13 +1,6 @@
 version: 2
 models:
   - name: silver_thorchain__transfer_events
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - BLOCK_TIMESTAMP
-            - ASSET
-            - TO_ADDR
-            - FROM_ADDR
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
