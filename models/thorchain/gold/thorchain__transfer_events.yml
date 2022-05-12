@@ -13,7 +13,6 @@ models:
       - name: BLOCK_ID
         tests:
           - not_null
-
       - name: ASSET
         tests:
           - not_null
