@@ -11,7 +11,8 @@ WITH tx AS (
   FROM
     {{ ref("silver_algorand__transactions") }}
   WHERE
-    block_timestamp >= '2022-04-01'
+    block_timestamp BETWEEN '2020-05-15'
+    AND '2020-07-01'
   ORDER BY
     block_timestamp DESC
 )

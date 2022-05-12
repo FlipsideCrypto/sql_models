@@ -1,7 +1,7 @@
 packages:
   - package: calogica/dbt_expectations
     version: [">=0.4.0", "<0.9.0"]
-  - git: "git@github.com:FlipsideCrypto/ethereum-models.git"
+  - git: "https://github.com/FlipsideCrypto/ethereum-models.git"
     revision: AN-1048/NFT-Events
   - package: dbt-labs/dbt_external_tables
     version: [">=0.8.0", "<0.9.0"]

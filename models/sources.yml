@@ -210,7 +210,7 @@ sources:
     tables:
       - name: algorand_indexer_tx
         external:
-          location: "@{{ target.database }}.bronze.ANALYTICS_EXTERNAL_TABLES/ALGORAND_INDEXER_DEV/TX"
+          location: "@{{ target.database }}.bronze.ANALYTICS_EXTERNAL_TABLES/ALGORAND_INDEXER_{{ target.name }}/TX"
           file_format: "( type = json, strip_outer_array = TRUE )"
           auto_refresh: false
           partitions:
