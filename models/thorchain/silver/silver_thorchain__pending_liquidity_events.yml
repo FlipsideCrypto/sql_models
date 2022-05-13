@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: silver_thorchain__pending_liquidity_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - POOL
+            - ASSET_TX
+            - ASSET_CHAIN
+            - ASSET_ADDR
+            - RUNE_TX
+            - RUNE_ADDR
+            - PENDING_TYPE
+            - BLOCK_TIMESTAMP
+    columns:
+      - name: POOL
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: RUNE_ADDR
+        tests:
+          - not_null
+      - name: RUNE_E8
+        tests:
+          - not_null
+      - name: PENDING_TYPE
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null

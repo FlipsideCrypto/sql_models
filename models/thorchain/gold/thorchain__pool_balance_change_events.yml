@@ -1,0 +1,10 @@
+version: 2
+models:
+  - name: thorchain__pool_balance_change_events
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null

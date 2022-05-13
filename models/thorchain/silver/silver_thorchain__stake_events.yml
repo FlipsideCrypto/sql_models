@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: silver_thorchain__stake_events
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+          - POOL
+          - ASSET_TX
+          - ASSET_CHAIN
+          - ASSET_ADDR
+          - STAKE_UNITS
+          - RUNE_TX
+          - RUNE_ADDR
+          - BLOCK_TIMESTAMP
+    columns:
+      - name: POOL
+        tests:
+          - not_null
+      - name: ASSET_E8
+        tests:
+          - not_null
+      - name: STAKE_UNITS
+        tests:
+          - not_null
+      - name: RUNE_E8
+        tests:
+          - not_null
+      - name: _ASSET_IN_RUNE_E8
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
