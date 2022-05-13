@@ -28,6 +28,7 @@ SELECT
   se.pool_name,
   from_address,
   SPLIT(memo, ':')[2]::string AS native_to_address,
+  SPLIT(memo, ':')[4]::string AS affiliate_address,
   to_address AS to_pool_address,
   from_asset,
   to_asset,
