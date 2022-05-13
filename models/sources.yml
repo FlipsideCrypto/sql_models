@@ -197,3 +197,8 @@ sources:
     schema: silver
     tables:
       - name: nft_metadata_api
+  - name: Harmony_db
+    database: HARMONY
+    schema: PROD
+    tables:
+      - name: EZ_SUSHI_SWAPS
