@@ -6,6 +6,8 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - SENDER
+            - DEPOSIT_AMOUNT
     columns:
       - name: BLOCKCHAIN
         description: the blockchain this transaction sit on
@@ -76,5 +78,8 @@ models:
           - not_null 
       - name: CONTRACT_LABEL
         description: Anchor contract address in the label
+        tests:
+      - name: SOURCE
+        description: The transaction source, either the Terra blockchain or sent via Wormhole
         tests:
           - not_null 

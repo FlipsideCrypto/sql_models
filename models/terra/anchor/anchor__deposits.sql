@@ -70,14 +70,8 @@ msgs AS (
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND
+  block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 events AS (
@@ -119,8 +113,53 @@ AND block_timestamp :: DATE >= (
     {{ ref('silver_terra__msgs') }}
 )
 {% endif %}
+),
+
+deposits AS (
+SELECT
+  a.blockchain,
+  a.chain_id,
+  a.block_id,
+  a.block_timestamp,
+  a.tx_id,
+  a.msg_index,
+  action_index,
+  action_log :depositor :: STRING AS sender,
+  action_log :deposit_amount / pow(
+    10,
+    6
+  ) AS deposit_amount,
+  action_log :mint_amount / pow(
+    10,
+    6
+  ) AS mint_amount,
+  coalesce(msg_value :coins [0] :denom :: STRING, 'uusd') AS deposit_currency,
+  action_contract_address AS contract_address,
+  CASE WHEN
+  msg_value :execute_msg :process_anchor_message IS NOT NULL
+  THEN 'Wormhole'
+  ELSE 'Terra'
+  END AS source
+FROM {{ ref('silver_terra__event_actions') }} a
+LEFT JOIN {{ ref('silver_terra__msgs') }} m
+  ON a.tx_id = m.tx_id AND a.msg_index = m.msg_index
+WHERE action_method = 'deposit_stable'
+
+{% if is_incremental() %}
+AND a.block_timestamp :: DATE >= (
+  SELECT
+    MAX(
+      block_timestamp :: DATE
+    )
+  FROM
+    {{ ref('silver_terra__msgs') }}
 )
-SELECT DISTINCT
+{% endif %}
+)
+
+SELECT DISTINCT * 
+FROM (
+SELECT
   blockchain,
   chain_id,
   block_id,
@@ -134,8 +173,51 @@ SELECT DISTINCT
   mint_amount_usd,
   mint_currency,
   contract_address,
-  contract_label
+  contract_label,
+  'Terra' AS source
 FROM
   msgs m
   JOIN events e
   ON m.tx_id = e.tx_id
+
+UNION
+
+SELECT
+  d.blockchain,
+  d.chain_id,
+  d.block_id,
+  d.block_timestamp,
+  d.tx_id,
+  sender,
+  deposit_amount,
+  deposit_amount * o.price AS deposit_amount_usd,
+  deposit_currency,
+  mint_amount,
+  mint_amount * p.price AS mint_amount_usd,
+  action_contract_address AS mint_currency,
+  contract_address,
+  l.address_name AS contract_label,
+  source
+FROM
+  deposits d
+  LEFT JOIN {{ ref('silver_terra__event_actions') }} m
+  ON d.tx_id = m.tx_id 
+  AND d.msg_index = m.msg_index
+  AND sender = action_log :to::STRING
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
+    ON contract_address = l.address AND l.blockchain = 'terra' AND l.creator = 'flipside'
+LEFT OUTER JOIN prices o
+    ON DATE_TRUNC(
+      'hour',
+      d.block_timestamp
+    ) = o.hour
+    AND deposit_currency = o.currency
+LEFT OUTER JOIN prices p
+    ON DATE_TRUNC(
+      'hour',
+      d.block_timestamp
+    ) = p.hour
+    AND action_contract_address = p.currency
+WHERE action_method = 'mint'
+AND action_contract_address = 'terra1hzh9vpxhsk8253se0vv5jj6etdvxu3nv8z07zu' --aUST
+)

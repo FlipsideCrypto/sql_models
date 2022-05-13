@@ -57,14 +57,8 @@ msgs AS (
     AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND
+  block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 events AS (
@@ -120,14 +114,8 @@ WHERE msg_value :execute_msg :process_anchor_message IS NOT NULL
 AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND
+  block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 ),
 
@@ -223,7 +211,8 @@ SELECT
   amount_usd,
   currency,
   contract_address AS contract_address,
-  COALESCE(contract_label, '') AS contract_label
+  COALESCE(contract_label, '') AS contract_label,
+  'Terra' AS source
 FROM
   msgs m
   JOIN events e
@@ -251,7 +240,8 @@ SELECT
   amount * price AS amount_usd,
   msg_value :contract :: STRING AS currency,
   COALESCE(msg_value :execute_msg :send :contract :: STRING, msg_value :contract :: STRING) AS contract_address,
-  COALESCE(l.address_name, '') AS contract_label
+  COALESCE(l.address_name, '') AS contract_label,
+  'Terra' AS source
 FROM
   {{ ref('silver_terra__msgs') }}
   m
@@ -270,14 +260,8 @@ WHERE
                                                           'terra1zdxlrtyu74gf6pvjkg9t22hentflmfcs86llva') --Anchor Custody and bATOM Contracts
 
 {% if is_incremental() %}
-AND block_timestamp :: DATE >= (
-  SELECT
-    MAX(
-      block_timestamp :: DATE
-    )
-  FROM
-    {{ ref('silver_terra__msgs') }}
-)
+AND
+  block_timestamp >= getdate() - INTERVAL '1 days'
 {% endif %}
 
 UNION
@@ -294,7 +278,8 @@ SELECT
   amount * price AS amount_usd,
   d.currency,
   contract_address,
-  COALESCE(l.address_name, '') AS contract_label
+  COALESCE(l.address_name, '') AS contract_label,
+  'Wormhole' AS source
 FROM
   wormhole_deposits d
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
@@ -320,7 +305,8 @@ LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
   amount * price AS amount_usd,
   w.currency,
   contract_address,
-  COALESCE(l.address_name, '') AS contract_label
+  COALESCE(l.address_name, '') AS contract_label,
+  'Wormhole' AS source
 FROM
   wormhole_withdraws w
 LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} AS l
