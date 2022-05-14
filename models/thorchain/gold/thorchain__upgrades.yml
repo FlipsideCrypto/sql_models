@@ -29,4 +29,4 @@ models:
       - name: RUNE_AMOUNT_USD
         tests:
           - not_null:
-              where: BLOCK_TIMESTAMP >= SYSDATE() - interval '1 day'
+              where: BLOCK_TIMESTAMP <= SYSDATE() - interval '2 day' AND BLOCK_TIMESTAMP >= '2021-04-13'
