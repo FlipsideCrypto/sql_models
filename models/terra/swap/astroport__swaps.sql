@@ -36,9 +36,15 @@ source_event_actions AS (
     a.block_timestamp,
     a.tx_id,
     coalesce(msg_value :sender :: STRING, action_log :sender ::STRING) AS sender,
-    action_log :offer_amount:: numeric / pow(10,6) AS offer_amount,
+    CASE 
+      WHEN action_log :offer_asset::STRING = 'terra1mddcdx0ujx89f38gu7zspk2r2ffdl5enyz2u03' THEN action_log :offer_amount:: numeric / pow(10,8)
+      ELSE action_log :offer_amount:: numeric / pow(10,6)
+    END AS offer_amount,
     action_log :offer_asset::STRING AS offer_currency,
-    action_log :return_amount:: numeric / pow(10,6) AS return_amount,
+    CASE 
+      WHEN action_log :ask_asset::STRING = 'terra1mddcdx0ujx89f38gu7zspk2r2ffdl5enyz2u03' THEN action_log :return_amount:: numeric / pow(10,8)
+      ELSE action_log :return_amount:: numeric / pow(10,6)
+    END AS return_amount,
     action_log :ask_asset::STRING AS return_currency,
     action_contract_address::STRING AS contract_address
   FROM {{ ref('silver_terra__event_actions') }} a
@@ -80,10 +86,16 @@ SELECT DISTINCT
       e.tx_id,
       sender,
       offer_amount,
-      offer_amount * o.price AS offer_amount_usd,
+      CASE 
+        WHEN offer_currency = 'terra1mddcdx0ujx89f38gu7zspk2r2ffdl5enyz2u03' THEN offer_amount * o.price * 100
+        ELSE offer_amount * o.price
+      END AS offer_amount_usd,
       offer_currency,
       return_amount,
-      return_amount * r.price AS return_amount_usd,
+      CASE 
+        WHEN return_currency = 'terra1mddcdx0ujx89f38gu7zspk2r2ffdl5enyz2u03' THEN return_amount * r.price * 100
+        ELSE return_amount * r.price
+      END AS return_amount_usd,
       return_currency,
       e.contract_address AS pool_address,
       coalesce(l.address_name, d.symbol) AS pool_name
