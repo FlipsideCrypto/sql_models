@@ -39,6 +39,8 @@ models:
         description: amount of the reward that was used to purchase an NFT
       - name: DEX_SWAP
         description: amount of the reward that was swapped for another token on a decentralized exchange
+      - name: BRIDGE
+        description: amount of the reward that was deposited to a centralized exchange
       - name: FIRST_IS_BOUNTY
         description: indicates if the addresses' first receipt of the token was through a Flipside program
       - name: DID_HUNT
