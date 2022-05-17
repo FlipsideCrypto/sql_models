@@ -16,7 +16,6 @@ WITH pact_app_ids AS (
         AND tx_message :dt :itx [0] :txn :type :: STRING = 'acfg'
         AND tx_message :dt :itx [0] :txn :apar :an :: STRING LIKE '%PACT LP Token'
         AND tx_message :dt :itx [0] :txn :apar :au :: STRING = 'https://pact.fi/'
-        AND block_timestamp > '2022-02-02'
 ),
 pactfi_app AS(
     SELECT
@@ -135,10 +134,14 @@ SELECT
     pa.app_id,
     fs.swapper,
     fs.from_asset_id AS swap_from_asset_id,
-    fs.swap_from_amount :: FLOAT AS swap_from_amount,
+    ZEROIFNULL(
+        fs.swap_from_amount
+    ) :: FLOAT AS swap_from_amount,
     pa.pool_address AS pool_address,
     pa.to_asset_id AS swap_to_asset_id,
-    pa.swap_to_amount :: FLOAT AS swap_to_amount,
+    ZEROIFNULL(
+        pa.swap_to_amount
+    ) :: FLOAT AS swap_to_amount,
     concat_ws(
         '-',
         pa.block_id :: STRING,
@@ -161,5 +164,5 @@ AND pa._INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-)
+) - INTERVAL '4 HOURS'
 {% endif %}

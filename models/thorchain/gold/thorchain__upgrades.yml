@@ -1,0 +1,32 @@
+version: 2
+models:
+  - name: thorchain__upgrades
+    columns:
+      - name: BLOCK_TIMESTAMP::DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: FROM_ADDRESS
+        tests:
+          - not_null
+      - name: ASSET
+      - name: TO_ADDRESS
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: thor[0-9a-zA-Z]{39}
+      - name: BURN_ASSET
+        tests:
+          - not_null
+      - name: RUNE_AMOUNT
+        tests:
+          - not_null
+      - name: RUNE_AMOUNT_USD
+        tests:
+          - not_null:
+              where: BLOCK_TIMESTAMP <= SYSDATE() - interval '2 day' AND BLOCK_TIMESTAMP >= '2021-04-13'

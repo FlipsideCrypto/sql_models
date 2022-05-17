@@ -1,0 +1,52 @@
+version: 2
+models:
+  - name: silver_crosschain__ntr
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - SYMBOL
+            - ADDRESS
+            - XFER_DATE
+    columns:
+      - name: BLOCKCHAIN
+        description: The name of the blockchain
+        tests:
+          - not_null
+      - name: SYMBOL
+        description: Symbol for ntr analysis
+        tests:
+          - not_null
+      - name: ADDRESS
+        description: Address on the blockchain
+        tests:
+          - not_null
+      - name: XFER_DATE
+        description: Transfer date
+        tests:
+          - not_null
+      - name: REWARD
+        description: total paid through bounty program to the address from beginning of the data through the current date
+      - name: HODL
+        description: amount (of reward) that is still held in the original address paid
+      - name: UNLABLED_TRANSFER
+        description: amount of the reward that was transferred to an unknown address
+      - name: STAKE
+        description: amount of the reward that was staked
+      - name: CEX_DEPOSIT
+        description: amount of the reward that was deposited to a centralized exchange
+      - name: NFT_BUY
+        description: amount of the reward that was used to purchase an NFT
+      - name: DEX_SWAP
+        description: amount of the reward that was swapped for another token on a decentralized exchange
+      - name: BRIDGE
+        description: amount of the reward that was deposited to a centralized exchange
+      - name: FIRST_IS_BOUNTY
+        description: indicates if the addresses' first receipt of the token was through a Flipside program
+      - name: DID_HUNT
+        description: indicates if the address participated in a scavenger hunt for this token
+      - name: DID_NEW_USER
+        description: indicates if the address participated in a new user bounty for this token
+      - name: DID_BOUNTY
+        description: indicates if the address participated in a bounty for this token (excluding new user bounties)
+      

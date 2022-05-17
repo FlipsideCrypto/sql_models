@@ -9,7 +9,8 @@ models:
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
@@ -27,15 +28,18 @@ models:
           - not_null
       - name: swapper
         tests:
-          - not_null
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
       - name: swap_from_asset_id
         tests:
-          - not_null
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: swap_from_amount
         tests:
-          - not_null
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')      
       - name: pool_address
         tests:
           - not_null

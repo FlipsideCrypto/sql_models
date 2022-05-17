@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: silver_terra__contract_metadata
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - CONTRACT_ADDRESS
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: CONTRACT_ADDRESS
+        tests:
+          - not_null
+      - name: IS_WORMHOLE
+        tests:
+          - not_null

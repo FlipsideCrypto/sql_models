@@ -1,0 +1,19 @@
+version: 2
+models:
+  - name: terra_scored__swap_current_prices
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - TOKEN
+            - PRICE
+            - SOURCE
+    columns:
+      - name: TOKEN
+        tests:
+          - not_null
+      - name: PRICE
+        tests:
+          - not_null
+      - name: SOURCE
+        tests:
+          - not_null

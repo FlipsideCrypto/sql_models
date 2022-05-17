@@ -23,8 +23,8 @@ models:
         # tests:
         #   - not_null
       - name: created_at_timestamp
-        tests:
-          - not_null
+        # tests:
+        #   - not_null
       - name: created_at_tx_id
         # tests:
         #   - not_null

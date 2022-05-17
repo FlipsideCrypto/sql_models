@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: consoles_mirror__terra_total_acct
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - DATE
+            - BASE_MASSET
+            - RUNNING_SUM
+    columns:
+      - name: DATE
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 3
+      - name: BASE_MASSET
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - varchar 
+      - name: RUNNING_SUM
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - number
