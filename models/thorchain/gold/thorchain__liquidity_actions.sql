@@ -31,30 +31,10 @@ SELECT
   se.pool_name,
   rune_address AS from_address,
   NULL AS to_address,
-  rune_e8 / pow(
-    10,
-    8
-  ) AS rune_amount,
-  rune_e8 / pow(
-    10,
-    8
-  ) * rune_usd AS rune_amount_usd,
-  asset_e8 / pow(
-    10,
-    8
-  ) AS asset_amount,
-  asset_e8 / pow(
-    10,
-    8
-  ) * asset_usd AS asset_amount_usd,
-  stake_units,
-  asset_tx_id,
-  asset_address,
-  asset_blockchain,
-  NULL AS il_protection,
-  NULL AS il_protection_usd,
-  NULL AS unstake_asymmetry,
-  NULL AS unstake_basis_points
+  COALESCE((rune_e8 / pow(10, 8)), 0) AS rune_amount, 
+  COALESCE((rune_e8 / pow(10, 8) * rune_usd), 0) AS rune_amount_usd, 
+  COALESCE((asset_e8 / pow(10, 8)), 0) AS asset_amount, 
+  COALESCE((asset_e8 / pow(10, 8) * asset_usd), 0) AS asset_amount_usd, stake_units, asset_tx_id, asset_address, asset_blockchain, NULL AS il_protection, NULL AS il_protection_usd, NULL AS unstake_asymmetry, NULL AS unstake_basis_points
 FROM
   stakes se
   LEFT JOIN {{ ref('thorchain__prices') }}
@@ -63,30 +43,24 @@ FROM
   AND se.pool_name = p.pool_name
 UNION
 SELECT
-  ue.block_timestamp,
-  ue.block_id,
-  tx_id,
-  'remove_liquidity' AS lp_action,
-  ue.pool_name,
-  from_address,
-  to_address,
-  COALESCE(emit_rune_e8 / pow(10, 8), 0) AS rune_amount,
-  COALESCE(emit_rune_e8 / pow(10, 8) * rune_usd, 0) AS rune_amount_usd,
-  COALESCE(emit_asset_e8 / pow(10, 8), 0) AS asset_amount,
-  COALESCE(emit_asset_e8 / pow(10, 8) * asset_usd, 0) AS asset_amount_usd,
-  stake_units,
-  NULL AS asset_tx_id,
-  NULL AS asset_address,
-  NULL AS asset_blockchain,
-  imp_loss_protection_e8 / pow(
-    10,
-    8
-  ) AS il_protection,
-  imp_loss_protection_e8 / pow(
-    10,
-    8
-  ) * rune_usd AS il_protection_usd,
-  asymmetry AS unstake_asymmetry,
+  ue.block_timestamp, 
+  ue.block_id, 
+  tx_id, 
+  'remove_liquidity' AS lp_action, 
+  ue.pool_name, 
+  from_address, 
+  to_address, 
+  COALESCE(emit_rune_e8 / pow(10, 8), 0) AS rune_amount, 
+  COALESCE(emit_rune_e8 / pow(10, 8) * rune_usd, 0) AS rune_amount_usd, 
+  COALESCE(emit_asset_e8 / pow(10, 8), 0) AS asset_amount, 
+  COALESCE(emit_asset_e8 / pow(10, 8) * asset_usd, 0) AS asset_amount_usd, 
+  stake_units, 
+  NULL AS asset_tx_id, 
+  NULL AS asset_address, 
+  NULL AS asset_blockchain, 
+  imp_loss_protection_e8 / pow(10, 8) AS il_protection, 
+  imp_loss_protection_e8 / pow(10, 8) * rune_usd AS il_protection_usd, 
+  asymmetry AS unstake_asymmetry, 
   basis_points AS unstake_basis_points
 FROM
   unstakes ue
