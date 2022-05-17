@@ -338,7 +338,7 @@ combo_2 AS (
         asset_id,
         asset_name,
         price,
-        STDDEV(
+        MEDIAN(
             price
         ) over (
             PARTITION BY asset_id,
@@ -357,7 +357,9 @@ combo_3 AS (
         price,
         stddev_price,
         CASE
-            WHEN ABS(price - AVG(price) over(PARTITION BY asset_ID, block_hour)) > stddev_price * 2 THEN TRUE
+            WHEN ABS(
+                price - stddev_price
+            ) > stddev_price * 2 THEN TRUE
             ELSE FALSE
         END exclude_from_pricing,
         AVG(price) over(
@@ -392,8 +394,18 @@ final_dex AS (
         ) - MIN(
             price
         ) AS volatility_measure,
-        COUNT(1) swaps_in_hour,
-        SUM(amt) total_amt
+        SUM(
+            CASE
+                WHEN exclude_from_pricing = FALSE THEN 1
+            END
+        ) swaps_in_hour_excludes,
+        COUNT(1) AS swaps_in_hour,
+        SUM(
+            CASE
+                WHEN exclude_from_pricing = FALSE THEN amt
+            END
+        ) total_amt_excludes,
+        SUM(amt) AS total_amt
     FROM
         combo_3
     GROUP BY
@@ -408,11 +420,11 @@ weights AS (
         dex,
         asset_id,
         block_date,
-        total_amt / SUM(total_amt) over(
+        total_amt_excludes / SUM(total_amt_excludes) over(
             PARTITION BY asset_id,
             block_date
         ) vol_weight,
-        swaps_in_day / SUM(swaps_in_day) over(
+        swaps_in_day_excludes / SUM(swaps_in_day_excludes) over(
             PARTITION BY asset_id,
             block_date
         ) swaps_weight
@@ -422,8 +434,8 @@ weights AS (
                 dex,
                 asset_id,
                 block_hour :: DATE block_date,
-                SUM(total_amt) total_amt,
-                SUM(swaps_in_hour) swaps_in_day
+                SUM(total_amt_excludes) total_amt_excludes,
+                SUM(swaps_in_hour_excludes) swaps_in_day_excludes
             FROM
                 final_dex
             GROUP BY
@@ -472,10 +484,9 @@ ignore_weights AS (
         ) = b.block_date
     WHERE
         (
-            tx_count < 5
+            tx_count < 20
             OR A.dex_count_final < 4
         )
-        AND NOT dex_count_final = dex_count_weight
 ),
 FINAL AS (
     SELECT
