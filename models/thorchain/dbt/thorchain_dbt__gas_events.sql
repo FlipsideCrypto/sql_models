@@ -1,5 +1,7 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', asset, asset_e8, rune_e8, tx_count, block_timestamp)",
+  incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain_dbt', 'gas_events']
 ) }}
 

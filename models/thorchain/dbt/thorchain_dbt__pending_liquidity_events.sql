@@ -1,5 +1,7 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', pool, asset_tx, asset_addr, rune_tx, rune_addr, pending_type, block_timestamp)",
+  incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain_dbt', 'pending_liquidity_events']
 ) }}
 

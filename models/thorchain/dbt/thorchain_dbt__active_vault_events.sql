@@ -1,5 +1,7 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', add_asgard_addr, block_timestamp)",
+  incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain_dbt', 'active_vault_events']
 ) }}
 

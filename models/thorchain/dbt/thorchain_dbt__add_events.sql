@@ -1,7 +1,10 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'incremental',
+  unique_key = "CONCAT_WS('-', tx, chain, from_addr, to_addr, asset, pool, block_timestamp, memo)",
+  incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain_dbt', 'add_events']
 ) }}
+
 
 SELECT
   *
