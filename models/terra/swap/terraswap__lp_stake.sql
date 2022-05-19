@@ -7,111 +7,63 @@
 ) }}
 
 -- LP Un-staking
-WITH msgs AS (
+WITH unstaking AS (
 
-  SELECT
-    blockchain,
-    chain_id,
-    block_id,
-    msg_index,
-    block_timestamp,
-    tx_id,
+   SELECT
+    a.blockchain,
+    a.chain_id,
+    a.block_id,
+    a.msg_index,
+    a.block_timestamp,
+    a.tx_id,
     'unstake_lp' AS event_type,
-    msg_value :sender :: STRING AS sender,
-    coalesce(msg_value :execute_msg :unbond :amount, msg_value :execute_msg :unbond :tokens, 
-              msg_value :execute_msg :unbond :asset :amount, 0) / pow(10,6) AS amount
+    coalesce(action_log :staker_addr :: STRING, msg_value :sender::STRING) AS sender,
+    action_log :amount / POW(10,6) AS amount,
+    action_log :asset_token::STRING AS contract_address
   FROM
-    {{ ref('silver_terra__msgs') }}
-  WHERE msg_value :execute_msg :unbond IS NOT NULL
-    AND tx_status = 'SUCCEEDED'
+    {{ ref('silver_terra__event_actions') }} a
+  LEFT JOIN {{ ref('silver_terra__msgs') }} m
+   ON a.tx_id = m.tx_id
+   AND a.msg_index = m.msg_index
+  WHERE action_method= 'unbond'
 
   {% if is_incremental() %}
-    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+    AND a.block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
   {% endif %}
 ),
 
-events AS (
-  SELECT
-    msg_index,
-    tx_id,
-    coalesce(event_attributes :"0_contract_address" :: STRING, event_attributes :contract_address :: STRING ) AS contract_address
-  FROM {{ ref('silver_terra__msg_events') }}
-  WHERE tx_id IN(SELECT DISTINCT tx_id FROM msgs)
-    AND event_type = 'execute_contract'
-    AND msg_index = 0
-    AND contract_address IS NOT NULL
 
-  {% if is_incremental() %}
-    AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
-  {% endif %}
-
-),
-
-bonding_unbonding AS (
--- unstake
-SELECT
-  m.blockchain,
-  chain_id,
-  block_id,
-  block_timestamp,
-  m.tx_id,
-  event_type,
-  sender,
-  amount,
-  contract_address,
-  l.address_name AS contract_label
-FROM
-  msgs m
-  
-JOIN events e
-  ON m.tx_id = e.tx_id
-  AND m.msg_index = e.msg_index
-
-LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 
-  ON contract_address = l.address 
-  AND l.blockchain = 'terra' 
-  AND l.creator = 'flipside'
-
-UNION
-
+staking AS (
   -- stake
-SELECT
-  m.blockchain,
-  chain_id,
-  block_id,
-  block_timestamp,
-  tx_id,
-  'stake_lp' AS event_type,
-  msg_value :sender :: STRING AS sender,
-  msg_value :execute_msg :send :amount / pow(10,6) AS amount,
-  msg_value :contract :: STRING AS contract_address,
-  address_name AS contract_label
-FROM {{ ref('silver_terra__msgs') }} m
-  
-LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 
-  ON msg_value :contract :: STRING = l.address 
-  AND l.blockchain = 'terra' 
-  AND l.creator = 'flipside'
-  
-WHERE msg_value :execute_msg :send :msg :bond IS NOT NULL
-  AND tx_status = 'SUCCEEDED'
+ SELECT
+    a.blockchain,
+    a.chain_id,
+    a.block_id,
+    a.msg_index,
+    a.block_timestamp,
+    a.tx_id,
+    'stake_lp' AS event_type,
+    coalesce(action_log :owner :: STRING, msg_value :sender::STRING) AS sender,
+    action_log :amount / POW(10,6) AS amount,
+    msg_value :contract::STRING AS contract_address
+  FROM
+    {{ ref('silver_terra__event_actions') }} a
+   LEFT JOIN {{ ref('silver_terra__msgs') }} m
+   ON a.tx_id = m.tx_id
+   AND a.msg_index = m.msg_index
+  WHERE action_method =  'bond'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  AND a.block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
 {% endif %}
 ),
 
---terraswap LPs
+-- LPs
 lps AS (
 SELECT
-event_attributes :liquidity_token_addr::STRING AS lp_token
-FROM {{ ref('silver_terra__msgs') }} m
-LEFT JOIN {{ ref('silver_terra__msg_events') }} e
-ON m.tx_id = e.tx_id
-WHERE event_type = 'from_contract'
-AND event_attributes :liquidity_token_addr IS NOT NULL
-AND msg_value :contract::STRING in ( 'terra1mzj9nsxx0lxlaxnekleqdy8xnyw2qrh3uz6h8p', --Mirror factory
-                                    'terra1ulgw0td86nvs4wtpsc80thv6xelk76ut7a7apj') --Terraswap token factory                                
+contract_address AS lp_token
+FROM {{ ref('silver_terra__dex_contracts') }}
+WHERE contract_name = 'astroport LP token'                              
   ),
 
 re_investing AS (
@@ -132,11 +84,11 @@ AND m.msg_index = e.msg_index
 WHERE msg_value :contract::STRING = 'terra1kehar0l76kzuvrrcwj5um72u3pjq2uvp62aruf' --Mirror farm
 AND m.tx_status = 'SUCCEEDED'
 AND msg_value :execute_msg :re_invest :asset_token IS NOT NULL
-AND contract_address in (SELECT lp_token FROM lps)
+AND contract_address NOT IN (SELECT lp_token FROM lps)
 AND e.event_type = 'from_contract'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  AND m.block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ this }})
 {% endif %}
 
 ),
@@ -158,7 +110,7 @@ AND msg_value :execute_msg :zap_out_of_strategy :strategy_id IS NOT NULL
 AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{this}} )
 {% endif %}
  ),
 
@@ -176,7 +128,7 @@ event_attributes :staking_token::STRING AS contract_address
 FROM msgs_zap_out_of_strategy m
 LEFT JOIN {{ ref('silver_terra__msg_events') }} e
 ON m.tx_id = e.tx_id AND m.msg_index = e.msg_index
-WHERE event_attributes :staking_token::STRING IN (SELECT lp_token FROM lps)
+WHERE event_attributes :staking_token::STRING NOT IN (SELECT lp_token FROM lps)
 AND e.event_type = 'from_contract'
 ),
 
@@ -197,12 +149,12 @@ ON e.tx_id = m.tx_id
 AND e.msg_index = m.msg_index
 WHERE event_attributes :"0_action"::STRING = 'auto_stake'
 AND event_attributes :"5_action"::STRING = 'mint'
-AND contract_address in (SELECT lp_token FROM lps)
+AND contract_address NOT IN (SELECT lp_token FROM lps)
 AND e.event_type = 'from_contract'
 AND e.tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  AND e.block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ this }})
 {% endif %}
 ),
 
@@ -222,7 +174,7 @@ AND msg_value :execute_msg :zap_into_strategy :strategy_id IS NOT NULL
 AND tx_status = 'SUCCEEDED'
 
 {% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
+  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ this }})
 {% endif %}
 ),
 
@@ -240,37 +192,14 @@ event_attributes :lp_token::STRING AS contract_address
 FROM msgs_zap_into_strategy m
 LEFT JOIN {{ ref('silver_terra__msg_events') }} e
 ON m.tx_id = e.tx_id
-WHERE event_attributes :lp_token::STRING IN (SELECT lp_token FROM lps)
+WHERE event_attributes :lp_token::STRING NOT IN (SELECT lp_token FROM lps)
 AND e.event_type = 'from_contract'
-),
-
---Spectrum and Apollo staking
-classic_staking AS (
-SELECT
-msg_value :execute_msg :send :msg::STRING AS MSG,
-try_parse_json(try_base64_decode_string(MSG)) AS decoded,
-blockchain,
-chain_id,
-block_id,
-block_timestamp,
-tx_id,
-'stake_lp' AS event_type,
-msg_value :sender :: STRING AS sender,
-msg_value :execute_msg :send :amount / pow(10,6) AS amount,
-msg_value :contract :: STRING AS contract_address
-FROM {{ ref('silver_terra__msgs') }}
-WHERE (decoded :bond :asset_token::STRING IS NOT NULL OR decoded :deposit :strategy_id IS NOT NULL)
-AND contract_address IN (SELECT lp_token FROM lps)
-AND tx_status = 'SUCCEEDED'
-
-{% if is_incremental() %}
-  AND block_timestamp :: DATE >= (SELECT MAX(block_timestamp :: DATE) FROM {{ ref('silver_terra__msgs') }})
-{% endif %}
 )
 
+SELECT DISTINCT * FROM (
 SELECT
-  blockchain,
-  chain_id,
+  u.blockchain,
+  u.chain_id,
   block_id,
   block_timestamp,
   tx_id,
@@ -278,10 +207,35 @@ SELECT
   sender,
   amount,
   contract_address,
-  contract_label
+  l.address_name AS contract_label
 FROM
-  bonding_unbonding
-WHERE contract_address IN (SELECT lp_token FROM lps)
+  unstaking u
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 
+  ON contract_address = l.address 
+  AND l.blockchain = 'terra' 
+  AND l.creator = 'flipside'
+WHERE contract_address NOT IN (SELECT lp_token FROM lps)
+
+UNION ALL
+
+SELECT
+  s.blockchain,
+  s.chain_id,
+  block_id,
+  block_timestamp,
+  tx_id,
+  event_type,
+  sender,
+  amount,
+  contract_address,
+  l.address_name AS contract_label
+FROM
+  staking s
+LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 
+  ON contract_address = l.address 
+  AND l.blockchain = 'terra' 
+  AND l.creator = 'flipside'
+WHERE contract_address NOT IN (SELECT lp_token FROM lps)
 
 UNION ALL
 
@@ -366,24 +320,7 @@ LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l
   ON contract_address = l.address 
   AND l.blockchain = 'terra' 
   AND l.creator = 'flipside'
-
-UNION ALL
-
-SELECT
-  s.blockchain,
-  chain_id,
-  block_id,
-  block_timestamp,
-  s.tx_id,
-  event_type,
-  sender,
-  amount,
-  contract_address,
-  l.address_name AS contract_label
-FROM
-  classic_staking s
-
-LEFT OUTER JOIN {{ ref('silver_crosschain__address_labels') }} l 
-  ON contract_address = l.address 
-  AND l.blockchain = 'terra' 
-  AND l.creator = 'flipside'
+)
+WHERE sender IS NOT NULL
+AND amount IS NOT NULL
+AND contract_address NOT IN ('uluna', 'uusd')
