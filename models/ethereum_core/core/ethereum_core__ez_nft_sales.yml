@@ -58,3 +58,5 @@ models:
         description: '{{ doc("eth_nft_origin_to") }}'
       - name: ORIGIN_FUNCTION_SIGNATURE
         description: '{{ doc("eth_nft_origin_sig") }}'
+      - name: TOKEN_METADATA
+        description: '{{ doc("eth_nft_metadata") }}'
