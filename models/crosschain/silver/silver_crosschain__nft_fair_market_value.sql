@@ -1,8 +1,5 @@
 {{ config(
   materialized = 'view',
-  unique_key = "CONCAT_WS('-', mint)",
-  incremental_strategy = 'delete+insert',
-  cluster_by = ['collection', 'mint'],
   tags = ['snowflake', 'crosschain', 'nft', 'nft_deal_score']
 ) }}
 
