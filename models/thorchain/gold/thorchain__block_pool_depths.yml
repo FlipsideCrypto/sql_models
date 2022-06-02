@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: thorchain__switch_events
+  - name: thorchain__block_pool_depths
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
