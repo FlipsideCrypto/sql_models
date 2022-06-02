@@ -1,5 +1,5 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'table',
   tags = ['snowflake', 'crosschain', 'nft', 'nft_deal_score']
 ) }}
 

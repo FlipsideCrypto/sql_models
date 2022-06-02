@@ -27,4 +27,12 @@ models:
       - name: EVENT_REMOVED
         description: '{{ doc("eth_event_removed") }}'  
       - name: _LOG_ID
-        description: '{{ doc("eth_log_id_events") }}'  
+        description: '{{ doc("eth_log_id_events") }}'
+      - name: TX_STATUS
+        description: '{{ doc("eth_tx_status") }}' 
+      - name: ORIGIN_FUNCTION_SIGNATURE
+        description: '{{ doc("eth_nft_origin_sig") }}'
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("eth_origin_from") }}'
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("eth_origin_to") }}'  
