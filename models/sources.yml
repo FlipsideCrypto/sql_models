@@ -120,6 +120,7 @@ sources:
       - name: JIM_TEST_REST_PROXY_1507016047
       - name: prod_nft_metadata_uploads_1828572827
       - name: prod_data_science_uploads_1748940988
+      - name: ALGORAND_INDEXER_TX
   - name: crosschain
     schema: silver_crosschain
     tables:
