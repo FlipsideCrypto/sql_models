@@ -34,3 +34,5 @@ models:
         description: '{{ doc("eth_nft_tx_fee") }}'
       - name: TX_FEE_USD
         description: '{{ doc("eth_nft_tx_fee_usd") }}'
+      - name: TOKEN_METADATA
+        description: '{{ doc("eth_nft_metadata") }}'

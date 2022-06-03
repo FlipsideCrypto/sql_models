@@ -1,5 +1,8 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'incremental',
+  sort = 'block_timestamp',
+  unique_key = "CONCAT_WS('-', tx_id, block_id, to_asset, from_asset, block_timestamp, to_address, from_address, pool_name, memo)",
+  incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain', 'swap_events']
 ) }}
 
@@ -28,6 +31,8 @@ FROM
   INNER JOIN {{ ref('silver_thorchain__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp
+
 {% if is_incremental() %}
-WHERE e.block_timestamp >= getdate() - INTERVAL '5 days'
+WHERE
+  e.block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}

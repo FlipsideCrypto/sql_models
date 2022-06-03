@@ -24,7 +24,7 @@ models:
         description: '{{ doc("eth_nft_to_address") }}'
       - name: TOKENID
         description: '{{ doc("eth_nft_tokenid") }}'
-      - name: TX_FEE
-        description: '{{ doc("eth_nft_tx_fee") }}'
-      - name: TX_FEE_USD
-        description: '{{ doc("eth_nft_tx_fee_usd") }}'
+      - name: EVENT_INDEX
+        description: '{{ doc("eth_event_index") }}'
+      - name: TOKEN_METADATA
+        description: '{{ doc("eth_nft_metadata") }}'

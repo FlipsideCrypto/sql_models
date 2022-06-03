@@ -234,3 +234,8 @@ sources:
             data_type: variant
             description: "raw indexer response"
             expression: value:data::variant
+  - name: Harmony_db
+    database: HARMONY
+    schema: PROD
+    tables:
+      - name: EZ_SUSHI_SWAPS

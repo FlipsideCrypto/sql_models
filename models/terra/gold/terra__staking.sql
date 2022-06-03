@@ -65,7 +65,7 @@ AND block_timestamp :: DATE >= (
       block_timestamp :: DATE
     )
   FROM
-    {{ ref('silver_terra__msgs') }}
+    {{ this }}
 )
 {% endif %}
 ),
@@ -97,7 +97,7 @@ AND block_timestamp :: DATE >= (
       block_timestamp :: DATE
     )
   FROM
-    {{ ref('silver_terra__msgs') }}
+    {{ this }}
 )
 {% endif %}
 ),
@@ -129,7 +129,7 @@ AND block_timestamp :: DATE >= (
       block_timestamp :: DATE
     )
   FROM
-    {{ ref('silver_terra__msgs') }}
+    {{ this }}
 )
 {% endif %}
 )

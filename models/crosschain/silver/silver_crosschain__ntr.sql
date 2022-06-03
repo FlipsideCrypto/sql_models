@@ -20,6 +20,7 @@ SELECT
     VALUE :cex_deposit :: FLOAT AS cex_deposit,
     VALUE :nft_buy :: FLOAT AS nft_buy,
     VALUE :dex_swap :: FLOAT AS dex_swap,
+    VALUE :bridge :: FLOAT AS bridge,
     TO_BOOLEAN(LOWER(VALUE :first_is_bounty :: STRING)) AS first_is_bounty,
     TO_BOOLEAN(LOWER(VALUE :did_hunt :: STRING)) AS did_hunt,
     TO_BOOLEAN(LOWER(VALUE :did_new_user :: STRING)) AS did_new_user,

@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', token_address, symbol, HOUR)",
+    unique_key = "CONCAT_WS('-', token_address, HOUR)",
     incremental_strategy = 'delete+insert',
     cluster_by = ['HOUR'],
     tags = ['snowflake', 'polygon', 'silver_polygon__prices']

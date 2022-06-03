@@ -1,0 +1,135 @@
+version: 2
+models:
+  - name: crosschain__ez_swaps
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - LOG_ID
+    columns:
+      - name: BLOCK_NUMBER
+        description: '{{ doc("cross_chain_block_number") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+                - FLOAT
+      - name: BLOCK_TIMESTAMP
+        description: '{{ doc("cross_chain_block_timestamp") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_NTZ
+      - name: TX_HASH
+        description: '{{ doc("cross_chain_tx_hash") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: POOL_ADDRESS
+        description: '{{ doc("cross_chain_swap_pool_address") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: AMOUNT_IN
+        description: '{{ doc("cross_chain_swap_amount_in") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+                - FLOAT
+      - name: AMOUNT_OUT
+        description: '{{ doc("cross_chain_swap_amount_out") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+                - FLOAT
+      - name: AMOUNT_IN_USD
+        description: '{{ doc("cross_chain_swap_amount_in_usd") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+                - FLOAT
+      - name: AMOUNT_OUT_USD
+        description: '{{ doc("cross_chain_swap_amount_out_usd") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+                - FLOAT
+      - name: TOKEN_IN
+        description: '{{ doc("cross_chain_swap_token_in") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: TOKEN_OUT
+        description: '{{ doc("cross_chain_swap_token_out") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: SYMBOL_IN
+        description: '{{ doc("cross_chain_swap_symbol_in") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - STRING
+                - VARCHAR
+      - name: SYMBOL_OUT
+        description: '{{ doc("cross_chain_swap_symbol_out") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - STRING
+                - VARCHAR
+      - name: SENDER
+        description: '{{ doc("cross_chain_swap_sender") }}'
+        tests:
+          - not_null:
+              where: BLOCK_TIMESTAMP > '2021-08-01'
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: TX_TO
+        description: '{{ doc("cross_chain_swap_tx_to") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: PLATFORM
+        description: '{{ doc("cross_chain_swap_platform") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - STRING
+                - VARCHAR
+      - name: EVENT_INDEX
+        description: '{{ doc("cross_chain_event_index") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+                - FLOAT
+      - name: LOG_ID
+        description: '{{ doc("cross_chain_event_log_id") }}'
+        tests:
+          - not_null
+      - name: ORIGIN_FROM_ADDRESS
+        description: '{{ doc("origin_from_address") }}'
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: ORIGIN_TO_ADDRESS
+        description: '{{ doc("origin_to_address") }}'
+        tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+

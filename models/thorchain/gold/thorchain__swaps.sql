@@ -1,7 +1,7 @@
 {{ config(
   materialized = 'incremental',
   sort = 'block_timestamp',
-  unique_key = "CONCAT_WS('-', tx_id, to_asset, from_asset)",
+  unique_key = "CONCAT_WS('-', tx_id, block_id, to_asset, from_asset, block_timestamp, native_to_address, from_address, pool_name, to_pool_address)",
   incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain', 'swaps']
 ) }}
@@ -12,14 +12,7 @@ WITH swaps AS (
     *
   FROM
     {{ ref('thorchain__swap_events') }}
-  WHERE
-    TRUE
-
-{% if is_incremental() %}
-AND block_timestamp >= getdate() - INTERVAL '2 days'
-{% endif %}
 )
-
 SELECT
   se.block_timestamp,
   se.block_id,
@@ -27,7 +20,14 @@ SELECT
   blockchain,
   se.pool_name,
   from_address,
-  SPLIT(memo, ':')[2]::string AS native_to_address,
+  SPLIT(
+    memo,
+    ':'
+  ) [2] :: STRING AS native_to_address,
+  SPLIT(
+    memo,
+    ':'
+  ) [4] :: STRING AS affiliate_address,
   to_address AS to_pool_address,
   from_asset,
   to_asset,
@@ -63,3 +63,8 @@ FROM
   p
   ON se.block_id = p.block_id
   AND se.pool_name = p.pool_name
+
+{% if is_incremental() %}
+WHERE
+  se.block_timestamp >= getdate() - INTERVAL '5 days'
+{% endif %}

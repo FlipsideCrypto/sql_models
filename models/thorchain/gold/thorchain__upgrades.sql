@@ -35,6 +35,7 @@ FROM
   se
   LEFT JOIN block_prices p
   ON se.block_id = p.block_id
-        {% if is_incremental() %}
+  
+{% if is_incremental() %}
 WHERE se.block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}

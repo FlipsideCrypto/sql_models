@@ -45,6 +45,7 @@ models:
       - name: AMOUNT
         description: the repay amount in the currency listed in the CURRENCY column
         tests:
+          - not_null
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - decimal
@@ -66,5 +67,8 @@ models:
           - not_null 
       - name: CONTRACT_LABEL
         description: Anchor contract address in the label
+        tests:
+      - name: SOURCE
+        description: The transaction source, either the Terra blockchain or sent via Wormhole
         tests:
           - not_null 
