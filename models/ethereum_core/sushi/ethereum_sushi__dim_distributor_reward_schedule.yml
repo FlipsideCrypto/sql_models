@@ -1,7 +1,11 @@
 version: 2
 models:
   - name: ethereum_sushi__dim_distributor_reward_schedule
-    description: 'A table that tracks eligibility for sushi rewards for each merkle distributor with the unclaimed amounts as of the rewards_snapshot timestamp'
+    description: > 
+      Deprecating soon - please migrate query to ethereum database by changing 'from' statements from 
+      `flipside_prod_db.ethereum_core.<TABLE>` to `ethereum.core.<table>`
+
+
     columns:
       - name: ADDRESS
         description: 'Address of the sushi user eligible for reward'
