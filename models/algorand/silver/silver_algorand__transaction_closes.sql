@@ -12,8 +12,8 @@ WITH base AS (
         DATA
     FROM
         {{ source(
-            'bronze',
-            'ALGORAND_INDEXER_TX'
+            'algorand_db_external',
+            'algorand_indexer_tx'
         ) }}
 
 {% if is_incremental() %}
