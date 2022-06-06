@@ -1,7 +1,9 @@
 version: 2
 models:
   - name: ethereum_core__dim_contracts
-    description: '{{ doc("eth_contracts_table_doc") }}'
+    description: > 
+      Deprecating soon - please migrate query to ethereum database by changing 'from' statements from 
+      `flipside_prod_db.ethereum_core.<TABLE>` to `ethereum.core.<table>`
     
     columns:
       - name: ADDRESS
