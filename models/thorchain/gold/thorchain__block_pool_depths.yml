@@ -3,10 +3,10 @@ models:
   - name: thorchain__block_pool_depths
     tests:
       - dbt_utils.unique_combination_of_columns:
-        combination_of_columns:
-          - BLOCK_ID
-          - BLOCK_TIMESTAMP
-          - POOL_NAME
+          combination_of_columns:
+            - BLOCK_ID
+            - BLOCK_TIMESTAMP
+            - POOL_NAME
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
