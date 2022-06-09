@@ -30,7 +30,12 @@ SELECT
   from_address,
   CASE
     WHEN n_tx > 1
-    AND rank_liq_fee = 1 THEN SPLIT(
+    AND rank_liq_fee = 1 
+    AND SPLIT(
+      memo,
+      ':'
+    ) [4] :: STRING IS NOT NULL
+    THEN SPLIT(
       memo,
       ':'
     ) [4] :: STRING
