@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: solana__fact_blocks
-    description: Records with slots that have a block.  Slots without any blocks are not included
+    description: deprecating soon - please migrate query to solana database by changing 'from' statements from `flipside_prod_db.solana.<table>` to `solana.core.<table>`
     columns:
       - name: BLOCK_ID
         description: "{{ doc('solana_block_id') }}"

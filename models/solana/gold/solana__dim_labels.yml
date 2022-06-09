@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: solana__dim_labels
-    description: Records with metadata for known addresses
+    description: deprecating soon - please migrate query to solana database by changing 'from' statements from `flipside_prod_db.solana.<table>` to `solana.core.<table>`
     columns:
       - name: BLOCKCHAIN
         description: The name of the blockchain
