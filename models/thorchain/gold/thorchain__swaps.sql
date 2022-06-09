@@ -9,7 +9,15 @@
 WITH swaps AS (
 
   SELECT
-    *
+    *,
+    COUNT(*) over (
+      PARTITION BY tx_id
+    ) AS n_tx,
+    RANK() over (
+      PARTITION BY tx_id
+      ORDER BY
+        liq_fee_e8 ASC
+    ) AS rank_liq_fee
   FROM
     {{ ref('thorchain__swap_events') }}
 )
@@ -20,14 +28,17 @@ SELECT
   blockchain,
   se.pool_name,
   from_address,
-  SPLIT(
-    memo,
-    ':'
-  ) [2] :: STRING AS native_to_address,
-  SPLIT(
-    memo,
-    ':'
-  ) [4] :: STRING AS affiliate_address,
+  CASE
+    WHEN n_tx > 1
+    AND rank_liq_fee = 1 THEN SPLIT(
+      memo,
+      ':'
+    ) [4] :: STRING
+    ELSE SPLIT(
+      memo,
+      ':'
+    ) [2] :: STRING
+  END AS native_to_address,
   to_address AS to_pool_address,
   from_asset,
   to_asset,
