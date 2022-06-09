@@ -17,12 +17,14 @@ WITH address_ranges AS (
         b
         ON A.created_at = b.block_id
     WHERE
-        1 = 1 -- AND address = 'AZ2KKAHF2PJMEEUVN4E2ILMNJCSZLJJYVLBIA7HOY3BQ7AENOVVTXMGN3I' -- AND address IN (
+        1 = 1 -- AND address = 'AZ2KKAHF2PJMEEUVN4E2ILMNJCSZLJJYVLBIA7HOY3BQ7AENOVVTXMGN3I'
+        -- AND address IN (
         --     'BQZA4KC2TGQS27X3ZS4VVJSH3PZD3CZXGSYN5OXPQJLHZ6VBT5IVKT7FKU',
         --     'ZCHLS5Q23KHCND2X6GQWUL3YXJ2K2CMYN2RTKOKX6R4TMZYCDY7ABQRHRA',
         --     '6EWTIUDZGKHUOHK6H3HKRLWD4DKUVJIQ3ENFPPA476LHWM7BMA3TS6NSSQ',
         --     'BQZA4KC2TGQS27X3ZS4VVJSH3PZD3CZXGSYN5OXPQJLHZ6VBT5IVKT7FKU',
-        --     'DO4EJV2M2YMFPZA64QMPTJN6SMJBRMBNFBL4MDB44KQ2TJ46LSYKKYCUMQ'
+        --     'DO4EJV2M2YMFPZA64QMPTJN6SMJBRMBNFBL4MDB44KQ2TJ46LSYKKYCUMQ',
+        --     'AZ2KKAHF2PJMEEUVN4E2ILMNJCSZLJJYVLBIA7HOY3BQ7AENOVVTXMGN3I'
         -- )
 ),
 cte_my_date AS (
@@ -207,12 +209,21 @@ WHERE
             block_timestamp
         FROM
             closes
+        UNION ALL
+        SELECT
+            address,
+            0 amount,
+            1 block_id,
+            0 intra,
+            min_block_date AS block_timestamp
+        FROM
+            address_ranges
     ),
     dailysummed_balances AS(
         SELECT
             block_timestamp :: DATE AS DATE,
             address,
-            SUM(COALESCE(amount, 0)) AS amount
+            SUM(amount) AS amount
         FROM
             all_actions
         GROUP BY
@@ -260,10 +271,7 @@ balance_tmp AS (
     SELECT
         d.date,
         d.address AS address,
-        COALESCE(
-            b.balance,
-            0
-        ) AS balance
+        b.balance
     FROM
         (
             SELECT

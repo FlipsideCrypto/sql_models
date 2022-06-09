@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: silver_algorand__balances
+  - name: silver_algorand__daily_balances
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
