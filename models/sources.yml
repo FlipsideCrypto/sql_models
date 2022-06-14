@@ -78,6 +78,7 @@ sources:
       - name: midgard_constants
       - name: midgard_errata_events
       - name: midgard_fee_events
+      - name: fee_events_pk_count
       - name: midgard_gas_events
       - name: midgard_inactive_vault_events
       - name: midgard_message_events
