@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: solana__dim_nft_metadata
-    description: Records with metadata for known nfts
+    description: deprecating soon - please migrate query to solana database by changing 'from' statements from `flipside_prod_db.solana.<table>` to `solana.core.<table>`
     columns:
       - name: BLOCKCHAIN
         description: In this table, always Solana. Used to join to cross-chain tables. 

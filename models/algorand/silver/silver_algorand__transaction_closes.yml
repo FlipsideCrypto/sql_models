@@ -1,33 +1,32 @@
 version: 2
 models:
-  - name: thorchain__gas_events
+  - name: silver_algorand__transaction_closes
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - BLOCK_ID
-            - ASSET
+            - INTRA
+            - ACCOUNT
+            - ASSET_ID
     columns:
-      - name: BLOCK_TIMESTAMP::DATE
-        tests:
-          - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null
       - name: BLOCK_ID
         tests:
           - not_null
-      - name: RUNE_E8
+      - name: INTRA
         tests:
           - not_null
-      - name: TX_COUNT
+      - name: TX_ID
         tests:
           - not_null
-      - name: ASSET
+      - name: ACCOUNT
         tests:
           - not_null
-      - name: ASSET_E8
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: AMOUNT
         tests:
           - not_null
