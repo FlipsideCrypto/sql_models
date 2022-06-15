@@ -11,10 +11,7 @@ WITH base AS (
         tx_ID,
         DATA
     FROM
-        {{ source(
-            'algorand_db_external',
-            'algorand_indexer_tx'
-        ) }}
+        {{ ref('silver_algorand__indexer_tx') }}
 
 {% if is_incremental() %}
 WHERE
