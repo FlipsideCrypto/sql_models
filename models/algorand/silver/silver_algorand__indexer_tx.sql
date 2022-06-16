@@ -20,8 +20,7 @@ WHERE
     1 = 1
 
 {% if is_incremental() %}
-_PARTITION_BY_DATE
-AND >= (
+AND _PARTITION_BY_DATE >= (
     SELECT
         MAX(
             _PARTITION_BY_DATE
