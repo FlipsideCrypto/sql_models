@@ -68,5 +68,9 @@ SELECT collection
 , ROUND(CASE WHEN new_fair_market_price < floor_price THEN floor_price ELSE new_fair_market_price END, 2) AS fair_market_price
 , ROUND(CASE WHEN new_fair_market_price - cur_sd < floor_price * 0.975 THEN floor_price * 0.975 ELSE new_fair_market_price - cur_sd END, 2) AS price_low
 , ROUND(CASE WHEN new_fair_market_price + cur_sd < floor_price * 1.025 THEN floor_price * 1.025 ELSE new_fair_market_price + cur_sd END, 2) AS price_high
-FROM base6
+FROM 
+  base6
+WHERE
+  mint IS NOT NULL
+  AND mint <> 'None'
 
