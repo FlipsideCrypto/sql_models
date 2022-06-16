@@ -44,6 +44,7 @@ WITH base AS (
   , ROW_NUMBER() OVER (PARTITION BY collection, token_id ORDER BY created_at_timestamp DESC) AS rn
   FROM {{ source('solana', 'dim_nft_metadata') }}
   WHERE mint IS NOT NULL
+  AND mint <> 'None'
 ), base5 AS (
   SELECT b2.*
   , m.mint

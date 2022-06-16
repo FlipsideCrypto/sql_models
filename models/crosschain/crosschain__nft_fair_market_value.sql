@@ -15,3 +15,5 @@ SELECT
     , price_high
 FROM 
     {{ ref('silver_crosschain__nft_fair_market_value') }}
+WHERE 
+    mint IS NOT NULL
