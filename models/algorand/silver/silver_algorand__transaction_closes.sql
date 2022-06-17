@@ -15,14 +15,7 @@ WITH base AS (
 
 {% if is_incremental() %}
 WHERE
-    _PARTITION_BY_DATE >= (
-        SELECT
-            MAX(
-                _PARTITION_BY_DATE
-            )
-        FROM
-            {{ this }}
-    )
+    _PARTITION_BY_DATE >= CURRENT_DATE -2
 {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY tx_id
