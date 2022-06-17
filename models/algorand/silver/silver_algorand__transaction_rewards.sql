@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     unique_key = "CONCAT_WS('-', block_id, intra, account)",
-    incremental_strategy = 'delete+insert',
+    incremental_strategy = 'merge',
     cluster_by = ['block_timestamp::DATE']
 ) }}
 
@@ -15,7 +15,14 @@ WITH base AS (
 
 {% if is_incremental() %}
 WHERE
-    _PARTITION_BY_DATE >= CURRENT_DATE -2
+    _PARTITION_BY_DATE >= (
+        SELECT
+            MAX(
+                _PARTITION_BY_DATE
+            )
+        FROM
+            {{ this }}
+    )
 {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY tx_id
