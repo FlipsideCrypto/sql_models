@@ -1,14 +1,14 @@
 {{ config(
     materialized = 'incremental',
     unique_key = 'TX_ID',
-    incremental_strategy = 'delete+insert',
+    incremental_strategy = 'merge',
     cluster_by = ['_PARTITION_BY_DATE::DATE']
 ) }}
 
 SELECT
     tx_id,
     account_id,
-    DATA :"confirmed-round" :: STRING AS block_id,
+    DATA :"confirmed-round" :: INT AS block_id,
     DATA,
     _PARTITION_BY_DATE
 FROM
