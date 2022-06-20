@@ -22,6 +22,16 @@ WITH base AS (
     AND p.pool_deduct = f.pool_deduct
     AND p.block_timestamp = f.block_timestamp
     AND p.tx = f.tx
+
+	{% if is_incremental() %}
+	WHERE
+	__HEVO_loaded_at >= (
+		SELECT
+		MAX(__HEVO_loaded_at)
+		FROM
+		{{ this }}
+	)
+	{% endif %}
 )
 SELECT 
   asset,
