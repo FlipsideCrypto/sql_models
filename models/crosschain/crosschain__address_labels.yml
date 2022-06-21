@@ -13,7 +13,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana']
+              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana', 'moonriver', 'avalanche', 'bittorrent', 'cronos', 'fantom', 'arbitrum', 'aurora']
       - name: CREATOR
         description: The name of the creator of the label
         tests:
@@ -27,7 +27,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin']
+              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin', 'project']
       - name: LABEL_SUBTYPE
         description: A sub-category nested within label type providing further detail
         tests:
@@ -42,7 +42,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-              where: BLOCKCHAIN in ('ethereum','polygon')
+              where: BLOCKCHAIN in ('ethereum','polygon', 'moonriver', 'avalanche', 'bittorrent', 'cronos', 'fantom', 'arbitrum', 'aurora')
               enabled: False
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-z]{39,39}
