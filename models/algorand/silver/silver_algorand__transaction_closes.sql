@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', block_id, intra, account)",
+    unique_key = "_unique_key",
     incremental_strategy = 'merge',
     cluster_by = ['block_timestamp::DATE']
 ) }}
@@ -9,13 +9,21 @@ WITH base AS (
 
     SELECT
         tx_ID,
-        DATA
+        DATA,
+        _PARTITION_BY_DATE AS _ingested_at
     FROM
         {{ ref('silver_algorand__indexer_tx') }}
 
 {% if is_incremental() %}
 WHERE
-    _PARTITION_BY_DATE >= CURRENT_DATE -2
+    _PARTITION_BY_DATE >= (
+        SELECT
+            MAX(
+                _ingested_at
+            )
+        FROM
+            {{ this }}
+    )
 {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY tx_id
@@ -35,7 +43,8 @@ inner_outer AS (
         COALESCE(
             e.this :"close-remainder-to",
             e.this :"close-to"
-        ) :: STRING account
+        ) :: STRING account,
+        _ingested_at
     FROM
         base A,
         LATERAL FLATTEN(
@@ -54,7 +63,15 @@ SELECT
     A.tx_id,
     A.account,
     A.asset_id,
-    SUM(amount) amount
+    SUM(amount) amount,
+    concat_ws(
+        '-',
+        A.block_id,
+        A.intra,
+        A.account,
+        A.asset_ID
+    ) AS _unique_key,
+    _ingested_at
 FROM
     inner_outer A
     JOIN {{ ref('silver_algorand__block') }}
@@ -66,4 +83,6 @@ GROUP BY
     A.block_id,
     A.tx_id,
     A.account,
-    A.asset_id
+    A.asset_id,
+    _unique_key,
+    _ingested_at
