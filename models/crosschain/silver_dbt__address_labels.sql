@@ -143,3 +143,4 @@ WHERE
   )
   AND project_name IS NOT NULL
   AND address_name IS NOT NULL
+  AND l1_label <> 'project'

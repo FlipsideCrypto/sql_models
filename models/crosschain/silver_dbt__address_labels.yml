@@ -13,7 +13,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana', 'moonriver', 'avalanche', 'bittorrent', 'cronos', 'fantom', 'arbitrum', 'aurora']
+              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana', 'moonriver', 'avalanche', 'bittorrent', 'cronos', 'fantom', 'arbitrum', 'aurora', 'bsc', 'heco']
       - name: CREATOR
         description: The name of the creator of the label
         tests:
@@ -27,7 +27,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin', 'project']
+              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin']
       - name: L2_LABEL
         description: A sub-category nested within label type providing further detail
         tests:
