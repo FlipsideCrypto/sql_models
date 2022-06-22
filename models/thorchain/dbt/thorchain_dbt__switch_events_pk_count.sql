@@ -4,17 +4,11 @@
 ) }}
 
 SELECT
-  COALESCE(tx, '') AS tx,
-  COALESCE(from_addr, '') AS from_addr,
-  COALESCE(to_addr, '') AS to_addr,
-  COALESCE(burn_asset, '') AS burn_asset,
-  burn_e8,
-  mint_e8,
-  block_timestamp
+  *
 FROM
   {{ source(
     'thorchain_midgard',
-    'midgard_switch_events'
+    'switch_events_pk_count'
   ) }}
 
 {% if is_incremental() %}
