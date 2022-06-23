@@ -18,7 +18,7 @@ models:
       - name: DATA
         tests:
           - not_null
-      - name: _PARTITION_BY_DATE
+      - name: _INSERTED_TIMESTAMP
         tests:
           - not_null
 

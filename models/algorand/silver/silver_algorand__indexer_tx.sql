@@ -2,32 +2,53 @@
     materialized = 'incremental',
     unique_key = 'TX_ID',
     incremental_strategy = 'merge',
-    cluster_by = ['_PARTITION_BY_DATE::DATE']
+    cluster_by = ['_INSERTED_TIMESTAMP::DATE']
 ) }}
 
+WITH meta AS (
+
+    SELECT
+        last_modified,
+        file_name
+    FROM
+        TABLE(
+            information_schema.external_table_files(
+                table_name => '{{ source(
+        'algorand_db_external',
+        'algorand_indexer_tx'
+    ) }}'
+            )
+        ) A
+    GROUP BY
+        last_modified,
+        file_name
+)
 SELECT
     tx_id,
     account_id,
     DATA :"confirmed-round" :: INT AS block_id,
     DATA,
-    _PARTITION_BY_DATE
+    last_modified AS _INSERTED_TIMESTAMP
 FROM
     {{ source(
         'algorand_db_external',
         'algorand_indexer_tx'
     ) }}
-WHERE
-    1 = 1
+    JOIN meta b
+    ON b.file_name = metadata$filename
 
 {% if is_incremental() %}
-AND _PARTITION_BY_DATE >= (
+CROSS JOIN (
     SELECT
         MAX(
-            _PARTITION_BY_DATE
-        )
+            _INSERTED_TIMESTAMP
+        ) max_INSERTED_TIMESTAMP
     FROM
         {{ this }}
-)
+) max_date
+WHERE
+    _PARTITION_BY_DATE >= max_INSERTED_TIMESTAMP :: DATE
+    AND b.last_modified > max_INSERTED_TIMESTAMP
 {% endif %}
 
 qualify(ROW_NUMBER() over (PARTITION BY tx_id

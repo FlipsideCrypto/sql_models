@@ -16,12 +16,12 @@ WITH base AS (
         block_id < 21046789
 
 {% if is_incremental() %}
-AND _PARTITION_BY_DATE >= CURRENT_DATE -2
+AND _INSERTED_TIMESTAMP >= CURRENT_DATE -2
 {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY tx_id
 ORDER BY
-    _PARTITION_BY_DATE DESC)) = 1
+    _INSERTED_TIMESTAMP DESC)) = 1
 ),
 inner_outer AS (
     SELECT
