@@ -10,16 +10,16 @@ WITH base AS (
     SELECT
         tx_ID,
         DATA,
-        _PARTITION_BY_DATE AS _ingested_at
+        _INSERTED_TIMESTAMP
     FROM
         {{ ref('silver_algorand__indexer_tx') }}
 
 {% if is_incremental() %}
 WHERE
-    _PARTITION_BY_DATE >= (
+    _INSERTED_TIMESTAMP >= (
         SELECT
             MAX(
-                _ingested_at
+                _INSERTED_TIMESTAMP
             )
         FROM
             {{ this }}
@@ -28,7 +28,7 @@ WHERE
 
 qualify(ROW_NUMBER() over(PARTITION BY tx_id
 ORDER BY
-    _PARTITION_BY_DATE DESC)) = 1
+    _INSERTED_TIMESTAMP DESC)) = 1
 ),
 inner_outer AS (
     SELECT
@@ -44,7 +44,7 @@ inner_outer AS (
             e.this :"close-remainder-to",
             e.this :"close-to"
         ) :: STRING account,
-        _ingested_at
+        _INSERTED_TIMESTAMP
     FROM
         base A,
         LATERAL FLATTEN(
@@ -71,7 +71,7 @@ SELECT
         A.account,
         A.asset_ID
     ) AS _unique_key,
-    _ingested_at
+    a._INSERTED_TIMESTAMP
 FROM
     inner_outer A
     JOIN {{ ref('silver_algorand__block') }}
@@ -85,4 +85,4 @@ GROUP BY
     A.account,
     A.asset_id,
     _unique_key,
-    _ingested_at
+    a._INSERTED_TIMESTAMP
