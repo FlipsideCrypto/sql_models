@@ -13,16 +13,24 @@ WITH meta AS (
     FROM
         TABLE(
             information_schema.external_table_files(
-                table_name => '{{ source(
-        'algorand_db_external',
-        'algorand_indexer_tx'
-    ) }}'
+                table_name => '{{ source( 'algorand_db_external', 'algorand_indexer_tx' ) }}'
             )
         ) A
     GROUP BY
         last_modified,
         file_name
 )
+
+{% if is_incremental() %},
+max_date AS (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        ) max_INSERTED_TIMESTAMP
+    FROM
+        {{ this }}
+)
+{% endif %}
 SELECT
     tx_id,
     account_id,
@@ -38,17 +46,19 @@ FROM
     ON b.file_name = metadata$filename
 
 {% if is_incremental() %}
-CROSS JOIN (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        ) max_INSERTED_TIMESTAMP
-    FROM
-        {{ this }}
-) max_date
 WHERE
-    _PARTITION_BY_DATE >= max_INSERTED_TIMESTAMP :: DATE
-    AND b.last_modified > max_INSERTED_TIMESTAMP
+    _PARTITION_BY_DATE >= (
+        SELECT
+            max_INSERTED_TIMESTAMP :: DATE
+        FROM
+            max_date
+    )
+    AND b.last_modified > (
+        SELECT
+            max_INSERTED_TIMESTAMP
+        FROM
+            max_date
+    )
 {% endif %}
 
 qualify(ROW_NUMBER() over (PARTITION BY tx_id
