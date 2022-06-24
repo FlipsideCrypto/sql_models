@@ -15,7 +15,7 @@ WITH base AS (
   FROM
     {{ ref('thorchain_dbt__fee_events') }}
     f
-    JOIN {{ ref('thorchain_dbt__fee_events_pk_count') }}
+    LEFT JOIN {{ ref('thorchain_dbt__fee_events_pk_count') }}
     p
     ON p.asset = f.asset 
     AND p.asset_e8 = f.asset_e8
@@ -41,4 +41,4 @@ SELECT
   tx
 FROM
   base
-  WHERE rn <= cnt
+  WHERE rn <= COALESCE(cnt, 1)
