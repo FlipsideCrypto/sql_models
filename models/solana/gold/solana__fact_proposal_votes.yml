@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: solana__fact_proposal_votes
-    description: Records with votes delegated to a proposal.  Specific to MARINADE at this time.
+    description: deprecating soon - please migrate query to solana database by changing 'from' statements from `flipside_prod_db.solana.<table>` to `solana.core.<table>`
     columns:
       - name: PROGRAM_NAME
         description: "name of solana program"

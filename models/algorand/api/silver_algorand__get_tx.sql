@@ -21,7 +21,4 @@ SELECT
   account_id,
   tx_id
 FROM
-  {{ source(
-    "algorand_db_external",
-    "algorand_indexer_tx"
-  ) }}
+  {{ ref("silver_algorand__indexer_tx") }}

@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', block_id, intra, account)",
-    incremental_strategy = 'delete+insert',
+    unique_key = "_unique_key",
+    incremental_strategy = 'merge',
     cluster_by = ['block_timestamp::DATE']
 ) }}
 
@@ -11,19 +11,17 @@ WITH base AS (
         tx_ID,
         DATA
     FROM
-        {{ source(
-            'algorand_db_external',
-            'algorand_indexer_tx'
-        ) }}
+        {{ ref('silver_algorand__indexer_tx') }}
+    WHERE
+        block_id < 21046789
 
 {% if is_incremental() %}
-WHERE
-    _PARTITION_BY_DATE >= CURRENT_DATE -2
+AND _INSERTED_TIMESTAMP >= CURRENT_DATE -2
 {% endif %}
 
 qualify(ROW_NUMBER() over(PARTITION BY tx_id
 ORDER BY
-    _PARTITION_BY_DATE DESC)) = 1
+    _INSERTED_TIMESTAMP DESC)) = 1
 ),
 inner_outer AS (
     SELECT
@@ -57,7 +55,13 @@ SELECT
     A.block_id,
     A.tx_id,
     A.account,
-    SUM(amount) amount
+    SUM(amount) amount,
+    concat_ws(
+        '-',
+        A.block_id,
+        A.intra,
+        A.account
+    ) AS _unique_key
 FROM
     (
         SELECT
@@ -90,4 +94,5 @@ GROUP BY
     A.intra,
     A.block_id,
     A.tx_id,
-    A.account
+    A.account,
+    _unique_key

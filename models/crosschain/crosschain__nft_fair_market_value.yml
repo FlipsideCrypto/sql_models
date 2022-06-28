@@ -1,0 +1,44 @@
+version: 2
+models:
+  - name: crosschain__nft_fair_market_value
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - mint
+    columns:
+      - name: COLLECTION
+        description: The name of the collection
+        tests:
+          - not_null
+      - name: MINT
+        description: The mint address
+        tests:
+          - not_null
+      - name: TOKEN_ID
+        description: The numeric token id of the collection
+        tests:
+          - not_null
+      - name: DEAL_SCORE_RANK
+        description: The rank of the NFT within the collection based on deal score
+        tests:
+          - not_null
+      - name: RARITY_RANK
+        description: The rank of the NFT within the collection based on rarity
+        tests:
+          - not_null
+      - name: FLOOR_PRICE
+        description: The current floor price of the collection
+        tests:
+          - not_null
+      - name: FAIR_MARKET_PRICE
+        description: The fair market price of the NFT based on deal score's calculations
+        tests:
+          - not_null
+      - name: PRICE_LOW
+        description: The lower range of what this NFT would sell for
+        tests:
+          - not_null
+      - name: PRICE_HIGH
+        description: The upper range of what this NFT would sell for
+        tests:
+          - not_null
