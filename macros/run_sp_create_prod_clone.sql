@@ -1,6 +1,6 @@
 {% macro run_sp_create_prod_clone() %}
     {% set clone_query %}
-    call osmosis._internal.create_prod_clone(
+    call algorand._internal.create_prod_clone(
         'algorand',
         'algorand_dev',
         'internal_dev'
