@@ -1,0 +1,244 @@
+version: 2
+
+sources:
+  - name: shared
+    schema: silver
+    tables:
+      - name: prices
+      - name: prices_v2
+      - name: cmc_assets
+      - name: market_asset_metadata
+      - name: coingecko_prices
+      - name: hours
+      - name: udm_address_labels
+      - name: udm_address_labels_new
+      - name: udm_address_tags
+      - name: udm_balances
+      - name: udm_decimal_adjustments
+      - name: udm_velocity
+      - name: uniswapv2factory_event_paircreated
+      - name: flow_balances
+      - name: near_balances
+      - name: algorand_balances
+      - name: terra_balances
+  - name: ethereum
+    schema: silver
+    tables:
+      - name: ethereum_balances
+      - name: ethereum_contracts
+      - name: ethereum_contracts_backfill
+      - name: daily_ethereum_token_balances
+      - name: ethereum_address_labels
+      - name: ethereum_address_labels_updates
+      - name: ethereum_contract_decimal_adjustments
+      - name: ethereum_decoded_log_methods
+      - name: ethereum_events
+      - name: ethereum_events_emitted
+      - name: ethereum_proxy_contract_registry
+      - name: ethereum_reads
+      - name: ethereum_transactions
+      - name: ethereum_token_balances
+      - name: ethereum_token_contracts
+      - name: sha256_function_signatures
+      - name: nft_metadata
+  - name: flow
+    schema: redshift
+    tables:
+      - name: daily_flow_staked_balances
+      - name: udm_daily_balances_flow
+      - name: udm_events_flow
+
+  - name: uniswapv3_eth
+    schema: silver
+    tables:
+      - name: rinkeby_uniswapv3_liquidity_actions
+      - name: rinkeby_uniswapv3_pools
+      - name: rinkeby_uniswapv3_pool_stats
+      - name: rinkeby_uniswapv3_positions
+      - name: rinkeby_uniswapv3_swaps
+      - name: uniswapv3_liquidity_actions
+      - name: uniswapv3_pools
+      - name: uniswapv3_pool_stats
+      - name: uniswapv3_positions
+      - name: uniswapv3_swaps
+  - name: gold
+    schema: gold
+    tables:
+      - name: flow_delegator_addresses
+      - name: terra_vesting_schedule
+  - name: thorchain_midgard
+    schema: BRONZE_MIDGARD_2_6_9_20220405
+    tables:
+      - name: midgard_active_vault_events
+      - name: midgard_add_events
+      - name: midgard_asgard_fund_yggdrasil_events
+      - name: midgard_block_log
+      - name: midgard_block_pool_depths
+      - name: midgard_bond_events
+      - name: bond_events_pk_count
+      - name: midgard_constants
+      - name: midgard_errata_events
+      - name: midgard_fee_events
+      - name: fee_events_pk_count
+      - name: midgard_gas_events
+      - name: midgard_inactive_vault_events
+      - name: midgard_message_events
+      - name: midgard_new_node_events
+      - name: midgard_outbound_events
+      - name: midgard_pending_liquidity_events
+      - name: midgard_pool_balance_change_events
+      - name: midgard_pool_events
+      - name: midgard_refund_events
+      - name: midgard_reserve_events
+      - name: midgard_rewards_event_entries
+      - name: midgard_rewards_events
+      - name: midgard_set_ip_address_events
+      - name: midgard_set_mimir_events
+      - name: midgard_set_node_keys_events
+      - name: midgard_set_version_events
+      - name: midgard_slash_amounts
+      - name: midgard_stake_events
+      - name: midgard_swap_events
+      - name: midgard_switch_events
+      - name: switch_events_pk_count
+      - name: midgard_thorname_change_events
+      - name: midgard_transfer_events
+      - name: midgard_unstake_events
+      - name: midgard_update_node_account_status_events
+      - name: midgard_validator_request_leave_events
+  - name: terra
+    schema: silver
+    tables:
+      - name: udm_daily_balances_terra
+      - name: terra_validator_voting_power
+      - name: udm_custom_fields_terra_tax_rate # TODO: drop table as it is not being referenced in dbt anymore.
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: prod_matic_sink_510901820
+      - name: prod_terra_sink_645110886
+      - name: prod_terra_api
+      - name: algorand_api
+      - name: prod_address_label_sink_291098491
+      - name: prod_ethereum_sink_407559501
+      - name: JIM_TEST_REST_PROXY_1507016047
+      - name: prod_nft_metadata_uploads_1828572827
+      - name: prod_data_science_uploads_1748940988
+  - name: crosschain
+    schema: silver_crosschain
+    tables:
+      - name: address_labels
+  - name: near
+    schema: redshift
+    tables:
+      - name: near_validators
+      - name: near_daily_reward_flow
+      - name: near_delegator_counts
+      - name: udm_events_near
+  - name: near_silver
+    schema: silver_near
+    tables:
+      - name: daily_balances
+  - name: algorand
+    schema: BRONZE_ALGORAND_2_8_0__HEVO_PARALLEL
+    tables:
+      - name: ACCOUNT
+      - name: ACCOUNT_APP
+      - name: ACCOUNT_ASSET
+      - name: APP
+      - name: ASSET
+      - name: BLOCK_HEADER
+      - name: METASTATE
+      - name: TXN
+      - name: TXN_PARTICIPATION
+  - name: prod
+    database: chainwalkers
+    schema: prod
+    tables:
+      - name: solana_blocks
+      - name: solana_txs
+      - name: ethereum_blocks
+      - name: ethereum_txs
+  - name: solana
+    database: solana
+    schema: core
+    tables:
+      - name: dim_labels
+      - name: dim_nft_metadata
+      - name: fact_blocks
+      - name: fact_events
+      - name: fact_gauges_votes
+      - name: fact_gov_actions
+      - name: fact_nft_mints
+      - name: fact_nft_sales
+      - name: fact_proposal_votes
+      - name: fact_staking_lp_actions
+      - name: fact_swaps
+      - name: fact_transactions
+      - name: fact_transfers
+      - name: fact_votes_agg_block
+  - name: ethereum_db
+    database: ethereum
+    schema: core
+    tables:
+      - name: dim_contracts
+      - name: dim_dates
+      - name: dim_labels
+      - name: fact_blocks
+      - name: fact_event_logs
+      - name: fact_hourly_token_prices
+      - name: fact_token_transfers
+      - name: fact_transactions
+      - name: ez_token_transfers
+      - name: dim_dex_liquidity_pools
+      - name: ez_dex_swaps
+      - name: ez_nft_sales
+      - name: ez_nft_mints
+      - name: ez_nft_transfers
+      - name: fact_traces
+  - name: ethereum_db_sushi
+    database: ethereum
+    schema: sushi
+    tables:
+      - name: ez_swaps
+      - name: dim_distributor_reward_schedule
+  - name: ethereum_db_external
+    database: ethereum
+    schema: silver
+    tables:
+      - name: nft_metadata_api
+  - name: algorand_db_external
+    schema: bronze
+    loader: S3
+    tables:
+      - name: algorand_indexer_tx
+        external:
+          location: "@{{ target.database }}.bronze.ANALYTICS_EXTERNAL_TABLES/ALGORAND_INDEXER_{{ target.name }}/TX"
+          file_format: "( type = json, strip_outer_array = TRUE )"
+          auto_refresh: false
+          partitions:
+            - name: _partition_by_date
+              data_type: date
+              expression: to_date(split_part(metadata$filename, '/', 3) || split_part(metadata$filename, '/', 4) || split_part(metadata$filename, '/', 5), 'YYYYMMDD')
+        columns:
+          - name: account_id
+            data_type: string
+            description: "account_id used in request"
+            expression: value:account_id::string
+          - name: tx_id
+            data_type: string
+            description: "txid used in request"
+            expression: value:tx_id::string
+          - name: metadata
+            data_type: variant
+            description: "raw indexer response"
+            expression: value:metadata::variant
+          - name: data
+            data_type: variant
+            description: "raw indexer response"
+            expression: value:data::variant
+  - name: Harmony_db
+    database: HARMONY
+    schema: PROD
+    tables:
+      - name: EZ_SUSHI_SWAPS
