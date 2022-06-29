@@ -1,5 +1,6 @@
 {{ config(
-  materialized = 'view',
+  materialized = 'incremental',
+  incremental_strategy = 'delete+insert',
   tags = ['snowflake', 'thorchain', 'slash_points']
 ) }}
 
@@ -17,6 +18,8 @@ FROM
   INNER JOIN {{ ref('silver_thorchain__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp
+
 {% if is_incremental() %}
-WHERE e.block_timestamp >= getdate() - INTERVAL '5 days'
+WHERE
+  e.block_timestamp >= getdate() - INTERVAL '5 days'
 {% endif %}
