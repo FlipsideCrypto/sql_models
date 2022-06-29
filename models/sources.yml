@@ -97,6 +97,7 @@ sources:
       - name: midgard_set_node_keys_events
       - name: midgard_set_version_events
       - name: midgard_slash_amounts
+      - name: midgard_slash_points
       - name: midgard_stake_events
       - name: midgard_swap_events
       - name: midgard_switch_events
