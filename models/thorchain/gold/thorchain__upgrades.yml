@@ -30,3 +30,10 @@ models:
         tests:
           - not_null:
               where: BLOCK_TIMESTAMP <= SYSDATE() - interval '2 day' AND BLOCK_TIMESTAMP >= '2021-04-13'
+      - name: MINT_AMOUNT
+        tests:
+          - not_null
+      - name: MINT_AMOUNT_USD
+        tests:
+          - not_null:
+              where: BLOCK_TIMESTAMP <= SYSDATE() - interval '2 day' AND BLOCK_TIMESTAMP >= '2021-04-13'

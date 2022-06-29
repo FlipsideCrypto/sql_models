@@ -10,6 +10,7 @@ SELECT
   bl.height AS block_id,
   e.burn_asset,
   e.burn_e8,
+  e.mint_e8,
   e.to_addr AS to_address,
   e.from_addr AS from_address,
   e.tx
@@ -19,11 +20,3 @@ FROM
   INNER JOIN {{ ref('silver_thorchain__block_log') }}
   bl
   ON bl.timestamp = e.block_timestamp
-GROUP BY
-  block_timestamp,
-  block_id,
-  burn_asset,
-  burn_e8,
-  to_address,
-  tx,
-  from_address

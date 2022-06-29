@@ -17,3 +17,6 @@ models:
       - name: BURN_E8
         tests:
           - not_null
+      - name: MINT_E8
+        tests:
+          - not_null

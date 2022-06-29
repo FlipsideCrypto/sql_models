@@ -29,7 +29,15 @@ SELECT
   burn_e8 / pow(
     10,
     8
-  ) * rune_usd AS rune_amount_usd
+  ) * rune_usd AS rune_amount_usd,
+  mint_e8 / pow(
+    10,
+    8
+  ) AS mint_amount,
+  mint_e8 / pow(
+    10,
+    8
+  ) * rune_usd AS mint_amount_usd
 FROM
   {{ ref('thorchain__switch_events') }}
   se
