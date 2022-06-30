@@ -125,7 +125,10 @@ WHERE
     reward AS (
         SELECT
             A.account AS address,
-            A.amount,
+            A.amount / pow(
+                10,
+                6
+            ) AS amount,
             A.block_id,
             A.intra,
             A.block_timestamp
@@ -146,7 +149,13 @@ WHERE
     closes AS (
         SELECT
             A.account AS address,
-            A.amount,
+            CASE
+                WHEN asa.decimals > 0 THEN A.amount / pow(
+                    10,
+                    asa.decimals
+                )
+                WHEN asa.decimals = 0 THEN A.amount
+            END AS amount,
             A.block_id,
             A.intra,
             A.block_timestamp
@@ -154,6 +163,9 @@ WHERE
             {{ ref('silver_algorand__transaction_closes') }} A
             JOIN address_ranges b
             ON A.account = b.address
+            LEFT JOIN {{ ref('silver_algorand__asset') }}
+            asa
+            ON A.asset_id = asa.asset_id
 
 {% if is_incremental() %}
 WHERE
