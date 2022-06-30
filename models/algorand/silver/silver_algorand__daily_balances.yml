@@ -2,10 +2,6 @@ version: 2
 models:
   - name: silver_algorand__daily_balances
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - ADDRESS
-            - Date
     columns:
       - name: ADDRESS
         tests:
@@ -13,9 +9,6 @@ models:
       - name: DATE
         tests:
           - not_null
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
       - name: BALANCE
         tests:
           - not_null

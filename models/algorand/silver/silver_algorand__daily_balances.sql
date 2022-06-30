@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', address, date)",
-    incremental_strategy = 'delete+insert',
+    unique_key = "_unique_key",
+    incremental_strategy = 'merge',
     cluster_by = ['date'],
 ) }}
 
@@ -244,9 +244,15 @@ WHERE
                 SELECT
                     DATE,
                     address,
-                    amount
+                    SUM(amount) amount
                 FROM
-                    dailysummed_balances
+                    (
+                        SELECT
+                            DATE,
+                            address,
+                            amount
+                        FROM
+                            dailysummed_balances
 
 {% if is_incremental() %}
 UNION ALL
@@ -265,7 +271,11 @@ WHERE
         ORDER BY
             DATE DESC) = 1)
         {% endif %}
-    ) x
+    ) z
+GROUP BY
+    DATE,
+    address
+) x
 ),
 balance_tmp AS (
     SELECT
@@ -299,7 +309,12 @@ SELECT
         PARTITION BY address
         ORDER BY
             DATE ASC rows unbounded preceding
-    ) AS balance
+    ) AS balance,
+    concat_ws(
+        '-',
+        address,
+        DATE
+    ) AS _unique_key
 FROM
     balance_tmp
 ORDER BY

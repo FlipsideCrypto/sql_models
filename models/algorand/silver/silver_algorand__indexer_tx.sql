@@ -44,21 +44,22 @@ FROM
     ) }}
     JOIN meta b
     ON b.file_name = metadata$filename
+WHERE
+    tx_id IS NOT NULL
 
 {% if is_incremental() %}
-WHERE
-    _PARTITION_BY_DATE >= (
-        SELECT
-            max_INSERTED_TIMESTAMP :: DATE
-        FROM
-            max_date
-    )
-    AND b.last_modified > (
-        SELECT
-            max_INSERTED_TIMESTAMP
-        FROM
-            max_date
-    )
+AND _PARTITION_BY_DATE >= (
+    SELECT
+        max_INSERTED_TIMESTAMP :: DATE
+    FROM
+        max_date
+)
+AND b.last_modified > (
+    SELECT
+        max_INSERTED_TIMESTAMP
+    FROM
+        max_date
+)
 {% endif %}
 
 qualify(ROW_NUMBER() over (PARTITION BY tx_id
