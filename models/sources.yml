@@ -243,3 +243,8 @@ sources:
     schema: PROD
     tables:
       - name: EZ_SUSHI_SWAPS
+  - name: polygon
+    database: POLYGON
+    schema: SUSHI
+    tables:
+      - name: EZ_SWAPS 
