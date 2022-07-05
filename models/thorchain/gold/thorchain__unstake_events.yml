@@ -6,6 +6,15 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - TO_ADDRESS
+            - FROM_ADDRESS
+            - ASSET
+            - EMIT_RUNE_E8
+            - ASYMMETRY
+            - ASSET_E8
+            - STAKE_UNITS
+            - MEMO
+            - EMIT_ASSET_E8
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
