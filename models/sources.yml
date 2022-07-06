@@ -203,6 +203,8 @@ sources:
     tables:
       - name: ez_swaps
       - name: dim_distributor_reward_schedule
+      - name: ez_lending
+      - name: ez_borrowing
   - name: ethereum_db_external
     database: ethereum
     schema: silver
@@ -247,4 +249,5 @@ sources:
     database: POLYGON
     schema: SUSHI
     tables:
-      - name: EZ_SWAPS 
+      - name: EZ_SWAPS
+      - name: EZ_LENDING
