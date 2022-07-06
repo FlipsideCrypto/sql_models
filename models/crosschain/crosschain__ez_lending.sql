@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view',
-    tags = ['snowflake', 'crosschain','swaps'],
+    tags = ['snowflake', 'crosschain','lending'],
     persist_docs ={ "relation": true,
     "columns": true }
 ) }}
