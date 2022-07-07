@@ -1,9 +1,5 @@
 
-<<<<<<< HEAD
 target/
-=======
-target/*
->>>>>>> main
 dbt_modules/
 # newer versions of dbt use this directory instead of dbt_modules for test dependencies
 dbt_packages/
