@@ -48,6 +48,10 @@ innertx AS (
       WHEN VALUE :txn :type :: STRING = 'appl' THEN NULL
       WHEN VALUE :txn :type :: STRING = 'pay' THEN 0
       WHEN VALUE :txn :type :: STRING = 'afrz' THEN VALUE :txn :faid :: NUMBER
+      WHEN VALUE :txn :type :: STRING = 'acfg' THEN COALESCE(
+        VALUE :txn :caid :: NUMBER,
+        VALUE :caid :: NUMBER
+      )
       ELSE VALUE :txn :xaid :: STRING
     END AS asset_id,
     VALUE :txn :snd :: text AS sender,
