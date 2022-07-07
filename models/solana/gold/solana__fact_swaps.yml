@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: solana__fact_swaps
-    description: Records with swaps on specific apps
+    description: deprecating soon - please migrate query to solana database by changing 'from' statements from `flipside_prod_db.solana.<table>` to `solana.core.<table>`
     columns:
       - name: SWAP_PROGRAM
         description: name of decentralized exchange used to perform the swap

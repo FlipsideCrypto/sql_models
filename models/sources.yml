@@ -75,9 +75,11 @@ sources:
       - name: midgard_block_log
       - name: midgard_block_pool_depths
       - name: midgard_bond_events
+      - name: bond_events_pk_count
       - name: midgard_constants
       - name: midgard_errata_events
       - name: midgard_fee_events
+      - name: fee_events_pk_count
       - name: midgard_gas_events
       - name: midgard_inactive_vault_events
       - name: midgard_message_events
@@ -95,9 +97,11 @@ sources:
       - name: midgard_set_node_keys_events
       - name: midgard_set_version_events
       - name: midgard_slash_amounts
+      - name: midgard_slash_points
       - name: midgard_stake_events
       - name: midgard_swap_events
       - name: midgard_switch_events
+      - name: switch_events_pk_count
       - name: midgard_thorname_change_events
       - name: midgard_transfer_events
       - name: midgard_unstake_events
@@ -115,6 +119,7 @@ sources:
       - name: prod_matic_sink_510901820
       - name: prod_terra_sink_645110886
       - name: prod_terra_api
+      - name: algorand_api
       - name: prod_address_label_sink_291098491
       - name: prod_ethereum_sink_407559501
       - name: JIM_TEST_REST_PROXY_1507016047
@@ -187,7 +192,7 @@ sources:
       - name: fact_transactions
       - name: ez_token_transfers
       - name: dim_dex_liquidity_pools
-      - name: ez_dex_swaps 
+      - name: ez_dex_swaps
       - name: ez_nft_sales
       - name: ez_nft_mints
       - name: ez_nft_transfers
@@ -198,13 +203,51 @@ sources:
     tables:
       - name: ez_swaps
       - name: dim_distributor_reward_schedule
+      - name: ez_lending
+      - name: ez_borrowing
   - name: ethereum_db_external
     database: ethereum
     schema: silver
     tables:
       - name: nft_metadata_api
+  - name: algorand_db_external
+    schema: bronze
+    loader: S3
+    tables:
+      - name: algorand_indexer_tx
+        external:
+          location: "@{{ target.database }}.bronze.ANALYTICS_EXTERNAL_TABLES/ALGORAND_INDEXER_{{ target.name }}/TX"
+          file_format: "( type = json, strip_outer_array = TRUE )"
+          auto_refresh: false
+          partitions:
+            - name: _partition_by_date
+              data_type: date
+              expression: to_date(split_part(metadata$filename, '/', 3) || split_part(metadata$filename, '/', 4) || split_part(metadata$filename, '/', 5), 'YYYYMMDD')
+        columns:
+          - name: account_id
+            data_type: string
+            description: "account_id used in request"
+            expression: value:account_id::string
+          - name: tx_id
+            data_type: string
+            description: "txid used in request"
+            expression: value:tx_id::string
+          - name: metadata
+            data_type: variant
+            description: "raw indexer response"
+            expression: value:metadata::variant
+          - name: data
+            data_type: variant
+            description: "raw indexer response"
+            expression: value:data::variant
   - name: Harmony_db
     database: HARMONY
     schema: PROD
     tables:
       - name: EZ_SUSHI_SWAPS
+  - name: polygon
+    database: POLYGON
+    schema: SUSHI
+    tables:
+      - name: EZ_SWAPS
+      - name: EZ_LENDING

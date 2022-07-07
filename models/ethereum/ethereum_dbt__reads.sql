@@ -8,17 +8,20 @@
 WITH base_tables AS (
 
   SELECT
-    * 
-
+    *
   FROM
     {{ source(
       'bronze',
-      'prod_ethereum_sink_407559501' 
+      'prod_ethereum_sink_407559501'
     ) }}
   WHERE
-    split(record_content:model:sinks[0]:destination::string,'.')[2]::string = 'ethereum_reads'
-    or
-    record_content:model:name::string like 'ethereum-user-generated%'
+    (
+      SPLIT(
+        record_content :model :sinks [0] :destination :: STRING,
+        '.'
+      ) [2] :: STRING = 'ethereum_reads'
+      OR record_content :model :name :: STRING LIKE 'ethereum-user-generated%'
+    )
 
 {% if is_incremental() %}
 AND (

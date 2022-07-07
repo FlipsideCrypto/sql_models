@@ -6,13 +6,22 @@ models:
           combination_of_columns:
             - TX_ID
             - BLOCK_ID
+            - TO_ADDRESS
+            - FROM_ADDRESS
+            - ASSET
+            - EMIT_RUNE_E8
+            - ASYMMETRY
+            - ASSET_E8
+            - STAKE_UNITS
+            - MEMO
+            - EMIT_ASSET_E8
     columns:
       - name: BLOCK_TIMESTAMP::DATE
         tests:
           - not_null
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
-              interval: 3
+              interval: 1
       - name: BLOCK_TIMESTAMP
         tests:
           - not_null

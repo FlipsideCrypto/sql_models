@@ -110,7 +110,7 @@ metadata AS (
 ),
 coinmarketcap AS (
     SELECT
-        m.symbol,
+        upper(m.symbol) as symbol,
         LOWER(
             m.token_address
         ) AS token_address,
@@ -134,15 +134,11 @@ coinmarketcap AS (
 AND recorded_at >= getdate() - INTERVAL '2 days'
 {% endif %}
 GROUP BY
-    m.symbol,
-    LOWER(
-        m.token_address
-    ),
-    HOUR
+    1,2,3
 ),
 coingecko AS (
     SELECT
-        m.symbol,
+        upper(m.symbol) as symbol,
         LOWER(
             m.token_address
         ) AS token_address,
@@ -166,11 +162,7 @@ coingecko AS (
 AND recorded_at >= getdate() - INTERVAL '2 days'
 {% endif %}
 GROUP BY
-    m.symbol,
-    LOWER(
-        m.token_address
-    ),
-    HOUR
+    1,2,3
 ),
 decimals_old AS (
     SELECT

@@ -13,7 +13,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana']
+              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana', 'moonriver', 'avalanche', 'bittorrent', 'cronos', 'fantom', 'arbitrum', 'aurora', 'bsc', 'heco', 'optimism', 'gnosis', 'thorchain']
       - name: CREATOR
         description: The name of the creator of the label
         tests:
@@ -42,7 +42,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: 0[xX][0-9a-fA-F]+
-              where: BLOCKCHAIN in ('ethereum','polygon')
+              where: BLOCKCHAIN in ('ethereum','polygon', 'moonriver', 'avalanche', 'bittorrent', 'cronos', 'fantom', 'arbitrum', 'aurora')
               enabled: False # Kafka issues being fixed - can't delete labels
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: terra[0-9a-z]{39,39}

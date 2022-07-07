@@ -31,8 +31,7 @@ WITH silver AS (
     virtual_reserves_token1
   FROM
     {{ ref('uniswapv3_dbt__liquidity_actions') }}
-  WHERE
-    1 = 1
+  WHERE sqrt_price_x96 is not null
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
@@ -69,8 +68,7 @@ FROM
     'uniswapv3_eth',
     'uniswapv3_liquidity_actions'
   ) }}
-WHERE
-  1 = 1
+WHERE sqrt_price_x96 is not null
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >= (
