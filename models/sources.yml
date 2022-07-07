@@ -251,3 +251,4 @@ sources:
     tables:
       - name: EZ_SWAPS
       - name: EZ_LENDING
+      - name: EZ_BORROWING  
