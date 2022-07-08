@@ -75,6 +75,7 @@ models:
       - name: ACTION
         description: '{{ doc("crosschain_borrow_action") }}'
 
+
       - name: BORROWER
         description: '{{ doc("crosschain_borrower") }}'
         tests:
