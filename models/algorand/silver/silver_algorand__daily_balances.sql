@@ -166,105 +166,106 @@ WHERE
             LEFT JOIN {{ ref('silver_algorand__asset') }}
             asa
             ON A.asset_id = asa.asset_id
+        WHERE
+            A.asset_id = 0
 
 {% if is_incremental() %}
-WHERE
-    block_timestamp :: DATE >=(
-        SELECT
-            DATEADD('day', -2, MAX(DATE))
-        FROM
-            {{ this }})
-        {% endif %}
-    ),
-    all_actions AS(
-        SELECT
-            address,
-            amount,
-            block_id,
-            intra,
-            block_timestamp
-        FROM
-            senderpay
-        UNION ALL
-        SELECT
-            address,
-            amount,
-            block_id,
-            intra,
-            block_timestamp
-        FROM
-            sendersfee
-        UNION ALL
-        SELECT
-            address,
-            amount,
-            block_id,
-            intra,
-            block_timestamp
-        FROM
-            receivers
-        UNION ALL
-        SELECT
-            address,
-            amount,
-            block_id,
-            intra,
-            block_timestamp
-        FROM
-            reward
-        UNION ALL
-        SELECT
-            address,
-            amount,
-            block_id,
-            intra,
-            block_timestamp
-        FROM
-            closes
-        UNION ALL
-        SELECT
-            address,
-            0 amount,
-            1 block_id,
-            0 intra,
-            min_block_date AS block_timestamp
-        FROM
-            address_ranges
-    ),
-    dailysummed_balances AS(
-        SELECT
-            block_timestamp :: DATE AS DATE,
-            address,
-            SUM(amount) AS amount
-        FROM
-            all_actions
-        GROUP BY
-            block_timestamp :: DATE,
-            address
-    ),
-    rollup_balances AS (
-        SELECT
-            DATE,
-            address,
-            SUM(amount) over (
-                PARTITION BY address
-                ORDER BY
-                    DATE
-            ) AS balance
-        FROM
-            (
-                SELECT
-                    DATE,
-                    address,
-                    SUM(amount) amount
-                FROM
-                    (
-                        SELECT
-                            DATE,
-                            address,
-                            amount
-                        FROM
-                            dailysummed_balances
+AND block_timestamp :: DATE >=(
+    SELECT
+        DATEADD('day', -2, MAX(DATE))
+    FROM
+        {{ this }})
+    {% endif %}
+),
+all_actions AS(
+    SELECT
+        address,
+        amount,
+        block_id,
+        intra,
+        block_timestamp
+    FROM
+        senderpay
+    UNION ALL
+    SELECT
+        address,
+        amount,
+        block_id,
+        intra,
+        block_timestamp
+    FROM
+        sendersfee
+    UNION ALL
+    SELECT
+        address,
+        amount,
+        block_id,
+        intra,
+        block_timestamp
+    FROM
+        receivers
+    UNION ALL
+    SELECT
+        address,
+        amount,
+        block_id,
+        intra,
+        block_timestamp
+    FROM
+        reward
+    UNION ALL
+    SELECT
+        address,
+        amount,
+        block_id,
+        intra,
+        block_timestamp
+    FROM
+        closes
+    UNION ALL
+    SELECT
+        address,
+        0 amount,
+        1 block_id,
+        0 intra,
+        min_block_date AS block_timestamp
+    FROM
+        address_ranges
+),
+dailysummed_balances AS(
+    SELECT
+        block_timestamp :: DATE AS DATE,
+        address,
+        SUM(amount) AS amount
+    FROM
+        all_actions
+    GROUP BY
+        block_timestamp :: DATE,
+        address
+),
+rollup_balances AS (
+    SELECT
+        DATE,
+        address,
+        SUM(amount) over (
+            PARTITION BY address
+            ORDER BY
+                DATE
+        ) AS balance
+    FROM
+        (
+            SELECT
+                DATE,
+                address,
+                SUM(amount) amount
+            FROM
+                (
+                    SELECT
+                        DATE,
+                        address,
+                        amount
+                    FROM
+                        dailysummed_balances
 
 {% if is_incremental() %}
 UNION ALL
