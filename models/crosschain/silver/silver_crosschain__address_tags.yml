@@ -1,0 +1,45 @@
+version: 2
+models:
+  - name: silver_crosschain__address_tags
+    description: A table containing address tags across various blockchains.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCKCHAIN
+            - CREATOR
+            - ADDRESS
+    columns:
+      - name: BLOCKCHAIN
+        description: The name of the blockchain
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['ethereum', 'flow', 'polygon', 'terra', 'algorand', 'solana', 'moonriver', 'avalanche', 'bittorrent', 'cronos', 'fantom', 'arbitrum', 'aurora', 'bsc', 'heco', 'optimism', 'gnosis', 'thorchain']
+      - name: CREATOR
+        description: The name of the creator of the tag
+        tests:
+          - not_null
+      - name: ADDRESS
+        description: The address that the tag belongs to. Use this to join to other tables.
+        tests:
+          - not_null
+      - name: TAG_NAME
+        description: The name of the tag
+        tests:
+          - not_null
+      - name: TAG_TYPE
+        description: The type of the tag
+        tests: 
+          - not_null
+      - name: START_DATE
+        description: The starting date that the tag is valid for. 
+        tests: 
+          - not_null
+      - name: END_DATE
+        description: The ending date of the tag's validity. 
+        tests: 
+          - not_null
+      - name: _INSERTED_TIMESTAMP
+        description: The time at which the label was inserted in the table
+        tests:
+          - not_null
