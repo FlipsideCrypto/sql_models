@@ -33,6 +33,6 @@ WHERE _inserted_timestamp >= (
 )
 {% endif %}
 
-qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator, tag_name
+qualify(ROW_NUMBER() over(PARTITION BY blockchain, address, creator, tag_name, start_date
   ORDER BY
     _inserted_timestamp DESC)) = 1
