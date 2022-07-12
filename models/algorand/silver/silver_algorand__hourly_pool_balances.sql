@@ -121,10 +121,18 @@ WHERE
     reward AS (
         SELECT
             A.account AS address,
-            A.amount / pow(
-                10,
-                6
-            ) AS amount,
+            CASE
+                WHEN asa.decimals > 0 THEN A.amount / pow(
+                    10,
+                    asa.decimals
+                )
+                WHEN
+                AND asa.decimals = 0 THEN A.amount
+                WHEN A.asset_id = 0 THEN A.amount / pow(
+                    10,
+                    6
+                )
+            END amount,
             A.block_id,
             A.intra,
             A.block_timestamp,
@@ -133,6 +141,9 @@ WHERE
             {{ ref('silver_algorand__transaction_rewards') }} A
             JOIN address_ranges b
             ON A.account = b.address
+            LEFT JOIN {{ ref('silver_algorand__asset') }}
+            asa
+            ON A.asset_id = asa.asset_id
 
 {% if is_incremental() %}
 WHERE
@@ -151,8 +162,13 @@ WHERE
                     10,
                     asa.decimals
                 )
-                WHEN asa.decimals = 0 THEN A.amount
-            END AS amount,
+                WHEN
+                AND asa.decimals = 0 THEN A.amount
+                WHEN A.asset_id = 0 THEN A.amount / pow(
+                    10,
+                    6
+                )
+            END amount,
             A.block_id,
             A.intra,
             A.block_timestamp,
@@ -178,10 +194,18 @@ AND block_timestamp :: DATE >=(
 senderasset AS(
     SELECT
         A.asset_sender AS address,
-        A.asset_amount / pow(
-            10,
-            6
-        ) * -1 AS amount,
+        CASE
+            WHEN asa.decimals > 0 THEN A.amount / pow(
+                10,
+                asa.decimals
+            )
+            WHEN
+            AND asa.decimals = 0 THEN A.amount
+            WHEN A.asset_id = 0 THEN A.amount / pow(
+                10,
+                6
+            )
+        END * -1 AS amount,
         A.block_id,
         A.intra,
         A.block_timestamp,
@@ -206,10 +230,18 @@ WHERE
     receiversasset AS (
         SELECT
             A.asset_receiver AS address,
-            A.asset_amount / pow(
-                10,
-                6
-            ) AS amount,
+            CASE
+                WHEN asa.decimals > 0 THEN A.amount / pow(
+                    10,
+                    asa.decimals
+                )
+                WHEN
+                AND asa.decimals = 0 THEN A.amount
+                WHEN A.asset_id = 0 THEN A.amount / pow(
+                    10,
+                    6
+                )
+            END AS amount,
             A.block_id,
             A.intra,
             A.block_timestamp,
