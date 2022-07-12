@@ -121,18 +121,10 @@ WHERE
     reward AS (
         SELECT
             A.account AS address,
-            CASE
-                WHEN asa.decimals > 0 THEN A.amount / pow(
-                    10,
-                    asa.decimals
-                )
-                WHEN
-                AND asa.decimals = 0 THEN A.amount
-                WHEN A.asset_id = 0 THEN A.amount / pow(
-                    10,
-                    6
-                )
-            END amount,
+            A.amount / pow(
+                10,
+                6
+            ) amount,
             A.block_id,
             A.intra,
             A.block_timestamp,
@@ -141,9 +133,6 @@ WHERE
             {{ ref('silver_algorand__transaction_rewards') }} A
             JOIN address_ranges b
             ON A.account = b.address
-            LEFT JOIN {{ ref('silver_algorand__asset') }}
-            asa
-            ON A.asset_id = asa.asset_id
 
 {% if is_incremental() %}
 WHERE
@@ -162,8 +151,7 @@ WHERE
                     10,
                     asa.decimals
                 )
-                WHEN
-                AND asa.decimals = 0 THEN A.amount
+                WHEN asa.decimals = 0 THEN A.amount
                 WHEN A.asset_id = 0 THEN A.amount / pow(
                     10,
                     6
@@ -195,13 +183,12 @@ senderasset AS(
     SELECT
         A.asset_sender AS address,
         CASE
-            WHEN asa.decimals > 0 THEN A.amount / pow(
+            WHEN asa.decimals > 0 THEN A.asset_amount / pow(
                 10,
                 asa.decimals
             )
-            WHEN
-            AND asa.decimals = 0 THEN A.amount
-            WHEN A.asset_id = 0 THEN A.amount / pow(
+            WHEN asa.decimals = 0 THEN A.asset_amount
+            WHEN A.asset_id = 0 THEN A.asset_amount / pow(
                 10,
                 6
             )
@@ -231,13 +218,12 @@ WHERE
         SELECT
             A.asset_receiver AS address,
             CASE
-                WHEN asa.decimals > 0 THEN A.amount / pow(
+                WHEN asa.decimals > 0 THEN A.asset_amount / pow(
                     10,
                     asa.decimals
                 )
-                WHEN
-                AND asa.decimals = 0 THEN A.amount
-                WHEN A.asset_id = 0 THEN A.amount / pow(
+                WHEN asa.decimals = 0 THEN A.asset_amount
+                WHEN A.asset_id = 0 THEN A.asset_amount / pow(
                     10,
                     6
                 )
