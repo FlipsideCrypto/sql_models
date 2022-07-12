@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: silver_algorand__prices_pool_balances
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - block_hour
+            - asset_id
+    columns:
+      - name: BLOCK_HOUR
+        tests:
+          - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: ASSET_ID
+        description: "The other asset in the pool that is paired with ALGO"
+        tests:
+          - not_null
+      - name: PRICE_USD
+        description: "The price of the asset in USD"
+        tests:
+          - not_null
+      - name: ALGO_BALANCE
+        description: "The amount of ALGOs in the pool at the end of the block_hour"
+      - name: NON_ALGO_BALANCE
+        description: "The amount of other asset in the pool at the end of the block_hour"
+      - name: POOL_NAME
+        description: "The name of the LP pool"
+      - name: POOL_ADDRESS
+        description: "The address of the LP pool"
+
+  

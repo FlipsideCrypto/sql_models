@@ -16,7 +16,11 @@ WITH allTXN AS (
     inner_tx,
     tx_message :txn :snd :: text AS sender,
     fee,
-    tx_message :txn :apid AS app_id,
+    COALESCE(
+      tx_message :txn :apid,
+      tx_message :apid,
+      tx_message :"dt" :"gd" :"aWQ=" :"ui" :: STRING
+    ) AS app_id,
     tx_type,
     tx_type_name,
     genesis_hash,
