@@ -1,6 +1,8 @@
 version: 2
 models:
   - name: crosschain__ez_lending
+    description: This is a table that shows all the events across various blockchains and various platforms that are related to providing capital for lending and withdrawing capital
+
 
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -70,6 +72,8 @@ models:
               column_type_list:
                 - STRING
                 - VARCHAR
+      - name: ACTION
+        description: '{{ doc("crosschain_action") }}'
 
       - name: DEPOSITOR
         description: '{{ doc("cross_chain_lending_depositor") }}'
