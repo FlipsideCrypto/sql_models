@@ -181,7 +181,10 @@ AND block_timestamp :: DATE >=(
 ),
 senderasset AS(
     SELECT
-        A.asset_sender AS address,
+        COALESCE(
+            A.asset_sender,
+            A.sender
+        ) AS address,
         CASE
             WHEN asa.decimals > 0 THEN A.asset_amount / pow(
                 10,
@@ -200,7 +203,10 @@ senderasset AS(
     FROM
         {{ ref('silver_algorand__asset_transfer_transaction') }} A
         JOIN address_ranges b
-        ON A.asset_sender = b.address
+        ON COALESCE(
+            A.asset_sender,
+            A.sender
+        ) = b.address
         LEFT JOIN {{ ref('silver_algorand__asset') }}
         asa
         ON A.asset_id = asa.asset_id
