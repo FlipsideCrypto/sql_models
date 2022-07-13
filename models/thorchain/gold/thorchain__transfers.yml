@@ -16,11 +16,13 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: thor[0-9a-zA-Z]{39}
+              where: FROM_ADDRESS <> 'MidgardBalanceCorrectionAddress'
       - name: TO_ADDRESS
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_match_regex:
               regex: thor[0-9a-zA-Z]{39}
+              where: TO_ADDRESS <> 'MidgardBalanceCorrectionAddress'
       - name: RUNE_AMOUNT
         tests:
           - not_null
