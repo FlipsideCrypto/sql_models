@@ -23,7 +23,6 @@ WITH lps AS (
 ),
 hourly_prices AS (
     SELECT
-        symbol,
         HOUR,
         AVG(price) price
     FROM
@@ -55,7 +54,6 @@ ORDER BY
     recorded_at DESC)) = 1
 ) x
 GROUP BY
-    symbol,
     HOUR
 ),
 balances AS (
@@ -112,7 +110,8 @@ balances AS (
             '-',
             block_hour,
             asset_id
-        ) AS _unique_key
+        ) AS _unique_key,
+        price AS _algo_price
     FROM
         balances A
         JOIN hourly_prices C

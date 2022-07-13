@@ -19,7 +19,7 @@ WITH address_ranges AS (
         JOIN {{ ref('silver_algorand__pool_addresses') }} C
         ON A.address = C.address
     WHERE
-        b.block_timestamp :: DATE >= '2022-01-01'
+        b.block_timestamp :: DATE >= '2022-01-15'
 ),
 cte_my_date AS (
     SELECT
@@ -31,7 +31,7 @@ cte_my_date AS (
         ) }}
     WHERE
         HOUR :: DATE <= CURRENT_DATE :: DATE
-        AND HOUR :: DATE >= '2022-01-01'
+        AND HOUR :: DATE >= '2022-01-15'
 
 {% if is_incremental() %}
 AND HOUR >=(
@@ -367,18 +367,17 @@ WHERE
     ),
     rollup_balances AS (
         SELECT
-            ah.date,
-            ah.address,
-            ah.asset_id,
+            DATE,
+            address,
+            asset_id,
             SUM(COALESCE(amount, 0)) over (
-                PARTITION BY ah.address,
-                ah.asset_id
+                PARTITION BY address,
+                asset_id
                 ORDER BY
-                    ah.date
+                    DATE
             ) AS balance
         FROM
-            asset_hours ah
-            LEFT JOIN (
+            (
                 SELECT
                     DATE,
                     address,
@@ -387,12 +386,19 @@ WHERE
                 FROM
                     (
                         SELECT
-                            DATE,
-                            address,
-                            asset_id,
-                            amount
+                            ah.date,
+                            ah.address,
+                            ah.asset_id,
+                            COALESCE(
+                                amount,
+                                0
+                            ) amount
                         FROM
-                            dailysummed_balances
+                            asset_hours ah
+                            LEFT JOIN dailysummed_balances x
+                            ON ah.date = x.date
+                            AND ah.address = x.address
+                            AND ah.asset_id = x.asset_id
 
 {% if is_incremental() %}
 UNION ALL
@@ -418,9 +424,6 @@ GROUP BY
     address,
     asset_id
 ) x
-ON ah.date = x.date
-AND ah.address = x.address
-AND ah.asset_id = x.asset_id
 ),
 balance_tmp AS (
     SELECT
