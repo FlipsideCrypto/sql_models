@@ -98,3 +98,34 @@ FROM
         'polygon',
         'EZ_SWAPS'
     ) }}
+
+Union all
+
+--  Arbitrum/sushi
+SELECT
+    'Arbitrum' as Blockchain,
+    Block_timestamp,
+    Block_number,
+    Tx_hash,
+    origin_from_address,
+    origin_to_address,
+    contract_address as Pool_address,
+    Platform,
+    Event_index,
+    Amount_in,
+    Amount_out,
+    Sender,
+    _Log_id as Log_id,
+    Token_in,
+    Token_out,
+    Symbol_in,
+    Symbol_out,
+    Tx_to,
+    Amount_in_USD,
+    Amount_out_USD,
+    Pool_name
+FROM
+    {{ source(
+        'Arbitrum',
+        'EZ_SWAPS'
+    ) }}

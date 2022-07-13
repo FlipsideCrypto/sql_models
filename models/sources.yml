@@ -253,3 +253,10 @@ sources:
       - name: EZ_SWAPS
       - name: EZ_LENDING
       - name: EZ_BORROWING  
+  - name: Arbitrum
+    database: ARBITRUM
+    schema: SUSHI
+    tables:
+      - name: EZ_SWAPS
+
+
