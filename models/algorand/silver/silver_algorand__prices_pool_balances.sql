@@ -158,3 +158,21 @@ FROM
     ON A.address = e.address
 WHERE
     other_asset_ID IS NOT NULL
+UNION ALL
+SELECT
+    HOUR AS block_hour,
+    0 AS asset_id,
+    'ALGO' AS asset_name,
+    price AS price_usd,
+    NULL algo_balance,
+    NULL non_algo_balance,
+    NULL pool_name,
+    NULL pool_address,
+    concat_ws(
+        '-',
+        HOUR,
+        0
+    ) unique_key,
+    price AS _algo_price
+FROM
+    hourly_prices
