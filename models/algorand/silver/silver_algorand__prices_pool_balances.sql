@@ -21,7 +21,7 @@ WITH lps AS (
         AND C.address_name NOT ILIKE '%algo fam%'
         AND C.address_name NOT ILIKE '%smart algo%'
 ),
-hourly_prices AS (
+hourly_prices_with_gaps AS (
     SELECT
         HOUR,
         AVG(price) price
@@ -44,7 +44,7 @@ hourly_prices AS (
                 asset_id IN ('algorand', '4030')
 
 {% if is_incremental() %}
-AND recorded_at >= CURRENT_DATE - 3
+AND recorded_at :: DATE >= CURRENT_DATE - 3
 {% else %}
     AND recorded_at >= '2022-01-01'
 {% endif %}
@@ -55,6 +55,30 @@ ORDER BY
 ) x
 GROUP BY
     HOUR
+),
+hourly_prices AS (
+    SELECT
+        DATE AS HOUR,
+        LAST_VALUE(
+            price ignore nulls
+        ) over(
+            ORDER BY
+                DATE ASC rows unbounded preceding
+        ) AS price
+    FROM
+        (
+            SELECT
+                DISTINCT DATE
+            FROM
+                {{ ref('silver_algorand__hourly_pool_balances') }}
+
+{% if is_incremental() %}
+WHERE
+    DATE :: DATE >= CURRENT_DATE - 3
+{% endif %}
+) A
+LEFT JOIN hourly_prices_with_gaps b
+ON A.date = b.hour
 ),
 balances AS (
     SELECT
@@ -97,36 +121,40 @@ balances AS (
             (LOWER(asset_name) NOT LIKE '%pool%'
             AND LOWER(asset_name) NOT LIKE '%lp%')
             OR A.asset_Id = 0)
-            GROUP BY
-                A.address,
-                A.date
-        )
-    SELECT
-        A.date AS block_hour,
-        other_asset_ID AS asset_id,
-        other_asset_name AS asset_name,
-        CASE
-            WHEN other_bal = 0 THEN 0
-            ELSE (
-                algo_bal * price
-            ) / other_bal
-        END AS price_usd,
-        algo_bal AS algo_balance,
-        other_bal AS non_algo_balance,
-        e.address_name pool_name,
-        A.address pool_address,
-        concat_ws(
-            '-',
-            block_hour,
-            asset_id
-        ) AS _unique_key,
-        price AS _algo_price
-    FROM
-        balances A
-        JOIN hourly_prices C
-        ON A.date = C.hour
-        LEFT JOIN {{ ref('silver_algorand__pool_addresses') }}
-        e
-        ON A.address = e.address
-    WHERE
-        other_asset_ID IS NOT NULL
+
+{% if is_incremental() %}
+AND DATE :: DATE >= CURRENT_DATE - 3
+{% endif %}
+GROUP BY
+    A.address,
+    A.date
+)
+SELECT
+    A.date AS block_hour,
+    other_asset_ID AS asset_id,
+    other_asset_name AS asset_name,
+    CASE
+        WHEN other_bal = 0 THEN 0
+        ELSE (
+            algo_bal * price
+        ) / other_bal
+    END AS price_usd,
+    algo_bal AS algo_balance,
+    other_bal AS non_algo_balance,
+    e.address_name pool_name,
+    A.address pool_address,
+    concat_ws(
+        '-',
+        block_hour,
+        asset_id
+    ) AS _unique_key,
+    price AS _algo_price
+FROM
+    balances A
+    JOIN hourly_prices C
+    ON A.date = C.hour
+    LEFT JOIN {{ ref('silver_algorand__pool_addresses') }}
+    e
+    ON A.address = e.address
+WHERE
+    other_asset_ID IS NOT NULL
