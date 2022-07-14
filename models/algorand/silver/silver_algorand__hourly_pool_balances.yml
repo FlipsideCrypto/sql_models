@@ -1,0 +1,17 @@
+version: 2
+models:
+  - name: silver_algorand__hourly_pool_balances
+    tests:
+    columns:
+      - name: ADDRESS
+        tests:
+          - not_null
+      - name: DATE
+        tests:
+          - not_null
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: BALANCE
+        tests:
+          - not_null
