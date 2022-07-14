@@ -1,0 +1,27 @@
+version: 2
+models:
+  - name: algorand__prices_pool_balances
+    description: "This table can be used to price assets within the Algorand blockchain using on-chain liquidity pool. Price is calculated by end-of-hour pool balances on tinyman for Algo base pairs, then using the coinmarketcap/coingiecko algo price to calculate the price of the other asset"
+    columns:
+      - name: BLOCK_HOUR
+        description: "The hour for which the price is valid"
+        tests:
+          - not_null
+      - name: ASSET_ID
+        description: "{{ doc('algo_asset_id') }}"
+        tests:
+          - not_null
+      - name: ASSET_NAME
+        description: "Name of the asset"
+        tests:
+          - not_null
+      - name: PRICE_USD
+        description: "The USD price of the asset at the end of the hour. ALGO price pulled from coinmarketcap/coingiecko"
+      - name: ALGO_BALANCE
+        description: "The balance of ALGO tokens in the pool at the end of the hour. NULL for ALGO"
+      - name: NON_ALGO_BALANCE
+        description: "The balance of other (non-ALGO) tokens in the pool at the end of the hour. NULL for ALGO"
+      - name: POOL_NAME
+        description: "The name of the pool used for the price calculation. NULL for ALGO"
+      - name: POOL_ADDRESS
+        description: "The address of the pool used for the price calculation. NULL for ALGO"

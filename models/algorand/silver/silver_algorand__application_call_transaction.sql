@@ -19,7 +19,7 @@ WITH allTXN AS (
     COALESCE(
       tx_message :txn :apid,
       tx_message :apid,
-      tx_message :"dt" :"gd" :"aWQ=" :"ui" :: STRING
+      tx_message :"dt" :"gd" :"aWQ=" :"ui"
     ) AS app_id,
     tx_type,
     tx_type_name,
