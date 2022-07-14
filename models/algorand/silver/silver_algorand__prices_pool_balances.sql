@@ -96,12 +96,12 @@ balances AS (
     SELECT
         A.date AS block_hour,
         other_asset_ID AS asset_id,
-        (
-            algo_bal * price
-        ) / NULLIF(
-            other_bal,
-            0
-        ) AS price_usd,
+        CASE
+            WHEN other_bal = 0 THEN 0
+            ELSE (
+                algo_bal * price
+            ) / other_bal
+        END AS price_usd,
         algo_bal AS algo_balance,
         other_bal AS non_algo_balance,
         e.address_name pool_name,
