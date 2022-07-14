@@ -74,9 +74,17 @@ balances AS (
             END,
             A.asset_id :: variant
         ) AS j_2,
+        OBJECT_AGG(
+            CASE
+                WHEN A.asset_id = 0 THEN 'algo'
+                ELSE 'other'
+            END,
+            d.asset_name :: variant
+        ) AS j_3,
         j :algo AS algo_bal,
         j :other AS other_bal,
-        j_2 :other AS other_asset_ID
+        j_2 :other AS other_asset_id,
+        j_3 :other :: STRING AS other_asset_name
     FROM
         {{ ref('silver_algorand__hourly_pool_balances') }} A
         JOIN lps b
@@ -96,6 +104,7 @@ balances AS (
     SELECT
         A.date AS block_hour,
         other_asset_ID AS asset_id,
+        other_asset_name AS asset_name,
         CASE
             WHEN other_bal = 0 THEN 0
             ELSE (
