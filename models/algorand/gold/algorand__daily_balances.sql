@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "CONCAT_WS('-', date, address, currency, balance_type)",
+    unique_key = "CONCAT_WS('-', date, address)",
     incremental_strategy = 'delete+insert',
     cluster_by = ['date']
 ) }}
@@ -15,7 +15,7 @@ WHERE
     balance > 0
 
 {% if is_incremental() %}
-AND HOUR :: DATE >=(
+AND DATE >=(
     SELECT
         DATEADD('day', -2, MAX(DATE))
     FROM
