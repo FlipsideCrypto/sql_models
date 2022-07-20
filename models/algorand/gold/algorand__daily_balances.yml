@@ -1,0 +1,17 @@
+version: 2
+models:
+  - name: algorand__daily_balances
+    columns:
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: DATE
+        description: "The date where the end of day balance is valid for"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: BALANCE
+        description: "The total amount of ALGOs held by this address at the end of the day"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+
