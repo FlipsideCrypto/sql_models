@@ -1,0 +1,32 @@
+version: 2
+models:
+  - name: core__fact_account_asset
+    description: "  "
+    columns:
+      - name: FACT_ACCOUNT_ASSET_ID
+        description: "ABC "
+        tests:
+          - dbt_expectations.expect_column_to_exist
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: FACT_ACCOUNT_ASSET_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_APPLICATION_ID
+          pk_table_name: ref('core__dim_application')
+          pk_column_name: DIM_APPLICATION_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_BLOCK_ID__ASSET_ADDED_AT
+          pk_table_name: ref('core__dim_block')
+          pk_column_name: DIM_BLOCK_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_BLOCK_ID__ASSET_LAST_REMOVED
+          pk_table_name: ref('core__dim_block')
+          pk_column_name: DIM_BLOCK_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ASSET_ID
+          pk_table_name: ref('core__dim_asset')
+          pk_column_name: DIM_ASSET_ID

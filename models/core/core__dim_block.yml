@@ -1,0 +1,12 @@
+version: 2
+models:
+  - name: core__dim_block
+    description: "Records of all blocks that have occurred on Algorand, dating back to the genesis block. "
+    columns:
+      - name: DIM_BLOCK_ID
+        description: "ABC "
+        tests:
+          - dbt_expectations.expect_column_to_exist
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: DIM_BLOCK_ID

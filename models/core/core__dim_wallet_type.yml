@@ -1,0 +1,12 @@
+version: 2
+models:
+  - name: core__dim_wallet_type
+    description: "R "
+    columns:
+      - name: DIM_WALLET_TYPE_ID
+        description: "ABC "
+        tests:
+          - dbt_expectations.expect_column_to_exist
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: DIM_WALLET_TYPE_ID

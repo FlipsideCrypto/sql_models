@@ -1,0 +1,20 @@
+version: 2
+models:
+  - name: core__fact_transaction
+    description: "  "
+    columns:
+      - name: DIM_BLOCK_ID
+        description: "ABC "
+        tests:
+          - dbt_expectations.expect_column_to_exist
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: FACT_TRANSACTION_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_BLOCK_ID
+          pk_table_name: ref('core__dim_block')
+          pk_column_name: DIM_BLOCK_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_TRANSACTION_TYPE_ID
+          pk_table_name: ref('core__dim_transaction_type')
+          pk_column_name: DIM_TRANSACTION_TYPE_ID
