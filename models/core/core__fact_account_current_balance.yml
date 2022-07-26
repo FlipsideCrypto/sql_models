@@ -1,0 +1,16 @@
+version: 2
+models:
+  - name: core__fact_account_current_balance
+    description: ""
+    columns:
+      - name: FACT_ACCOUNT_CURRENT_BALANCE_ID
+        description: "ABC "
+        tests:
+          - dbt_expectations.expect_column_to_exist
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: FACT_ACCOUNT_CURRENT_BALANCE_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID

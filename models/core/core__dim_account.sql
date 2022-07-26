@@ -13,18 +13,18 @@ SELECT
         addr :: text
     ) AS address,
     deleted AS account_closed,
-    rewardsbase / pow(
-        10,
-        6
-    ) AS rewards_base,
-    rewards_total / pow(
-        10,
-        6
-    ) AS rewards_total,
-    microalgos / pow(
-        10,
-        6
-    ) AS balance,
+    CASE
+        WHEN rewardsbase > 0 THEN TRUE
+        ELSE FALSE
+    END non_zero_rewards_base,
+    CASE
+        WHEN rewards_total > 0 THEN TRUE
+        ELSE FALSE
+    END non_zero_rewards_total,
+    CASE
+        WHEN microalgos > 0 THEN TRUE
+        ELSE FALSE
+    END non_zero_balance,
     COALESCE(
         C.dim_block_id,
         {{ dbt_utils.surrogate_key(
@@ -77,9 +77,9 @@ SELECT
     ) }} AS dim_account_id,
     NULL AS address,
     NULL AS account_closed,
-    NULL AS rewards_base,
-    NULL AS rewards_total,
-    NULL AS balance,
+    NULL AS non_zero_rewards_base,
+    NULL AS non_zero_rewards_total,
+    NULL AS non_zero_balance,
     {{ dbt_utils.surrogate_key(
         ['null']
     ) }} AS dim_block_id__created_at,

@@ -117,3 +117,28 @@ SELECT
     NULL AS closed_at,
     CURRENT_DATE AS _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    {{ dbt_utils.surrogate_key(
+        ['0']
+    ) }} AS dim_asset_id,
+    0 AS asset_id,
+    'ALGO' AS asset_name,
+    NULL AS total_supply,
+    NULL AS asset_url,
+    6 AS decimals,
+    FALSE AS asset_deleted,
+    {{ dbt_utils.surrogate_key(
+        ['null']
+    ) }} AS dim_account_id__creator,
+    NULL AS creator_address,
+    {{ dbt_utils.surrogate_key(
+        ['null']
+    ) }} AS dim_block_id__created_at,
+    NULL AS created_at,
+    {{ dbt_utils.surrogate_key(
+        ['null']
+    ) }} AS dim_block_id__closed_at,
+    NULL AS closed_at,
+    CURRENT_DATE AS _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id

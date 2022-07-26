@@ -12,9 +12,12 @@ SELECT
     inner_tx,
     b.tx_sender,
     fee,
-    app_id,
-    'appl' AS tx_type,
-    'application call' AS tx_type_name,
+    ast.asset_id,
+    ast.asset_name,
+    asset_supply,
+    asset_parameters,
+    'acfg' AS tx_type,
+    'asset configuration' AS tx_type_name,
     tx_message,
     extra,
     b._inserted_timestamp,
@@ -24,5 +27,8 @@ FROM
     b
     JOIN {{ ref('core__dim_block') }} C
     ON b.dim_block_id = C.dim_block_id
+    JOIN {{ ref('core__dim_asset') }}
+    ast
+    ON b.dim_asset_id = ast.dim_asset_id
 WHERE
-    b.dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
+    b.dim_transaction_type_id = '09b31a7810640ff01202b26dd70a7aa3'

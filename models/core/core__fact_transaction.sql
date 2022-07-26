@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = 'fact_transaction_id',
     incremental_strategy = 'merge',
-    cluster_by = ['block_timestamp::DATE']
+    cluster_by = ['block_timestamp::DATE', 'dim_transaction_type_id']
 ) }}
 
 WITH base AS (
@@ -33,9 +33,15 @@ WITH base AS (
         tx_message :txn :votefst AS vote_first,
         tx_message :txn :votelst AS vote_last,
         tx_message :txn :votekd AS vote_keydilution,
-        tx_message :txn :rcv :: text AS receiver,
-        tx_message :txn :asnd :: text AS asset_sender,
-        tx_message :txn :arcv :: text AS asset_receiver,
+        algorand_decode_b64_addr(
+            tx_message :txn :rcv :: text
+        ) AS receiver,
+        algorand_decode_b64_addr(
+            tx_message :txn :asnd :: text
+        ) AS asset_sender,
+        algorand_decode_b64_addr(
+            tx_message :txn :arcv :: text
+        ) AS asset_receiver,
         tx_message :txn :aamt AS asset_amount,
         tx_message :txn :xaid AS asset_transferred,
         tx_message :txn :amt AS amount,
@@ -83,6 +89,7 @@ SELECT
             ['null']
         ) }}
     ) AS dim_block_id,
+    b.block_id,
     b.block_timestamp,
     intra,
     tx_group_id,
@@ -94,7 +101,7 @@ SELECT
             ['null']
         ) }}
     ) AS dim_account_id__tx_sender,
-    da.address AS tx_sender,
+    A.sender AS tx_sender,
     COALESCE(
         dim_asset_id,
         {{ dbt_utils.surrogate_key(
@@ -116,28 +123,32 @@ SELECT
             ['null']
         ) }}
     ) AS dim_account_id__receiver,
-    rec.address AS receiver,
+    A.receiver,
     COALESCE(
         a_snd.dim_account_id,
         {{ dbt_utils.surrogate_key(
             ['null']
         ) }}
     ) AS dim_account_id__asset_sender,
-    a_snd.address AS asset_sender,
+    A.asset_sender,
     COALESCE(
         a_rec.dim_account_id,
         {{ dbt_utils.surrogate_key(
             ['null']
         ) }}
     ) AS dim_account_id__asset_receiver,
-    a_rec.address AS asset_receiver,
+    A.asset_receiver,
     app_id,
     asset_supply,
     asset_parameters,
     asset_address,
     asset_freeze,
-    participation_key,
-    vrf_public_key,
+    algorand_decode_b64_addr(
+        participation_key
+    ) AS participation_key,
+    algorand_decode_b64_addr(
+        vrf_public_key
+    ) AS vrf_public_key,
     vote_first,
     vote_last,
     vote_keydilution,

@@ -40,6 +40,7 @@ $$
             var schema = existing_functions.getColumnValue(1)
             var function_name = existing_functions.getColumnValue(2)
             var argument_signature = existing_functions.getColumnValue(3)
+            var argument_signature = argument_signature.replace("ADDR ","")
             snowflake.execute({sqlText: `GRANT OWNERSHIP ON FUNCTION ${DESTINATION_DB_NAME}.${schema}.${function_name}${argument_signature} to role ${ROLE_NAME};`});
         }
 
