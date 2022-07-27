@@ -45,6 +45,8 @@ SELECT
     ) [2] :: STRING
   END AS native_to_address,
   to_address AS to_pool_address,
+  split(memo, ':')[4] AS affiliate_address,
+  split(memo, ':')[5] :: INT AS affiliate_fee_basis_points,
   from_asset,
   to_asset,
   COALESCE(from_e8 / pow(10, 8), 0) AS from_amount,
