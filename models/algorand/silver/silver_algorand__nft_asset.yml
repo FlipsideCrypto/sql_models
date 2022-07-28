@@ -1,12 +1,12 @@
 version: 2
 models:
-  - name: silver_algorand__asset_nft
+  - name: silver_algorand__nft_asset
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - ASSET_ID
+            - NFT_ASSET_ID
     columns:
-      - name: ASSET_ID
+      - name: NFT_ASSET_ID
         tests:
           - not_null
       - name: DECIMALS

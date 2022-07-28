@@ -66,7 +66,16 @@ SELECT
     nft.buyer AS purchaser,
     nft.asset_id AS nft_asset_id,
     SUM(amount) AS total_sales_amount,
-    nft.number_of_assets AS number_of_nfts,
+    CASE
+        WHEN ast.decimals > 0 THEN number_of_assets :: FLOAT / pow(
+            10,
+            ast.decimals
+        )
+        WHEN NULLIF(
+            ast.decimals,
+            0
+        ) IS NULL THEN number_of_assets :: FLOAT
+    END AS number_of_nfts,
     concat_ws(
         '-',
         nft.block_id :: STRING,
@@ -80,12 +89,15 @@ FROM
     pay
     ON nft.tx_group_id = pay.tx_group_id
     AND nft.buyer = pay.sender
+    LEFT JOIN {{ ref('silver_algorand__nft_asset') }}
+    ast
+    ON nft.asset_id = ast.nft_asset_id
 GROUP BY
     nft.block_id,
     nft.block_timestamp,
     nft.tx_group_id,
     purchaser,
-    nft_asset_id,
+    nft.asset_id,
     number_of_nfts,
     _unique_key,
     nft._INSERTED_TIMESTAMP

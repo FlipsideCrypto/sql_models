@@ -16,6 +16,7 @@ WITH group_tx AS (
         {{ ref('silver_algorand__transfers') }}
     WHERE
         receiver = 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE' {# AND asset_sender != 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE' #}
+        AND tx_group_ID != '//bQaOEaOkBwSub8XBEk86t4wWdb6F/7fePO4fIXyho='
         AND tx_group_id IS NOT NULL
 
 {% if is_incremental() %}
@@ -96,19 +97,31 @@ FINAL AS (
 SELECT
     block_timestamp,
     block_id,
-    tx_group_id,
+    A.tx_group_id,
     purchaser,
-    nft_asset_id,
-    number_of_nfts,
+    A.nft_asset_id,
+    CASE
+        WHEN ast.decimals > 0 THEN number_of_nfts :: FLOAT / pow(
+            10,
+            ast.decimals
+        )
+        WHEN NULLIF(
+            ast.decimals,
+            0
+        ) IS NULL THEN number_of_nfts :: FLOAT
+    END AS number_of_nfts,
     total_sales_amount,
     concat_ws(
         '-',
         block_id :: STRING,
-        tx_group_id :: STRING,
-        nft_asset_id :: STRING
+        A.tx_group_id :: STRING,
+        A.nft_asset_id :: STRING
     ) AS _unique_key,
-    _INSERTED_TIMESTAMP
+    A._INSERTED_TIMESTAMP
 FROM
-    FINAL
+    FINAL A
+    LEFT JOIN {{ ref('silver_algorand__nft_asset') }}
+    ast
+    ON A.nft_asset_id = ast.nft_asset_id
 WHERE
     number_of_nfts > 0

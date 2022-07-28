@@ -212,18 +212,30 @@ SELECT
     tx_group_id,
     'buy now' event_type,
     purchaser,
-    nft_asset_id,
+    nft.nft_asset_id,
     total_sales_amount,
-    number_of_nfts,
+    CASE
+        WHEN ast.decimals > 0 THEN number_of_nfts :: FLOAT / pow(
+            10,
+            ast.decimals
+        )
+        WHEN NULLIF(
+            ast.decimals,
+            0
+        ) IS NULL THEN number_of_nfts :: FLOAT
+    END AS number_of_nfts,
     concat_ws(
         '-',
         block_id :: STRING,
         tx_group_id :: STRING,
-        nft_asset_id :: STRING
+        nft.nft_asset_id :: STRING
     ) AS _unique_key,
-    _INSERTED_TIMESTAMP
+    nft._INSERTED_TIMESTAMP
 FROM
-    buynow
+    buynow nft
+    JOIN {{ ref('silver_algorand__nft_asset') }}
+    ast
+    ON nft.nft_asset_id = ast.nft_asset_id
 UNION ALL
 SELECT
     block_id,
@@ -231,15 +243,27 @@ SELECT
     tx_group_id,
     'auction' event_type,
     purchaser,
-    nft_asset_id,
+    nft.nft_asset_id,
     total_sales_amount,
-    number_of_nfts,
+    CASE
+        WHEN ast.decimals > 0 THEN number_of_nfts :: FLOAT / pow(
+            10,
+            ast.decimals
+        )
+        WHEN NULLIF(
+            ast.decimals,
+            0
+        ) IS NULL THEN number_of_nfts :: FLOAT
+    END AS number_of_nfts,
     concat_ws(
         '-',
         block_id :: STRING,
         tx_group_id :: STRING,
-        nft_asset_id :: STRING
+        nft.nft_asset_id :: STRING
     ) AS _unique_key,
-    _INSERTED_TIMESTAMP
+    nft._INSERTED_TIMESTAMP
 FROM
-    auc_sales
+    auc_sales nft
+    LEFT JOIN {{ ref('silver_algorand__nft_asset') }}
+    ast
+    ON nft.nft_asset_id = ast.nft_asset_id
