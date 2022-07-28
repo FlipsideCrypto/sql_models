@@ -45,6 +45,8 @@ SELECT
     ) [2] :: STRING
   END AS native_to_address,
   to_address AS to_pool_address,
+  CASE WHEN COALESCE(split(memo, ':')[4], '') = '' THEN NULL ELSE split(memo, ':')[4] :: STRING END AS affiliate_address,
+  CASE WHEN COALESCE(split(memo, ':')[5], '') = '' THEN NULL ELSE split(memo, ':')[5] :: INT END AS affiliate_fee_basis_points,
   from_asset,
   to_asset,
   COALESCE(from_e8 / pow(10, 8), 0) AS from_amount,
