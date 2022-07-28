@@ -1,0 +1,37 @@
+version: 2
+models:
+  - name: algorand__nft_asset
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - nft_asset_id
+    columns:
+      - name: NFT_ASSET_ID
+        description: "The asset id of the NFT"
+        tests:
+          - not_null
+      - name: NFT_ASSET_NAME
+        description: "The asset name of the individual NFT asset"
+      - name: NFT_TOTAL_SUPPLY
+        description: "The total amount of this particular NFT"
+      - name: DECIMALS
+        description: "Most NFT's have a decimal of 0 but some may have more"  
+      - name: CREATED_AT
+        description: "The block_timestamp when the NFT was created"  
+      - name: COLLECTION_NAME
+        description: "The name of the collection that ties the NFTs together (if available)"  
+      - name: CREATOR_ADDRESS
+        description: "The wallet address that created the NFT"  
+      - name: NFT_URL
+        description: "The URL of the NFT"  
+      - name: collection_NFT
+        description: "TRUE/FALSE value to show if the NFT is part of a collection"  
+      - name: ARC69_NFT
+        description: "TRUE/FALSE value to show if the NFT follows the arc69 standard"  
+      - name: AR3_NFT
+        description: "TRUE/FALSE value to show if the NFT follows the arc3 standard"  
+      - name: TRADITIONAL_NFT
+        description: "TRUE/FALSE value to show if the NFT has a total supply of 1 and a number of decimals of 0"  
+      - name: ASSET_DELETED
+        description: "whether or not the asset is currently deleted"
+  

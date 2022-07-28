@@ -10,7 +10,8 @@ WITH tx AS (
     tx_id
   FROM
     {{ ref("silver_algorand__transactions") }}
-    qualify (ROW_NUMBER() over (PARTITION BY tx_id
+  WHERE
+    block_timestamp :: DATE > '2022-07-27' qualify (ROW_NUMBER() over (PARTITION BY tx_id
   ORDER BY
     sender)) = 1
 )
