@@ -33,7 +33,7 @@ tx_app_call AS (
         dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
 
 {% if is_incremental() %}
-AND A._INSERTED_TIMESTAMP >= (
+AND _INSERTED_TIMESTAMP >= (
     SELECT
         MAX(
             _INSERTED_TIMESTAMP
@@ -77,7 +77,7 @@ tx_a_tfer AS (
         dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
 
 {% if is_incremental() %}
-AND A._INSERTED_TIMESTAMP >= (
+AND pt._INSERTED_TIMESTAMP >= (
     SELECT
         MAX(
             _INSERTED_TIMESTAMP

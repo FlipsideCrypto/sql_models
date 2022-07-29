@@ -69,7 +69,7 @@ tx_a_tfer AS (
         dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
+AND pt._INSERTED_TIMESTAMP >= (
     SELECT
         MAX(
             _INSERTED_TIMESTAMP

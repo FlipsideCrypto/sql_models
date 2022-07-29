@@ -49,6 +49,7 @@ sources:
       - name: ethereum_blocks
       - name: ethereum_txs
   - name: algorand_db_external
+    database: flipside_prod_db
     schema: bronze
     loader: S3
     tables:

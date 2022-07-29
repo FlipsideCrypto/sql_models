@@ -13,7 +13,11 @@ WITH base AS(
     algorand_decode_hex_addr(
       addr :: text
     ) AS address,
-    __HEVO__LOADED_AT AS _INSERTED_TIMESTAMP
+    DATEADD(
+      ms,
+      __HEVO__LOADED_AT,
+      '1970-01-01'
+    ) AS _INSERTED_TIMESTAMP
   FROM
     {{ source(
       'algorand',
