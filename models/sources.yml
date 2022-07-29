@@ -22,6 +22,11 @@ sources:
       - name: near_balances
       - name: algorand_balances
       - name: terra_balances
+  - name: bronze
+    database: flipside_prod_db
+    schema: bronze
+    tables:
+      - name: prod_nft_metadata_uploads_1828572827
   - name: crosschain
     database: flipside_prod_db
     schema: silver_crosschain

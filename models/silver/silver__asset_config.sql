@@ -13,6 +13,11 @@ SELECT
         WHEN tx_message :txn :apar :dc :: NUMBER IS NULL THEN 0
         ELSE tx_message :txn :apar :dc :: NUMBER
     END AS decimals,
+    TRY_PARSE_JSON(
+        TRY_BASE64_DECODE_STRING(
+            tx_message :txn :note :: STRING
+        )
+    ) :standard :: STRING AS nft_standard,
     MAX(_inserted_timestamp) _inserted_timestamp
 FROM
     {{ ref('silver__transaction') }}
@@ -38,4 +43,5 @@ GROUP BY
     asset_id,
     asset_name,
     asset_amount,
-    decimals
+    decimals,
+    nft_standard

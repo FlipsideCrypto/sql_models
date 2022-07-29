@@ -9,7 +9,7 @@
 WITH address_ranges AS (
 
     SELECT
-        DISTINCT A.address,
+        DISTINCT top 1 A.address,
         created_at :: DATE AS min_block_date,
         CURRENT_TIMESTAMP :: DATE AS max_block_date
     FROM
@@ -48,7 +48,7 @@ all_dates AS (
 ),
 senderpay AS(
     SELECT
-        A.sender AS address,
+        A.tx_sender AS address,
         ((A.amount * -1) -.001) AS amount,
         A.block_id,
         A.intra,
@@ -123,7 +123,7 @@ reward AS (
         A.intra,
         A.block_timestamp
     FROM
-        {{ ref('silver__transaction_rewards') }} A
+        {{ ref('silver__transaction_reward') }} A
         JOIN address_ranges b
         ON A.account = b.address
 
@@ -150,7 +150,7 @@ WHERE
             A.intra,
             A.block_timestamp
         FROM
-            {{ ref('silver__transaction_closes') }} A
+            {{ ref('silver__transaction_close') }} A
             JOIN address_ranges b
             ON A.account = b.address
             LEFT JOIN {{ ref('core__dim_asset') }}

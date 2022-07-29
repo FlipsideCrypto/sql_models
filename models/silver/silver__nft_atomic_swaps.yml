@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: silver_nft_atomic_swaps
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - nft_asset_id
+            - tx_group_id 
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+        tests:
+          - not_null
+      - name: PURCHASER
+        tests:
+          - not_null
+      - name: NFT_ASSET_ID
+        tests:
+          - not_null
+      - name: NUMBER_OF_NFTS
+        tests:
+          - not_null
+      - name: TOTAL_SALES_AMOUNT
+        tests:
+          - not_null
+
+  

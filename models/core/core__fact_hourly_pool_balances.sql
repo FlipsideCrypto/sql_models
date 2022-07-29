@@ -16,7 +16,7 @@ WITH address_ranges AS (
         JOIN {{ ref('silver__pool_addresses') }} C
         ON A.address = C.address
     WHERE
-        b.block_timestamp :: DATE >= '2022-01-15'
+        A.created_at :: DATE >= '2022-01-15'
 ),
 cte_my_date AS (
     SELECT
@@ -84,7 +84,7 @@ sendersfee AS(
         JOIN address_ranges b
         ON A.tx_sender = b.address
     WHERE
-        A.tx_type <> 'pay'
+        dim_transaction_type_id <> 'b02a45a596bfb86fe2578bde75ff5444'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -129,7 +129,7 @@ reward AS (
         A.block_timestamp,
         0 AS asset_id
     FROM
-        {{ ref('silver__transaction_rewards') }} A
+        {{ ref('silver__transaction_reward') }} A
         JOIN address_ranges b
         ON A.account = b.address
 
@@ -159,16 +159,14 @@ WHERE
             A.block_id,
             A.intra,
             A.block_timestamp,
-            A.asset_ID
+            asa.asset_id
         FROM
-            {{ ref('silver__transaction_closes') }} A
+            {{ ref('silver__transaction_close') }} A
             JOIN address_ranges b
             ON A.account = b.address
             LEFT JOIN {{ ref('core__dim_asset') }}
             asa
             ON A.asset_id = asa.asset_id
-        WHERE
-            A.asset_id = 0
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -190,7 +188,7 @@ senderasset AS(
                 asa.decimals
             )
             WHEN asa.decimals = 0 THEN A.asset_amount
-            WHEN A.asset_id = 0 THEN A.asset_amount / pow(
+            WHEN asa.asset_id = 0 THEN A.asset_amount / pow(
                 10,
                 6
             )
@@ -198,7 +196,7 @@ senderasset AS(
         A.block_id,
         A.intra,
         A.block_timestamp,
-        b.asset_id
+        asa.asset_id
     FROM
         {{ ref('core__fact_transaction') }} A
         JOIN address_ranges b
@@ -229,7 +227,7 @@ receiversasset AS (
                 asa.decimals
             )
             WHEN asa.decimals = 0 THEN A.asset_amount
-            WHEN A.asset_id = 0 THEN A.asset_amount / pow(
+            WHEN asa.asset_id = 0 THEN A.asset_amount / pow(
                 10,
                 6
             )
@@ -237,7 +235,7 @@ receiversasset AS (
         A.block_id,
         A.intra,
         A.block_timestamp,
-        b.asset_id
+        asa.asset_id
     FROM
         {{ ref('core__fact_transaction') }} A
         JOIN address_ranges b
