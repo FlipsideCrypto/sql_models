@@ -13,7 +13,7 @@ WITH meta AS (
     FROM
         TABLE(
             information_schema.external_table_files(
-                table_name => '{{ source( ' algorand_db_external ', ' algorand_indexer_tx ' ) }}'
+                table_name => '{{ source( 'algorand_db_external', 'algorand_indexer_tx' ) }}'
             )
         ) A
     GROUP BY
@@ -43,7 +43,7 @@ FROM
         'algorand_indexer_tx'
     ) }}
     JOIN meta b
-    ON b.file_name = metadata $ filename
+    ON b.file_name = metadata$filename
 WHERE
     tx_id IS NOT NULL
     AND _PARTITION_BY_DATE = '2022-07-27'
