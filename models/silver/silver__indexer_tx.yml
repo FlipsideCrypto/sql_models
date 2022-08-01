@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: silver__indexer_tx
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - tx_id
+    columns:
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: ACCOUNT_ID
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: DATA
+        tests:
+          - not_null
+      - name: _INSERTED_TIMESTAMP
+        tests:
+          - not_null
+

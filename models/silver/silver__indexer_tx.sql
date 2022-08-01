@@ -13,7 +13,7 @@ WITH meta AS (
     FROM
         TABLE(
             information_schema.external_table_files(
-                table_name => '{{ source( 'algorand_db_external', 'algorand_indexer_tx' ) }}'
+                table_name => '{{ source( 'algorand_db_external','algorand_indexer_tx' ) }}'
             )
         ) A
     GROUP BY

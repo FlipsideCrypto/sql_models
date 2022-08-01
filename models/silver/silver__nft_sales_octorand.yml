@@ -1,16 +1,17 @@
 version: 2
 models:
-  - name: silver__nft_atomic_swaps
+  - name: silver__nft_sales_octorand
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
-            - BLOCK_ID
+            - block_id
+            - tx_group_id
             - nft_asset_id
-            - tx_group_id 
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: BLOCK_ID
         tests:
           - not_null
@@ -23,9 +24,10 @@ models:
       - name: NFT_ASSET_ID
         tests:
           - not_null
-      - name: NUMBER_OF_NFTS
-        tests:
-          - not_null
       - name: TOTAL_SALES_AMOUNT
         tests:
           - not_null
+      - name: NUMBER_OF_NFTS
+        tests:
+          - not_null
+          

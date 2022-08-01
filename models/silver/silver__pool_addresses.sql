@@ -35,10 +35,12 @@ pool_names AS(
             WHEN A.asset_id = 0 THEN 'ALGO'
             ELSE A.asset_name
         END AS swap_from_asset_name,
+        A.asset_id AS swap_from_asset_id,
         CASE
             WHEN b.asset_id = 0 THEN 'ALGO'
             ELSE b.asset_name
         END AS swap_to_asset_name,
+        b.asset_id AS swap_to_asset_id,
         s._INSERTED_TIMESTAMP
     FROM
         swaps s
@@ -60,7 +62,13 @@ SELECT
     'dex' AS label_type,
     'pool' AS label_subtype,
     swap_program AS label,
-    swap_program || ': ' || swap_from_asset_name || '-' || swap_to_asset_name || ' pool' AS address_name,
+    swap_program || ': ' || COALESCE(
+        swap_from_asset_name,
+        swap_from_asset_id :: STRING
+    ) || '-' || COALESCE(
+        swap_to_asset_name,
+        swap_to_asset_id :: STRING
+    ) || ' pool' AS address_name,
     _INSERTED_TIMESTAMP
 FROM
     pool_names

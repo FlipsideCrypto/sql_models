@@ -158,7 +158,7 @@ SELECT
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
     base A
-    LEFT JOIN {{ ref('core__dim_block') }}
+    JOIN {{ ref('core__dim_block') }}
     b
     ON A.block_id = b.block_id
     LEFT JOIN {{ ref('core__dim_account') }}

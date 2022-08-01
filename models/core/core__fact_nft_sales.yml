@@ -1,0 +1,61 @@
+version: 2
+models:
+  - name: core__fact_nft_sales
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - FACT_NFT_SALES_ID
+    columns:
+      - name: FACT_NFT_SALES_ID
+        description: "The marketplace or process used to make exchange the NFT"
+        tests:
+          - not_null
+      - name: NFT_MARKETPLACE
+        description: "The marketplace or process used to make exchange the NFT"
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
+        description: "{{ doc('algo_block_id') }}"
+        tests:
+          - not_null
+      - name: DIM_BLOCK_ID
+        description: "{{ doc('algo_block_id') }}"
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+        description: "{{ doc('tx_group_id') }}"
+        tests:
+          - not_null
+      - name: PURCHASER
+        description: "Address that purchased the NFT"
+        tests:
+          - not_null
+      - name: DIM_ACCOUNT_ID__PURCHASER
+        description: ""
+        tests:
+          - not_null
+      - name: NFT_ASSET_ID
+        description: "The asset id of the NFT"
+        tests:
+          - not_null
+      - name: DIM_ASSET_ID__NFT
+        description: ""
+        tests:
+          - not_null
+      - name: NUMBER_OF_NFTS
+        description: "The amount on the NFT sold. In most cases this will be 1 but some NFTs have a token supply higher than 1"
+        tests:
+          - not_null
+      - name: TOTAL_SALES_AMOUNT
+        description: "Total amount of paid in ALGOs for the NFT purchase"
+        tests:
+          - not_null
+          
+          

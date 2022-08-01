@@ -134,7 +134,10 @@ SELECT
             0
         ) IS NULL THEN asset_amount :: FLOAT
     END AS number_of_nfts,
-    pay.amount / axfer_tx_count AS total_sales_amount,
+    pay.amount :: FLOAT / pow(
+        10,
+        6
+    ) / axfer_tx_count AS total_sales_amount,
     concat_ws(
         '-',
         axfer.block_id :: STRING,

@@ -110,7 +110,6 @@ SELECT
     _inserted_timestamp
 FROM
     {{ ref('silver__swaps_wagmiswap_dex') }}
-)
 
 {% if is_incremental() %}
 WHERE
@@ -123,6 +122,7 @@ WHERE
             {{ this }}
     ) - INTERVAL '4 HOURS'
 {% endif %}
+)
 SELECT
     {{ dbt_utils.surrogate_key(
         ['a.block_id','a.intra','a.swap_program']
