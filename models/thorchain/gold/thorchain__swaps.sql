@@ -30,12 +30,11 @@ SELECT
   from_address,
   CASE
     WHEN n_tx > 1
-    AND rank_liq_fee = 1 
+    AND rank_liq_fee = 1
     AND SPLIT(
       memo,
       ':'
-    ) [4] :: STRING IS NOT NULL
-    THEN SPLIT(
+    ) [4] :: STRING IS NOT NULL THEN SPLIT(
       memo,
       ':'
     ) [4] :: STRING
@@ -45,8 +44,20 @@ SELECT
     ) [2] :: STRING
   END AS native_to_address,
   to_address AS to_pool_address,
-  CASE WHEN COALESCE(split(memo, ':')[4], '') = '' THEN NULL ELSE split(memo, ':')[4] :: STRING END AS affiliate_address,
-  CASE WHEN COALESCE(split(memo, ':')[5], '') = '' THEN NULL ELSE split(memo, ':')[5] :: INT END AS affiliate_fee_basis_points,
+  CASE
+    WHEN COALESCE(SPLIT(memo, ':') [4], '') = '' THEN NULL
+    ELSE SPLIT(
+      memo,
+      ':'
+    ) [4] :: STRING
+  END AS affiliate_address,
+  CASE
+    WHEN COALESCE(SPLIT(memo, ':') [5], '') = '' THEN NULL
+    ELSE SPLIT(
+      memo,
+      ':'
+    ) [5] :: INT
+  END AS affiliate_fee_basis_points,
   from_asset,
   to_asset,
   COALESCE(from_e8 / pow(10, 8), 0) AS from_amount,
@@ -57,7 +68,10 @@ SELECT
     ELSE COALESCE(from_e8 * asset_usd / pow(10, 8), 0)
   END AS from_amount_usd,
   CASE
-    WHEN to_asset = 'THOR.RUNE' THEN COALESCE(to_e8 * rune_usd / pow(10, 8), 0)
+    WHEN (
+      to_asset = 'THOR.RUNE'
+      OR to_asset = 'BNB.RUNE-B1A'
+    ) THEN COALESCE(to_e8 * rune_usd / pow(10, 8), 0)
     ELSE COALESCE(to_e8 * asset_usd / pow(10, 8), 0)
   END AS to_amount_usd,
   CASE
