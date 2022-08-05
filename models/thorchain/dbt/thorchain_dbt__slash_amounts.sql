@@ -8,7 +8,7 @@ SELECT
 FROM
   {{ source(
     'thorchain_midgard',
-    'midgard_slash_amounts'
+    'midgard_slash_events'
   ) }}
 
 {% if is_incremental() %}
