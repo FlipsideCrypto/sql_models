@@ -74,6 +74,8 @@ SELECT
     ) THEN COALESCE(to_e8 * rune_usd / pow(10, 8), 0)
     ELSE COALESCE(to_e8 * asset_usd / pow(10, 8), 0)
   END AS to_amount_usd,
+  rune_usd,
+  asset_usd,
   CASE
     WHEN to_asset = 'THOR.RUNE' THEN COALESCE(to_e8_min * rune_usd / pow(10, 8), 0)
     ELSE COALESCE(to_e8_min * asset_usd / pow(10, 8), 0)
