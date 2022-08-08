@@ -7,17 +7,40 @@ models:
             - NFT_ASSET_ID
     columns:
       - name: NFT_ASSET_ID
+        description: "{{ doc('asset_id') }}"
         tests:
-          - not_null
+          - not_null   
+      - name: NFT_ASSET_NAME
+        description: "{{ doc('asset_name') }}"
+      - name: NFT_TOTAL_SUPPLY
+        description: "Total supply of the asset"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
       - name: DECIMALS
+        description: "{{ doc('decimals') }}"
         tests:
-          - not_null
+          - dbt_expectations.expect_column_to_exist 
       - name: CREATED_AT
-        tests:
-          - not_null
+        description: "Block timestamp which asset was most recently closed"
+      - name: COLLECTION_NAME
+        description: "Name of the NFT collection"
       - name: CREATOR_ADDRESS
+        description: "Address of the asset creator"
+        tests:
+          - not_null 
+      - name: ASSET_DELETED
+        description: "whether or not the asset is currently deleted"
         tests:
           - not_null
-      - name: ASSET_DELETED
+      - name: NFT_URL
+        description: "The url to the asset website"
         tests:
-          - not_null  
+          - dbt_expectations.expect_column_to_exist 
+      - name: COLLECTION_NFT
+        description: "TRUE/FALSE indicating if the NFT is part of a collection"
+      - name: ARC69_NFT
+        description: "TRUE/FALSE indicating if the NFT follows the ARC69 standard"
+      - name: AR3_NFT
+        description: "TRUE/FALSE indicating if the NFT follows the AR3 standard"
+      - name: TRADITIONAL_NFT
+        description: "TRUE/FALSE indicating if the asset total supply is 1 and the number of decimals is 0"

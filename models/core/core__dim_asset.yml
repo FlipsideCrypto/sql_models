@@ -4,9 +4,66 @@ models:
     description: ""
     columns:
       - name: DIM_ASSET_ID
-        description: "ABC "
+        description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: ASSET_ID
+        description: "{{ doc('asset_id') }}"
+        tests:
+          - not_null:
+              where:  DIM_ASSET_ID <> 'd41d8cd98f00b204e9800998ecf8427e'        
+      - name: ASSET_NAME
+        description: "{{ doc('asset_name') }}"
+      - name: TOTAL_SUPPLY
+        description: "Total supply of the asset"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: ASSET_URL
+        description: "The url to the asset website"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: DECIMALS
+        description: "{{ doc('decimals') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: ASSET_DELETED
+        description: "whether or not the asset is currently deleted"
+        tests:
+          - not_null:
+              where:  DIM_ASSET_ID <> 'd41d8cd98f00b204e9800998ecf8427e'        
+      - name: DIM_ACCOUNT_ID__CREATOR
+        description: "FK to DIM_ACCOUNT for the creator address"
+        tests:
+          - not_null
+      - name: CREATOR_ADDRESS
+        description: "Address of the asset creator"
+        tests:
+          - not_null:
+              where: DIM_ACCOUNT_ID__CREATOR <>  'd41d8cd98f00b204e9800998ecf8427e'
+      - name: DIM_BLOCK_ID__CREATED_AT
+        description: "DIM_BLOCK_ID which asset was created"
+        tests:
+          - not_null
+      - name: CREATED_AT
+        description: "Block timestamp which asset was most recently closed"
+      - name: DIM_BLOCK_ID__CLOSED_AT
+        description: "DIM_BLOCK_ID during when the asset was deleted from the user"
+        tests:
+          - not_null
+      - name: CLOSED_AT
+        description: "Whether or not the asset is currently deleted from the user" 
+      - name: COLLECTION_NAME
+        description: "Name of the NFT collection"
+      - name: COLLECTION_NFT
+        description: "TRUE/FALSE indicating if the NFT is part of a collection"
+      - name: ARC69_NFT
+        description: "TRUE/FALSE indicating if the NFT follows the ARC69 standard"
+      - name: AR3_NFT
+        description: "TRUE/FALSE indicating if the NFT follows the AR3 standard"
+      - name: TRADITIONAL_NFT
+        description: "TRUE/FALSE indicating if the asset total supply is 1 and the number of decimals is 0"
+      - name: IS_NFT
+        description: "TRUE/FALSE indicating if this asset is an NFT"
     tests:
       - dbt_constraints.primary_key:
           column_name: DIM_ASSET_ID

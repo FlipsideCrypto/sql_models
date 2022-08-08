@@ -89,7 +89,7 @@ SELECT
             ['null']
         ) }}
     ) AS dim_block_id,
-    b.block_id,
+    A.block_id,
     b.block_timestamp,
     intra,
     tx_group_id,

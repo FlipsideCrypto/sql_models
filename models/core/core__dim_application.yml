@@ -4,9 +4,49 @@ models:
     description: ""
     columns:
       - name: DIM_APPLICATION_ID
-        description: "ABC "
+        description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: APP_ID
+        description: "{{ doc('app_id') }}"
+        tests:
+          - not_null:
+              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+      - name: PARAMS
+        description: "Parameters related to the app"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: APP_CLOSED
+        description: "Whether or not the app is currently deleted"
+        tests:
+          - not_null:
+              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+      - name: DIM_ACCOUNT_ID__CREATOR
+        description: "FK to DIM_ACCOUNT for the creator address"
+        tests:
+          - not_null
+      - name: CREATOR_ADDRESS
+        description: "Wallet creator account address"
+        tests:
+          - not_null:
+              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+      - name: DIM_BLOCK_ID__CREATED_AT
+        description: "FK to DIM_BLOCK for the created at datetime"
+        tests:
+          - not_null   
+      - name: CREATED_AT
+        description: "Block timestamp that the app was created"
+        tests:
+          - not_null:
+              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+      - name: DIM_BLOCK_ID__CLOSED_AT
+        description: "FK to DIM_BLOCK for the closed at datetime"
+        tests:
+          - not_null   
+      - name: CLOSED_AT
+        description: "Block timestamp that the app was deleted"
+        tests:
+          - dbt_expectations.expect_column_to_exist               
     tests:
       - dbt_constraints.primary_key:
           column_name: DIM_APPLICATION_ID

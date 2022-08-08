@@ -1,4 +1,4 @@
-{% docs algo_block_id %}
+{% docs block_id %}
 
 ID of the confirmed block
 

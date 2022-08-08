@@ -21,9 +21,7 @@ SELECT
     'axfer' AS tx_type,
     'asset transfer' AS tx_type_name,
     tx_message,
-    extra,
-    b._inserted_timestamp,
-    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+    extra
 FROM
     {{ ref('core__fact_transaction') }}
     b

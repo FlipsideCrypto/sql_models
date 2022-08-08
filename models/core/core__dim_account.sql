@@ -75,11 +75,11 @@ SELECT
     {{ dbt_utils.surrogate_key(
         ['null']
     ) }} AS dim_account_id,
-    NULL AS address,
-    NULL AS account_closed,
-    NULL AS non_zero_rewards_base,
-    NULL AS non_zero_rewards_total,
-    NULL AS non_zero_balance,
+    'null' AS address,
+    FALSE AS account_closed,
+    FALSE AS non_zero_rewards_base,
+    FALSE AS non_zero_rewards_total,
+    FALSE AS non_zero_balance,
     {{ dbt_utils.surrogate_key(
         ['null']
     ) }} AS dim_block_id__created_at,

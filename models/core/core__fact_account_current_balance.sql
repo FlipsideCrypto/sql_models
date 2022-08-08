@@ -49,6 +49,7 @@ SELECT
         10,
         6
     ) AS balance,
+    C.dim_block_id AS dim_block_id__created_at,
     C.block_timestamp AS created_at,
     A._inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
@@ -57,5 +58,5 @@ FROM
     JOIN {{ ref('core__dim_account') }}
     act
     ON A.address = act.address
-    LEFT JOIN {{ ref('core__dim_block') }} C
+    JOIN {{ ref('core__dim_block') }} C
     ON A.created_at = C.block_id

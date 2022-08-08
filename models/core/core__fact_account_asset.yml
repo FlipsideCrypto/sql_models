@@ -1,12 +1,60 @@
 version: 2
 models:
   - name: core__fact_account_asset
-    description: "  "
+    description: "The assets related to an account"
     columns:
       - name: FACT_ACCOUNT_ASSET_ID
-        description: "ABC "
+        description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: DIM_ACCOUNT_ID
+        description: "FK to DIM_ACCOUNT for this address"
+        tests:
+          - not_null
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - not_null
+      - name: DIM_ASSET_ID
+        description: "FK to DIM_ASSET for this asset id"
+        tests:
+          - not_null
+      - name: ASSET_ID
+        description: "{{ doc('asset_id') }}"
+        tests:
+          - not_null
+      - name: AMOUNT
+        description: "Amount of asset the wallet currently holds"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - NUMBER
+      - name: DIM_BLOCK_ID__ASSET_ADDED_AT 
+        description: "FK to DIM_BLOCK for the block id this asset was added to the account" 
+        tests:
+          - not_null
+      - name: ASSET_ADDED_AT
+        description: "Block timestamp that the asset was added to an account"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID__ASSET_ADDED_AT <> 'd41d8cd98f00b204e9800998ecf8427e'
+      - name: DIM_BLOCK_ID__ASSET_LAST_REMOVED    
+        description: "FK to DIM_BLOCK for the block id this asset was last removed from the account" 
+        tests:
+          - not_null
+      - name: ASSET_LAST_REMOVED
+        description: "Block timestamp that the asset was last removed from the account"
+        tests:
+          - dbt_expectations.expect_column_to_exist
+      - name: ASSET_CLOSED
+        description: "Whether or not the asset is currently deleted from the user"
+        tests:
+          - not_null
+      - name: FROZEN
+        description: "TRUE/FALSE imndicating if the asset is frozen"
+        tests:
+          - not_null
     tests:
       - dbt_constraints.primary_key:
           column_name: FACT_ACCOUNT_ASSET_ID

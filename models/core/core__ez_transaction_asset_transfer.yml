@@ -1,0 +1,53 @@
+version: 2
+models:
+  - name: core__ez_transaction_asset_transfer
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - INTRA
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null
+      - name: BLOCK_DATE
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: INTRA
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+      - name: INNER_TX
+        tests:
+          - not_null
+      - name: TX_SENDER
+        tests:
+          - not_null   
+      - name: FEE
+        tests:
+          - not_null:
+              where: inner_tx = 'true'
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: ASSET_NAME
+        tests:
+          - not_null   
+      - name: DECIMALS
+      - name: ASSET_SENDER
+      - name: ASSET_RECEIVER
+      - name: ASSET_AMOUNT
+      - name: TX_TYPE_NAME
+        tests:
+          - not_null
+      - name: TX_MESSAGE
+        tests:
+          - not_null
+      - name: EXTRA
+        tests:
+          - not_null

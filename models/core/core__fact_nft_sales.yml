@@ -22,11 +22,11 @@ models:
               datepart: day
               interval: 1
       - name: BLOCK_ID
-        description: "{{ doc('algo_block_id') }}"
+        description: "{{ doc('block_id') }}"
         tests:
           - not_null
       - name: DIM_BLOCK_ID
-        description: "{{ doc('algo_block_id') }}"
+        description: "{{ doc('block_id') }}"
         tests:
           - not_null
       - name: TX_GROUP_ID

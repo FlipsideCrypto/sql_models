@@ -43,14 +43,15 @@ SELECT
             ['null']
         ) }}
     ) AS dim_account_id,
-    da.address,
+    A.address,
     COALESCE(
         dim_asset_id,
         {{ dbt_utils.surrogate_key(
             ['null']
         ) }}
     ) AS dim_asset_id,
-    das.asset_id,
+    A.asset_id,
+    amount,
     COALESCE(
         C.dim_block_id,
         {{ dbt_utils.surrogate_key(

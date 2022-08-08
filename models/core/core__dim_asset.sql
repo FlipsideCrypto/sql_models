@@ -282,3 +282,59 @@ SELECT
     NULL AS is_nft,
     CURRENT_DATE AS _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    {{ dbt_utils.surrogate_key(
+        ['a.asset_id']
+    ) }} AS dim_asset_id,
+    A.asset_id AS asset_id,
+    NULL AS asset_name,
+    NULL AS total_supply,
+    NULL AS asset_url,
+    NULL AS decimals,
+    FALSE AS asset_deleted,
+    {{ dbt_utils.surrogate_key(
+        ['null']
+    ) }} AS dim_account_id__creator,
+    NULL AS creator_address,
+    {{ dbt_utils.surrogate_key(
+        ['null']
+    ) }} AS dim_block_id__created_at,
+    NULL AS created_at,
+    {{ dbt_utils.surrogate_key(
+        ['null']
+    ) }} AS dim_block_id__closed_at,
+    NULL AS closed_at,
+    NULL AS collection_name,
+    NULL AS collection_nft,
+    NULL AS arc69_nft,
+    NULL AS ar3_nft,
+    NULL AS traditional_nft,
+    NULL AS is_nft,
+    CURRENT_DATE AS _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+FROM
+    (
+        SELECT
+            DISTINCT asset_id
+        FROM
+            {{ ref('silver__transaction') }}
+        WHERE
+            COALESCE(asset_id, 0) <> 0
+
+{% if is_incremental() %}
+AND _inserted_timestamp >= (
+    SELECT
+        MAX(
+            _inserted_timestamp
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+{% endif %}
+) A
+LEFT JOIN {{ ref('bronze__asset') }}
+b
+ON A.asset_id = b.index
+WHERE
+    b.index IS NULL

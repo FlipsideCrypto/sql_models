@@ -9,7 +9,7 @@ WITH tx AS (
     sender AS account_id,
     tx_id
   FROM
-    {{ ref("silver__transaction") }}
+    {{ ref("core__fact_transaction") }}
   WHERE
     block_timestamp :: DATE > '2022-07-27' qualify (ROW_NUMBER() over (PARTITION BY tx_id
   ORDER BY

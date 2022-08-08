@@ -4,9 +4,47 @@ models:
     description: ""
     columns:
       - name: DIM_ACCOUNT_ID
-        description: "ABC "
+        description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - not_null
+      - name: ACCOUNT_CLOSED
+        description: "Whether or not the account is currently closed"
+        tests:
+          - not_null
+      - name: NON_ZERO_REWARDS_BASE
+        description: "Used as part of the rewards computation. Only applicable to accounts which are participating. Flag indicating whether or not this account has a non-zero value"
+        tests:
+          - not_null
+      - name: NON_ZERO_REWARDS_TOTAL
+        description: "Total amount of rewards a wallet address has accrued. Flag indicating whether or not this account has a non-zero value"
+        tests:
+          - not_null
+      - name: NON_ZERO_BALANCE
+        description: "Total number of ALGOs in the account. Flag indicating whether or not this account has a non-zero value"
+        tests:
+          - not_null
+      - name: DIM_BLOCK_ID__CREATED_AT
+        description: "FK to DIM_BLOCK which account was created"
+        tests:
+          - not_null
+      - name: CREATED_AT
+        description: "Block timestamp which account was most recently closed"
+      - name: DIM_BLOCK_ID__CLOSED_AT
+        description: "FK to DIM_BLOCK during which account was most recently closed"
+        tests:
+          - not_null
+      - name: CLOSED_AT
+        description: "Block timestamp during which account was closed"        
+      - name: DIM_WALLET_TYPE_ID
+        description: "Wallet type: sig(single signature), msig(multi-signature), lsig(programmatic-signature)"
+        tests:
+          - not_null
+      - name: ACCOUNT_DATA
+        description: "Extra data related to the account"
     tests:
       - dbt_constraints.primary_key:
           column_name: DIM_ACCOUNT_ID

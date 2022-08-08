@@ -1,12 +1,52 @@
 version: 2
 models:
   - name: core__fact_account_application
-    description: "  "
+    description: "The applications related to an accountS"
     columns:
       - name: FACT_ACCOUNT_APPLICATION_ID
-        description: "ABC "
+        description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: DIM_ACCOUNT_ID
+        description: "FK to DIM_ACCOUNT for this address"
+        tests:
+          - not_null
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - not_null
+      - name: DIM_APPLICATION_ID
+        description: "FK to DIM_APPLICATION for this app id"
+        tests:
+          - not_null
+      - name: APP_ID
+        description: "{{ doc('app_id') }}"
+        tests:
+          - not_null
+      - name: APP_INFO
+        description: "Is the app currently deleted from the account? If not it will have json about current status"
+        tests:
+          - not_null:
+              where: CLOSED_AT IS NULL
+      - name: DIM_BLOCK_ID__CREATED_AT
+        description: "FK to DIM_BLOCK which app was added to the account"
+        tests:
+          - not_null
+        description: "DIM_BLOCK_ID which app was added to the account"
+        tests:
+          - not_null
+      - name: CREATED_AT
+        description: "Block timestamp that the app(app_id)  was added to an account"
+        tests:
+          - not_null
+      - name: DIM_BLOCK_ID__CLOSED_AT
+        description: "FK to DIM_BLOCK during which the app was last removed from the account"
+        tests:
+          - not_null
+      - name: CLOSED_AT
+        description: "Block timestamp that the app(app_id) was last removed from the account"
+        tests:
+          - dbt_expectations.expect_column_to_exist      
     tests:
       - dbt_constraints.primary_key:
           column_name: FACT_ACCOUNT_APPLICATION_ID

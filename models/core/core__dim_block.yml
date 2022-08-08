@@ -4,9 +4,56 @@ models:
     description: "Records of all blocks that have occurred on Algorand, dating back to the genesis block. "
     columns:
       - name: DIM_BLOCK_ID
-        description: "ABC "
+        description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID <> 'd41d8cd98f00b204e9800998ecf8427e'
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID <> 'd41d8cd98f00b204e9800998ecf8427e'
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_DATE
+        description: "{{ doc('block_date') }}"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID <> 'd41d8cd98f00b204e9800998ecf8427e'
+      - name: REWARDS_LEVEL
+        description: "How many rewards, in MicroAlgos, have been distributed to each RewardUnit of MicroAlgos since genesis. Link: https://algorand.github.io/java-algorand-sdk/com/algorand/algosdk/v2/client/model/BlockRewards.html"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID <> 'd41d8cd98f00b204e9800998ecf8427e'
+      - name: NETWORK
+        description: "Signifying whether the block is from mainnet or testnet"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID <> 'd41d8cd98f00b204e9800998ecf8427e'
+      - name: GENESIS_HASH
+        description:  "{{ doc('genesis_hash') }}"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID <> 'd41d8cd98f00b204e9800998ecf8427e'
+      - name: PREV_BLOCK_HASH
+        description:  "ID to which the block before this belongs"
+        tests:
+          - not_null:
+              where: BLOCK_ID <> 0
+      - name: TXN_ROOT
+        description: "TransactionsRoot authenticates the set of transactions appearing in the block. More specifically, it's the root of a merkle tree whose leaves are the block's Txids, in lexicographic order. For the empty block, it's 0. Note that the TxnRoot does not authenticate the signatures on the transactions, only the transactions themselves. Two blocks with the same transactions but in a different order and with different signatures will have the same TxnRoot."
+        tests:
+          - dbt_expectations.expect_column_to_exist
+      - name: HEADER
+        description:  Block details, see rules below- for more message details https://developer.algorand.org/docs/rest-apis/indexer/#blockrewards
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID <> 'd41d8cd98f00b204e9800998ecf8427e'
     tests:
       - dbt_constraints.primary_key:
           column_name: DIM_BLOCK_ID
