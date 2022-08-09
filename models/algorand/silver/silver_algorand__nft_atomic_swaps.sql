@@ -18,7 +18,7 @@ WITH nft_transfers AS(
             SELECT
                 DISTINCT tx_group_id AS tx_group_id
             FROM
-                flipside_dev_db.silver_algorand.payment_transaction
+                {{ ref('silver_algorand__payment_transaction') }}
             WHERE
                 (
                     receiver = 'XNFT36FUCFRR6CK675FW4BEBCCCOJ4HOSMGCN6J2W6ZMB34KM2ENTNQCP4'
