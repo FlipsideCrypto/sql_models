@@ -1,0 +1,28 @@
+version: 2
+models:
+  - name: silver__transaction_reward
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - BLOCK_ID
+            - INTRA
+            - ACCOUNT
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: INTRA
+        tests:
+          - not_null
+      - name: TX_ID
+        tests:
+          - not_null
+      - name: ACCOUNT
+        tests:
+          - not_null
+      - name: AMOUNT
+        tests:
+          - not_null

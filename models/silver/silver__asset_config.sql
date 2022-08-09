@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = 'asset_id',
     incremental_strategy = 'merge',
-    cluster_by = ['_inserted_timestamp::DATE'],
+    cluster_by = ['_inserted_timestamp::DATE']
 ) }}
 
 SELECT

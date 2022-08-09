@@ -19,58 +19,118 @@ WITH base AS (
         _INSERTED_TIMESTAMP
     FROM
         {{ ref('silver__nft_sales_ab2_gallery') }}
-    UNION ALL
-    SELECT
-        'algoxnft' AS nft_marketplace,
-        block_timestamp,
-        block_id,
-        tx_group_id,
-        purchaser,
-        nft_asset_id,
-        number_of_nfts,
-        total_sales_amount,
-        _INSERTED_TIMESTAMP
-    FROM
-        {{ ref('silver__nft_sales_algoxnft') }}
-    UNION ALL
-    SELECT
-        'octorand' AS nft_marketplace,
-        block_timestamp,
-        block_id,
-        tx_group_id,
-        purchaser,
-        nft_asset_id,
-        number_of_nfts,
-        total_sales_amount,
-        _INSERTED_TIMESTAMP
-    FROM
-        {{ ref('silver__nft_sales_octorand') }}
-    UNION ALL
-    SELECT
-        'rand gallery' AS nft_marketplace,
-        block_timestamp,
-        block_id,
-        tx_group_id,
-        purchaser,
-        nft_asset_id,
-        number_of_nfts,
-        total_sales_amount,
-        _INSERTED_TIMESTAMP
-    FROM
-        {{ ref('silver__nft_sales_rand_gallery') }}
-    UNION ALL
-    SELECT
-        'atomic swaps' AS nft_marketplace,
-        block_timestamp,
-        block_id,
-        tx_group_id,
-        purchaser,
-        nft_asset_id,
-        number_of_nfts,
-        total_sales_amount,
-        _INSERTED_TIMESTAMP
-    FROM
-        {{ ref('silver__nft_atomic_swaps') }}
+
+{% if is_incremental() %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+{% endif %}
+UNION ALL
+SELECT
+    'algoxnft' AS nft_marketplace,
+    block_timestamp,
+    block_id,
+    tx_group_id,
+    purchaser,
+    nft_asset_id,
+    number_of_nfts,
+    total_sales_amount,
+    _INSERTED_TIMESTAMP
+FROM
+    {{ ref('silver__nft_sales_algoxnft') }}
+
+{% if is_incremental() %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+{% endif %}
+UNION ALL
+SELECT
+    'octorand' AS nft_marketplace,
+    block_timestamp,
+    block_id,
+    tx_group_id,
+    purchaser,
+    nft_asset_id,
+    number_of_nfts,
+    total_sales_amount,
+    _INSERTED_TIMESTAMP
+FROM
+    {{ ref('silver__nft_sales_octorand') }}
+
+{% if is_incremental() %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+{% endif %}
+UNION ALL
+SELECT
+    'rand gallery' AS nft_marketplace,
+    block_timestamp,
+    block_id,
+    tx_group_id,
+    purchaser,
+    nft_asset_id,
+    number_of_nfts,
+    total_sales_amount,
+    _INSERTED_TIMESTAMP
+FROM
+    {{ ref('silver__nft_sales_rand_gallery') }}
+
+{% if is_incremental() %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+{% endif %}
+UNION ALL
+SELECT
+    'atomic swaps' AS nft_marketplace,
+    block_timestamp,
+    block_id,
+    tx_group_id,
+    purchaser,
+    nft_asset_id,
+    number_of_nfts,
+    total_sales_amount,
+    _INSERTED_TIMESTAMP
+FROM
+    {{ ref('silver__nft_atomic_swaps') }}
+
+{% if is_incremental() %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+{% endif %}
 )
 SELECT
     {{ dbt_utils.surrogate_key(
@@ -87,7 +147,8 @@ SELECT
     C.dim_asset_id AS dim_asset_id__nft,
     number_of_nfts,
     total_sales_amount,
-    A._INSERTED_TIMESTAMP
+    A._INSERTED_TIMESTAMP,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
     base A
     JOIN {{ ref('core__dim_account') }}

@@ -70,7 +70,7 @@ hourly_prices AS (
             SELECT
                 DISTINCT DATE
             FROM
-                {{ ref('core__fact_hourly_pool_balances') }}
+                {{ ref('silver__hourly_pool_balances') }}
 
 {% if is_incremental() %}
 WHERE
@@ -110,7 +110,7 @@ balances AS (
         j_2 :other AS other_asset_id,
         j_3 :other :: STRING AS other_asset_name
     FROM
-        {{ ref('core__fact_hourly_pool_balances') }} A
+        {{ ref('silver__hourly_pool_balances') }} A
         JOIN lps b
         ON A.address = b.address
         LEFT JOIN {{ ref('core__dim_asset') }}

@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = "_unique_key",
     incremental_strategy = 'merge',
-    cluster_by = ['date'],
+    cluster_by = ['date']
 ) }}
 
 WITH address_ranges AS (

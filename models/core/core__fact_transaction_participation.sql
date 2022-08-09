@@ -26,7 +26,7 @@ WITH base AS(
 
 {% if is_incremental() %}
 WHERE
-  __HEVO__LOADED_AT >= (
+  _INSERTED_TIMESTAMP >= (
     SELECT
       MAX(
         _INSERTED_TIMESTAMP

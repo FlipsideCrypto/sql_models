@@ -1,7 +1,8 @@
 {{ config(
     materialized = 'incremental',
     unique_key = '_unique_key',
-    incremental_strategy = 'merge'
+    incremental_strategy = 'merge',
+    cluster_by = ['_inserted_timestamp::DATE']
 ) }}
 
 WITH wagmi_app_ids AS (

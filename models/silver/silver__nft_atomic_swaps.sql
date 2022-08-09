@@ -1,13 +1,14 @@
 {{ config(
     materialized = 'incremental',
     unique_key = '_unique_key',
-    incremental_strategy = 'merge'
+    incremental_strategy = 'merge',
+    cluster_by = ['_inserted_timestamp::DATE']
 ) }}
 
 WITH atran AS (
 
     SELECT
-        tx_group_id,
+        A.tx_group_id,
         block_timestamp,
         block_id,
         asset_receiver,
@@ -20,9 +21,45 @@ WITH atran AS (
         JOIN {{ ref('core__dim_asset') }}
         nft
         ON A.dim_asset_id = nft.dim_asset_id
-    WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
-        AND is_nft = TRUE
+        LEFT JOIN (
+            SELECT
+                DISTINCT tx_group_id AS tx_group_id
+            FROM
+                {{ ref('core__fact_transaction') }} A
+            WHERE
+                dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+                AND (
+                    receiver = 'XNFT36FUCFRR6CK675FW4BEBCCCOJ4HOSMGCN6J2W6ZMB34KM2ENTNQCP4'
+                    OR receiver = 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE'
+                )
+
+{% if is_incremental() %}
+AND A._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+{% endif %}
+) AS market
+ON A.tx_group_id = market.tx_group_id
+WHERE
+    dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+    AND is_nft = TRUE
+    AND market.tx_group_id IS NULL
+
+{% if is_incremental() %}
+AND A._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+{% endif %}
 ),
 pt AS (
     SELECT
@@ -33,6 +70,17 @@ pt AS (
         {{ ref('core__fact_transaction') }}
     WHERE
         dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+
+{% if is_incremental() %}
+AND _INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+{% endif %}
 ),
 nft_transfers AS(
     SELECT
@@ -46,17 +94,6 @@ nft_transfers AS(
             ),
             ''
         ) != 'ab2.gallery'
-
-{% if is_incremental() %}
-AND axfer._INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '4 HOURS'
-{% endif %}
 ),
 tx_group_id_atomic AS(
     SELECT
