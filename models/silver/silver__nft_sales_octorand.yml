@@ -10,8 +10,7 @@ models:
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null:
-              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null

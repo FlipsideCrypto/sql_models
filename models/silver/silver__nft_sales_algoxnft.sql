@@ -231,7 +231,7 @@ SELECT
     nft.nft_asset_id,
     total_sales_amount :: FLOAT / pow(
         10,
-        decimals
+        6
     ) AS total_sales_amount,
     CASE
         WHEN ast.decimals > 0 THEN number_of_nfts :: FLOAT / pow(

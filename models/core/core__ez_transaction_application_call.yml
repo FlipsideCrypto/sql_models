@@ -11,7 +11,12 @@ models:
         description: "{{ doc('block_timestamp') }}"
         tests:
           - not_null
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
       - name: BLOCK_DATE
+        tests:
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null
@@ -33,6 +38,8 @@ models:
           - not_null:
               where: inner_tx = 'true'
       - name: APP_ID
+        tests:
+          - not_null
       - name: TX_TYPE
         tests:
           - not_null

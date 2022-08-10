@@ -9,7 +9,7 @@ models:
           - dbt_expectations.expect_column_to_exist
       - name: TX_TYPE
         description: "{{ doc('tx_type') }}"
-      - name: TX_TYPE
+      - name: TX_TYPE_NAME
         description: "{{ doc('tx_type_name') }}"
     tests:
       - dbt_constraints.primary_key:

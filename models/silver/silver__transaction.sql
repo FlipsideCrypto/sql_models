@@ -111,6 +111,36 @@ SELECT
     b.tx_type,
     tx_message,
     extra,
+    COALESCE(
+        tx_message :txn :apid,
+        tx_message :apid,
+        tx_message :"dt" :"gd" :"aWQ=" :"ui"
+    ) app_id,
+    tx_message :txn :apar :t AS asset_supply,
+    tx_message :txn :apar AS asset_parameters,
+    tx_message :txn :fadd :: text AS asset_address,
+    tx_message :txn :afrz AS asset_freeze,
+    algorand_decode_b64_addr(
+        tx_message :txn :votekey :: text
+    ) AS participation_key,
+    algorand_decode_b64_addr(
+        tx_message :txn :selkey :: text
+    ) AS vrf_public_key,
+    tx_message :txn :votefst AS vote_first,
+    tx_message :txn :votelst AS vote_last,
+    tx_message :txn :votekd AS vote_keydilution,
+    algorand_decode_b64_addr(
+        tx_message :txn :rcv :: text
+    ) AS receiver,
+    algorand_decode_b64_addr(
+        tx_message :txn :asnd :: text
+    ) AS asset_sender,
+    algorand_decode_b64_addr(
+        tx_message :txn :arcv :: text
+    ) AS asset_receiver,
+    tx_message :txn :aamt AS asset_amount,
+    tx_message :txn :xaid AS asset_transferred,
+    tx_message :txn :amt AS amount,
     concat_ws(
         '-',
         b.block_id :: STRING,

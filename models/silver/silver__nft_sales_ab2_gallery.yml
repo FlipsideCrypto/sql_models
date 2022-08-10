@@ -10,11 +10,7 @@ models:
     columns:
       - name: BLOCK_TIMESTAMP
         tests:
-          - not_null:
-              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
+          - not_null
       - name: BLOCK_ID
         tests:
           - not_null
