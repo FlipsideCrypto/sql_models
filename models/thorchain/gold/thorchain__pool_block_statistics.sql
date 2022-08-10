@@ -11,6 +11,7 @@ WITH pool_depth AS (
     pool_name,
     rune_e8 AS rune_depth,
     asset_e8 AS asset_depth,
+    synth_e8 AS synth_depth,
     rune_e8 / asset_e8 AS asset_price
   FROM
     (
@@ -19,6 +20,7 @@ WITH pool_depth AS (
         block_id,
         pool_name,
         rune_e8,
+        synth_e8,
         asset_e8,
         MAX(block_id) over (PARTITION BY pool_name, DATE(block_timestamp)) AS max_block_id
       FROM
@@ -401,6 +403,10 @@ joined AS (
       0
     ) AS rune_depth,
     COALESCE(
+      synth_depth,
+      0
+    ) AS synth_depth,
+    COALESCE(
       status,
       'no status'
     ) AS status,
@@ -476,9 +482,10 @@ joined AS (
       rune_depth,
       0
     ) AS depth_product,
+	total_stake * synth_depth / ((asset_depth * 2) - synth_depth) AS synth_units,
     CASE
       WHEN total_stake = 0 THEN 0
-      ELSE SQRT(depth_product) / total_stake
+      ELSE SQRT(depth_product) / (total_stake + synth_units)
     END AS liquidity_unit_value_index
   FROM
     pool_depth
