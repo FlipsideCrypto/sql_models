@@ -42,7 +42,7 @@ SELECT
   algorand_decode_b64_addr(
     sender
   ) AS sender,
-  ZEROIFNULL(fee),
+  ZEROIFNULL(fee) AS fee,
   algorand_decode_b64_addr(
     participation_key
   ) AS participation_key,
