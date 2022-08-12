@@ -7,13 +7,25 @@
 WITH nft_transfers AS(
 
     SELECT
-        DISTINCT tx_group_id
+        DISTINCT axfer.tx_group_id
     FROM
         {{ ref('silver_algorand__asset_transfer_transaction') }}
         axfer
         INNER JOIN {{ ref('silver_algorand__nft_asset') }}
         n
         ON n.nft_asset_id = axfer.asset_id
+        LEFT JOIN (
+            SELECT
+                DISTINCT tx_group_id AS tx_group_id
+            FROM
+                {{ ref('silver_algorand__payment_transaction') }}
+            WHERE
+                (
+                    receiver = 'XNFT36FUCFRR6CK675FW4BEBCCCOJ4HOSMGCN6J2W6ZMB34KM2ENTNQCP4'
+                    OR receiver = 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE'
+                )
+        ) AS market
+        ON axfer.tx_group_id = market.tx_group_id
     WHERE
         COALESCE(
             TRY_BASE64_DECODE_STRING(
@@ -21,6 +33,7 @@ WITH nft_transfers AS(
             ),
             ''
         ) != 'ab2.gallery'
+        AND market.tx_group_id IS NULL
 
 {% if is_incremental() %}
 AND axfer._INSERTED_TIMESTAMP >= (
