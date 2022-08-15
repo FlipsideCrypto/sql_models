@@ -258,5 +258,10 @@ sources:
     schema: SUSHI
     tables:
       - name: EZ_SWAPS
+  - name: Avalanche
+    database: AVALANCHE
+    schema: SUSHI
+    tables:
+      - name: EZ_SWAPS
 
 
