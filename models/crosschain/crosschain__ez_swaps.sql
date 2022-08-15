@@ -133,7 +133,7 @@ FROM
 
     Union all
 
---  Arbitrum/sushi
+--  Avalanche/sushi
 SELECT
     'Avalanche' as Blockchain,
     Block_timestamp,
