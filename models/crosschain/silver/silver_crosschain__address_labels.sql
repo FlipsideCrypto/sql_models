@@ -2,7 +2,7 @@
   materialized = 'incremental',
   unique_key = "CONCAT_WS('-', blockchain, address, creator)",
   incremental_strategy = 'delete+insert',
-  tags = ['snowflake', 'crosschain', 'address_labels', 'silver_crosschain__address_labels']
+  tags = ['snowflake', 'crosschain', 'labels', 'silver_crosschain__address_labels']
 ) }}
 
 WITH base_tables AS (

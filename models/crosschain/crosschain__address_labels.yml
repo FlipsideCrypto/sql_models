@@ -32,6 +32,10 @@ models:
         description: A sub-category nested within label type providing further detail
         tests:
           - not_null
+      - name: ADDRESS_NAME
+        description: Name of the address
+        tests:
+          - not_null
       - name: PROJECT_NAME
         description: Name of the controlling entity of the address
         tests:
