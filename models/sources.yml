@@ -258,5 +258,17 @@ sources:
     schema: SUSHI
     tables:
       - name: EZ_SWAPS
+  - name: legacy_silver_crosschain
+    database: flipside_prod_db
+    schema: silver_crosschain
+    tables:
+      - name: ntr
+      - name: address_labels
+  - name: ethereum_silver
+    database: ethereum
+    schema: silver
+    tables:
+      - name: traces
+      - name: logs
 
 
