@@ -19,8 +19,8 @@ FROM
 UNION ALL 
 
 SELECT 
-    NULL AS system_created_at, 
-    NULL AS insert_date, 
+    system_created_at, 
+    insert_date, 
     blockchain, 
     address, 
     creator, 

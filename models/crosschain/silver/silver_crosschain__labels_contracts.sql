@@ -65,6 +65,8 @@ base_labels AS (
 base_legacy_labels AS (
     SELECT
         DISTINCT 
+            system_created_at, 
+            insert_date, 
             address, 
             l1_label,
             l2_label,
@@ -80,6 +82,8 @@ base_legacy_labels AS (
 ), 
 base_transacts AS (
     SELECT
+        b.system_created_at, 
+        b.insert_date, 
         A.tx_hash,
         A.block_timestamp,
         A.from_address,
@@ -144,6 +148,8 @@ base_logs AS (
 ), 
 final_base AS (
     SELECT
+        A.system_created_at, 
+        A.insert_date, 
         A.tx_hash,
         A.block_timestamp,
         A.from_address,
@@ -216,7 +222,10 @@ final_base AS (
         ON A.tx_hash = C.tx_hash
 )
 SELECT
-    DISTINCT 'ethereum' AS blockchain,
+    DISTINCT 
+    system_created_at, 
+    insert_date, 
+    'ethereum' AS blockchain,
     to_address AS address,
     'flipside' AS creator,
     l1_label,
