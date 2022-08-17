@@ -144,3 +144,19 @@ WHERE
   AND project_name IS NOT NULL
   AND address_name IS NOT NULL
   AND l1_label <> 'project'
+
+UNION ALL 
+
+SELECT 
+    system_created_at, 
+    insert_date, 
+    blockchain, 
+    address, 
+    creator, 
+    l1_label AS label_type, 
+    l2_label AS label_subtype, 
+    address_name, 
+    project_name, 
+    NULL AS delete_flag
+FROM 
+    {{ ref('silver_crosschain__labels_contracts') }}
