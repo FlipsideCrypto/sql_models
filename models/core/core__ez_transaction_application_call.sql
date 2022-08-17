@@ -19,4 +19,4 @@ SELECT
 FROM
     {{ ref('core__fact_transaction') }}
 WHERE
-    b.dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
+    dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'

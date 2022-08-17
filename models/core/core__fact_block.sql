@@ -67,10 +67,11 @@ SELECT
     COALESCE(
         tx_count,
         0
-    ) AS tx_count COALESCE(
+    ) AS tx_count,
+    COALESCE(
         tx_sender_count,
         0
-    ) astx_sender_count,
+    ) AS tx_sender_count,
     COALESCE(
         fee_total,
         0
