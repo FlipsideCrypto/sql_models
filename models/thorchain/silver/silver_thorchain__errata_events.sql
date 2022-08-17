@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__errata_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY in_tx, asset, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY event_id, in_tx, asset, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

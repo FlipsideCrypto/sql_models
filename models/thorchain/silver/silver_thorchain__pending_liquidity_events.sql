@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__pending_liquidity_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY pool, asset_tx, asset_chain, asset_addr, rune_tx, rune_addr, pending_type, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY event_id, pool, asset_tx, asset_chain, asset_addr, rune_tx, rune_addr, pending_type, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

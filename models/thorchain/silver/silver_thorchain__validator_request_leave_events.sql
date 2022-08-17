@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__validator_request_leave_events') }}
-  e qualify(ROW_NUMBER() over(PARTITION BY tx, block_timestamp, from_addr, node_addr
+  e qualify(ROW_NUMBER() over(PARTITION BY event_id, tx, block_timestamp, from_addr, node_addr
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

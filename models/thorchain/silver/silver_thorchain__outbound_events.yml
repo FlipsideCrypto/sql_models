@@ -12,6 +12,7 @@ models:
             - MEMO
             - IN_TX
             - BLOCK_TIMESTAMP
+            - EVENT_ID
     columns:
       - name: CHAIN
         tests:
