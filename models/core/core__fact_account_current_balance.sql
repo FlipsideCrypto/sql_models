@@ -8,16 +8,14 @@
 WITH base AS (
 
     SELECT
-        algorand_decode_hex_addr(
-            addr :: text
-        ) AS address,
+        address,
         rewardsbase,
         rewards_total,
         microalgos,
         created_at,
         _inserted_timestamp
     FROM
-        {{ ref('bronze__account') }} A
+        {{ ref('silver__account') }} A
 
 {% if is_incremental() %}
 WHERE
@@ -28,6 +26,14 @@ WHERE
             )
         FROM
             {{ this }}
+    )
+    OR address IN (
+        SELECT
+            address
+        FROM
+            {{ this }}
+        WHERE
+            dim_block_id__created_at = '-1'
     )
 {% endif %}
 )

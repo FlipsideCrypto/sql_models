@@ -9,25 +9,24 @@ WITH atran AS (
 
     SELECT
         A.tx_group_id,
-        block_timestamp,
         block_id,
         asset_receiver,
-        asset_id,
+        A.asset_id,
         decimals,
         tx_message,
         asset_amount
     FROM
-        {{ ref('core__fact_transaction') }} A
-        JOIN {{ ref('core__dim_asset') }}
+        {{ ref('silver__transaction') }} A
+        JOIN {{ ref('silver__asset') }}
         nft
-        ON A.dim_asset_id = nft.dim_asset_id
+        ON A.asset_id = nft.asset_id
         LEFT JOIN (
             SELECT
                 DISTINCT tx_group_id AS tx_group_id
             FROM
-                {{ ref('core__fact_transaction') }} A
+                {{ ref('silver__transaction') }} A
             WHERE
-                dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+                tx_type = 'pay'
                 AND (
                     receiver = 'XNFT36FUCFRR6CK675FW4BEBCCCOJ4HOSMGCN6J2W6ZMB34KM2ENTNQCP4'
                     OR receiver = 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE'
@@ -46,7 +45,7 @@ AND A._INSERTED_TIMESTAMP >= (
 ) AS market
 ON A.tx_group_id = market.tx_group_id
 WHERE
-    dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+    tx_type = 'axfer'
     AND is_nft = TRUE
     AND market.tx_group_id IS NULL
 
@@ -65,11 +64,11 @@ pt AS (
     SELECT
         tx_group_id,
         amount,
-        tx_sender
+        sender
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
 
 {% if is_incremental() %}
 AND _INSERTED_TIMESTAMP >= (
@@ -98,33 +97,31 @@ nft_transfers AS(
 tx_group_id_atomic AS(
     SELECT
         t.tx_group_id,
+        t.block_id,
         COUNT(
             t.tx_group_id
         ) AS tx_group_id_ct,
         SUM(
             CASE
-                WHEN dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444' THEN 1
+                WHEN tx_type = 'pay' THEN 1
                 ELSE 0
             END
         ) AS pay_tx_count,
         COUNT(
             DISTINCT CASE
-                WHEN dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+                WHEN tx_type = 'axfer'
                 AND nft.tx_group_id IS NOT NULL
-                AND t.tx_message :txn :aamt :: NUMBER > 0 THEN tx_sender {# ELSE 0 #}
+                AND t.tx_message :txn :aamt :: NUMBER > 0 THEN sender {# ELSE 0 #}
             END
         ) AS axfer_tx_count,
         MAX(
             t._INSERTED_TIMESTAMP
         ) AS _INSERTED_TIMESTAMP
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
         t
         JOIN nft_transfers nft
         ON t.tx_group_id = nft.tx_group_id
-        JOIN {{ ref('core__dim_asset') }}
-        ast
-        ON t.dim_asset_id = ast.dim_asset_id
     WHERE
         (
             asset_id = 0
@@ -132,7 +129,7 @@ tx_group_id_atomic AS(
                 SELECT
                     asset_id
                 FROM
-                    {{ ref('core__dim_asset') }}
+                    {{ ref('silver__asset') }}
                 WHERE
                     is_nft = TRUE
             )
@@ -149,6 +146,7 @@ AND t._INSERTED_TIMESTAMP >= (
 ) - INTERVAL '4 HOURS'
 {% endif %}
 GROUP BY
+    t.block_id,
     t.tx_group_id
 HAVING
     tx_group_id_ct >= 2
@@ -156,7 +154,7 @@ HAVING
     AND axfer_tx_count = 1
 )
 SELECT
-    axfer.block_timestamp,
+    b.block_timestamp,
     axfer.block_id,
     axfer.tx_group_id,
     axfer.asset_receiver AS purchaser,
@@ -184,18 +182,21 @@ SELECT
     A._INSERTED_TIMESTAMP
 FROM
     tx_group_id_atomic A
+    JOIN {{ ref('silver__block') }}
+    b
+    ON A.block_id = b.block_id
     JOIN atran axfer
     ON A.tx_group_id = axfer.tx_group_id
     JOIN pt pay
     ON pay.tx_group_id = A.tx_group_id
-    AND axfer.asset_receiver = pay.tx_sender
+    AND axfer.asset_receiver = pay.sender
     LEFT JOIN (
         SELECT
             DISTINCT tx_group_id
         FROM
-            {{ ref('core__fact_transaction') }}
+            {{ ref('silver__transaction') }}
         WHERE
-            dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
+            tx_type = 'appl'
     ) exc
     ON A.tx_group_id = exc.tx_group_id
 WHERE

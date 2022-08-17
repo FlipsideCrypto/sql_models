@@ -34,26 +34,34 @@ WHERE
     FROM
       {{ this }}
   ) - INTERVAL '4 HOURS'
+  OR block_id || '--' || address IN (
+    SELECT
+      block_id || '--' || address
+    FROM
+      {{ this }}
+    WHERE
+      dim_block_id = '-1'
+      OR dim_account_id = '-1'
+  )
 {% endif %}
 )
 SELECT
   {{ dbt_utils.surrogate_key(
     ['a.block_id','a.intra','a.address']
   ) }} AS fact_transaction_participation_id,
-  ab.block_timestamp AS block_timestamp,
+  COALESCE(
+    ab.block_timestamp,
+    '1900-01-01' :: DATE
+  ) AS block_timestamp,
   A.block_id,
   COALESCE(
     ab.dim_block_id,
-    {{ dbt_utils.surrogate_key(
-      ['null']
-    ) }}
+    '-1'
   ) AS dim_block_id,
   A.intra,
   COALESCE(
     ad.dim_account_id,
-    {{ dbt_utils.surrogate_key(
-      ['null']
-    ) }}
+    '-1'
   ) AS dim_account_id,
   A.address,
   A._INSERTED_TIMESTAMP,

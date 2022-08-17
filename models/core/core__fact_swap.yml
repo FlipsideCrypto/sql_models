@@ -18,10 +18,6 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
-        tests:
-          - not_null
       - name: INTRA
         description: "{{ doc('intra') }}"
         tests:
@@ -33,32 +29,30 @@ models:
       - name: DIM_APPLICATION_ID
         description: "FK to the DIM_APPLICATION table "
         tests:
-          - not_null
-      - name: APP_ID
-        description: "{{ doc('app_id') }}"
-        tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: SWAPPER
         description: "Address that initiated the swap"
         tests:
           - not_null:
-              where: BLOCK_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
       - name: DIM_ASSET_ID__SWAP_FROM
         description: "FK to the DIM_ASSET table"
         tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: SWAP_FROM_ASSET_ID
         description: "Token being sent or swapped from"
         tests:
           - not_null:
-              where: BLOCK_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: SWAP_FROM_AMOUNT
         description: "Total amount of the token sent in to initiate the swap"
         tests:
           - not_null:
-              where: BLOCK_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: POOL_ADDRESS
         description: "Address of the pool the swap is coming from"
         tests:
@@ -68,7 +62,8 @@ models:
       - name: DIM_ASSET_ID__SWAP_TO
         description: "FK to the DIM_ASSET table"
         tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: SWAP_TO_ASSET_ID
         description: "Token being received or swapped for"
         tests:

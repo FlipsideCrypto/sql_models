@@ -2,14 +2,15 @@
     materialized = 'incremental',
     unique_key = "_unique_key",
     incremental_strategy = 'merge',
-    cluster_by = ['block_timestamp::DATE']
+    cluster_by = ['_INSERTED_TIMESTAMP::DATE']
 ) }}
 
 WITH base AS (
 
     SELECT
         tx_ID,
-        DATA
+        DATA,
+        _INSERTED_TIMESTAMP
     FROM
         {{ ref('silver__indexer_tx') }}
     WHERE
@@ -31,7 +32,8 @@ inner_outer AS (
         C.value :sender :: STRING AS sender,
         C.value :"sender-rewards" AS sender_rewards,
         C.value :"payment-transaction" :"receiver" :: STRING AS reciever,
-        C.value :"receiver-rewards" AS reciever_rewards
+        C.value :"receiver-rewards" AS reciever_rewards,
+        _INSERTED_TIMESTAMP
     FROM
         base A,
         LATERAL FLATTEN(
@@ -45,12 +47,12 @@ inner_outer AS (
         A.data :sender :: STRING AS sender,
         A.data :"sender-rewards" AS sender_rewards,
         A.data :"payment-transaction" :"receiver" :: STRING AS reciever,
-        A.data :"receiver-rewards" AS reciever_rewards
+        A.data :"receiver-rewards" AS reciever_rewards,
+        _INSERTED_TIMESTAMP
     FROM
         base A
 )
 SELECT
-    b.block_timestamp,
     A.intra,
     A.block_id,
     A.tx_id,
@@ -61,7 +63,8 @@ SELECT
         A.block_id,
         A.intra,
         A.account
-    ) AS _unique_key
+    ) AS _unique_key,
+    _INSERTED_TIMESTAMP
 FROM
     (
         SELECT
@@ -69,7 +72,8 @@ FROM
             block_id,
             intra,
             sender AS account,
-            sender_rewards AS amount
+            sender_rewards AS amount,
+            _INSERTED_TIMESTAMP
         FROM
             inner_outer
         WHERE
@@ -80,19 +84,17 @@ FROM
             block_id,
             intra,
             reciever AS account,
-            reciever_rewards AS amount
+            reciever_rewards AS amount,
+            _INSERTED_TIMESTAMP
         FROM
             inner_outer
         WHERE
             reciever_rewards > 0
     ) A
-    JOIN {{ ref('core__dim_block') }}
-    b
-    ON A.block_id = b.block_id
 GROUP BY
-    b.block_timestamp,
     A.intra,
     A.block_id,
     A.tx_id,
     A.account,
-    _unique_key
+    _unique_key,
+    _INSERTED_TIMESTAMP

@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_price_swap
+  - name: core__ez_price_swap
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

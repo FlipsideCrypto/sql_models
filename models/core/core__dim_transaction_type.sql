@@ -49,11 +49,15 @@ FROM
     base
 UNION ALL
 SELECT
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }}
-    dim_transaction_type_id,
-    NULL AS tx_type,
-    NULL AS tx_type_name,
-    CURRENT_DATE AS _inserted_timestamp,
+    '-1' AS dim_transaction_type_id,
+    'unknown' AS tx_type,
+    'unknown' AS tx_type_name,
+    '1900-01-01' :: DATE _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    '-2' AS dim_transaction_type_id,
+    'not applicable' AS tx_type,
+    'not applicable' AS tx_type_name,
+    '1900-01-01' :: DATE _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id

@@ -3,14 +3,13 @@
 ) }}
 
 SELECT
-    b.block_timestamp,
-    block_date,
-    b.block_id,
+    block_timestamp,
+    block_timestamp :: DATE block_date,
     intra,
     tx_group_id,
     tx_id,
     inner_tx,
-    b.tx_sender,
+    tx_sender,
     fee,
     app_id,
     'appl' AS tx_type,
@@ -19,8 +18,5 @@ SELECT
     extra
 FROM
     {{ ref('core__fact_transaction') }}
-    b
-    JOIN {{ ref('core__dim_block') }} C
-    ON b.dim_block_id = C.dim_block_id
 WHERE
     b.dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'

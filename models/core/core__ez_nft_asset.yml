@@ -1,15 +1,12 @@
 version: 2
 models:
   - name: core__ez_nft_asset
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - NFT_ASSET_ID
     columns:
       - name: NFT_ASSET_ID
         description: "{{ doc('asset_id') }}"
         tests:
           - not_null   
+          - unique
       - name: NFT_ASSET_NAME
         description: "{{ doc('asset_name') }}"
       - name: NFT_TOTAL_SUPPLY

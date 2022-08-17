@@ -11,12 +11,12 @@ WITH nft_trans AS (
         tx_group_id,
         fee,
         amount,
-        tx_sender,
+        sender,
         _INSERTED_TIMESTAMP
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
         AND receiver = 'XNFT36FUCFRR6CK675FW4BEBCCCOJ4HOSMGCN6J2W6ZMB34KM2ENTNQCP4'
         AND algorand_decode_b64_addr(
             tx_message :txn :close :: STRING
@@ -37,24 +37,23 @@ AND _INSERTED_TIMESTAMP >= (
 all_nft_txn AS (
     SELECT
         block_id,
-        block_timestamp,
         A.tx_group_id,
         SUM(
             A.amount
         ) total_sales_amount
     FROM
-        {{ ref('core__fact_transaction') }} A
+        {{ ref('silver__transaction') }} A
         JOIN (
             SELECT
-                DISTINCT tx_sender,
+                DISTINCT sender,
                 tx_group_id
             FROM
                 nft_trans
         ) b
         ON A.tx_group_id = b.tx_group_id
-        AND A.tx_sender = b.tx_sender
+        AND A.sender = b.sender
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
 
 {% if is_incremental() %}
 AND A._INSERTED_TIMESTAMP >= (
@@ -68,16 +67,14 @@ AND A._INSERTED_TIMESTAMP >= (
 {% endif %}
 GROUP BY
     block_id,
-    block_timestamp,
     A.tx_group_id
 ),
 buynow AS(
     SELECT
         sale.block_id,
-        sale.block_timestamp,
         sale.tx_group_id,
         nft.asset_receiver AS purchaser,
-        ast.asset_id AS nft_asset_id,
+        asset_id AS nft_asset_id,
         sale.total_sales_amount,
         SUM(
             nft.asset_amount
@@ -87,21 +84,17 @@ buynow AS(
         ) AS _INSERTED_TIMESTAMP
     FROM
         all_nft_txn sale
-        JOIN {{ ref('core__fact_transaction') }}
+        JOIN {{ ref('silver__transaction') }}
         nft
         ON sale.tx_group_id = nft.tx_group_id
-        JOIN {{ ref('core__dim_asset') }}
-        ast
-        ON nft.dim_asset_id = ast.dim_asset_id
     WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+        tx_type = 'axfer'
         AND asset_amount > 0
     GROUP BY
         sale.block_id,
-        sale.block_timestamp,
         sale.tx_group_id,
         nft.asset_receiver,
-        ast.asset_id,
+        asset_id,
         sale.total_sales_amount
 ),
 nft_trans_auc AS (
@@ -112,12 +105,10 @@ nft_trans_auc AS (
         ) AS close_amount,
         tx_group_id
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
         pt
-        LEFT JOIN {{ ref('core__dim_asset') }} AS ast
-        ON ast.dim_asset_id = pt.dim_asset_id
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
         AND algorand_decode_b64_addr(
             tx_message :txn :close :: STRING
         ) = 'XNFT36FUCFRR6CK675FW4BEBCCCOJ4HOSMGCN6J2W6ZMB34KM2ENTNQCP4'
@@ -137,14 +128,13 @@ AND pt._INSERTED_TIMESTAMP >= (
 all_nft_txn_auc AS (
     SELECT
         block_id,
-        block_timestamp,
         A.tx_group_id,
         amount,
         _INSERTED_TIMESTAMP
     FROM
-        {{ ref('core__fact_transaction') }} A
+        {{ ref('silver__transaction') }} A
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
         AND tx_group_id IN (
             SELECT
                 DISTINCT tx_group_id
@@ -167,7 +157,6 @@ AND A._INSERTED_TIMESTAMP >= (
 sales_auc AS (
     SELECT
         sales.block_id,
-        sales.block_timestamp,
         sales.tx_group_id,
         SUM(
             sales.amount
@@ -183,13 +172,11 @@ sales_auc AS (
         ON sales.tx_group_id = close_a.tx_group_id
     GROUP BY
         sales.block_id,
-        block_timestamp,
         sales.tx_group_id
 ),
 auc_sales AS(
     SELECT
         sales.block_id,
-        sales.block_timestamp,
         sales.tx_group_id,
         nft.asset_receiver AS purchaser,
         ast.asset_id AS nft_asset_id,
@@ -203,19 +190,18 @@ auc_sales AS(
         decimals
     FROM
         sales_auc sales
-        JOIN {{ ref('core__fact_transaction') }}
+        JOIN {{ ref('silver__transaction') }}
         nft
         ON sales.tx_group_id = nft.tx_group_id
-        JOIN {{ ref('core__dim_asset') }}
+        JOIN {{ ref('silver__asset') }}
         ast
-        ON nft.dim_asset_id = ast.dim_asset_id
+        ON nft.asset_id = ast.asset_id
     WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+        tx_type = 'axfer'
         AND sales IS NOT NULL
         AND asset_amount IS NOT NULL
     GROUP BY
         sales.block_id,
-        sales.block_timestamp,
         sales.tx_group_id,
         nft.asset_receiver,
         ast.asset_id,
@@ -224,7 +210,6 @@ auc_sales AS(
 )
 SELECT
     block_id,
-    block_timestamp,
     tx_group_id,
     'buy now' event_type,
     purchaser,
@@ -252,7 +237,7 @@ SELECT
     nft._INSERTED_TIMESTAMP
 FROM
     buynow nft
-    JOIN {{ ref('core__dim_asset') }}
+    JOIN {{ ref('silver__asset') }}
     ast
     ON nft.nft_asset_id = ast.asset_id
 WHERE
@@ -260,7 +245,6 @@ WHERE
 UNION ALL
 SELECT
     block_id,
-    block_timestamp,
     tx_group_id,
     'auction' event_type,
     purchaser,

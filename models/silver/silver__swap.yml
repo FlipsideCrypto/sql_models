@@ -1,0 +1,51 @@
+version: 2
+models:
+  - name: silver__swap
+    description: "view containing swaps from algofi, tinyman, pactfi, and wagmiswap dexes"
+    columns:
+      - name: SWAP_PROGRAM
+        description: "The DEX or program used to make the swap"
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+        tests:
+          - not_null
+      - name: INTRA
+        description: "{{ doc('intra') }}"
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+        description: "{{ doc('tx_group_id') }}"
+        tests:
+          - not_null
+      - name: APP_ID
+        description: "{{ doc('app_id') }}"
+        tests:
+          - not_null
+      - name: SWAPPER
+        description: "Address that initiated the swap"
+        tests:
+          - not_null
+      - name: SWAP_FROM_ASSET_ID
+        description: "Token being sent or swapped from"
+        tests:
+          - not_null
+      - name: SWAP_FROM_AMOUNT
+        description: "Total amount of the token sent in to initiate the swap"
+        tests:
+          - not_null
+      - name: POOL_ADDRESS
+        description: "Address of the pool the swap is coming from"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
+      - name: SWAP_TO_ASSET_ID
+        description: "Token being received or swapped for"
+        tests:
+          - not_null
+      - name: SWAP_TO_AMOUNT
+        description: "Total amount of the token received in the swap"
+        tests:
+          - not_null

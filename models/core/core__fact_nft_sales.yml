@@ -1,10 +1,6 @@
 version: 2
 models:
   - name: core__fact_nft_sales
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - FACT_NFT_SALES_ID
     columns:
       - name: FACT_NFT_SALES_ID
         description: "The marketplace or process used to make exchange the NFT"
@@ -21,14 +17,11 @@ models:
           - dbt_expectations.expect_row_values_to_have_recent_data:
               datepart: day
               interval: 1
-      - name: BLOCK_ID
-        description: "{{ doc('block_id') }}"
-        tests:
-          - not_null
       - name: DIM_BLOCK_ID
         description: "{{ doc('block_id') }}"
         tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: TX_GROUP_ID
         description: "{{ doc('tx_group_id') }}"
         tests:
@@ -40,7 +33,8 @@ models:
       - name: DIM_ACCOUNT_ID__PURCHASER
         description: ""
         tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: NFT_ASSET_ID
         description: "The asset id of the NFT"
         tests:
@@ -48,7 +42,8 @@ models:
       - name: DIM_ASSET_ID__NFT
         description: ""
         tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: NUMBER_OF_NFTS
         description: "The amount on the NFT sold. In most cases this will be 1 but some NFTs have a token supply higher than 1"
         tests:
@@ -57,5 +52,21 @@ models:
         description: "Total amount of paid in ALGOs for the NFT purchase"
         tests:
           - not_null
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: FACT_NFT_SALES_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_BLOCK_ID
+          pk_table_name: ref('core__dim_block')
+          pk_column_name: DIM_BLOCK_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID__PURCHASER
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ASSET_ID__NFT
+          pk_table_name: ref('core__dim_asset')
+          pk_column_name: DIM_ASSET_ID
+
           
           

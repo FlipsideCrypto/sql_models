@@ -1,0 +1,35 @@
+version: 2
+models:
+  - name: silver__account
+    description: ""
+    columns:
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - not_null
+          - unique
+      - name: ACCOUNT_CLOSED
+        description: "Whether or not the account is currently closed"
+        tests:
+          - not_null
+      - name: REWARDS_BASE
+      - name: NON_ZERO_REWARDS_BASE
+        description: "Used as part of the rewards computation. Only applicable to accounts which are participating. Flag indicating whether or not this account has a non-zero value"
+        tests:
+          - not_null
+      - name: REWARDS_TOTAL
+      - name: NON_ZERO_REWARDS_TOTAL
+        description: "Total amount of rewards a wallet address has accrued. Flag indicating whether or not this account has a non-zero value"
+        tests:
+          - not_null
+      - name: MICROALGOS
+      - name: NON_ZERO_BALANCE
+        description: "Total number of ALGOs in the account. Flag indicating whether or not this account has a non-zero value"
+        tests:
+          - not_null
+      - name: CREATED_AT
+        description: "Block timestamp which account was most recently closed"
+      - name: CLOSED_AT
+        description: "Block timestamp during which account was closed"        
+      - name: ACCOUNT_DATA
+        description: "Extra data related to the account"

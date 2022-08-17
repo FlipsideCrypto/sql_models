@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = "fact_price_swap_id",
+    unique_key = "_unique_key",
     incremental_strategy = 'merge',
     cluster_by = ['block_hour']
 ) }}
@@ -18,23 +18,15 @@ WITH swaps AS (
         swap_to_amount,
         swap_program AS dex
     FROM
-        {{ ref('core__fact_swap') }}
+        {{ ref('silver__swap') }} A
+        JOIN {{ ref('silver__block') }}
+        b
+        ON A.block_id = b.block_id
     WHERE
         swap_from_amount > 0
-        AND swap_to_amount > 0
-
-{% if is_incremental() %}
-AND block_hour >=(
-    SELECT
-        DATEADD('day', -1, MAX(block_hour :: DATE))
-    FROM
-        {{ this }}
-)
-{% endif %}
-
-qualify(RANK() over(
-ORDER BY
-    block_hour DESC)) <> 1
+        AND swap_to_amount > 0 qualify(RANK() over(
+    ORDER BY
+        block_hour DESC)) <> 1
 ),
 swap_range AS (
     SELECT
@@ -448,34 +440,7 @@ FINAL AS (
         A.block_hour,
         A.asset_id,
         C.asset_ID
-)
-
-{% if is_incremental() %},
-not_in_final AS (
-    SELECT
-        DATEADD(
-            'HOUR',
-            1,
-            block_hour
-        ) block_hour,
-        asset_id,
-        0 AS min_price_usd_hour,
-        0 AS max_price_usd_hour,
-        0 AS volatility_measure,
-        0 AS swaps_in_hour,
-        0 AS volume_in_hour,
-        price_usd
-    FROM
-        {{ this }}
-    WHERE
-        asset_id NOT IN(
-            SELECT
-                DISTINCT asset_id
-            FROM
-                FINAL
-        )
-)
-{% endif %},
+),
 fill_in_the_blanks_temp AS (
     SELECT
         A.hour AS block_hour,
@@ -495,65 +460,28 @@ fill_in_the_blanks_temp AS (
                     'shared',
                     'hours'
                 ) }} A
-
-{% if is_incremental() %}
-WHERE
-    HOUR > (
-        SELECT
-            MAX(block_hour)
-        FROM
-            {{ this }}
-    )
-    AND HOUR <= (
-        SELECT
-            max_date
-        FROM
-            swap_range
-    )
-{% else %}
-    JOIN swap_range b
-    ON A.hour BETWEEN b.min_date
-    AND max_date
-{% endif %}
-) A
-CROSS JOIN (
-    SELECT
-        DISTINCT asset_id
-    FROM
-        FINAL
-
-{% if is_incremental() %}
-UNION
-SELECT
-    DISTINCT asset_id
-FROM
-    {{ this }}
-{% endif %}
-) b
-LEFT JOIN (
-    SELECT
-        *
-    FROM
-        FINAL
-
-{% if is_incremental() %}
-UNION ALL
-SELECT
-    *
-FROM
-    not_in_final
-{% endif %}
-) C
-ON A.hour = C.block_hour
-AND b.asset_ID = C.asset_ID
+                JOIN swap_range b
+                ON A.hour BETWEEN b.min_date
+                AND max_date
+        ) A
+        CROSS JOIN (
+            SELECT
+                DISTINCT asset_id
+            FROM
+                FINAL
+        ) b
+        LEFT JOIN (
+            SELECT
+                *
+            FROM
+                FINAL
+        ) C
+        ON A.hour = C.block_hour
+        AND b.asset_ID = C.asset_ID
 )
 SELECT
-    {{ dbt_utils.surrogate_key(
-        ['a.block_hour','a.asset_id']
-    ) }} AS fact_price_swap_id,
     block_hour,
     A.asset_id,
-    b.dim_asset_id,
     LAST_VALUE(
         price ignore nulls
     ) over(
@@ -565,10 +493,15 @@ SELECT
     max_price_usd_hour,
     volatility_measure,
     swaps_in_hour,
-    volume_in_hour * price AS volume_usd_in_hour
+    volume_in_hour * price AS volume_usd_in_hour,
+    concat_ws(
+        '-',
+        block_hour,
+        A.asset_id
+    ) _unique_key
 FROM
     fill_in_the_blanks_temp A
-    JOIN {{ ref('core__dim_asset') }}
+    JOIN {{ ref('silver__asset') }}
     b
     ON A.asset_id = b.asset_id qualify(LAST_VALUE(price ignore nulls) over(PARTITION BY A.asset_id
 ORDER BY

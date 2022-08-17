@@ -9,7 +9,6 @@ WITH base AS (
 
     SELECT
         'ab2 gallery' AS nft_marketplace,
-        block_timestamp,
         block_id,
         tx_group_id,
         purchaser,
@@ -19,6 +18,85 @@ WITH base AS (
         _INSERTED_TIMESTAMP
     FROM
         {{ ref('silver__nft_sales_ab2_gallery') }}
+    UNION ALL
+    SELECT
+        'algoxnft' AS nft_marketplace,
+        block_id,
+        tx_group_id,
+        purchaser,
+        nft_asset_id,
+        number_of_nfts,
+        total_sales_amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        {{ ref('silver__nft_sales_algoxnft') }}
+    UNION ALL
+    SELECT
+        'octorand' AS nft_marketplace,
+        block_id,
+        tx_group_id,
+        purchaser,
+        nft_asset_id,
+        number_of_nfts,
+        total_sales_amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        {{ ref('silver__nft_sales_octorand') }}
+    UNION ALL
+    SELECT
+        'rand gallery' AS nft_marketplace,
+        block_id,
+        tx_group_id,
+        purchaser,
+        nft_asset_id,
+        number_of_nfts,
+        total_sales_amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        {{ ref('silver__nft_sales_rand_gallery') }}
+    UNION ALL
+    SELECT
+        'atomic swaps' AS nft_marketplace,
+        block_id,
+        tx_group_id,
+        purchaser,
+        nft_asset_id,
+        number_of_nfts,
+        total_sales_amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        {{ ref('silver__nft_atomic_swaps') }}
+    WHERE
+        concat_ws(
+            tx_group_id :: STRING,
+            nft_asset_id :: STRING
+        ) NOT IN (
+            SELECT
+                concat_ws(
+                    tx_group_id :: STRING,
+                    nft_asset_id :: STRING
+                )
+            FROM
+                {{ ref('silver__nft_sales_rand_gallery') }}
+        )
+        AND concat_ws(
+            tx_group_id :: STRING,
+            nft_asset_id :: STRING
+        ) NOT IN (
+            SELECT
+                concat_ws(
+                    tx_group_id :: STRING,
+                    nft_asset_id :: STRING
+                )
+            FROM
+                {{ ref('silver__nft_sales_algoxnft') }}
+        )
+),
+mid AS (
+    SELECT
+        *
+    FROM
+        base
 
 {% if is_incremental() %}
 WHERE
@@ -30,105 +108,15 @@ WHERE
         FROM
             {{ this }}
     )
-{% endif %}
-UNION ALL
-SELECT
-    'algoxnft' AS nft_marketplace,
-    block_timestamp,
-    block_id,
-    tx_group_id,
-    purchaser,
-    nft_asset_id,
-    number_of_nfts,
-    total_sales_amount,
-    _INSERTED_TIMESTAMP
-FROM
-    {{ ref('silver__nft_sales_algoxnft') }}
-
-{% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
+    OR block_id || '--' || tx_group_id || '--' || nft_asset_id IN (
         SELECT
-            MAX(
-                _inserted_timestamp
-            )
+            block_id || '--' || tx_group_id || '--' || nft_asset_id
         FROM
             {{ this }}
-    )
-{% endif %}
-UNION ALL
-SELECT
-    'octorand' AS nft_marketplace,
-    block_timestamp,
-    block_id,
-    tx_group_id,
-    purchaser,
-    nft_asset_id,
-    number_of_nfts,
-    total_sales_amount,
-    _INSERTED_TIMESTAMP
-FROM
-    {{ ref('silver__nft_sales_octorand') }}
-
-{% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(
-                _inserted_timestamp
-            )
-        FROM
-            {{ this }}
-    )
-{% endif %}
-UNION ALL
-SELECT
-    'rand gallery' AS nft_marketplace,
-    block_timestamp,
-    block_id,
-    tx_group_id,
-    purchaser,
-    nft_asset_id,
-    number_of_nfts,
-    total_sales_amount,
-    _INSERTED_TIMESTAMP
-FROM
-    {{ ref('silver__nft_sales_rand_gallery') }}
-
-{% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(
-                _inserted_timestamp
-            )
-        FROM
-            {{ this }}
-    )
-{% endif %}
-UNION ALL
-SELECT
-    'atomic swaps' AS nft_marketplace,
-    block_timestamp,
-    block_id,
-    tx_group_id,
-    purchaser,
-    nft_asset_id,
-    number_of_nfts,
-    total_sales_amount,
-    _INSERTED_TIMESTAMP
-FROM
-    {{ ref('silver__nft_atomic_swaps') }}
-
-{% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(
-                _inserted_timestamp
-            )
-        FROM
-            {{ this }}
+        WHERE
+            dim_account_id__purchaser = '-1'
+            OR dim_asset_id__nft = '-1'
+            OR dim_block_id = '-1'
     )
 {% endif %}
 )
@@ -137,25 +125,36 @@ SELECT
         ['a.block_id','a.tx_group_id','a.nft_asset_id']
     ) }} AS fact_nft_sales_id,
     nft_marketplace,
-    A.block_timestamp,
-    A.block_id,
-    d.dim_block_id,
+    COALESCE(
+        d.block_timestamp,
+        '1900-01-01' :: DATE
+    ) block_timestamp,
+    COALESCE(
+        d.dim_block_id,
+        '-1'
+    ) AS dim_block_id,
     tx_group_id,
     purchaser,
-    b.dim_account_id AS dim_account_id__purchaser,
+    COALESCE(
+        b.dim_account_id,
+        '-1'
+    ) AS dim_account_id__purchaser,
     nft_asset_id,
-    C.dim_asset_id AS dim_asset_id__nft,
+    COALESCE(
+        C.dim_asset_id,
+        '-1'
+    ) AS dim_asset_id__nft,
     number_of_nfts,
     total_sales_amount,
     A._INSERTED_TIMESTAMP,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
     base A
-    JOIN {{ ref('core__dim_account') }}
+    LEFT JOIN {{ ref('core__dim_account') }}
     b
     ON A.purchaser = b.address
-    JOIN {{ ref('core__dim_asset') }} C
+    LEFT JOIN {{ ref('core__dim_asset') }} C
     ON A.nft_asset_id = C.asset_id
-    JOIN {{ ref('core__dim_block') }}
+    LEFT JOIN {{ ref('core__dim_block') }}
     d
     ON A.block_id = d.block_id

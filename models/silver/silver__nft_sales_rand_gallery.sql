@@ -9,19 +9,18 @@ WITH group_tx AS (
 
     SELECT
         block_id,
-        block_timestamp,
         tx_group_id,
         COALESCE(
             asset_sender,
-            tx_sender
+            sender
         ) AS asset_sender,
         _INSERTED_TIMESTAMP
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id IN (
-            'c495d86d106bb9c67e5925d952e553f2',
-            'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type IN (
+            'axfer',
+            'pay'
         )
         AND receiver = 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE' {# AND asset_sender != 'RANDGVRRYGVKI3WSDG6OGTZQ7MHDLIN5RYKJBABL46K5RQVHUFV3NY5DUE' #}
         AND tx_group_ID != '//bQaOEaOkBwSub8XBEk86t4wWdb6F/7fePO4fIXyho='
@@ -39,29 +38,24 @@ AND _INSERTED_TIMESTAMP >= (
 {% endif %}
 GROUP BY
     block_id,
-    block_timestamp,
     tx_group_id,
     COALESCE(
         asset_sender,
-        tx_sender
+        sender
     ),
     _INSERTED_TIMESTAMP
 HAVING
     COUNT(
-        DISTINCT NULLIF(
-            dim_asset_id,
-            'd41d8cd98f00b204e9800998ecf8427e'
-        )
+        DISTINCT asset_id
     ) <= 2
 ),
 FINAL AS (
     SELECT
-        t.block_timestamp AS block_timestamp,
         t.block_id AS block_id,
         t.tx_group_id AS tx_group_id,
         t.asset_sender AS purchaser,
         MAX(
-            ast.asset_id
+            asset_id
         ) AS nft_asset_id,
         SUM(
             CASE
@@ -99,7 +93,7 @@ FINAL AS (
         t._INSERTED_TIMESTAMP
     FROM
         group_tx t
-        JOIN {{ ref('core__fact_transaction') }}
+        JOIN {{ ref('silver__transaction') }}
         snd
         ON t.tx_group_id = snd.tx_group_id
         AND (
@@ -109,19 +103,15 @@ FINAL AS (
             )
             OR t.asset_sender = COALESCE(
                 snd.asset_sender,
-                snd.tx_sender
+                snd.sender
             )
         )
-        JOIN {{ ref('core__dim_asset') }}
-        ast
-        ON snd.dim_asset_id = ast.dim_asset_id
     WHERE
-        dim_transaction_type_id IN (
-            'c495d86d106bb9c67e5925d952e553f2',
-            'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type IN (
+            'axfer',
+            'pay'
         )
     GROUP BY
-        t.block_timestamp,
         t.block_id,
         t.tx_group_id,
         t.asset_sender,
@@ -130,7 +120,6 @@ FINAL AS (
         total_sales_amount <> marketplace_fee
 )
 SELECT
-    block_timestamp,
     block_id,
     A.tx_group_id,
     purchaser,
@@ -158,7 +147,7 @@ SELECT
     A._INSERTED_TIMESTAMP
 FROM
     FINAL A
-    JOIN {{ ref('core__dim_asset') }}
+    JOIN {{ ref('silver__asset') }}
     ast
     ON A.nft_asset_id = ast.asset_id
 WHERE

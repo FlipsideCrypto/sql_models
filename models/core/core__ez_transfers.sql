@@ -4,8 +4,8 @@
 
 SELECT
     block_timestamp,
+    block_timestamp :: DATE block_date,
     intra,
-    block_id,
     tx_group_id,
     tx_id,
     inner_tx,
@@ -37,8 +37,8 @@ WHERE
 UNION ALL
 SELECT
     block_timestamp,
+    block_timestamp :: DATE block_date,
     intra,
-    block_id,
     tx_group_id,
     tx_id,
     inner_tx,

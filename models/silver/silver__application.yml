@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: silver__application
+    description: ""
+    columns:
+      - name: APP_ID
+        description: "{{ doc('app_id') }}"
+        tests:
+          - not_null
+          - unique
+      - name: PARAMS
+        description: "Parameters related to the app"
+        tests:
+          - dbt_expectations.expect_column_to_exist 
+      - name: APP_CLOSED
+        description: "Whether or not the app is currently deleted"
+        tests:
+          - not_null
+      - name: CREATOR_ADDRESS
+        description: "Wallet creator account address"
+        tests:
+          - not_null   
+      - name: CREATED_AT
+        description: "Block timestamp that the app was created"
+        tests:
+          - not_null 
+      - name: CLOSED_AT
+        description: "Block timestamp that the app was deleted"
+        tests:
+          - dbt_expectations.expect_column_to_exist               
+
+
+

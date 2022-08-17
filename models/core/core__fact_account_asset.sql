@@ -31,6 +31,54 @@ WHERE
         FROM
             {{ this }}
     )
+    OR address || '--' || asset_id IN (
+        SELECT
+            address || '--' || asset_id
+        FROM
+            {{ this }}
+        WHERE
+            dim_account_id = '-1'
+            OR dim_asset_id = '-1'
+            OR dim_block_id__asset_added_at = '-1'
+    )
+{% endif %}
+),
+add_algo AS (
+    SELECT
+        address,
+        0 AS asset_id,
+        microalgos :: INT / pow(
+            10,
+            6
+        ) AS amount,
+        closed_at,
+        created_at,
+        FALSE AS asset_closed,
+        FALSE AS frozen,
+        _inserted_timestamp
+    FROM
+        {{ ref('silver__account') }}
+
+{% if is_incremental() %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+    OR address || '--' || asset_id IN (
+        SELECT
+            address || '--' || asset_id
+        FROM
+            {{ this }}
+        WHERE
+            dim_account_id = '-1'
+            OR dim_asset_id = '-1'
+            OR dim_block_id__asset_added_at = '-1'
+    )
 {% endif %}
 )
 SELECT
@@ -39,31 +87,23 @@ SELECT
     ) }} AS fact_account_asset_id,
     COALESCE(
         da.dim_account_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_account_id,
     A.address,
     COALESCE(
         dim_asset_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_asset_id,
     A.asset_id,
     amount,
     COALESCE(
         C.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_block_id__asset_added_at,
     C.block_timestamp AS asset_added_at,
     COALESCE(
         b.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_block_id__asset_last_removed,
     b.block_timestamp AS asset_last_removed,
     asset_closed,

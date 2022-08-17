@@ -7,25 +7,29 @@
 
 SELECT
     {{ dbt_utils.surrogate_key(
-        ['ROUND']
+        ['block_id']
     ) }} AS dim_block_id,
-    ROUND AS block_id,
-    realtime :: TIMESTAMP AS block_timestamp,
-    realtime :: DATE AS block_date,
-    rewardslevel AS rewards_level,
-    header :gen :: STRING AS network,
-    header :gh :: STRING AS genesis_hash,
-    header :prev :: STRING AS prev_block_hash,
-    header :txn :: STRING AS txn_root,
+    block_id,
+    block_timestamp,
+    block_date,
+    block_hour,
+    block_week,
+    block_month,
+    block_quarter,
+    block_year,
+    block_DAYOFMONTH,
+    block_DAYOFWEEK,
+    block_DAYOFYEAR,
+    rewards_level,
+    network,
+    genesis_hash,
+    prev_block_hash,
+    txn_root,
     header,
-    DATEADD(
-        ms,
-        __HEVO__LOADED_AT,
-        '1970-01-01'
-    ) AS _INSERTED_TIMESTAMP,
+    _INSERTED_TIMESTAMP,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
-    {{ ref('bronze__block') }}
+    {{ ref('silver__block') }}
 
 {% if is_incremental() %}
 WHERE
@@ -40,17 +44,45 @@ WHERE
 {% endif %}
 UNION ALL
 SELECT
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_block_id,
-    NULL AS block_id,
-    NULL AS block_timestamp,
+    '-1' AS dim_block_id,
+    -1 AS block_id,
+    '1900-01-01' :: datetime AS block_timestamp,
     NULL AS block_date,
+    NULL AS block_hour,
+    NULL AS block_week,
+    NULL AS block_month,
+    NULL AS block_quarter,
+    NULL AS block_year,
+    NULL AS block_DAYOFMONTH,
+    NULL AS block_DAYOFWEEK,
+    NULL AS block_DAYOFYEAR,
     NULL AS rewards_level,
     NULL AS network,
     NULL AS genesis_hash,
     NULL AS prev_block_hash,
     NULL AS txn_root,
     NULL AS header,
-    CURRENT_DATE _inserted_timestamp,
+    '1900-01-01' :: DATE AS _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    '-2' AS dim_block_id,
+    -2 AS block_id,
+    NULL AS block_timestamp,
+    NULL AS block_date,
+    NULL AS block_hour,
+    NULL AS block_week,
+    NULL AS block_month,
+    NULL AS block_quarter,
+    NULL AS block_year,
+    NULL AS block_DAYOFMONTH,
+    NULL AS block_DAYOFWEEK,
+    NULL AS block_DAYOFYEAR,
+    NULL AS rewards_level,
+    NULL AS network,
+    NULL AS genesis_hash,
+    NULL AS prev_block_hash,
+    NULL AS txn_root,
+    NULL AS header,
+    '1900-01-01' :: DATE AS _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id

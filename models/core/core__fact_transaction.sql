@@ -19,32 +19,22 @@ WITH base AS (
         tx_type,
         tx_message,
         extra,
-        COALESCE(
-            tx_message :txn :apid,
-            tx_message :apid,
-            tx_message :"dt" :"gd" :"aWQ=" :"ui"
-        ) app_id,
-        tx_message :txn :apar :t AS asset_supply,
-        tx_message :txn :apar AS asset_parameters,
-        tx_message :txn :fadd :: text AS asset_address,
-        tx_message :txn :afrz AS asset_freeze,
-        tx_message :txn :votekey :: text AS participation_key,
-        tx_message :txn :selkey :: text AS vrf_public_key,
-        tx_message :txn :votefst AS vote_first,
-        tx_message :txn :votelst AS vote_last,
-        tx_message :txn :votekd AS vote_keydilution,
-        algorand_decode_b64_addr(
-            tx_message :txn :rcv :: text
-        ) AS receiver,
-        algorand_decode_b64_addr(
-            tx_message :txn :asnd :: text
-        ) AS asset_sender,
-        algorand_decode_b64_addr(
-            tx_message :txn :arcv :: text
-        ) AS asset_receiver,
-        tx_message :txn :aamt AS asset_amount,
-        tx_message :txn :xaid AS asset_transferred,
-        tx_message :txn :amt AS amount,
+        app_id,
+        asset_supply,
+        asset_parameters,
+        asset_address,
+        asset_freeze,
+        participation_key,
+        vrf_public_key,
+        vote_first,
+        vote_last,
+        vote_keydilution,
+        receiver,
+        asset_sender,
+        asset_receiver,
+        asset_amount,
+        asset_transferred,
+        amount,
         _inserted_timestamp
     FROM
         {{ ref('silver__transaction') }}
@@ -66,15 +56,10 @@ WHERE
             {{ this }}
         WHERE
             (
-                dim_block_id = {{ dbt_utils.surrogate_key(
-                    ['null']
-                ) }}
-                OR dim_account_id__tx_sender = {{ dbt_utils.surrogate_key(
-                    ['null']
-                ) }}
-                OR dim_asset_id = {{ dbt_utils.surrogate_key(
-                    ['null']
-                ) }}
+                dim_block_id = '-1'
+                OR dim_account_id__tx_sender = '-1'
+                OR dim_asset_id = '-1'
+                OR dim_transaction_type_id = '-1'
             )
     )
 {% endif %}
@@ -85,11 +70,8 @@ SELECT
     ) }} AS fact_transaction_id,
     COALESCE(
         b.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_block_id,
-    A.block_id,
     b.block_timestamp,
     intra,
     tx_group_id,
@@ -97,45 +79,39 @@ SELECT
     inner_tx,
     COALESCE(
         da.dim_account_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_account_id__tx_sender,
     A.sender AS tx_sender,
     COALESCE(
         dim_asset_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        CASE
+            WHEN A.tx_type IN (
+                'appl',
+                'keyreg'
+            ) THEN '-2'
+            ELSE '-1'
+        END
     ) AS dim_asset_id,
     fee,
     COALESCE(
         dim_transaction_type_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_transaction_type_id,
     tx_message,
     extra,
     COALESCE(
         rec.dim_account_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_account_id__receiver,
     A.receiver,
     COALESCE(
         a_snd.dim_account_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_account_id__asset_sender,
     A.asset_sender,
     COALESCE(
         a_rec.dim_account_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_account_id__asset_receiver,
     A.asset_receiver,
     app_id,
@@ -143,12 +119,8 @@ SELECT
     asset_parameters,
     asset_address,
     asset_freeze,
-    algorand_decode_b64_addr(
-        participation_key
-    ) AS participation_key,
-    algorand_decode_b64_addr(
-        vrf_public_key
-    ) AS vrf_public_key,
+    participation_key,
+    vrf_public_key,
     vote_first,
     vote_last,
     vote_keydilution,

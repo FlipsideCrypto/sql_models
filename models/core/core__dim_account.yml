@@ -31,6 +31,8 @@ models:
         description: "FK to DIM_BLOCK which account was created"
         tests:
           - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') and DIM_ACCOUNT_ID not in ('-1','-2')
       - name: CREATED_AT
         description: "Block timestamp which account was most recently closed"
       - name: DIM_BLOCK_ID__CLOSED_AT

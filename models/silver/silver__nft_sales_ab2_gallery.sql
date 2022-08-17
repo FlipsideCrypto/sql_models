@@ -9,14 +9,13 @@ WITH ab2_sales AS(
 
     SELECT
         DISTINCT block_id,
-        block_timestamp,
         tx_group_id,
-        tx_sender,
+        sender,
         _INSERTED_TIMESTAMP
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
+        tx_type = 'appl'
         AND TRY_BASE64_DECODE_STRING(
             tx_message :txn :note :: STRING
         ) = 'ab2.gallery'
@@ -35,24 +34,23 @@ AND _INSERTED_TIMESTAMP >= (
 nft_transfer AS(
     SELECT
         ab2.block_id,
-        ab2.block_timestamp,
         ab2.tx_group_id,
-        ab2.tx_sender AS buyer,
+        ab2.sender AS buyer,
         nft.asset_amount AS number_of_assets,
         ast.asset_id,
         ab2._INSERTED_TIMESTAMP,
         decimals
     FROM
         ab2_sales ab2
-        JOIN {{ ref('core__fact_transaction') }}
+        JOIN {{ ref('silver__transaction') }}
         nft
         ON ab2.tx_group_id = nft.tx_group_id
-        AND ab2.tx_sender = nft.asset_receiver
-        JOIN {{ ref('core__dim_asset') }}
+        AND ab2.sender = nft.asset_receiver
+        JOIN {{ ref('silver__asset') }}
         ast
-        ON nft.dim_asset_id = ast.dim_asset_id
+        ON nft.asset_id = ast.asset_id
     WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+        tx_type = 'axfer'
         AND asset_amount > 0
 
 {% if is_incremental() %}
@@ -68,7 +66,6 @@ AND ab2._INSERTED_TIMESTAMP >= (
 )
 SELECT
     nft.block_id,
-    nft.block_timestamp,
     nft.tx_group_id,
     nft.buyer AS purchaser,
     nft.asset_id AS nft_asset_id,
@@ -97,15 +94,14 @@ SELECT
     nft._INSERTED_TIMESTAMP
 FROM
     nft_transfer nft
-    JOIN {{ ref('core__fact_transaction') }}
+    JOIN {{ ref('silver__transaction') }}
     pay
     ON nft.tx_group_id = pay.tx_group_id
-    AND nft.buyer = pay.tx_sender
+    AND nft.buyer = pay.sender
 WHERE
-    dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+    tx_type = 'pay'
 GROUP BY
     nft.block_id,
-    nft.block_timestamp,
     nft.tx_group_id,
     purchaser,
     nft.asset_id,

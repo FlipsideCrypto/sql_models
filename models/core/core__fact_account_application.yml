@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: core__fact_account_application
-    description: "The applications related to an accountS"
+    description: "The applications related to an account"
     columns:
       - name: FACT_ACCOUNT_APPLICATION_ID
         description: "{{ doc('sk') }}"
@@ -19,6 +19,8 @@ models:
         description: "FK to DIM_APPLICATION for this app id"
         tests:
           - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: APP_ID
         description: "{{ doc('app_id') }}"
         tests:
@@ -27,18 +29,15 @@ models:
         description: "Is the app currently deleted from the account? If not it will have json about current status"
         tests:
           - not_null:
-              where: CLOSED_AT IS NULL
+              where: APP_CLOSED = FALSE
       - name: DIM_BLOCK_ID__CREATED_AT
         description: "FK to DIM_BLOCK which app was added to the account"
         tests:
           - not_null
-        description: "DIM_BLOCK_ID which app was added to the account"
-        tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: CREATED_AT
         description: "Block timestamp that the app(app_id)  was added to an account"
-        tests:
-          - not_null
       - name: DIM_BLOCK_ID__CLOSED_AT
         description: "FK to DIM_BLOCK during which the app was last removed from the account"
         tests:

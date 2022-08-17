@@ -11,6 +11,7 @@ models:
         description: "FK to DIM_ACCOUNT for this address"
         tests:
           - not_null
+          - negative_one
       - name: ADDRESS
         description: "{{ doc('address') }}"
         tests:

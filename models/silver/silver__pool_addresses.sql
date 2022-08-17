@@ -8,12 +8,12 @@ WITH swaps AS(
 
     SELECT
         swap_program,
-        dim_asset_id__swap_from,
+        swap_from_asset_id,
         pool_address,
-        dim_asset_id__swap_to,
+        swap_to_asset_id,
         _INSERTED_TIMESTAMP
     FROM
-        {{ ref('core__fact_swap') }}
+        {{ ref('silver__swap') }}
 
 {% if is_incremental() %}
 WHERE
@@ -35,20 +35,20 @@ pool_names AS(
             WHEN A.asset_id = 0 THEN 'ALGO'
             ELSE A.asset_name
         END AS swap_from_asset_name,
-        A.asset_id AS swap_from_asset_id,
+        s.swap_from_asset_id,
         CASE
             WHEN b.asset_id = 0 THEN 'ALGO'
             ELSE b.asset_name
         END AS swap_to_asset_name,
-        b.asset_id AS swap_to_asset_id,
+        s.swap_to_asset_id,
         s._INSERTED_TIMESTAMP
     FROM
         swaps s
-        JOIN {{ ref('core__dim_asset') }} A
-        ON s.dim_asset_id__swap_from = A.dim_asset_id
-        JOIN {{ ref('core__dim_asset') }}
+        JOIN {{ ref('silver__asset') }} A
+        ON s.swap_from_asset_id = A.asset_id
+        JOIN {{ ref('silver__asset') }}
         b
-        ON s.dim_asset_id__swap_to = b.dim_asset_id qualify ROW_NUMBER() over (
+        ON s.swap_to_asset_id = b.asset_id qualify ROW_NUMBER() over (
             PARTITION BY pool_address
             ORDER BY
                 A.created_at DESC,

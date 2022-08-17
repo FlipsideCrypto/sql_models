@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_price_pool_balances
+  - name: silver__price_pool_balances
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

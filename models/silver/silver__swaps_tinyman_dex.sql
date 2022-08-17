@@ -10,9 +10,9 @@ WITH tx_app_call AS (
     SELECT
         *
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
+        tx_type = 'appl'
 
 {% if is_incremental() %}
 AND _INSERTED_TIMESTAMP >= (
@@ -29,9 +29,9 @@ tx_pay AS (
     SELECT
         *
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
 
 {% if is_incremental() %}
 AND _INSERTED_TIMESTAMP >= (
@@ -48,15 +48,14 @@ tx_a_tfer AS (
     SELECT
         pt.*,
         A.asset_name,
-        A.asset_id,
         A.decimals
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
         pt
-        JOIN {{ ref('core__dim_asset') }} A
-        ON pt.dim_asset_id = A.dim_asset_id
+        JOIN {{ ref('silver__asset') }} A
+        ON pt.asset_id = A.asset_id
     WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+        tx_type = 'axfer'
 
 {% if is_incremental() %}
 AND pt._INSERTED_TIMESTAMP >= (
@@ -76,11 +75,10 @@ tinymanapp AS(
         ) AS swapper,
         tx_group_id AS tx_group_id,
         _INSERTED_TIMESTAMP,
-        block_timestamp,
         block_id,
         tx_id,
         intra AS app_intra,
-        app_id AS app_id
+        app_id
     FROM
         tx_app_call
     WHERE
@@ -95,7 +93,7 @@ tinymanapp AS(
 sender_pay AS (
     SELECT
         pt.tx_group_id,
-        pt.tx_sender AS swapper,
+        pt.sender AS swapper,
         'ALGO' AS from_asset_name,
         0 AS from_asset_id,
         amount :: FLOAT / pow(
@@ -106,13 +104,13 @@ sender_pay AS (
         tinymanapp ta
         JOIN tx_pay pt
         ON pt.tx_group_id = ta.tx_group_id
-        AND pt.tx_sender = ta.swapper
+        AND pt.sender = ta.swapper
         AND pt.intra > ta.app_intra
 ),
 sender_asset AS (
     SELECT
         pt.tx_group_id,
-        pt.tx_sender AS swapper,
+        pt.sender AS swapper,
         asset_name AS from_asset_name,
         asset_id AS from_asset_id,
         CASE
@@ -126,13 +124,13 @@ sender_asset AS (
         tinymanapp ta
         JOIN tx_a_tfer pt
         ON pt.tx_group_id = ta.tx_group_id
-        AND pt.tx_sender = ta.swapper
+        AND pt.sender = ta.swapper
         AND pt.intra > ta.app_intra
 ),
 receiver_pay AS(
     SELECT
         pt.tx_group_id,
-        pt.tx_sender AS pool_address,
+        pt.sender AS pool_address,
         'ALGO' AS to_asset_name,
         0 AS to_asset_id,
         ZEROIFNULL(amount) :: FLOAT / pow(
@@ -149,7 +147,7 @@ receiver_pay AS(
 receiver_asset AS (
     SELECT
         pt.tx_group_id,
-        pt.tx_sender AS pool_address,
+        pt.sender AS pool_address,
         asset_name AS to_asset_name,
         asset_id AS to_asset_id,
         CASE
@@ -193,7 +191,6 @@ all_receiver AS(
         receiver_asset
 )
 SELECT
-    ta.block_timestamp,
     ta.block_id AS block_id,
     app_intra AS intra,
     ta.tx_group_id AS tx_group_id,

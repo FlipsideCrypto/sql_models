@@ -9,14 +9,17 @@ WITH address_ranges AS (
 
     SELECT
         DISTINCT A.address,
-        A.created_at :: DATE AS min_block_date,
+        b.block_date AS min_block_date,
         CURRENT_TIMESTAMP :: DATE AS max_block_date
     FROM
-        {{ ref('core__dim_account') }} A
+        {{ ref('silver__account') }} A
+        JOIN {{ ref('silver__block') }}
+        b
+        ON A.created_at = b.block_id
         JOIN {{ ref('silver__pool_addresses') }} C
         ON A.address = C.address
     WHERE
-        A.created_at :: DATE >= '2022-01-15'
+        b.block_date :: DATE >= '2022-01-15'
 ),
 cte_my_date AS (
     SELECT
@@ -48,20 +51,36 @@ all_dates AS (
         ON C.date BETWEEN A.min_block_date
         AND A.max_block_date
 ),
+txns AS (
+    SELECT
+        A.sender,
+        A.receiver,
+        amount,
+        A.block_id,
+        A.intra,
+        b.block_timestamp,
+        tx_type,
+        asset_id
+    FROM
+        {{ ref('silver__transaction') }} A
+        JOIN {{ ref('silver__block') }}
+        b
+        ON A.block_id = b.block_id
+),
 senderpay AS(
     SELECT
-        A.tx_sender AS address,
+        A.sender AS address,
         ((A.amount * -1) -.001) AS amount,
         A.block_id,
         A.intra,
         A.block_timestamp,
         0 AS asset_id
     FROM
-        {{ ref('core__fact_transaction') }} A
+        txns A
         JOIN address_ranges b
-        ON A.tx_sender = b.address
+        ON A.sender = b.address
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -73,18 +92,18 @@ AND block_timestamp :: DATE >=(
 ),
 sendersfee AS(
     SELECT
-        A.tx_sender AS address,
+        A.sender AS address,
         0.001 * -1 AS amount,
         A.block_id,
         A.intra,
         A.block_timestamp,
         0 AS asset_id
     FROM
-        {{ ref('core__fact_transaction') }} A
+        txns A
         JOIN address_ranges b
-        ON A.tx_sender = b.address
+        ON A.sender = b.address
     WHERE
-        dim_transaction_type_id <> 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type <> 'pay'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -103,11 +122,11 @@ receivers AS (
         A.block_timestamp,
         0 AS asset_id
     FROM
-        {{ ref('core__fact_transaction') }} A
+        txns A
         JOIN address_ranges b
         ON A.receiver = b.address
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -126,12 +145,14 @@ reward AS (
         ) amount,
         A.block_id,
         A.intra,
-        A.block_timestamp,
+        C.block_timestamp,
         0 AS asset_id
     FROM
         {{ ref('silver__transaction_reward') }} A
         JOIN address_ranges b
         ON A.account = b.address
+        JOIN {{ ref('silver__block') }} C
+        ON A.block_id = C.block_id
 
 {% if is_incremental() %}
 WHERE
@@ -158,15 +179,17 @@ WHERE
             END amount,
             A.block_id,
             A.intra,
-            A.block_timestamp,
+            C.block_timestamp,
             asa.asset_id
         FROM
             {{ ref('silver__transaction_close') }} A
             JOIN address_ranges b
             ON A.account = b.address
-            LEFT JOIN {{ ref('core__dim_asset') }}
+            LEFT JOIN {{ ref('silver__asset') }}
             asa
             ON A.asset_id = asa.asset_id
+            JOIN {{ ref('silver__block') }} C
+            ON A.block_id = C.block_id
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -180,7 +203,7 @@ senderasset AS(
     SELECT
         COALESCE(
             A.asset_sender,
-            A.tx_sender
+            A.sender
         ) AS address,
         CASE
             WHEN asa.decimals > 0 THEN A.asset_amount / pow(
@@ -195,20 +218,22 @@ senderasset AS(
         END * -1 AS amount,
         A.block_id,
         A.intra,
-        A.block_timestamp,
-        asa.asset_id
+        C.block_timestamp,
+        A.asset_id
     FROM
-        {{ ref('core__fact_transaction') }} A
+        {{ ref('silver__transaction') }} A
         JOIN address_ranges b
         ON COALESCE(
             A.asset_sender,
-            A.tx_sender
+            A.sender
         ) = b.address
-        LEFT JOIN {{ ref('core__dim_asset') }}
+        LEFT JOIN {{ ref('silver__asset') }}
         asa
-        ON A.dim_asset_id = asa.dim_asset_id
+        ON A.asset_id = asa.asset_id
+        JOIN {{ ref('silver__block') }} C
+        ON A.block_id = C.block_id
     WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+        tx_type = 'axfer'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -234,17 +259,19 @@ receiversasset AS (
         END AS amount,
         A.block_id,
         A.intra,
-        A.block_timestamp,
-        asa.asset_id
+        C.block_timestamp,
+        A.asset_id
     FROM
-        {{ ref('core__fact_transaction') }} A
+        {{ ref('silver__transaction') }} A
         JOIN address_ranges b
         ON A.asset_receiver = b.address
-        LEFT JOIN {{ ref('core__dim_asset') }}
+        LEFT JOIN {{ ref('silver__asset') }}
         asa
-        ON A.dim_asset_id = asa.dim_asset_id
+        ON A.asset_id = asa.asset_id
+        JOIN {{ ref('silver__block') }} C
+        ON A.block_id = C.block_id
     WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+        tx_type = 'axfer'
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(

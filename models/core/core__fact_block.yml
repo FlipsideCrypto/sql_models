@@ -1,0 +1,44 @@
+version: 2
+models:
+  - name: core__fact_block
+    description: "Fact table with measures related to the block"
+    columns:
+      - name: FACT_BLOCK_ID
+        description: "{{ doc('sk') }}"
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: DIM_BLOCK_ID
+        description: "FK to Dim_Block table}"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: TX_COUNT
+        description: "Count of unique intras for this block"
+        tests:
+          - not_null
+      - name: TX_SENDER_COUNT
+        description: "Distinct count of tx_senders for this block "
+        tests:
+          - not_null
+      - name: FEE_TOTAL
+        description: "Sum of fees for this block"
+        tests:
+          - not_null
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: FACT_BLOCK_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_BLOCK_ID
+          pk_table_name: ref('core__dim_block')
+          pk_column_name: DIM_BLOCK_ID

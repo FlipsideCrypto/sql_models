@@ -113,7 +113,7 @@ balances AS (
         {{ ref('silver__hourly_pool_balances') }} A
         JOIN lps b
         ON A.address = b.address
-        LEFT JOIN {{ ref('core__dim_asset') }}
+        LEFT JOIN {{ ref('silver__asset') }}
         d
         ON A.asset_id = d.asset_ID
     WHERE

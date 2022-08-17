@@ -8,9 +8,6 @@ models:
             - INTRA
             - ACCOUNT
     columns:
-      - name: BLOCK_TIMESTAMP
-        tests:
-          - not_null
       - name: BLOCK_ID
         tests:
           - not_null

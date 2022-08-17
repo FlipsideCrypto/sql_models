@@ -31,9 +31,13 @@ GROUP BY
     wallet_type
 UNION ALL
 SELECT
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_wallet_type_id,
-    NULL AS wallet_type,
-    CURRENT_DATE _inserted_timestamp,
+    '-1' AS dim_wallet_type_id,
+    'unknown' AS wallet_type,
+    '1900-01-01' :: DATE _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    '-2' AS dim_wallet_type_id,
+    'not applicable' AS wallet_type,
+    '1900-01-01' :: DATE _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id

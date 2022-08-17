@@ -12,6 +12,7 @@ WITH base AS (
             addr :: text
         ) AS address,
         app :: INT AS app_id,
+        deleted AS app_closed,
         closed_at AS closed_at,
         created_at AS created_at,
         localstate AS app_info,
@@ -29,6 +30,16 @@ WHERE
         FROM
             {{ this }}
     )
+    OR address || '--' || app_id IN (
+        SELECT
+            address || '--' || app_id
+        FROM
+            {{ this }}
+        WHERE
+            dim_account_id = '-1'
+            OR dim_application_id = '-1'
+            OR dim_block_id__created_at = '-1'
+    )
 {% endif %}
 )
 SELECT
@@ -37,31 +48,24 @@ SELECT
     ) }} AS fact_account_application_id,
     COALESCE(
         da.dim_account_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_account_id,
-    da.address,
+    A.address,
     COALESCE(
         dim_application_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_application_id,
     A.app_id,
+    A.app_closed,
     app_info,
     COALESCE(
         C.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_block_id__created_at,
     C.block_timestamp AS created_at,
     COALESCE(
         b.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_block_id__closed_at,
     b.block_timestamp AS closed_at,
     A._inserted_timestamp,

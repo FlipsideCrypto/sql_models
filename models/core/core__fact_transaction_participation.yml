@@ -21,7 +21,8 @@ models:
       - name: DIM_BLOCK_ID
         description: "FK to the DIM_BLOCK table"
         tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: INTRA
         description: "{{ doc('intra') }}"
         tests:
@@ -29,14 +30,15 @@ models:
       - name: DIM_ACCOUNT_ID
         description: "FK to the DIM_ACCOUNT table"
         tests:
-          - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: ADDRESS
         description: "{{ doc('address') }}"
         tests:
           - not_null
     tests:
       - dbt_constraints.primary_key:
-          column_name: FACT_SWAP_ID
+          column_name: FACT_TRANSACTION_PARTICIPATION_ID
       - dbt_constraints.foreign_key:
           fk_column_name: DIM_BLOCK_ID
           pk_table_name: ref('core__dim_block')

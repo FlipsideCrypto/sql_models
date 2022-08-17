@@ -1,12 +1,99 @@
 version: 2
 models:
   - name: core__fact_transaction
-    description: "  "
+    description: "Fact table that contains all transactions of all types"
     columns:
-      - name: DIM_BLOCK_ID
-        description: "ABC "
+      - name: FACT_TRANSACTION_ID
+        description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
+      - name: DIM_BLOCK_ID
+        description: "{{ doc('block_id') }}"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID not in ('-1','-2')
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: INTRA
+        description: "{{ doc('intra') }}"
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+        description: "{{ doc('tx_group_id') }}"
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+        tests:
+          - not_null
+      - name: INNER_TX
+        description: "{{ doc('inner_tx') }}"
+        tests:
+          - not_null
+      - name: DIM_ACCOUNT_ID__TX_SENDER
+        description: "FK to Dim_Account for the tx_sender "
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: TX_SENDER
+        description: "{{ doc('tx_sender') }}"
+        tests:
+          - not_null
+      - name: DIM_ASSET_ID
+        description: "FK to Dim_Asset table"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: DIM_TRANSACTION_TYPE_ID
+        description: "FK to the Dim_Transaction_Type table"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: DIM_ACCOUNT_ID__RECEIVER
+        description: "FK to the Dim_Account table"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: DIM_ACCOUNT_ID__ASSET_SENDER
+        description: "FK to the Dim_Account table"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: DIM_ACCOUNT_ID__ASSET_RECEIVER
+        description: "FK to the Dim_Account table"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: ASSET_RECEIVER
+        description: "The recipient of the asset transfer."
+      - name: APP_ID
+        description: "{{ doc('app_id') }}"
+      - name: ASSET_SUPPLY
+        description: "The total number of base units of the asset to create. This number cannot be changed."
+      - name: ASSET_PARAMETERS
+        description: "All parameters involved with the asset being created, modified or destroyed in the transaction"
+      - name: ASSET_ADDRESS
+        description: "The address of the account whose asset is being frozen or unfrozen."
+      - name: ASSET_FREEZE
+        description: "True to freeze the asset, otherwise null or false"
+      - name: PARTICIPATION_KEY
+        description:  "The root participation public key."
+      - name: VRF_PUBLIC_KEY
+        description: "The VRF public key."
+      - name: VOTE_FIRST
+        description: "The first round that the participation key is valid. Not to be confused with the FirstValid round of the keyreg transaction."
+      - name: VOTE_LAST
+        description: "The last round that the participation key is valid. Not to be confused with the LastValid round of the keyreg transaction."
+      - name: VOTE_KEYDILUTION
+        description: "This is the dilution for the 2-level participation key."
+      - name: ASSET_AMOUNT
+        description: "The amount of the asset to be transferred. A zero amount transferred to self allocates that asset in the account's Asset map."
+      - name: AMOUNT
+        description: "Amount of the asset being sent to the receiver"
     tests:
       - dbt_constraints.primary_key:
           column_name: FACT_TRANSACTION_ID

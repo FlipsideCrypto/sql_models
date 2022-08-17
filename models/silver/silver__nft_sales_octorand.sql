@@ -10,10 +10,9 @@ WITH gen1 AS (
     SELECT
         asset_id,
         decimals,
-        'gen1' AS gen,
-        dim_asset_id
+        'gen1' AS gen
     FROM
-        {{ ref('core__dim_asset') }}
+        {{ ref('silver__asset') }}
     WHERE
         asset_name LIKE '%ctorand%'
         AND creator_address = 'X5YPUJ2HTFBY66WKWZOAA75WST5V7HWAGS2346SQFK622VNIRQ5ASXHTGA'
@@ -33,10 +32,9 @@ gen2 AS (
     SELECT
         asset_id,
         decimals,
-        'gen2' AS gen,
-        dim_asset_id
+        'gen2' AS gen
     FROM
-        {{ ref('core__dim_asset') }}
+        {{ ref('silver__asset') }}
     WHERE
         asset_name LIKE '%cto Prime%'
         AND creator_address IN (
@@ -63,8 +61,7 @@ AND _INSERTED_TIMESTAMP >= (
 ),
 raw_data AS (
     SELECT
-        DISTINCT x.block_timestamp,
-        x.block_id,
+        DISTINCT x.block_id,
         x.tx_group_id,
         x.asset_receiver AS purchaser,
         nft.asset_id AS nft_asset_id,
@@ -78,41 +75,39 @@ raw_data AS (
             x._INSERTED_TIMESTAMP
         ) AS _INSERTED_TIMESTAMP
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
         x
         JOIN(
             SELECT
                 asset_id,
                 decimals,
-                gen,
-                dim_asset_id
+                gen
             FROM
                 gen1
             UNION ALL
             SELECT
                 asset_id,
                 decimals,
-                gen,
-                dim_asset_id
+                gen
             FROM
                 gen2
         ) nft
-        ON x.dim_asset_id = nft.dim_asset_id
-        JOIN {{ ref('core__fact_transaction') }}
+        ON x.asset_id = nft.asset_id
+        JOIN {{ ref('silver__transaction') }}
         y
         ON x.tx_group_id = y.tx_group_id
         JOIN (
             SELECT
                 DISTINCT tx_group_id
             FROM
-                {{ ref('core__fact_transaction') }}
+                {{ ref('silver__transaction') }}
             WHERE
-                dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
+                tx_type = 'appl'
         ) app_call
         ON x.tx_group_id = app_call.tx_group_id
     WHERE
-        x.dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
-        AND y.dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        x.tx_type = 'axfer'
+        AND y.tx_type = 'pay'
         AND x.asset_amount > 0
         AND y.tx_message :txn :amt IS NOT NULL
 
@@ -127,7 +122,6 @@ AND x._INSERTED_TIMESTAMP >= (
 ) - INTERVAL '4 HOURS'
 {% endif %}
 GROUP BY
-    x.block_timestamp,
     x.block_id,
     x.tx_group_id,
     x.asset_receiver,
@@ -137,7 +131,6 @@ GROUP BY
     generation
 )
 SELECT
-    rd.block_timestamp,
     rd.block_id,
     rd.tx_group_id,
     rd.purchaser,

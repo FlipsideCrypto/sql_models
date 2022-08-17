@@ -11,7 +11,7 @@ models:
         description: "{{ doc('asset_id') }}"
         tests:
           - not_null:
-              where:  DIM_ASSET_ID <> 'd41d8cd98f00b204e9800998ecf8427e'        
+              where:  DIM_ASSET_ID not in ('-1','-2')     
       - name: ASSET_NAME
         description: "{{ doc('asset_name') }}"
       - name: TOTAL_SUPPLY
@@ -30,20 +30,24 @@ models:
         description: "whether or not the asset is currently deleted"
         tests:
           - not_null:
-              where:  DIM_ASSET_ID <> 'd41d8cd98f00b204e9800998ecf8427e'        
+              where:  DIM_ASSET_ID not in ('-1','-2')       
       - name: DIM_ACCOUNT_ID__CREATOR
         description: "FK to DIM_ACCOUNT for the creator address"
         tests:
           - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') and DIM_ASSET_ID not in ('-1','-2')
       - name: CREATOR_ADDRESS
         description: "Address of the asset creator"
         tests:
           - not_null:
-              where: DIM_ACCOUNT_ID__CREATOR <>  'd41d8cd98f00b204e9800998ecf8427e'
+              where: DIM_ASSET_ID not in ('-1','-2') and DIM_ACCOUNT_ID__CREATOR <> '-2'
       - name: DIM_BLOCK_ID__CREATED_AT
         description: "DIM_BLOCK_ID which asset was created"
         tests:
           - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') and DIM_ASSET_ID not in ('-1','-2')
       - name: CREATED_AT
         description: "Block timestamp which asset was most recently closed"
       - name: DIM_BLOCK_ID__CLOSED_AT

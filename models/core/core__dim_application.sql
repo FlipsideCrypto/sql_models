@@ -5,33 +5,6 @@
     cluster_by = ['created_at::DATE']
 ) }}
 
-WITH base AS (
-
-    SELECT
-        INDEX AS app_id,
-        algorand_decode_hex_addr(
-            creator :: text
-        ) AS creator_address,
-        deleted AS app_closed,
-        closed_at AS closed_at,
-        created_at AS created_at,
-        params,
-        _inserted_timestamp
-    FROM
-        {{ ref('bronze__application') }}
-
-{% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(
-                _inserted_timestamp
-            )
-        FROM
-            {{ this }}
-    )
-{% endif %}
-)
 SELECT
     {{ dbt_utils.surrogate_key(
         ['app_id']
@@ -41,29 +14,23 @@ SELECT
     app_closed,
     COALESCE(
         da.dim_account_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_account_id__creator,
     da.address AS creator_address,
     COALESCE(
         C.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_block_id__created_at,
     C.block_timestamp AS created_at,
     COALESCE(
         b.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_block_id__closed_at,
     b.block_timestamp AS closed_at,
     A._inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
-    base A
+    {{ ref('silver__application') }} A
     LEFT JOIN {{ ref('core__dim_block') }}
     b
     ON A.closed_at = b.block_id
@@ -72,25 +39,52 @@ FROM
     LEFT JOIN {{ ref('core__dim_account') }}
     da
     ON A.creator_address = da.address
+
+{% if is_incremental() %}
+WHERE
+    A._inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+    OR app_id IN (
+        SELECT
+            app_id
+        FROM
+            {{ this }}
+        WHERE
+            dim_account_id__creator = '-1'
+            OR dim_block_id__created_at = '-1'
+    )
+{% endif %}
 UNION ALL
 SELECT
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_application_id,
-    NULL AS app_id,
+    '-1' AS dim_application_id,
+    -1 AS app_id,
     NULL AS params,
     NULL AS app_closed,
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_account_id__creator,
+    '-1' AS dim_account_id__creator,
     NULL AS creator_address,
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_block_id__created_at,
+    '-1' AS dim_block_id__created_at,
     NULL AS created_at,
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_block_id__closed_at,
+    '-1' AS dim_block_id__closed_at,
     NULL AS closed_at,
-    CURRENT_DATE AS _inserted_timestamp,
+    '1900-01-01' :: DATE _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    '-2' AS dim_application_id,
+    -2 AS app_id,
+    NULL AS params,
+    NULL AS app_closed,
+    '-2' AS dim_account_id__creator,
+    NULL AS creator_address,
+    '-2' AS dim_block_id__created_at,
+    NULL AS created_at,
+    '-2' AS dim_block_id__closed_at,
+    NULL AS closed_at,
+    '1900-01-01' :: DATE _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id

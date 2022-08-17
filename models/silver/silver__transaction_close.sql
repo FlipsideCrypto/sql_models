@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = "_unique_key",
     incremental_strategy = 'merge',
-    cluster_by = ['block_timestamp::DATE']
+    cluster_by = ['_INSERTED_TIMESTAMP::DATE']
 ) }}
 
 WITH base AS (
@@ -57,7 +57,6 @@ inner_outer AS (
         AND e.this :"close-amount" :: INT > 0
 )
 SELECT
-    b.block_timestamp,
     A.intra,
     A.block_id,
     A.tx_id,
@@ -74,11 +73,7 @@ SELECT
     A._INSERTED_TIMESTAMP
 FROM
     inner_outer A
-    JOIN {{ ref('core__dim_block') }}
-    b
-    ON A.block_ID = b.block_ID
 GROUP BY
-    b.block_timestamp,
     A.intra,
     A.block_id,
     A.tx_id,

@@ -29,9 +29,9 @@ tx_app_call AS (
     SELECT
         *
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id = '63469c3c4f19f07c737127a117296de4'
+        tx_type = 'appl'
 
 {% if is_incremental() %}
 AND _INSERTED_TIMESTAMP >= (
@@ -48,9 +48,9 @@ tx_pay AS (
     SELECT
         *
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
     WHERE
-        dim_transaction_type_id = 'b02a45a596bfb86fe2578bde75ff5444'
+        tx_type = 'pay'
 
 {% if is_incremental() %}
 AND _INSERTED_TIMESTAMP >= (
@@ -67,15 +67,14 @@ tx_a_tfer AS (
     SELECT
         pt.*,
         A.asset_name,
-        A.asset_id,
         A.decimals
     FROM
-        {{ ref('core__fact_transaction') }}
+        {{ ref('silver__transaction') }}
         pt
-        JOIN {{ ref('core__dim_asset') }} A
-        ON pt.dim_asset_id = A.dim_asset_id
+        JOIN {{ ref('silver__asset') }} A
+        ON pt.asset_id = A.asset_id
     WHERE
-        dim_transaction_type_id = 'c495d86d106bb9c67e5925d952e553f2'
+        tx_type = 'axfer'
 
 {% if is_incremental() %}
 AND pt._INSERTED_TIMESTAMP >= (
@@ -94,9 +93,8 @@ algofi_app AS(
         act.intra,
         act.tx_group_id,
         act._INSERTED_TIMESTAMP,
-        act.tx_sender AS sender,
-        act.block_timestamp,
-        act.tx_sender AS swapper,
+        act.sender AS sender,
+        act.sender AS swapper,
         act.app_id,
         act.fee,
         CASE
@@ -125,7 +123,7 @@ algofi_app AS(
         ) AS pool_address
     FROM
         tx_app_call act
-        JOIN {{ ref('core__dim_asset') }}
+        JOIN {{ ref('silver__asset') }}
         asa
         ON act.tx_message :dt :itx [0] :txn :xaid :: NUMBER = asa.asset_id
     WHERE
@@ -144,7 +142,7 @@ from_pay_swapssfe AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
         pt.intra,
-        pt.tx_sender AS swapper,
+        pt.sender AS swapper,
         'ALGO' AS from_asset_name,
         pt.amount / pow(
             10,
@@ -160,7 +158,7 @@ from_pay_swapssfe AS(
         algofi_app pa
         JOIN tx_pay pt
         ON pa.tx_group_id = pt.tx_group_id
-        AND pa.swapper = pt.tx_sender
+        AND pa.swapper = pt.sender
         AND pa.intra -1 = pt.intra
         JOIN tx_app_call ref
         ON pa.tx_group_id = ref.tx_group_id
@@ -176,7 +174,7 @@ from_axfer_swapssfe AS(
     SELECT
         pa.tx_group_id AS tx_group_id,
         pt.intra,
-        pt.tx_sender AS swapper,
+        pt.sender AS swapper,
         pt.asset_name AS from_asset_name,
         CASE
             WHEN pt.decimals > 0 THEN pt.asset_amount / pow(
@@ -198,7 +196,7 @@ from_axfer_swapssfe AS(
         JOIN tx_a_tfer pt
         ON pa.tx_group_id = pt.tx_group_id
         AND pa.intra -1 = pt.intra
-        AND pa.sender = pt.tx_sender
+        AND pa.sender = pt.sender
         LEFT JOIN tx_app_call ref
         ON pa.tx_group_id = ref.tx_group_id
         AND pa.intra + 2 = ref.intra
@@ -227,7 +225,6 @@ allsfe AS(
         pa.intra,
         pa.tx_group_id,
         pa._INSERTED_TIMESTAMP,
-        block_timestamp,
         pa.swapper,
         app_id,
         fee,
@@ -250,8 +247,7 @@ algofi_appsef AS(
         act.intra,
         act.tx_group_id,
         act._INSERTED_TIMESTAMP,
-        act.block_timestamp,
-        act.tx_sender AS swapper,
+        act.sender AS swapper,
         act.app_id,
         act.fee,
         CASE
@@ -280,7 +276,7 @@ algofi_appsef AS(
         ) AS pool_address
     FROM
         tx_app_call act
-        JOIN {{ ref('core__dim_asset') }}
+        JOIN {{ ref('silver__asset') }}
         asa
         ON act.tx_message :dt :itx [0] :txn :xaid :: NUMBER = asa.asset_id
     WHERE
@@ -299,7 +295,7 @@ from_pay_swapssef AS(
     SELECT
         pt.tx_group_id AS tx_group_id,
         pt.intra,
-        pt.tx_sender AS swapper,
+        pt.sender AS swapper,
         'ALGO' AS from_asset_name,
         amount :: FLOAT / pow(
             10,
@@ -310,16 +306,16 @@ from_pay_swapssef AS(
         algofi_appsef pa
         JOIN tx_pay pt
         ON pa.tx_group_id = pt.tx_group_id
-        AND pa.swapper = pt.tx_sender
+        AND pa.swapper = pt.sender
         AND pa.intra -1 = pt.intra
     WHERE
         pt.inner_tx = 'FALSE'
 ),
 from_axfer_swapssef AS(
     SELECT
-        pt.tx_group_id AS tx_group_id,
+        pt.tx_group_id,
         pt.intra,
-        pt.tx_sender AS swapper,
+        pt.sender AS swapper,
         pt.asset_name AS from_asset_name,
         CASE
             WHEN pt.decimals > 0 THEN pt.asset_amount / pow(
@@ -334,7 +330,7 @@ from_axfer_swapssef AS(
         JOIN tx_a_tfer pt
         ON pa.tx_group_id = pt.tx_group_id
         AND pa.intra -1 = pt.intra
-        AND pa.swapper = pt.tx_sender
+        AND pa.swapper = pt.sender
     WHERE
         pt.inner_tx = 'FALSE'
 ),
@@ -366,7 +362,6 @@ allsef AS(
         pa.intra,
         pa.tx_group_id,
         pa._INSERTED_TIMESTAMP,
-        block_timestamp,
         pa.swapper,
         app_id,
         fee,
@@ -384,8 +379,7 @@ allsef AS(
         AND pa.intra -1 = fs.intra
 )
 SELECT
-    DISTINCT block_timestamp,
-    block_id,
+    DISTINCT block_id,
     intra,
     tx_group_id,
     app_id,
@@ -405,8 +399,7 @@ FROM
     allsef
 UNION
 SELECT
-    DISTINCT block_timestamp,
-    block_id,
+    DISTINCT block_id,
     intra,
     tx_group_id,
     app_id,

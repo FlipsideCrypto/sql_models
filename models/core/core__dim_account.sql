@@ -7,49 +7,31 @@
 
 SELECT
     {{ dbt_utils.surrogate_key(
-        ['addr :: text']
+        ['address']
     ) }} AS dim_account_id,
-    algorand_decode_hex_addr(
-        addr :: text
-    ) AS address,
-    deleted AS account_closed,
-    CASE
-        WHEN rewardsbase > 0 THEN TRUE
-        ELSE FALSE
-    END non_zero_rewards_base,
-    CASE
-        WHEN rewards_total > 0 THEN TRUE
-        ELSE FALSE
-    END non_zero_rewards_total,
-    CASE
-        WHEN microalgos > 0 THEN TRUE
-        ELSE FALSE
-    END non_zero_balance,
+    A.address,
+    A.account_closed,
+    A.non_zero_rewards_base,
+    A.non_zero_rewards_total,
+    A.non_zero_balance,
     COALESCE(
         C.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-1'
     ) AS dim_block_id__created_at,
     C.block_timestamp AS created_at,
     COALESCE(
         b.dim_block_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_block_id__closed_at,
     b.block_timestamp AS closed_at,
     COALESCE(
         d.dim_wallet_type_id,
-        {{ dbt_utils.surrogate_key(
-            ['null']
-        ) }}
+        '-2'
     ) AS dim_wallet_type_id,
-    account_data,
     A._inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
-    {{ ref('bronze__account') }} A
+    {{ ref('silver__account') }} A
     LEFT JOIN {{ ref('core__dim_block') }}
     b
     ON A.closed_at = b.block_id
@@ -57,7 +39,7 @@ FROM
     ON A.created_at = C.block_id
     LEFT JOIN {{ ref('core__dim_wallet_type') }}
     d
-    ON A.keytype = d.wallet_type
+    ON A.account_data = d.wallet_type
 
 {% if is_incremental() %}
 WHERE
@@ -69,28 +51,43 @@ WHERE
         FROM
             {{ this }}
     )
+    OR address IN (
+        SELECT
+            address
+        FROM
+            {{ this }}
+        WHERE
+            dim_block_id__created_at = '-1'
+            OR dim_wallet_type_id = '-1'
+    )
 {% endif %}
 UNION ALL
 SELECT
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_account_id,
-    'null' AS address,
+    '-1' AS dim_account_id,
+    'unknown' AS address,
     FALSE AS account_closed,
     FALSE AS non_zero_rewards_base,
     FALSE AS non_zero_rewards_total,
     FALSE AS non_zero_balance,
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_block_id__created_at,
+    '-1' AS dim_block_id__created_at,
     NULL AS created_at,
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_block_id__closed_at,
+    '-1' AS dim_block_id__closed_at,
     NULL AS closed_at,
-    {{ dbt_utils.surrogate_key(
-        ['null']
-    ) }} AS dim_wallet_type_id,
-    NULL AS account_data,
-    CURRENT_DATE _inserted_timestamp,
+    '-1' AS dim_wallet_type_id,
+    '1900-01-01' :: DATE _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    '-2' AS dim_account_id,
+    'not applicable' AS address,
+    FALSE AS account_closed,
+    FALSE AS non_zero_rewards_base,
+    FALSE AS non_zero_rewards_total,
+    FALSE AS non_zero_balance,
+    '-2' AS dim_block_id__created_at,
+    NULL AS created_at,
+    '-2' AS dim_block_id__closed_at,
+    NULL AS closed_at,
+    '-2' AS dim_wallet_type_id,
+    '1900-01-01' :: DATE _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id

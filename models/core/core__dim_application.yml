@@ -11,7 +11,7 @@ models:
         description: "{{ doc('app_id') }}"
         tests:
           - not_null:
-              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+              where:  DIM_APPLICATION_ID not in ('-1','-2')   
       - name: PARAMS
         description: "Parameters related to the app"
         tests:
@@ -20,25 +20,29 @@ models:
         description: "Whether or not the app is currently deleted"
         tests:
           - not_null:
-              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+              where:  DIM_APPLICATION_ID not in ('-1','-2')
       - name: DIM_ACCOUNT_ID__CREATOR
         description: "FK to DIM_ACCOUNT for the creator address"
         tests:
           - not_null
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') and DIM_APPLICATION_ID not in ('-1','-2')
       - name: CREATOR_ADDRESS
         description: "Wallet creator account address"
         tests:
           - not_null:
-              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+              where:  DIM_APPLICATION_ID not in ('-1','-2')
       - name: DIM_BLOCK_ID__CREATED_AT
         description: "FK to DIM_BLOCK for the created at datetime"
         tests:
           - not_null   
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') and DIM_APPLICATION_ID not in ('-1','-2')
       - name: CREATED_AT
         description: "Block timestamp that the app was created"
         tests:
           - not_null:
-              where:  DIM_APPLICATION_ID <> 'd41d8cd98f00b204e9800998ecf8427e'    
+              where:  DIM_APPLICATION_ID not in ('-1','-2')
       - name: DIM_BLOCK_ID__CLOSED_AT
         description: "FK to DIM_BLOCK for the closed at datetime"
         tests:
