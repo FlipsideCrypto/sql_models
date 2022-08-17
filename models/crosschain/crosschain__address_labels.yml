@@ -20,8 +20,6 @@ models:
           - not_null
       - name: INSERT_DATE
         description: The date the label was inserted in the table
-        tests:
-          - not_null
       - name: LABEL_TYPE
         description: A high-level category describing the addresses main function or ownership
         tests:
@@ -30,6 +28,10 @@ models:
               value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin']
       - name: LABEL_SUBTYPE
         description: A sub-category nested within label type providing further detail
+        tests:
+          - not_null
+      - name: ADDRESS_NAME
+        description: Name of the address
         tests:
           - not_null
       - name: PROJECT_NAME
