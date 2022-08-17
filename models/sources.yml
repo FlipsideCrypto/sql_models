@@ -258,6 +258,8 @@ sources:
     schema: SUSHI
     tables:
       - name: EZ_SWAPS
+      - name: EZ_LENDING
+      - name: EZ_BORROWING  
   - name: legacy_silver_crosschain
     database: flipside_prod_db
     schema: silver_crosschain
