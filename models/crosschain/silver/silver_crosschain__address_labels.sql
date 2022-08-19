@@ -71,6 +71,26 @@ AND (
 )
 {% endif %}
 ),
+delete_table AS (
+  SELECT
+    CASE
+      WHEN blockchain IN (
+        'algorand',
+        'solana'
+      ) THEN t.value :address :: STRING
+      ELSE LOWER(
+        t.value :address :: STRING
+      )
+    END AS address,
+    t.value :delete :: STRING AS delete_flag
+  FROM
+    base_tables,
+    LATERAL FLATTEN(
+      input => record_content
+    ) t
+  WHERE
+    delete_flag = 'true'
+),
 flat_table AS (
   SELECT
     (
@@ -91,7 +111,8 @@ flat_table AS (
     t.value :l1_label :: STRING AS l1_label,
     t.value :l2_label :: STRING AS l2_label,
     t.value :address_name :: STRING AS address_name,
-    t.value :project_name :: STRING AS project_name
+    t.value :project_name :: STRING AS project_name,
+    t.value :delete :: STRING AS delete_flag
   FROM
     base_tables,
     LATERAL FLATTEN(
@@ -109,11 +130,18 @@ SELECT
   l1_label,
   l2_label,
   address_name,
-  project_name
+  project_name,
+  delete_flag
 FROM
   flat_table
 WHERE
-  project_name IS NOT NULL
+  address NOT IN (
+    SELECT
+      address
+    FROM
+      delete_table
+  )
+  AND project_name IS NOT NULL
   AND address_name IS NOT NULL
   AND l1_label <> 'project'
 
@@ -128,7 +156,8 @@ SELECT
     l1_label AS label_type, 
     l2_label AS label_subtype, 
     address_name, 
-    project_name
+    project_name, 
+    NULL AS delete_flag
 FROM 
     {{ ref('silver_crosschain__labels_contracts') }}
 
@@ -143,7 +172,8 @@ SELECT
     l1_label AS label_type, 
     l2_label AS label_subtype, 
     address_name, 
-    project_name
+    project_name, 
+    NULL AS delete_flag
 FROM 
     {{ ref('silver_crosschain__labels_contracts_avalanche') }}
 
@@ -158,7 +188,8 @@ SELECT
     l1_label AS label_type, 
     l2_label AS label_subtype, 
     address_name, 
-    project_name
+    project_name, 
+    NULL AS delete_flag
 FROM 
     {{ ref('silver_crosschain__labels_contracts_bsc') }}
 
@@ -173,7 +204,8 @@ SELECT
     l1_label AS label_type, 
     l2_label AS label_subtype, 
     address_name, 
-    project_name
+    project_name, 
+    NULL AS delete_flag
 FROM 
     {{ ref('silver_crosschain__labels_contracts_optimism') }}
 
@@ -188,6 +220,7 @@ SELECT
     l1_label AS label_type, 
     l2_label AS label_subtype, 
     address_name, 
-    project_name
+    project_name, 
+    NULL AS delete_flag
 FROM 
     {{ ref('silver_crosschain__labels_contracts_polygon') }}
