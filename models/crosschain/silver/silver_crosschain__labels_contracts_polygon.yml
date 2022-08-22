@@ -1,0 +1,53 @@
+version: 2
+models:
+  - name: silver_crosschain__labels_contracts_polygon
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+    columns:
+      - name: BLOCKCHAIN
+        description: The name of the blockchain
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['polygon']
+      - name: ADDRESS
+        description: Address that the label is for. This is the field that should be used to join other tables with labels. 
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - STRING
+                - VARCHAR
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: 0[xX][0-9a-fA-F]+
+      - name: CREATOR
+        description: The name of the creator of the label
+        tests:
+          - not_null
+      - name: L1_LABEL
+        description: A high-level category describing the addresses main function or ownership
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['flotsam', 'nft', 'defi', 'dex', 'cex', 'dapp', 'token', 'operator', 'layer2', 'chadmin']
+      - name: L2_LABEL
+        description: A sub-category nested within label type providing further detail
+        tests:
+          - not_null
+      - name: ADDRESS_NAME
+        description: Name of the address
+        tests:
+          - not_null
+      - name: PROJECT_NAME
+        description: Name of the controlling entity of the address
+        tests:
+          - not_null
+      - name: _INSERTED_TIMESTAMP
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_type_list:
+              column_type_list:
+                - TIMESTAMP_NTZ
+      

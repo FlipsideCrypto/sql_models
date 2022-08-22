@@ -270,5 +270,32 @@ sources:
     tables:
       - name: traces
       - name: logs
-
+  - name: avalanche_silver
+    database: avalanche
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
+  - name: polygon_silver
+    database: polygon
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
+  - name: optimism_silver
+    database: optimism
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
+  - name: bsc_silver
+    database: bsc
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
 
