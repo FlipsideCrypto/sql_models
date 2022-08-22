@@ -258,10 +258,55 @@ sources:
     schema: SUSHI
     tables:
       - name: EZ_SWAPS
+      - name: EZ_LENDING
+      - name: EZ_BORROWING 
+
   - name: Avalanche
     database: AVALANCHE
     schema: SUSHI
     tables:
       - name: EZ_SWAPS
+      - name: EZ_LENDING
+      - name: EZ_BORROWING  
+  - name: legacy_silver_crosschain
+    database: flipside_prod_db
+    schema: silver_crosschain
+    tables:
+      - name: ntr
+      - name: address_labels
+  - name: ethereum_silver
+    database: ethereum
+    schema: silver
+    tables:
+      - name: traces
+      - name: logs
+  - name: avalanche_silver
+    database: avalanche
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
+  - name: polygon_silver
+    database: polygon
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
+  - name: optimism_silver
+    database: optimism
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
+  - name: bsc_silver
+    database: bsc
+    schema: silver
+    tables:
+      - name: logs
+      - name: traces
+      - name: transactions
 
 

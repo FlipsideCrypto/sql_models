@@ -8,7 +8,7 @@
 WITH asset_config AS(
 
   SELECT
-    DISTINCT asset_id,
+    asset_id,
     asset_parameters :an :: STRING AS asset_name,
     asset_parameters :t :: NUMBER AS asset_amount,
     CASE
@@ -20,7 +20,9 @@ WITH asset_config AS(
   WHERE
     asset_parameters :an :: STRING IS NOT NULL
     AND asset_parameters :t :: NUMBER IS NOT NULL
-    AND asset_parameters IS NOT NULL
+    AND asset_parameters IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY asset_id
+  ORDER BY
+    block_timestamp DESC)) = 1
 )
 SELECT
   A.index AS asset_id,

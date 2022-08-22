@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'view', 
-    tags = ['snowflake', 'crosschain', 'address_labels', 'gold_address_labels'], 
+    tags = ['snowflake', 'crosschain', 'labels', 'gold_address_labels'], 
 ) }}
 
 SELECT 

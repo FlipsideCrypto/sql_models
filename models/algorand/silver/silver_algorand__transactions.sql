@@ -39,7 +39,11 @@ WITH allTXN AS (
 ),
 innertx AS (
   SELECT
-    b.intra + INDEX + 1,
+    b.intra + ROW_NUMBER() over(
+      PARTITION BY txid
+      ORDER BY
+        path
+    ) AS intra,
     b.round AS block_id,
     txn :txn :grp :: STRING AS tx_group_id,
     b.txid :: text AS tx_id,
@@ -73,11 +77,13 @@ innertx AS (
     ) }}
     b,
     LATERAL FLATTEN(
-      input => txn :dt :itx
+      input => txn :dt :itx,
+      recursive => TRUE
     ) f
   WHERE
     txn :dt :itx IS NOT NULL
     AND txid IS NOT NULL
+    AND VALUE :txn :type IS NOT NULL
 ),
 uniontxn AS(
   SELECT

@@ -61,3 +61,28 @@ SELECT
     total_sales_amount
 FROM
     {{ ref('silver_algorand__nft_atomic_swaps') }}
+WHERE
+    concat_ws(
+        tx_group_id :: STRING,
+        nft_asset_id :: STRING
+    ) NOT IN (
+        SELECT
+            concat_ws(
+                tx_group_id :: STRING,
+                nft_asset_id :: STRING
+            )
+        FROM
+            {{ ref('silver_algorand__nft_sales_rand_gallery') }}
+    )
+    AND concat_ws(
+        tx_group_id :: STRING,
+        nft_asset_id :: STRING
+    ) NOT IN (
+        SELECT
+            concat_ws(
+                tx_group_id :: STRING,
+                nft_asset_id :: STRING
+            )
+        FROM
+            {{ ref('silver_algorand__nft_sales_algoxnft') }}
+    )
