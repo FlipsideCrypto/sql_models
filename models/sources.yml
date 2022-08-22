@@ -259,6 +259,14 @@ sources:
     tables:
       - name: EZ_SWAPS
       - name: EZ_LENDING
+      - name: EZ_BORROWING 
+
+  - name: Avalanche
+    database: AVALANCHE
+    schema: SUSHI
+    tables:
+      - name: EZ_SWAPS
+      - name: EZ_LENDING
       - name: EZ_BORROWING  
   - name: legacy_silver_crosschain
     database: flipside_prod_db
@@ -300,4 +308,5 @@ sources:
       - name: logs
       - name: traces
       - name: transactions
+
 
