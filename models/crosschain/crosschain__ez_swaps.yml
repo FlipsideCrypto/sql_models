@@ -96,8 +96,7 @@ models:
         tests:
           - not_null:
               where: BLOCK_TIMESTAMP > '2021-08-01'
-          - dbt_expectations.expect_column_values_to_match_regex:
-              regex: 0[xX][0-9a-fA-F]+
+
       - name: TX_TO
         description: '{{ doc("cross_chain_swap_tx_to") }}'
         tests:
