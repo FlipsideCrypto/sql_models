@@ -67,7 +67,7 @@ sources:
       - name: flow_delegator_addresses
       - name: terra_vesting_schedule
   - name: thorchain_midgard
-    schema: BRONZE_MIDGARD_2_6_9_20220405
+    schema: BRONZE_MIDGARD_2_9_0_20220724
     tables:
       - name: midgard_active_vault_events
       - name: midgard_add_events
@@ -96,8 +96,8 @@ sources:
       - name: midgard_set_mimir_events
       - name: midgard_set_node_keys_events
       - name: midgard_set_version_events
-      - name: midgard_slash_amounts
-      - name: midgard_slash_points
+      - name: midgard_slash_events
+      - name: midgard_slash_points_events
       - name: midgard_stake_events
       - name: midgard_swap_events
       - name: midgard_switch_events

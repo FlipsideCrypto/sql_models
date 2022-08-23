@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__gas_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY asset, tx_count, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY event_id, asset, tx_count, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

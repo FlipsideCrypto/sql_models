@@ -18,6 +18,3 @@ models:
       - name: HASH
         tests:
           - not_null
-      - name: AGG_STATE
-        tests:
-          - not_null
