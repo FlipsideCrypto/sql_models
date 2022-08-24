@@ -1,0 +1,36 @@
+version: 2
+models:
+  - name: silver_algorand__nft_sales_nfdomains
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - block_id
+            - tx_group_id
+            - nft_asset_id
+    columns:
+      - name: BLOCK_TIMESTAMP
+        tests:
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+        tests:
+          - not_null
+      - name: PURCHASER
+        tests:
+          - not_null
+      - name: NFT_ASSET_ID
+        tests:
+          - not_null
+      - name: TOTAL_SALES_AMOUNT
+        tests:
+          - not_null
+      - name: NUMBER_OF_NFTS
+        tests:
+          - not_null
+          
