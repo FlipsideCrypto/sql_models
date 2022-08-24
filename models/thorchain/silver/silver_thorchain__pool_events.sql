@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__pool_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY asset, status, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY event_id, asset, status, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

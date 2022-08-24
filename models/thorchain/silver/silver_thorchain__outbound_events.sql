@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__outbound_events') }}
-  qualify(ROW_NUMBER() over(PARTITION BY tx, chain, from_addr, to_addr, asset, memo, in_tx, block_timestamp
+  qualify(ROW_NUMBER() over(PARTITION BY event_id, tx, chain, from_addr, to_addr, asset, memo, in_tx, block_timestamp
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

@@ -7,7 +7,7 @@ SELECT
   *
 FROM
   {{ ref('thorchain_dbt__block_log') }}
-  qualify(ROW_NUMBER() over(PARTITION BY height, TIMESTAMP, HASH, agg_state
+  qualify(ROW_NUMBER() over(PARTITION BY height, TIMESTAMP, HASH
 ORDER BY
   __HEVO__INGESTED_AT DESC)) = 1
 

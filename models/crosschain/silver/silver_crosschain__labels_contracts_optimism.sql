@@ -32,7 +32,7 @@ base_labels AS (
         _inserted_timestamp
     FROM
         {{ source(
-            'ethereum_silver',
+            'optimism_silver',
             'traces'
         ) }}
     WHERE
@@ -48,7 +48,7 @@ base_labels AS (
                     'address_labels'
                 ) }}
             WHERE
-                blockchain = 'ethereum'
+                blockchain = 'optimism'
         )
 
     {% if is_incremental() %}
@@ -78,7 +78,7 @@ base_legacy_labels AS (
             'address_labels'
         ) }}
     WHERE
-        blockchain = 'ethereum'
+        blockchain = 'optimism'
 ), 
 base_transacts AS (
     SELECT
@@ -109,7 +109,7 @@ base_logs AS (
         _inserted_timestamp
     FROM
         {{ source(
-            'ethereum_silver',
+            'optimism_silver',
             'logs'
         ) }}
     WHERE
@@ -225,7 +225,7 @@ SELECT
     DISTINCT 
     system_created_at, 
     insert_date, 
-    'ethereum' AS blockchain,
+    'optimism' AS blockchain,
     to_address AS address,
     'flipside' AS creator,
     l1_label,
