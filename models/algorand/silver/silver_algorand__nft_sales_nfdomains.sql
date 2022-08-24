@@ -8,7 +8,8 @@ WITH asset_ids AS (
 
     SELECT
         asset_id,
-        tx_group_id
+        tx_group_id,
+        sender AS bridge_account
     FROM
         {{ ref('silver_algorand__asset_configuration_transaction') }}
     WHERE
@@ -30,7 +31,8 @@ nfdadmin_minted AS (
         JOIN asset_ids b
         ON A.tx_group_id = b.tx_group_id
     WHERE
-        A.sender = 'ABHE544MXL2CWMIZONAIUBNVELWYMKYKWBDNRLOEFQJN3LNF2ZWSMDEKBQ'
+        A.block_timestamp >= '2022-06-01'
+        AND A.sender = 'ABHE544MXL2CWMIZONAIUBNVELWYMKYKWBDNRLOEFQJN3LNF2ZWSMDEKBQ'
     GROUP BY
         A.tx_group_id,
         b.asset_id,
@@ -60,14 +62,52 @@ minted_nfts AS (
         ON A.tx_group_id = C.tx_group_id
         AND A.sender = C.sender
     WHERE
-        A.receiver = 'ABHE544MXL2CWMIZONAIUBNVELWYMKYKWBDNRLOEFQJN3LNF2ZWSMDEKBQ'
-    GROUP BY
+        A.block_timestamp >= '2022-06-01'
+        AND C.block_timestamp >= '2022-06-01'
+        AND A.receiver = 'ABHE544MXL2CWMIZONAIUBNVELWYMKYKWBDNRLOEFQJN3LNF2ZWSMDEKBQ'
+
+{% if is_incremental() %}
+AND A._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+AND C._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+{% endif %}
+GROUP BY
+    A.block_timestamp,
+    A.block_id,
+    A.tx_group_id,
+    A.sender,
+    b.asset_id,
+    A._inserted_timestamp
+),
+all_mint_claims AS (
+    SELECT
+        A.tx_group_id,
+        A.asset_id,
         A.block_timestamp,
         A.block_id,
-        A.tx_group_id,
-        A.sender,
-        b.asset_id,
+        A.asset_receiver AS purchaser,
         A._inserted_timestamp
+    FROM
+        {{ ref('silver_algorand__asset_transfer_transaction') }} A
+        JOIN asset_ids b
+        ON A.asset_id = b.asset_id
+        AND A.asset_sender = b.bridge_account
+    WHERE
+        A.block_timestamp >= '2022-06-01'
+        AND A.asset_amount > 0
 ),
 xfers_base AS (
     SELECT
@@ -78,12 +118,7 @@ xfers_base AS (
         asset_sender AS seller,
         asset_receiver AS purchaser,
         A.asset_id,
-        A._inserted_timestamp,
-        ROW_NUMBER() over(
-            PARTITION BY A.asset_id
-            ORDER BY
-                A.block_timestamp
-        ) xfer_no
+        A._inserted_timestamp
     FROM
         {{ ref('silver_algorand__asset_transfer_transaction') }} A
         JOIN asset_ids b
@@ -91,6 +126,17 @@ xfers_base AS (
     WHERE
         A.block_timestamp >= '2022-06-01'
         AND asset_amount > 0
+
+{% if is_incremental() %}
+AND A._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+{% endif %}
 ),
 xfers AS (
     SELECT
@@ -101,29 +147,15 @@ xfers AS (
         A.seller,
         A.purchaser,
         A.asset_id,
-        A.xfer_no,
         A._inserted_timestamp
     FROM
         xfers_base A
         JOIN asset_ids b
         ON A.asset_id = b.asset_id
-        LEFT JOIN (
-            SELECT
-                asset_id,
-                purchaser
-            FROM
-                nfdadmin_minted
-            UNION ALL
-            SELECT
-                asset_id,
-                purchaser
-            FROM
-                minted_nfts
-        ) C
-        ON A.asset_id = C.asset_id
-        AND xfer_no = 1
+        LEFT JOIN all_mint_claims C
+        ON A.tx_group_id = C.tx_group_id
     WHERE
-        C.asset_id IS NULL
+        C.tx_group_id IS NULL
 ),
 xfers_pay AS (
     SELECT
@@ -134,8 +166,21 @@ xfers_pay AS (
         JOIN xfers_base b
         ON A.tx_group_id = b.tx_group_id
         AND A.sender = b.purchaser
-    GROUP BY
-        A.tx_group_id
+    WHERE
+        A.block_timestamp >= '2022-06-01'
+
+{% if is_incremental() %}
+AND A._INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
+{% endif %}
+GROUP BY
+    A.tx_group_id
 ),
 FINAL AS (
     SELECT
@@ -149,7 +194,7 @@ FINAL AS (
             WHEN b.tx_group_id = 'wHGynFHbMjJtK0Pus7V91bSaORPg+ZvGkzSrBqbbA2g=' THEN 1408
             ELSE amount
         END AS total_sales_amount,
-        'all secondary and transfers' TYPE,
+        'secondary and transfers' TYPE,
         A._inserted_timestamp
     FROM
         xfers A
@@ -164,7 +209,7 @@ FINAL AS (
         asset_id,
         1,
         amount,
-        'all primary' TYPE,
+        'primary' TYPE,
         _inserted_timestamp
     FROM
         minted_nfts
@@ -174,37 +219,19 @@ FINAL AS (
         b.block_id,
         b.tx_group_id,
         b.purchaser,
-        b.asset_id,
+        A.asset_id,
         1,
         amount,
-        'premints' TYPE,
+        'curated' TYPE,
         b._inserted_timestamp
     FROM
         nfdadmin_minted A
-        JOIN xfers_base b
+        JOIN all_mint_claims b
         ON A.asset_id = b.asset_id
-        AND b.xfer_no = 1
         JOIN xfers_pay C
         ON b.tx_group_id = C.tx_group_id
     WHERE
         b.tx_group_id <> 'wHGynFHbMjJtK0Pus7V91bSaORPg+ZvGkzSrBqbbA2g='
-    UNION ALL
-    SELECT
-        A.block_timestamp,
-        A.block_id,
-        A.tx_group_id,
-        A.purchaser,
-        A.asset_id,
-        1,
-        1 amount,
-        'premints not yet claimed' TYPE,
-        A._inserted_timestamp
-    FROM
-        nfdadmin_minted A
-        LEFT JOIN xfers_base b
-        ON A.asset_id = b.asset_id
-    WHERE
-        b.tx_group_id IS NULL
 )
 SELECT
     block_timestamp,
