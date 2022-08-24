@@ -15,6 +15,7 @@ SELECT
     collection_nft,
     arc69_nft,
     ar3_nft,
+    ar19_nft,
     traditional_nft
 FROM
     {{ ref('core__dim_asset') }}

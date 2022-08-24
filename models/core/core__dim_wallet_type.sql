@@ -12,7 +12,7 @@ SELECT
     MAX(_inserted_timestamp) _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
-    {{ ref('bronze__account') }}
+    {{ ref('silver__account') }}
 WHERE
     keytype IS NOT NULL
 

@@ -42,6 +42,8 @@ models:
         description: "TRUE/FALSE indicating if the NFT follows the ARC69 standard"
       - name: AR3_NFT
         description: "TRUE/FALSE indicating if the NFT follows the AR3 standard"
+      - name: AR19_NFT
+        description: "TRUE/FALSE indicating if the NFT follows the AR19 standard"
       - name: TRADITIONAL_NFT
         description: "TRUE/FALSE indicating if the asset total supply is 1 and the number of decimals is 0"
       - name: IS_NFT

@@ -33,6 +33,21 @@ WHERE
     )
 {% endif %}
 ),
+asset_config AS(
+    SELECT
+        asset_id,
+        asset_name,
+        asset_amount,
+        decimals
+    FROM
+        {{ ref('silver__asset_config') }}
+    WHERE
+        asset_name IS NOT NULL
+        AND asset_amount IS NOT NULL
+        AND decimals IS NOT NULL qualify(ROW_NUMBER() over(PARTITION BY asset_id
+    ORDER BY
+        _inserted_timestamp DESC)) = 1
+),
 base AS (
     SELECT
         A.asset_id,
@@ -60,8 +75,7 @@ base AS (
         A._inserted_timestamp
     FROM
         prebase A
-        LEFT JOIN {{ ref('silver__asset_config') }}
-        ac
+        LEFT JOIN asset_config ac
         ON A.asset_id = ac.asset_id
 ),
 collect_NFTs AS(
@@ -166,6 +180,13 @@ SELECT
         ELSE FALSE
     END AS ar3_nft,
     CASE
+        WHEN COALESCE(
+            asset_url,
+            coll.url
+        ) LIKE '%reserve%' THEN TRUE
+        ELSE FALSE
+    END AS ar19_nft,
+    CASE
         WHEN A.decimals = 0
         AND A.total_supply = 1 THEN TRUE
         ELSE FALSE
@@ -177,6 +198,10 @@ SELECT
             asset_url,
             coll.url
         ) LIKE '%#arc3%'
+        OR COALESCE(
+            asset_url,
+            coll.url
+        ) LIKE '%reserve%'
         OR (
             A.decimals = 0
             AND A.total_supply = 1

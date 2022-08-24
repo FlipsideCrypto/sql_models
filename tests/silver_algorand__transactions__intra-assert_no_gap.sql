@@ -1,0 +1,1 @@
+{{ sequence_gaps_buffered_look_back(ref('silver__transactions'), ["block_id"], "intra", "_inserted_timestamp", "15 HOURS") }}
