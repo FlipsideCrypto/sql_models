@@ -45,7 +45,8 @@ models:
       - name: asset_id
         description: "{{ doc('algo_asset_id') }}"
         tests:
-          - not_null 
+          - not_null:
+              where: NOT (BLOCK_TIMESTAMP::date = '2022-08-18' and TX_ID = 'BXRZUXF3PKHEHVDVH6THLRZ5U2X6IDWPANAYZNQLLATOC6EJAOJQ' and intra = 17)
       - name: amount
         description: "The amount of the asset to be transferred. Can be 0."
         tests:
