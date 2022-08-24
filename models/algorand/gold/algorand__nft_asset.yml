@@ -30,6 +30,8 @@ models:
         description: "TRUE/FALSE value to show if the NFT follows the arc69 standard"  
       - name: AR3_NFT
         description: "TRUE/FALSE value to show if the NFT follows the arc3 standard"  
+      - name: AR19_NFT
+        description: "TRUE/FALSE value to show if the NFT follows the arc19 standard"  
       - name: TRADITIONAL_NFT
         description: "TRUE/FALSE value to show if the NFT has a total supply of 1 and a number of decimals of 0"  
       - name: ASSET_DELETED
