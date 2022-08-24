@@ -174,6 +174,13 @@ SELECT
         ELSE FALSE
     END AS ar3_nft,
     CASE
+        WHEN COALESCE(
+            asset.asset_url,
+            coll.url
+        ) LIKE '%reserve%' THEN TRUE
+        ELSE FALSE
+    END AS ar19_nft,
+    CASE
         WHEN trad.nft IS NOT NULL THEN TRUE
         ELSE FALSE
     END AS traditional_nft,
