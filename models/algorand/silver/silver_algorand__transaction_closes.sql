@@ -32,6 +32,10 @@ WITH base AS (
             tx_message :txn :close :: STRING,
             tx_message :txn :aclose :: STRING
         ) IS NOT NULL
+        AND COALESCE(
+            tx_message :ca :: INT,
+            tx_message :aca :: INT
+        ) > 0
 
 {% if is_incremental() %}
 AND _INSERTED_TIMESTAMP >= (
