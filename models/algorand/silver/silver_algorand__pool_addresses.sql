@@ -74,23 +74,6 @@ WITH swaps AS(
         _INSERTED_TIMESTAMP
     FROM
         {{ ref('silver_algorand__swaps_wagmiswap_dex') }}
-    UNION ALL
-    SELECT
-        'humble swap' AS swap_program,
-        block_timestamp,
-        block_id,
-        intra,
-        tx_group_id,
-        app_id,
-        swapper,
-        swap_from_asset_id,
-        swap_from_amount,
-        pool_address,
-        swap_to_asset_id,
-        swap_to_amount,
-        _INSERTED_TIMESTAMP
-    FROM
-        {{ ref('silver_algorand__swaps_humble_swap_dex') }}
 ),
 pool_names AS(
     SELECT
