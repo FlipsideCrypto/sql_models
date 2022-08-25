@@ -8,81 +8,82 @@
 WITH base AS (
 
     SELECT
+        block_timestamp,
         tx_ID,
-        DATA,
-        _INSERTED_TIMESTAMP
-    FROM
-        {{ ref('silver_algorand__indexer_tx') }}
-
-{% if is_incremental() %}
-WHERE
-    _INSERTED_TIMESTAMP >= (
-        SELECT
-            MAX(
-                _INSERTED_TIMESTAMP
-            )
-        FROM
-            {{ this }}
-    )
-{% endif %}
-
-qualify(ROW_NUMBER() over(PARTITION BY tx_id
-ORDER BY
-    _INSERTED_TIMESTAMP DESC)) = 1
-),
-inner_outer AS (
-    SELECT
-        A.tx_ID,
-        A.data :"confirmed-round" :: INT AS block_id,
-        A.data :"intra-round-offset" :: INT AS intra,
-        e.this :"close-amount" :: INT amount,
+        block_id,
+        intra,
         COALESCE(
-            e.this :"asset-id" :: INT,
+            tx_message :ca :: INT,
+            tx_message :aca :: INT
+        ) amount,
+        COALESCE(
+            tx_message :txn :close :: STRING,
+            tx_message :txn :aclose :: STRING
+        ) account,
+        COALESCE(
+            tx_message :txn :xaid :: INT,
             0
         ) asset_id,
-        COALESCE(
-            e.this :"close-remainder-to",
-            e.this :"close-to"
-        ) :: STRING account,
         _INSERTED_TIMESTAMP
     FROM
-        base A,
-        LATERAL FLATTEN(
-            input => A.data,
-            outer => TRUE,
-            recursive => TRUE
-        ) e
+        {{ ref('silver_algorand__transactions') }}
     WHERE
-        e.key = 'close-amount'
-        AND e.this :"close-amount" :: INT > 0
+        COALESCE(
+            tx_message :txn :close :: STRING,
+            tx_message :txn :aclose :: STRING
+        ) IS NOT NULL
+        AND COALESCE(
+            tx_message :ca :: INT,
+            tx_message :aca :: INT
+        ) > 0
+
+{% if is_incremental() %}
+AND _INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+)
+{% endif %}
+),
+mid AS (
+    SELECT
+        block_timestamp,
+        intra,
+        block_id,
+        tx_id,
+        algorand_decode_b64_addr(account) account,
+        asset_id,
+        SUM(amount) amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        base A
+    GROUP BY
+        block_timestamp,
+        intra,
+        block_id,
+        tx_id,
+        account,
+        asset_id,
+        _INSERTED_TIMESTAMP
 )
 SELECT
-    b.block_timestamp,
-    A.intra,
-    A.block_id,
-    A.tx_id,
-    A.account,
-    A.asset_id,
-    SUM(amount) amount,
+    block_timestamp,
+    intra,
+    block_id,
+    tx_id,
+    account,
+    asset_id,
+    amount,
     concat_ws(
         '-',
-        A.block_id,
-        A.intra,
-        A.account,
-        A.asset_ID
+        block_id,
+        intra,
+        account,
+        asset_ID
     ) AS _unique_key,
-    a._INSERTED_TIMESTAMP
+    _INSERTED_TIMESTAMP
 FROM
-    inner_outer A
-    JOIN {{ ref('silver_algorand__block') }}
-    b
-    ON A.block_ID = b.block_ID
-GROUP BY
-    b.block_timestamp,
-    A.intra,
-    A.block_id,
-    A.tx_id,
-    A.account,
-    A.asset_id,
-    _unique_key,
-    a._INSERTED_TIMESTAMP
+    mid
