@@ -66,8 +66,7 @@ pactfi_app AS(
         )
         AND TRY_BASE64_DECODE_STRING(
             tx_message :txn :apaa [0] :: STRING
-        ) = 'SWAP'
-        AND inner_tx = 'FALSE'
+        ) = 'SWAP' {# AND inner_tx = 'FALSE' #}
 ),
 from_pay_swaps AS(
     SELECT
@@ -85,8 +84,9 @@ from_pay_swaps AS(
         AND pa.swapper = pt.sender
         AND pa.intra -1 = pt.intra
     WHERE
-        pt.inner_tx = 'FALSE'
-        AND pt.tx_group_id IS NOT NULL
+        {# pt.inner_tx = 'FALSE'
+        AND #}
+        pt.tx_group_id IS NOT NULL
 ),
 from_axfer_swaps AS(
     SELECT
@@ -112,8 +112,9 @@ from_axfer_swaps AS(
         LEFT JOIN {{ ref('silver_algorand__asset') }} A
         ON pt.asset_id = A.asset_id
     WHERE
-        pt.inner_tx = 'FALSE'
-        AND pt.tx_group_id IS NOT NULL
+        {# pt.inner_tx = 'FALSE'
+        AND #}
+        pt.tx_group_id IS NOT NULL
 ),
 from_swaps AS(
     SELECT

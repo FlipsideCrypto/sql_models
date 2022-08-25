@@ -31,6 +31,7 @@ WITH hs_tx_group_ids AS (
                 A.tx_message :txn :apaa [1] :: STRING
             )
         ) [0] = '03'
+        AND amount > 0
 
 {% if is_incremental() %}
 AND A._INSERTED_TIMESTAMP >= (
