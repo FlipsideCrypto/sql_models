@@ -6,15 +6,15 @@
 
 SELECT
     {{ dbt_utils.surrogate_key(
-        ['keytype']
+        ['account_data']
     ) }} AS dim_wallet_type_id,
-    keytype AS wallet_type,
+    account_data AS wallet_type,
     MAX(_inserted_timestamp) _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
     {{ ref('silver__account') }}
 WHERE
-    keytype IS NOT NULL
+    account_data IS NOT NULL
 
 {% if is_incremental() %}
 AND _inserted_timestamp >= (
