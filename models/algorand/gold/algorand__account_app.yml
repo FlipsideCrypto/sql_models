@@ -1,7 +1,6 @@
 version: 2
 models:
   - name: algorand__account_app
-    description: "Deprecating soon"
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
