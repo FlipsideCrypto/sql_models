@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: uniswapv3__positions
+    description: Deprecating on 9/13 - please migrate query to ethereum database
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
