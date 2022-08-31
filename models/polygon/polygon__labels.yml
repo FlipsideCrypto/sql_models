@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: polygon__labels
+    description: Deprecating on 9/13 - please migrate query to polygon database
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
