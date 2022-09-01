@@ -20,12 +20,10 @@ select
     borrower,
     borrower_is_a_contract,
     lending_pool_address,
-    event_index,
-    amount as asset_amount,
-    amount_usd as asset_amount_usd,
+    amount,
+    amount_usd,
     lending_pool,
     symbol,
-    collateral_symbol,
     _log_id
 
 from
@@ -51,12 +49,10 @@ select
     borrower,
     borrower_is_a_contract,
     lending_pool_address,
-    event_index,
-    amount as asset_amount,
-    amount_usd as asset_amount_usd,
+    amount,
+    amount_usd, 
     lending_pool,
     symbol,
-    collateral_symbol,
     _log_id
 from
     {{ source(
@@ -81,15 +77,42 @@ select
     borrower,
     borrower_is_a_contract,
     lending_pool_address,
-    event_index,
-    asset_amount,
-    asset_amount_usd,
+    amount,
+    amount_usd,
     lending_pool,
     symbol,
-    collateral_symbol,
     _log_id
 from
     {{ source(
         'Arbitrum',
+        'EZ_BORROWING'
+    ) }} 
+
+
+union all
+
+-- avalanche/sushi
+select
+    block_timestamp,
+    block_number,
+    tx_hash,
+    action,
+    'avalanche' as blockchain,
+    'sushi' as platform,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    asset,
+    borrower,
+    borrower_is_a_contract,
+    lending_pool_address,
+    amount,
+    amount_usd,
+    lending_pool,
+    symbol,
+    _log_id
+from
+    {{ source(
+        'Avalanche',
         'EZ_BORROWING'
     ) }} 
