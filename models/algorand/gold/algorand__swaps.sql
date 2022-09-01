@@ -18,7 +18,7 @@ SELECT
     swap_to_amount
 FROM
     {{ ref('silver_algorand__swaps_tinyman_dex') }}
-UNION
+UNION ALL
 SELECT
     'algofi' AS swap_program,
     block_timestamp,
@@ -34,7 +34,7 @@ SELECT
     swap_to_amount
 FROM
     {{ ref('silver_algorand__swaps_algofi_dex') }}
-UNION
+UNION ALL
 SELECT
     'pactfi' AS swap_program,
     block_timestamp,
@@ -50,7 +50,7 @@ SELECT
     swap_to_amount
 FROM
     {{ ref('silver_algorand__swaps_pactfi_dex') }}
-UNION
+UNION ALL
 SELECT
     'wagmiswap' AS swap_program,
     block_timestamp,
