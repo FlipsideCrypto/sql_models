@@ -91,14 +91,6 @@ models:
               column_type_list:
                 - STRING
                 - VARCHAR
-
-      - name: EVENT_INDEX
-        description: '{{ doc("cross_chain_event_index") }}'
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_type_list:
-              column_type_list:
-                - NUMBER
-                - FLOAT
       - name: _LOG_ID
         description: '{{ doc("cross_chain_event_log_id") }}'
         tests:
