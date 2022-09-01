@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: polygon__events_emitted
-    description: Deprecating on 9/13 - please migrate query to polygon database
+    description: Deprecating soon - please migrate query to polygon database by 9/13
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
