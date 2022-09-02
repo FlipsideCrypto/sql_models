@@ -72,6 +72,7 @@ SELECT
         b.dim_block_id,
         '-1'
     ) AS dim_block_id,
+    A.block_id,
     b.block_timestamp,
     intra,
     tx_group_id,
