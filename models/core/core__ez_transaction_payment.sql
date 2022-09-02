@@ -5,6 +5,7 @@
 SELECT
     b.block_timestamp,
     block_timestamp :: DATE block_date,
+    block_id,
     intra,
     tx_group_id,
     tx_id,

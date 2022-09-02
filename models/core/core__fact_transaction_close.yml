@@ -1,0 +1,69 @@
+version: 2
+models:
+  - name: core__fact_transaction_close
+    description: "Fact table that contains all transaction closes with an amount > 0"
+    columns:
+      - name: FACT_TRANSACTION_CLOSE_ID
+        description: "{{ doc('sk') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist
+      - name: DIM_BLOCK_ID
+        description: "{{ doc('block_id') }}"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - not_null:
+              where: DIM_BLOCK_ID not in ('-1','-2')
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: INTRA
+        description: "{{ doc('intra') }}"
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+        description: "{{ doc('tx_group_id') }}"
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+        tests:
+          - not_null
+      - name: INNER_TX
+        description: "{{ doc('inner_tx') }}"
+        tests:
+          - not_null
+      - name: DIM_ACCOUNT_ID
+        description: "FK to Dim_Account for the close account "
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - not_null
+      - name: DIM_ASSET_ID
+        description: "FK to Dim_Asset table"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+      - name: AMOUNT
+        description: "Amount of the asset being sent to the receiver"
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: FACT_TRANSACTION_CLOSE_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_BLOCK_ID
+          pk_table_name: ref('core__dim_block')
+          pk_column_name: DIM_BLOCK_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ASSET_ID
+          pk_table_name: ref('core__dim_asset')
+          pk_column_name: DIM_ASSET_ID
+      
+

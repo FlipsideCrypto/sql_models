@@ -5,20 +5,21 @@
     cluster_by = ['_INSERTED_TIMESTAMP::DATE']
 ) }}
 
-WITH appcall AS (
+WITH appl AS (
 
     SELECT
         A.block_id,
         A.intra,
         A.tx_group_id,
+        A.tx_id,
         A.app_id,
         A.sender AS swapper,
         A._INSERTED_TIMESTAMP
     FROM
         {{ ref('silver__transaction') }} A
     WHERE
-        A.block_id >= 20553107
-        AND tx_type = 'appl'
+        A.tx_type = 'appl'
+        AND A.block_id >= 20550530
         AND TRY_BASE64_DECODE_STRING(
             A.tx_message :txn :note :: STRING
         ) = 'Reach 0.1.10'
@@ -41,28 +42,35 @@ AND A._INSERTED_TIMESTAMP >= (
 ) - INTERVAL '4 HOURS'
 {% endif %}
 ),
-xfers AS (
+trans AS (
     SELECT
         A.tx_group_id,
+        A.tx_id,
         COALESCE(
             A.asset_sender,
             A.sender
         ) AS asset_sender,
         A.asset_id,
         COALESCE(
-            asset_amount,
-            amount
+            A.amount,
+            A.asset_amount
         ) AS amount,
-        A.receiver
+        COALESCE(
+            A.asset_receiver,
+            receiver
+        ) AS asset_receiver
     FROM
         {{ ref('silver__transaction') }} A
     WHERE
-        A.block_id >= 20553107
-        AND tx_type IN (
-            'axfer',
-            'pay'
+        tx_type IN (
+            'pay',
+            'axfer'
         )
-        AND COALESCE(asset_amount, amount) > 0
+        AND A.block_id >= 20550530
+        AND COALESCE(
+            A.amount,
+            A.asset_amount
+        ) > 0
 
 {% if is_incremental() %}
 AND A._INSERTED_TIMESTAMP >= (
@@ -80,17 +88,19 @@ hs_tx_group_ids AS (
         A.block_id,
         A.intra,
         A.tx_group_id,
+        A.tx_id,
         A.app_id,
         A.swapper,
         A._INSERTED_TIMESTAMP
     FROM
-        appcall A
-        JOIN xfers b
+        appl A
+        JOIN trans b
         ON b.tx_group_id = A.tx_group_id
     GROUP BY
         A.block_id,
         A.intra,
         A.tx_group_id,
+        A.tx_id,
         A.app_id,
         A.swapper,
         A._INSERTED_TIMESTAMP
@@ -103,53 +113,213 @@ hs_transfers AS(
         A.asset_sender,
         A.asset_id,
         A.amount,
-        A.receiver,
+        A.asset_receiver,
         CASE
-            WHEN A.asset_sender <> b.swapper THEN A.asset_sender
-        END AS pool_address,
-        asa.decimals
+            WHEN asset_sender <> b.swapper THEN asset_sender
+        END AS pool_address
     FROM
-        xfers A
+        trans A
         JOIN hs_tx_group_ids b
         ON A.tx_group_id = b.tx_group_id
-        JOIN {{ ref('silver__asset') }}
-        asa
-        ON A.asset_id = asa.asset_id
-)
+),
+normal_swaps AS (
+    SELECT
+        A.block_id,
+        A.intra,
+        A.tx_group_id,
+        A.tx_id,
+        A.app_id,
+        A.swapper,
+        b.asset_id AS swap_from_asset_id,
+        b.amount :: FLOAT AS swap_from_amount,
+        C.pool_address,
+        C.asset_id AS swap_to_asset_id,
+        C.amount :: FLOAT AS swap_to_amount,
+        concat_ws(
+            '-',
+            A.block_id :: STRING,
+            A.intra :: STRING
+        ) AS _unique_key,
+        _INSERTED_TIMESTAMP
+    FROM
+        hs_tx_group_ids A
+        JOIN hs_transfers b
+        ON A.tx_group_id = b.tx_group_id
+        AND b.pool_address IS NULL
+        JOIN hs_transfers C
+        ON A.tx_group_id = C.tx_group_id
+        AND C.pool_address IS NOT NULL
+),
+hs_tx_ids AS (
+    SELECT
+        A.block_id,
+        A.intra,
+        A.tx_group_id,
+        A.tx_id,
+        A.app_id,
+        A.swapper,
+        A._INSERTED_TIMESTAMP
+    FROM
+        appl A
+        JOIN trans b
+        ON b.tx_id = A.tx_id
+        LEFT JOIN hs_tx_group_ids C
+        ON A.tx_group_id = C.tx_group_id
+    WHERE
+        C.tx_group_id IS NULL
+        AND (
+            b.asset_receiver IN (
+                SELECT
+                    pool_address
+                FROM
+                    normal_swaps
+
+{% if is_incremental() %}
+UNION ALL
 SELECT
+    pool_address
+FROM
+    {{ this }}
+{% endif %}
+)
+OR asset_sender IN (
+    SELECT
+        pool_address
+    FROM
+        normal_swaps
+
+{% if is_incremental() %}
+UNION ALL
+SELECT
+    pool_address
+FROM
+    {{ this }}
+{% endif %}
+)
+)
+GROUP BY
     A.block_id,
     A.intra,
     A.tx_group_id,
+    A.tx_id,
     A.app_id,
     A.swapper,
-    b.asset_id AS swap_from_asset_id,
-    CASE
-        WHEN b.decimals > 0 THEN b.amount / pow(
-            10,
-            b.decimals
-        )
-        ELSE b.amount
-    END :: FLOAT AS swap_from_amount,
-    C.pool_address,
-    C.asset_id AS swap_to_asset_id,
-    CASE
-        WHEN C.decimals > 0 THEN C.amount / pow(
-            10,
-            C.decimals
-        )
-        ELSE C.amount
-    END :: FLOAT AS swap_to_amount,
-    concat_ws(
-        '-',
-        A.block_id :: STRING,
-        A.intra :: STRING
-    ) AS _unique_key,
-    _INSERTED_TIMESTAMP
+    A._INSERTED_TIMESTAMP
+HAVING
+    COUNT(1) = 2
+),
+odd_hs_transfers AS (
+    SELECT
+        A.tx_group_id,
+        A.tx_id,
+        A.asset_sender,
+        A.asset_id,
+        A.amount,
+        A.asset_receiver,
+        CASE
+            WHEN rec.pool_address IS NOT NULL THEN TRUE
+            ELSE FALSE
+        END rec_is_pool
+    FROM
+        trans A
+        LEFT JOIN hs_tx_ids b
+        ON A.tx_id = b.tx_id
+        LEFT JOIN (
+            SELECT
+                DISTINCT pool_address
+            FROM
+                normal_swaps
+
+{% if is_incremental() %}
+UNION
+SELECT
+    DISTINCT pool_address
 FROM
-    hs_tx_group_ids A
-    JOIN hs_transfers b
-    ON A.tx_group_id = b.tx_group_id
-    AND b.pool_address IS NULL
-    JOIN hs_transfers C
-    ON A.tx_group_id = C.tx_group_id
-    AND C.pool_address IS NOT NULL
+    {{ this }}
+{% endif %}
+) rec
+ON A.asset_receiver = rec.pool_address
+LEFT JOIN (
+    SELECT
+        DISTINCT pool_address
+    FROM
+        normal_swaps
+
+{% if is_incremental() %}
+UNION
+SELECT
+    DISTINCT pool_address
+FROM
+    {{ this }}
+{% endif %}
+) sndr
+ON A.asset_sender = sndr.pool_address
+WHERE
+    (
+        rec.pool_address IS NOT NULL
+        OR sndr.pool_address IS NOT NULL
+    )
+),
+odd_swaps AS (
+    SELECT
+        A.block_id,
+        A.intra,
+        A.tx_group_id,
+        A.tx_id,
+        A.app_id,
+        A.swapper,
+        b.asset_id AS swap_from_asset_id,
+        b.amount :: FLOAT AS swap_from_amount,
+        C.asset_sender pool_address,
+        C.asset_id AS swap_to_asset_id,
+        C.amount :: FLOAT AS swap_to_amount,
+        concat_ws(
+            '-',
+            A.block_id :: STRING,
+            A.intra :: STRING
+        ) AS _unique_key,
+        _INSERTED_TIMESTAMP
+    FROM
+        hs_tx_ids A
+        JOIN odd_hs_transfers b
+        ON A.tx_id = b.tx_id
+        AND b.rec_is_pool = TRUE
+        JOIN odd_hs_transfers C
+        ON A.tx_id = C.tx_id
+        AND C.rec_is_pool = FALSE
+)
+SELECT
+    block_id,
+    intra,
+    tx_group_id,
+    tx_id,
+    app_id,
+    swapper,
+    swap_from_asset_id,
+    swap_from_amount,
+    pool_address,
+    swap_to_asset_id,
+    swap_to_amount,
+    _unique_key,
+    _INSERTED_TIMESTAMP,
+    'normal' TYPE
+FROM
+    normal_swaps
+UNION ALL
+SELECT
+    block_id,
+    intra,
+    tx_group_id,
+    tx_id,
+    app_id,
+    swapper,
+    swap_from_asset_id,
+    swap_from_amount,
+    pool_address,
+    swap_to_asset_id,
+    swap_to_amount,
+    _unique_key,
+    _INSERTED_TIMESTAMP,
+    'other' TYPE
+FROM
+    odd_swaps

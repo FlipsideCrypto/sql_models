@@ -15,6 +15,7 @@ models:
       - name: INTRA
         tests:
           - not_null
+      - name: TX_GROUP_ID
       - name: TX_ID
         tests:
           - not_null
