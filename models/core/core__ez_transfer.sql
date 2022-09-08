@@ -49,7 +49,10 @@ SELECT
         asset_sender,
         tx_sender
     ) AS asset_sender,
-    asset_receiver AS receiver,
+    COALESCE(
+        asset_receiver,
+        receiver
+    ) AS receiver,
     asset.asset_id AS asset_id,
     IFNULL(
         CASE

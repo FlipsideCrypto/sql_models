@@ -66,7 +66,7 @@ models:
         description:  "ID to which the block before this belongs"
         tests:
           - not_null:
-              where: DIM_BLOCK_ID not in ('-1','-2')
+              where: DIM_BLOCK_ID not in ('-1','-2') and BLOCK_ID <> 0
       - name: TXN_ROOT
         description: "TransactionsRoot authenticates the set of transactions appearing in the block. More specifically, it's the root of a merkle tree whose leaves are the block's Txids, in lexicographic order. For the empty block, it's 0. Note that the TxnRoot does not authenticate the signatures on the transactions, only the transactions themselves. Two blocks with the same transactions but in a different order and with different signatures will have the same TxnRoot."
         tests:

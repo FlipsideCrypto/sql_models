@@ -41,4 +41,6 @@ GROUP BY
     CASE
         WHEN tx_message :txn :apar :dc :: NUMBER IS NULL THEN 0
         ELSE tx_message :txn :apar :dc :: NUMBER
-    END
+    END qualify(ROW_NUMBER() over(PARTITION BY asset_id
+ORDER BY
+    MAX(_inserted_timestamp) DESC)) = 1

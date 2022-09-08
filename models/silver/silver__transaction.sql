@@ -28,11 +28,7 @@ WITH allTXN AS (
         txn AS tx_message,
         extra,
         __HEVO__LOADED_AT,
-        DATEADD(
-            ms,
-            __HEVO__LOADED_AT,
-            '1970-01-01'
-        ) AS _inserted_timestamp
+        _inserted_timestamp
     FROM
         {{ ref('bronze__transaction') }}
         b
@@ -73,11 +69,7 @@ innertx AS (
         VALUE AS tx_message,
         extra,
         __HEVO__LOADED_AT,
-        DATEADD(
-            ms,
-            __HEVO__LOADED_AT,
-            '1970-01-01'
-        ) AS _inserted_timestamp
+        _inserted_timestamp
     FROM
         {{ ref('bronze__transaction') }}
         b,
