@@ -43,7 +43,7 @@ models:
         description: ""
         tests:
           - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') AND NFT_ASSET_ID IS NULL
       - name: NUMBER_OF_NFTS
         description: "The amount on the NFT sold. In most cases this will be 1 but some NFTs have a token supply higher than 1"
         tests:

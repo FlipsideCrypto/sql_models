@@ -3,7 +3,7 @@ models:
   - name: core__fact_transaction_reward
     description: "Fact table that contains all transaction closes with an amount > 0"
     columns:
-      - name: FACT_TRANSACTION_CLOSE_ID
+      - name: FACT_TRANSACTION_REWARD_ID
         description: "{{ doc('sk') }}"
         tests:
           - dbt_expectations.expect_column_to_exist
@@ -24,14 +24,8 @@ models:
         description: "{{ doc('intra') }}"
         tests:
           - not_null
-      - name: TX_GROUP_ID
-        description: "{{ doc('tx_group_id') }}"
       - name: TX_ID
         description: "{{ doc('tx_id') }}"
-        tests:
-          - not_null
-      - name: INNER_TX
-        description: "{{ doc('inner_tx') }}"
         tests:
           - not_null
       - name: DIM_ACCOUNT_ID
@@ -43,16 +37,11 @@ models:
         description: "{{ doc('address') }}"
         tests:
           - not_null
-      - name: DIM_ASSET_ID
-        description: "FK to Dim_Asset table"
-        tests:
-          - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: AMOUNT
         description: "Amount of the asset being sent to the receiver"
     tests:
       - dbt_constraints.primary_key:
-          column_name: FACT_TRANSACTION_CLOSE_ID
+          column_name: FACT_TRANSACTION_REWARD_ID
       - dbt_constraints.foreign_key:
           fk_column_name: DIM_BLOCK_ID
           pk_table_name: ref('core__dim_block')
@@ -61,9 +50,4 @@ models:
           fk_column_name: DIM_ACCOUNT_ID
           pk_table_name: ref('core__dim_account')
           pk_column_name: DIM_ACCOUNT_ID
-      - dbt_constraints.foreign_key:
-          fk_column_name: DIM_ASSET_ID
-          pk_table_name: ref('core__dim_asset')
-          pk_column_name: DIM_ASSET_ID
-      
 

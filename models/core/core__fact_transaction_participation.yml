@@ -29,9 +29,6 @@ models:
           - not_null
       - name: DIM_ACCOUNT_ID
         description: "FK to the DIM_ACCOUNT table"
-        tests:
-          - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: ADDRESS
         description: "{{ doc('address') }}"
         tests:
