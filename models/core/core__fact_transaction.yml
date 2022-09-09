@@ -109,3 +109,19 @@ models:
           fk_column_name: DIM_TRANSACTION_TYPE_ID
           pk_table_name: ref('core__dim_transaction_type')
           pk_column_name: DIM_TRANSACTION_TYPE_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID__TX_SENDER
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID__RECEIVER
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID__ASSET_SENDER
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID__ASSET_RECEIVER
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID

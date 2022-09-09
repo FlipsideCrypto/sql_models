@@ -47,3 +47,7 @@ models:
           fk_column_name: DIM_ACCOUNT_ID
           pk_table_name: ref('core__dim_account')
           pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_BLOCK_ID__CREATED_AT
+          pk_table_name: ref('core__dim_block')
+          pk_column_name: DIM_BLOCK_ID
