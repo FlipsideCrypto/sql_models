@@ -38,8 +38,6 @@ models:
           - not_null:
               where: inner_tx = 'true'
       - name: APP_ID
-        tests:
-          - not_null
       - name: TX_TYPE
         tests:
           - not_null
