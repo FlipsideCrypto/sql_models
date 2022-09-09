@@ -9,7 +9,7 @@
 WITH address_ranges AS (
 
     SELECT
-        DISTINCT top 1 A.address,
+        A.address,
         b.block_date AS min_block_date,
         CURRENT_TIMESTAMP :: DATE AS max_block_date
     FROM

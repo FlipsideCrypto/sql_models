@@ -36,7 +36,6 @@ WHERE
             (
                 dim_block_id = '-1'
                 OR dim_account_id = '-1'
-                OR dim_asset_id = '-1'
             )
     )
 {% endif %}
