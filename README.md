@@ -4,7 +4,7 @@
 ----
 
 ```yml
-osmosis:
+algorand:
   target: dev
   outputs:
     dev:
