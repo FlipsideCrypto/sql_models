@@ -28,8 +28,6 @@ WITH appl AS (
                 A.tx_message :txn :apaa [1] :: STRING
             )
         ) [0] = '03'
-        AND amount > 0
-
 
 {% if is_incremental() %}
 AND A._INSERTED_TIMESTAMP >= (
@@ -287,6 +285,43 @@ odd_swaps AS (
         JOIN odd_hs_transfers C
         ON A.tx_id = C.tx_id
         AND C.rec_is_pool = FALSE
+),
+FINAL AS (
+    SELECT
+        block_id,
+        intra,
+        tx_group_id,
+        tx_id,
+        app_id,
+        swapper,
+        swap_from_asset_id,
+        swap_from_amount,
+        pool_address,
+        swap_to_asset_id,
+        swap_to_amount,
+        _unique_key,
+        _INSERTED_TIMESTAMP,
+        'normal' TYPE
+    FROM
+        normal_swaps
+    UNION ALL
+    SELECT
+        block_id,
+        intra,
+        tx_group_id,
+        tx_id,
+        app_id,
+        swapper,
+        swap_from_asset_id,
+        swap_from_amount,
+        pool_address,
+        swap_to_asset_id,
+        swap_to_amount,
+        _unique_key,
+        _INSERTED_TIMESTAMP,
+        'other' TYPE
+    FROM
+        odd_swaps
 )
 SELECT
     block_id,
@@ -296,30 +331,30 @@ SELECT
     app_id,
     swapper,
     swap_from_asset_id,
-    swap_from_amount,
+    CASE
+        WHEN af.decimals > 0 THEN A.swap_from_amount / pow(
+            10,
+            af.decimals
+        )
+        ELSE A.swap_from_amount
+    END :: FLOAT AS swap_from_amount,
     pool_address,
     swap_to_asset_id,
-    swap_to_amount,
+    CASE
+        WHEN ato.decimals > 0 THEN A.swap_to_amount / pow(
+            10,
+            ato.decimals
+        )
+        ELSE A.swap_to_amount
+    END :: FLOAT AS swap_to_amount,
     _unique_key,
-    _INSERTED_TIMESTAMP,
-    'normal' TYPE
+    A._INSERTED_TIMESTAMP,
+    TYPE
 FROM
-    normal_swaps
-UNION ALL
-SELECT
-    block_id,
-    intra,
-    tx_group_id,
-    tx_id,
-    app_id,
-    swapper,
-    swap_from_asset_id,
-    swap_from_amount,
-    pool_address,
-    swap_to_asset_id,
-    swap_to_amount,
-    _unique_key,
-    _INSERTED_TIMESTAMP,
-    'other' TYPE
-FROM
-    odd_swaps
+    FINAL A
+    LEFT JOIN {{ ref('silver__asset') }}
+    af
+    ON af.asset_id = A.swap_from_asset_id
+    LEFT JOIN {{ ref('silver__asset') }}
+    ato
+    ON ato.asset_id = A.swap_to_asset_id

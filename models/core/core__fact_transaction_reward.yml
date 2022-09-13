@@ -17,9 +17,6 @@ models:
         tests:
           - not_null:
               where: DIM_BLOCK_ID not in ('-1','-2')
-          - dbt_expectations.expect_row_values_to_have_recent_data:
-              datepart: day
-              interval: 1
       - name: INTRA
         description: "{{ doc('intra') }}"
         tests:

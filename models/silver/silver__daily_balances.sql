@@ -53,7 +53,10 @@ txns AS (
     SELECT
         A.sender,
         A.receiver,
-        amount,
+        A.amount / pow(
+            10,
+            6
+        ) AS amount,
         A.block_id,
         A.intra,
         b.block_timestamp,
