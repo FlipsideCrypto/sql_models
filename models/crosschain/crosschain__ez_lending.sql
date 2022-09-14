@@ -20,7 +20,6 @@ select
     depositor,
     lender_is_a_contract,
     lending_pool_address,
-    event_index,
     amount as asset_amount,
     amount_usd as asset_amount_usd,
     lending_pool,
@@ -50,7 +49,6 @@ select
     depositor,
     lender_is_a_contract,
     lending_pool_address,
-    event_index,
     amount as asset_amount,
     amount_usd as asset_amount_usd,
     lending_pool,
@@ -80,7 +78,6 @@ select
     depositor,
     lender_is_a_contract,
     lending_pool_address,
-    event_index,
     asset_amount,
     asset_amount_usd,
     lending_pool,
@@ -90,5 +87,92 @@ select
 from
     {{ source(
         'Arbitrum',
+        'EZ_LENDING'
+    ) }} 
+
+union all
+
+-- Avalanche/sushi
+select
+    block_timestamp,
+    block_number,
+    tx_hash,
+    action,
+    'avalanche' as blockchain,
+    'sushi' as platform,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    asset,
+    depositor,
+    lender_is_a_contract,
+    lending_pool_address,
+    asset_amount,
+    asset_amount_usd,
+    lending_pool,
+    symbol,
+    _log_id
+
+from
+    {{ source(
+        'Avalanche',
+        'EZ_LENDING'
+    ) }} 
+
+union all
+
+-- BSC/sushi
+select
+    block_timestamp,
+    block_number,
+    tx_hash,
+    action,
+    'BSC' as blockchain,
+    'sushi' as platform,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    asset,
+    depositor,
+    lender_is_a_contract,
+    lending_pool_address,
+    asset_amount,
+    asset_amount_usd,
+    lending_pool,
+    symbol,
+    _log_id
+
+from
+    {{ source(
+        'BSC',
+        'EZ_LENDING'
+    ) }} 
+
+union all
+
+-- Gnosis/sushi
+select
+    block_timestamp,
+    block_number,
+    tx_hash,
+    action,
+    'gnosis' as blockchain,
+    'sushi' as platform,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    asset,
+    depositor,
+    lender_is_a_contract,
+    lending_pool_address,
+    asset_amount,
+    asset_amount_usd,
+    lending_pool,
+    symbol,
+    _log_id
+
+from
+    {{ source(
+        'Gnosis',
         'EZ_LENDING'
     ) }} 
