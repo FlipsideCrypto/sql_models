@@ -283,6 +283,15 @@ sources:
     tables:
       - name: EZ_SWAPS
 
+  - name: Gnosis  
+    database: GNOSIS
+    schema: SUSHI
+    tables:
+      - name: EZ_SWAPS
+      - name: EZ_LENDING
+      - name: EZ_BORROWING  
+
+
   - name: legacy_silver_crosschain
     database: flipside_prod_db
     schema: silver_crosschain
@@ -323,5 +332,4 @@ sources:
       - name: logs
       - name: traces
       - name: transactions
-
 

@@ -116,3 +116,59 @@ from
         'Avalanche',
         'EZ_BORROWING'
     ) }} 
+
+union all
+
+-- Gnosis/sushi
+select
+    block_timestamp,
+    block_number,
+    tx_hash,
+    action,
+    'Gnosis' as blockchain,
+    'sushi' as platform,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    asset,
+    borrower,
+    borrower_is_a_contract,
+    lending_pool_address,
+    amount,
+    amount_usd,
+    lending_pool,
+    symbol,
+    _log_id
+from
+    {{ source(
+        'Gnosis',
+        'EZ_BORROWING'
+    ) }} 
+
+union all
+
+-- bsc/sushi
+select
+    block_timestamp,
+    block_number,
+    tx_hash,
+    action,
+    'BSC' as blockchain,
+    'sushi' as platform,
+    origin_from_address,
+    origin_to_address,
+    origin_function_signature,
+    asset,
+    borrower,
+    borrower_is_a_contract,
+    lending_pool_address,
+    amount,
+    amount_usd,
+    lending_pool,
+    symbol,
+    _log_id
+from
+    {{ source(
+        'BSC',
+        'EZ_BORROWING'
+    ) }} 
