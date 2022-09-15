@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: crosschain__address_tags
-    description: A table containing address tags across various blockchains.
+    description: This table will be deprecating soon. Please use the tags table in the crosschain database. A table containing address tags across various blockchains.
     columns:
       - name: BLOCKCHAIN
         description: The name of the blockchain
