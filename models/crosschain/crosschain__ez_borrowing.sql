@@ -125,7 +125,7 @@ select
     block_number,
     tx_hash,
     action,
-    'Gnosis' as blockchain,
+    'gnosis' as blockchain,
     'sushi' as platform,
     origin_from_address,
     origin_to_address,
