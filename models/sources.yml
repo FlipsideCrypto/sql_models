@@ -207,8 +207,8 @@ sources:
       - name: ez_lending
       - name: ez_borrowing
   - name: ethereum_db_external
-    database: ethereum
-    schema: silver
+    database: streamline
+    schema: ethereum
     tables:
       - name: nft_metadata_api
   - name: algorand_db_external
