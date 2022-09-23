@@ -42,5 +42,3 @@ models:
           - dbt_expectations.expect_column_to_exist
       - name: HEADER
         description:  Block details, see rules below- for more message details https://developer.algorand.org/docs/rest-apis/indexer/#blockrewards
-        tests:
-          - not_null

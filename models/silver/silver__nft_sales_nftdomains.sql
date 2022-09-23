@@ -237,8 +237,10 @@ SELECT
     purchaser,
     nft_asset_id,
     number_of_nfts,
-    total_sales_amount,
-    TYPE,
+    COALESCE(
+        total_sales_amount,
+        0
+    ) total_sales_amount TYPE,
     concat_ws(
         '-',
         block_id :: STRING,
