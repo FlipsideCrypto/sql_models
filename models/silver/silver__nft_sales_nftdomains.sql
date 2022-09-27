@@ -240,7 +240,8 @@ SELECT
     COALESCE(
         total_sales_amount,
         0
-    ) total_sales_amount TYPE,
+    ) total_sales_amount,
+    TYPE,
     concat_ws(
         '-',
         block_id :: STRING,
