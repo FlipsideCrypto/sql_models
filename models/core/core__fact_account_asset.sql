@@ -8,18 +8,16 @@
 WITH base AS (
 
     SELECT
-        algorand_decode_hex_addr(
-            addr :: text
-        ) AS address,
-        assetid AS asset_id,
-        amount :: NUMBER AS amount,
+        address,
+        asset_id,
+        amount,
         closed_at,
         created_at,
-        deleted AS asset_closed,
+        asset_closed,
         frozen,
         _inserted_timestamp
     FROM
-        {{ ref('bronze__account_asset') }}
+        {{ ref('silver__account_asset') }}
 
 {% if is_incremental() %}
 WHERE
@@ -80,6 +78,31 @@ WHERE
             OR dim_block_id__asset_added_at = '-1'
     )
 {% endif %}
+),
+BOTH AS (
+    SELECT
+        address,
+        asset_id,
+        amount,
+        closed_at,
+        created_at,
+        asset_closed,
+        frozen,
+        _inserted_timestamp
+    FROM
+        base
+    UNION ALL
+    SELECT
+        address,
+        asset_id,
+        amount,
+        closed_at,
+        created_at,
+        asset_closed,
+        frozen,
+        _inserted_timestamp
+    FROM
+        add_algo
 )
 SELECT
     {{ dbt_utils.surrogate_key(
@@ -111,7 +134,7 @@ SELECT
     A._inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
-    base A
+    BOTH A
     LEFT JOIN {{ ref('core__dim_block') }}
     b
     ON A.closed_at = b.block_id

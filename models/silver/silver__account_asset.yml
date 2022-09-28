@@ -1,0 +1,26 @@
+version: 2
+models:
+  - name: silver__account_asset
+    description: ""
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+            - ASSET_ID
+    columns:
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - not_null
+      - name: ASSET_ID
+        tests:
+          - not_null
+      - name: AMOUNT
+        tests:
+          - not_null
+      - name: CLOSED_AT
+      - name: CREATED_AT
+        tests:
+          - not_null
+      - name: ASSET_CLOSED
+      - name: FROZEN

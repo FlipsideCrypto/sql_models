@@ -9,6 +9,7 @@ SELECT
     algorand_decode_hex_addr(
         addr :: text
     ) AS address,
+    addr :: text AS address_raw,
     deleted AS account_closed,
     rewardsbase,
     CASE

@@ -8,21 +8,12 @@
 WITH base AS(
 
   SELECT
-    ROUND AS block_id,
+    block_id,
     intra,
-    algorand_decode_hex_addr(
-      addr :: text
-    ) AS address,
-    DATEADD(
-      ms,
-      __HEVO__LOADED_AT,
-      '1970-01-01'
-    ) AS _INSERTED_TIMESTAMP
+    address,
+    _INSERTED_TIMESTAMP
   FROM
-    {{ source(
-      'algorand',
-      'TXN_PARTICIPATION'
-    ) }}
+    {{ ref('silver__transaction_participation') }}
 
 {% if is_incremental() %}
 WHERE

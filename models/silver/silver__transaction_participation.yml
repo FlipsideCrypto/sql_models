@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: silver__transaction_participation
+    description: ""
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ADDRESS
+            - BLOCK_ID
+            - INTRA
+    columns:
+      - name: intra
+        tests:
+          - not_null
+      - name: BLOCK_ID
+        description: "{{ doc('block_id') }}"
+        tests:
+          - not_null
+      - name: ADDRESS
+        description: "{{ doc('address') }}"
+        tests:
+          - not_null

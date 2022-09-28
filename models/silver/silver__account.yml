@@ -8,6 +8,10 @@ models:
         tests:
           - not_null
           - unique
+      - name: ADDRESS_RAW
+        description: "the un decoded address"
+        tests:
+          - not_null
       - name: ACCOUNT_CLOSED
         description: "Whether or not the account is currently closed"
         tests:
