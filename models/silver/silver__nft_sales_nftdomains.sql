@@ -240,6 +240,9 @@ SELECT
     COALESCE(
         total_sales_amount,
         0
+    ): DECIMAL / pow(
+        10,
+        6
     ) total_sales_amount,
     TYPE,
     concat_ws(
