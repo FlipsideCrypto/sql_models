@@ -56,6 +56,18 @@ WITH base AS (
         {{ ref('silver__nft_sales_rand_gallery') }}
     UNION ALL
     SELECT
+        'shufl' AS nft_marketplace,
+        block_id,
+        tx_group_id,
+        purchaser,
+        nft_asset_id,
+        number_of_nfts,
+        total_sales_amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        {{ ref('silver__nft_sales_shufl') }}
+    UNION ALL
+    SELECT
         'atomic swaps' AS nft_marketplace,
         block_id,
         tx_group_id,
