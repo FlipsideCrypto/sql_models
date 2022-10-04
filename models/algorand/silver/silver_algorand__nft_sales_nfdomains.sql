@@ -165,9 +165,16 @@ xfers_pay AS (
         {{ ref('silver_algorand__payment_transaction') }} A
         JOIN xfers_base b
         ON A.tx_group_id = b.tx_group_id
-        AND A.sender = b.purchaser
     WHERE
         A.block_timestamp >= '2022-06-01'
+        AND (
+            A.sender = b.purchaser
+            OR A.sender = b.seller
+        )
+        AND NOT (
+            A.sender = b.seller
+            AND A.receiver = b.purchaser
+        )
 
 {% if is_incremental() %}
 AND A._INSERTED_TIMESTAMP >= (
