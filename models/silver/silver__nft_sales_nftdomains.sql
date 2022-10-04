@@ -165,10 +165,17 @@ xfers_pay AS (
         {{ ref('silver__transaction') }} A
         JOIN xfers_base b
         ON A.tx_group_id = b.tx_group_id
-        AND A.sender = b.purchaser
     WHERE
         A.tx_type = 'pay'
         AND A.block_id >= 21344034
+        AND (
+            A.sender = b.purchaser
+            OR A.sender = b.seller
+        )
+        AND NOT (
+            A.sender = b.seller
+            AND A.receiver = b.purchaser
+        )
 
 {% if is_incremental() %}
 AND A._INSERTED_TIMESTAMP >= (
@@ -237,10 +244,7 @@ SELECT
     purchaser,
     nft_asset_id,
     number_of_nfts,
-    COALESCE(
-        total_sales_amount,
-        0
-    ): DECIMAL / pow(
+    total_sales_amount :: DECIMAL / pow(
         10,
         6
     ) total_sales_amount,
