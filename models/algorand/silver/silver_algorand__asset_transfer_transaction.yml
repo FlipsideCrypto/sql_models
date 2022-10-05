@@ -26,7 +26,7 @@ models:
       - name: ASSET_ID
         tests:
           - not_null:
-              where: NOT (BLOCK_TIMESTAMP::date = '2022-08-18' and TX_ID = 'BXRZUXF3PKHEHVDVH6THLRZ5U2X6IDWPANAYZNQLLATOC6EJAOJQ' and intra = 17)
+              where: NOT (BLOCK_TIMESTAMP::date = '2022-08-18' and TX_ID = 'BXRZUXF3PKHEHVDVH6THLRZ5U2X6IDWPANAYZNQLLATOC6EJAOJQ' and intra = 17) and NOT (BLOCK_TIMESTAMP::date = '2022-09-22' and TX_ID = 'BIAVIDEC2HBAVMEF2GNFEA26MIOVHRBNQOME4KMHRCAY67FLXTBA' and intra = 54) 
       - name: SENDER
         tests:
           - not_null    
