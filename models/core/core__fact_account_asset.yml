@@ -35,7 +35,8 @@ models:
       - name: ASSET_ADDED_AT
         description: "Block timestamp that the asset was added to an account"
         tests:
-          - not_null
+          - not_null:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: DIM_BLOCK_ID__ASSET_LAST_REMOVED    
         description: "FK to DIM_BLOCK for the block id this asset was last removed from the account" 
         tests:

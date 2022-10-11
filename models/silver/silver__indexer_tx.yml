@@ -16,8 +16,6 @@ models:
         tests:
           - not_null
       - name: DATA
-        tests:
-          - not_null
       - name: _INSERTED_TIMESTAMP
         tests:
           - not_null
