@@ -15,8 +15,6 @@ models:
               interval: 1
       - name: ASSET_ID
         description: "The other asset in the pool that is paired with ALGO"
-        tests:
-          - not_null
       - name: ASSET_NAME
         description: "The other asset in the pool that is paired with ALGO"
         tests:
