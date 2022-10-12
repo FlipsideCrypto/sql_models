@@ -1,11 +1,6 @@
 version: 2
 models:
   - name: silver__daily_balances
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - ADDRESS
-            - DATE
     columns:
       - name: ADDRESS
         description: "{{ doc('address') }}"
