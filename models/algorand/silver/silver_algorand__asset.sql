@@ -11,6 +11,7 @@ WITH asset_config AS(
     asset_id,
     asset_parameters :an :: STRING AS asset_name,
     asset_parameters :t :: NUMBER AS asset_amount,
+    asset_parameters :un :: STRING AS asset_units,
     CASE
       WHEN asset_parameters :dc :: NUMBER IS NULL THEN 0
       ELSE asset_parameters :dc :: NUMBER
@@ -39,6 +40,11 @@ SELECT
     AND ac.asset_id IS NOT NULL THEN ac.asset_name
     ELSE A.params :an :: STRING
   END AS asset_name,
+  CASE
+    WHEN A.deleted = 'TRUE'
+    AND ac.asset_id IS NOT NULL THEN ac.asset_units
+    ELSE A.params :un :: STRING
+  END AS asset_units,
   A.params :au :: STRING AS asset_url,
   CASE
     WHEN A.deleted = 'TRUE'
