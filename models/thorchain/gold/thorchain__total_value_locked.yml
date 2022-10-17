@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: thorchain__total_value_locked
+    description: deprecating soon - please migrate query to <chain> database by changing 'from' statements from `flipside_prod_db.<chain>.<table>` to <chain>.core.<table> schema
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
