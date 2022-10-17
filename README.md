@@ -10,7 +10,7 @@ Project Docs: [sql-models.lab3547.com](http://sql-models.lab3547.com/#!/overview
 We are now using DBT version 1.0 for this project.  Follow the instructions below for your operating system to upgrade your local development environment.
 
 **MacOS**
-If you originally installed dbt using home brew, upgrade it using the below command
+If you originally installed dbt using homebrew, upgrade it using the below command
 ```
 brew update
 brew upgrade dbt-snowflake
@@ -72,7 +72,7 @@ If you would like to contribute a new model/table to our [Velocity](https://app.
 
 ### Source Data
 
-Source tables that can be used when building models are outline here: `models/sources.yml`. The majority of tables you will use as source to your models can be found in Flipside's `silver` schema.
+Source tables that can be used when building models are outlined here: `models/sources.yml`. The majority of tables you will use as source for your models can be found in Flipside's `silver` schema.
 
 ### Supported Extensions
 
