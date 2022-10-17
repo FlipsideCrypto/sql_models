@@ -30,6 +30,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_in_type_list:
               column_type_list:
                 - NUMBER
+                - FLOAT
       - name: DIM_BLOCK_ID__ASSET_ADDED_AT 
         description: "FK to DIM_BLOCK for the block id this asset was added to the account" 
       - name: ASSET_ADDED_AT

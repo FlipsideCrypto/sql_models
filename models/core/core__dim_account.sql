@@ -91,3 +91,23 @@ SELECT
     '-2' AS dim_wallet_type_id,
     '1900-01-01' :: DATE _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+UNION ALL
+SELECT
+    {{ dbt_utils.surrogate_key(
+        ['address']
+    ) }} AS dim_account_id,
+    address,
+    FALSE AS account_closed,
+    FALSE AS non_zero_rewards_base,
+    FALSE AS non_zero_rewards_total,
+    FALSE AS non_zero_balance,
+    '-2' AS dim_block_id__created_at,
+    NULL AS created_at,
+    '-2' AS dim_block_id__closed_at,
+    NULL AS closed_at,
+    '-2' AS dim_wallet_type_id,
+    '1900-01-01' :: DATE _inserted_timestamp,
+    '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
+FROM
+SELECT
+    'XM6FEYVJ2XDU2IBH4OT6VZGW75YM63CM4TC6AV6BD3JZXFJUIICYTVB5EU' AS address

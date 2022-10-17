@@ -42,6 +42,8 @@ SELECT
         WHEN 'axfer' THEN 'asset transfer'
         WHEN 'afrz' THEN 'asset freeze'
         WHEN 'appl' THEN 'application call'
+        WHEN 'appl' THEN 'application call'
+        WHEN 'stpf' THEN 'state proof'
     END tx_type_name,
     _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id

@@ -40,6 +40,8 @@ models:
 vars:
   "dbt_date:time_zone": GMT
 
+  dbt_constraints_sources_enabled: true
+
   dbt_constraints_sources_pk_enabled: true
   dbt_constraints_sources_uk_enabled: true
   dbt_constraints_sources_fk_enabled: true
