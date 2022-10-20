@@ -17,8 +17,6 @@ models:
         tests:
           - not_null
       - name: app_id
-        tests:
-          - not_null
       - name: swapper
         tests:
           - not_null

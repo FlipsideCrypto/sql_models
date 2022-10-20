@@ -23,5 +23,3 @@ models:
         tests:
           - not_null
       - name: TX_MESSAGE
-        tests:
-          - not_null
