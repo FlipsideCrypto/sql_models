@@ -53,7 +53,10 @@ txns AS (
     SELECT
         A.sender,
         A.receiver,
-        A.amount / pow(
+        COALESCE(
+            A.amount,
+            0
+        ) / pow(
             10,
             6
         ) AS amount,
@@ -70,7 +73,14 @@ txns AS (
 senderpay AS(
     SELECT
         A.sender AS address,
-        ((A.amount * -1) -.001) AS amount,
+        (
+            (
+                COALESCE(
+                    A.amount,
+                    0
+                ) * -1
+            ) -.001
+        ) AS amount,
         A.block_id,
         A.intra,
         A.block_timestamp
@@ -114,7 +124,10 @@ AND block_timestamp :: DATE >=(
 receivers AS (
     SELECT
         A.receiver AS address,
-        A.amount,
+        COALESCE(
+            A.amount,
+            0
+        ) AS amount,
         A.block_id,
         A.intra,
         A.block_timestamp
@@ -136,7 +149,10 @@ AND block_timestamp :: DATE >=(
 reward AS (
     SELECT
         A.account AS address,
-        A.amount / pow(
+        COALESCE(
+            A.amount,
+            0
+        ) / pow(
             10,
             6
         ) AS amount,
@@ -163,11 +179,17 @@ WHERE
         SELECT
             A.account AS address,
             CASE
-                WHEN asa.decimals > 0 THEN A.amount / pow(
+                WHEN asa.decimals > 0 THEN COALESCE(
+                    A.amount,
+                    0
+                ) / pow(
                     10,
                     asa.decimals
                 )
-                WHEN asa.decimals = 0 THEN A.amount
+                WHEN asa.decimals = 0 THEN COALESCE(
+                    A.amount,
+                    0
+                )
             END AS amount,
             A.block_id,
             A.intra,
