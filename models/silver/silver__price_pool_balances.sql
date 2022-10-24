@@ -121,6 +121,10 @@ balances AS (
             (LOWER(asset_name) NOT LIKE '%pool%'
             AND LOWER(asset_name) NOT LIKE '%lp%')
             OR A.asset_Id = 0)
+            AND COALESCE(
+                asset_units,
+                ''
+            ) <> 'SILO'
 
 {% if is_incremental() %}
 AND DATE :: DATE >= CURRENT_DATE - 3
