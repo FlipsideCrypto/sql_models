@@ -122,9 +122,9 @@ balances AS (
             AND LOWER(asset_name) NOT LIKE '%lp%')
             OR A.asset_Id = 0)
             AND COALESCE(
-                asset_units,
+                asset_url,
                 ''
-            ) <> 'SILO'
+            ) <> 'https://app.silodefi.com'
 
 {% if is_incremental() %}
 AND DATE :: DATE >= CURRENT_DATE - 3
