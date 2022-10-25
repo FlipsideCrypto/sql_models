@@ -80,6 +80,20 @@ WHERE
 LEFT JOIN hourly_prices_with_gaps b
 ON A.date = b.hour
 ),
+exclude AS (
+    SELECT
+        DISTINCT address
+    FROM
+        {{ ref('silver_algorand__hourly_pool_balances') }} A
+        JOIN {{ ref('silver_algorand__asset') }}
+        d
+        ON A.asset_id = d.asset_ID
+    WHERE
+        COALESCE(
+            asset_units,
+            ''
+        ) = 'SILO'
+),
 balances AS (
     SELECT
         A.address,
@@ -116,12 +130,14 @@ balances AS (
         LEFT JOIN {{ ref('silver_algorand__asset') }}
         d
         ON A.asset_id = d.asset_ID
+        LEFT JOIN exclude ex
+        ON A.address = ex.address
     WHERE
         (
             (LOWER(asset_name) NOT LIKE '%pool%'
             AND LOWER(asset_name) NOT LIKE '%lp%')
             OR A.asset_Id = 0)
-            AND COALESCE(asset_units, '') <> 'SILO'
+            AND ex.address IS NULL
 
 {% if is_incremental() %}
 AND DATE :: DATE >= CURRENT_DATE - 3
