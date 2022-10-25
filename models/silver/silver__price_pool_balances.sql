@@ -80,6 +80,20 @@ WHERE
 LEFT JOIN hourly_prices_with_gaps b
 ON A.date = b.hour
 ),
+exclude AS (
+    SELECT
+        DISTINCT address
+    FROM
+        {{ ref('silver__hourly_pool_balances') }} A
+        JOIN {{ ref('silver__asset') }}
+        d
+        ON A.asset_id = d.asset_ID
+    WHERE
+        AND COALESCE(
+            asset_url,
+            ''
+        ) = 'https://app.silodefi.com'
+),
 balances AS (
     SELECT
         A.address,
@@ -121,10 +135,7 @@ balances AS (
             (LOWER(asset_name) NOT LIKE '%pool%'
             AND LOWER(asset_name) NOT LIKE '%lp%')
             OR A.asset_Id = 0)
-            AND COALESCE(
-                asset_url,
-                ''
-            ) <> 'https://app.silodefi.com'
+            AND ex.address IS NULL
 
 {% if is_incremental() %}
 AND DATE :: DATE >= CURRENT_DATE - 3

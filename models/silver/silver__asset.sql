@@ -30,7 +30,7 @@ WHERE
             )
         FROM
             {{ this }}
-    )
+    ) - INTERVAL '4 HOURS'
 {% endif %}
 ),
 asset_config AS(
