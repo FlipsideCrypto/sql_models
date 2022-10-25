@@ -89,7 +89,7 @@ exclude AS (
         d
         ON A.asset_id = d.asset_ID
     WHERE
-        AND COALESCE(
+        COALESCE(
             asset_url,
             ''
         ) = 'https://app.silodefi.com'
