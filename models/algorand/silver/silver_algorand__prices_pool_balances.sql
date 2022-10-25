@@ -92,7 +92,7 @@ exclude AS (
         COALESCE(
             asset_units,
             ''
-        ) <> 'SILO'
+        ) = 'SILO'
 ),
 balances AS (
     SELECT
