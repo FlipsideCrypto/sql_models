@@ -130,6 +130,8 @@ balances AS (
         LEFT JOIN {{ ref('silver__asset') }}
         d
         ON A.asset_id = d.asset_ID
+        LEFT JOIN exclude ex
+        ON A.address = ex.address
     WHERE
         (
             (LOWER(asset_name) NOT LIKE '%pool%'
