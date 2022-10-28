@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: crosschain__ez_lending
-    description: This is a table that shows all the events across various blockchains and various platforms that are related to providing capital for lending and withdrawing capital
+    description: Deprecating soon
 
 
     tests:
