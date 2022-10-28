@@ -30,7 +30,7 @@ WHERE
             )
         FROM
             {{ this }}
-    ) - INTERVAL '4 HOURS'
+    ) - INTERVAL '96 HOURS'
 {% endif %}
 ),
 asset_config AS(
@@ -97,7 +97,7 @@ AND _inserted_timestamp >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '4 HOURS'
+) - INTERVAL '96 HOURS'
 {% endif %}
 ),
 collection_NFTs AS (
@@ -142,7 +142,7 @@ AND A._inserted_timestamp >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '4 HOURS'
+) - INTERVAL '96 HOURS'
 {% endif %}
 GROUP BY
     asset_id
