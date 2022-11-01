@@ -32,7 +32,7 @@ AND _INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '8 HOURS'
+) - INTERVAL '24 HOURS'
 {% endif %}
 ),
 tx_pay AS (
@@ -51,7 +51,7 @@ AND _INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '8 HOURS'
+) - INTERVAL '24 HOURS'
 {% endif %}
 ),
 tx_a_tfer AS (
@@ -75,7 +75,7 @@ AND pt._INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '8 HOURS'
+) - INTERVAL '24 HOURS'
 {% endif %}
 ),
 pactfi_app AS(

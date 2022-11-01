@@ -26,7 +26,7 @@ models:
         tests:
           - not_null
           - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') and DIM_APPLICATION_ID not in ('-1','-2')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '28 HOURS') and DIM_APPLICATION_ID not in ('-1','-2')
       - name: CREATOR_ADDRESS
         description: "Wallet creator account address"
         tests:
