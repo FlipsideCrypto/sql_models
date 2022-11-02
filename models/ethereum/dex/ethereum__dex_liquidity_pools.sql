@@ -29,7 +29,7 @@ WITH v3_pools AS (
 {% if is_incremental() %}
 creation_time >= getdate() - INTERVAL '7 days'
 {% else %}
-  creation_time >= getdate() - INTERVAL '12 months'
+  creation_time >= '2021-01-05'
 {% endif %}
 ),
 asset_metadata_deduped AS (
