@@ -33,7 +33,7 @@ sources:
     tables:
       - name: address_labels
   - name: algorand
-    database: flipside_prod_db
+    database: hevo
     schema: BRONZE_ALGORAND_2_8_0__HEVO_PARALLEL
     tables:
       - name: ACCOUNT
