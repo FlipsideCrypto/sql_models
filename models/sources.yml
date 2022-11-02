@@ -142,6 +142,7 @@ sources:
     tables:
       - name: daily_balances
   - name: algorand
+    database: hevo
     schema: BRONZE_ALGORAND_2_8_0__HEVO_PARALLEL
     tables:
       - name: ACCOUNT
