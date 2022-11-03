@@ -1,0 +1,50 @@
+# This is a basic workflow that is manually triggered
+
+name: dbt run ad hoc job
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      name:
+        description: 'blockchain'
+        default: 'axelar'
+        required: true
+        type: choice
+        options:
+        - axelar
+        - ethereum
+        - polygon
+        - flow
+        - algorand
+        - near
+    inputs:
+      name:
+        description: 'environment'
+        default: 'dev'
+        required: true
+        type: choice
+        options:
+        - dev
+        - prod
+    inputs:
+      name:
+        description: 'command'
+        default: ''
+        required: true
+
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "greet"
+  greet:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Runs a single command using the runners shell
+    - name: Send greeting
+      run: echo "Hello ${{ github.event.inputs.name }}"
