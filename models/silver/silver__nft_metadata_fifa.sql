@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'asset_id',
+    unique_key = 'nft_asset_id',
     incremental_strategy = 'merge',
     cluster_by = ['nft_asset_id']
 ) }}
