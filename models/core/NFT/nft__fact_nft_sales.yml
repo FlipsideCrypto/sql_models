@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_nft_sales
+  - name: nft__fact_nft_sales
     columns:
       - name: FACT_NFT_SALES_ID
         description: "The marketplace or process used to make exchange the NFT"
@@ -51,7 +51,8 @@ models:
       - name: TOTAL_SALES_AMOUNT
         description: "Total amount of paid in ALGOs for the NFT purchase"
         tests:
-          - not_null
+          - not_null:
+              where: NFT_MARKETPLACE <> 'fifa collect'
     tests:
       - dbt_constraints.primary_key:
           column_name: FACT_NFT_SALES_ID

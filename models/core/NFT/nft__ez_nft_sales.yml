@@ -1,0 +1,30 @@
+version: 2
+models:
+  - name: nft__ez_nft_sales
+    columns:
+      - name: NFT_MARKETPLACE
+        description: "The marketplace or process used to make exchange the NFT"
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: TX_GROUP_ID
+        description: "{{ doc('tx_group_id') }}"
+      - name: PURCHASER
+        description: "Address that purchased the NFT"
+      - name: PURCHASER_ACCOUNT_CREATED_AT
+        description: "Block timestamp for when the address that purchased the NFT was created"
+      - name: NFT_ASSET_ID
+        description: "{{ doc('asset_id') }}"
+      - name: NFT_ASSET_NAME
+        description: "{{ doc('asset_name') }}"
+      - name: NFT_TOTAL_SUPPLY
+        description: "Total supply of the asset"
+      - name: COLLECTION_NAME
+        description: "Name of the NFT collection"
+      - name: NFT_URL
+        description: "The url to the asset website"
+      - name: NUMBER_OF_NFTS
+        description: "The amount on the NFT sold. In most cases this will be 1 but some NFTs have a token supply higher than 1"
+      - name: TOTAL_SALES_AMOUNT
+        description: "Total amount of paid in ALGOs for the NFT purchase"
+      
+      

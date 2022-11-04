@@ -37,7 +37,7 @@ WHERE
             )
         FROM
             {{ this }}
-    )
+    ) - INTERVAL '48 HOURS'
     OR asset_id IN (
         SELECT
             asset_id
@@ -210,7 +210,7 @@ AND _inserted_timestamp >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '4 HOURS'
+) - INTERVAL '48 HOURS'
 {% endif %}
 ) A
 LEFT JOIN {{ ref('silver__asset') }}

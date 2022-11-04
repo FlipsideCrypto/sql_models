@@ -1,0 +1,27 @@
+version: 2
+models:
+  - name: silver__nft_sales_fifa_collect
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - block_id
+            - tx_group_id
+            - nft_asset_id
+    columns:
+      - name: BLOCK_ID
+        tests:
+          - not_null
+      - name: TX_GROUP_ID
+        tests:
+          - not_null
+      - name: PURCHASER
+        tests:
+          - not_null
+      - name: NFT_ASSET_ID
+        tests:
+          - not_null
+      - name: TOTAL_SALES_AMOUNT
+      - name: NUMBER_OF_NFTS
+        tests:
+          - not_null
+          

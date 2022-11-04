@@ -151,21 +151,27 @@ SELECT
     A.asset_id,
     COALESCE(
         A.asset_name,
-        coll.name
+        coll.name,
+        fifa.name
     ) AS asset_name,
     A.total_supply,
     COALESCE(
         asset_url,
-        coll.url
+        coll.url,
+        fifa.animation_url
     ) AS asset_url,
     A.decimals,
     deleted AS asset_deleted,
     creator_address,
     created_at,
     closed_at,
-    coll.collection AS collection_name,
+    COALESCE(
+        coll.collection,
+        'FIFA' || ' - ' || fifa.drop_name
+    ) AS collection_name,
     CASE
         WHEN coll.nft IS NOT NULL THEN TRUE
+        WHEN fifa.asset_id IS NOT NULL THEN TRUE
         ELSE FALSE
     END AS collection_nft,
     CASE
@@ -215,3 +221,5 @@ FROM
     ON A.asset_id = coll.nft
     LEFT JOIN arc69_NFTs arc69
     ON A.asset_id = arc69.nft
+    LEFT JOIN {{ ref('silver__nft_metadata_fifa') }} A fifa
+    ON A.asset_id = fifa.asset_id

@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__ez_nft_asset
+  - name: nft__ez_nft_asset
     columns:
       - name: NFT_ASSET_ID
         description: "{{ doc('asset_id') }}"

@@ -1,0 +1,95 @@
+version: 2
+models:
+  - name: nft__ez_nft_metadata_fifa
+    columns:
+      - name: NFT_ASSET_ID
+        description: "{{ doc('asset_id') }}"
+        tests:
+          - not_null   
+          - unique
+      - name: NFT_ASSET_NAME
+        description: "{{ doc('asset_name') }}"
+      - name: NFT_URL
+        tests:
+          - not_null
+      - name: METADATA_URL
+        tests:
+          - not_null
+      - name: ANIMATION_URL
+        tests:
+          - not_null
+      - name: ANIMATION_URL_MIMETYPE
+        tests:
+          - not_null
+      - name: DESCRIPTION
+        tests:
+          - not_null
+      - name: EXTERNAL_URL
+        tests:
+          - not_null
+      - name: EXTERNAL_URL_MIMETYPE
+        tests:
+          - not_null
+      - name: IMAGE
+        tests:
+          - not_null
+      - name: IMAGE_INTEGRITY
+        tests:
+          - not_null
+      - name: IMAGE_MIMETYPE
+        tests:
+          - not_null
+      - name: NAME
+        tests:
+          - not_null
+      - name: REKEY_CHECKED
+        tests:
+          - not_null
+      - name: APPLICATION_ID
+        tests:
+          - not_null
+      - name: DROP_NUMBER
+        tests:
+          - not_null
+      - name: DROP_NAME
+        tests:
+          - not_null
+      - name: ITEM_NO
+        tests:
+          - not_null
+      - name: EDITIONS
+        tests:
+          - not_null
+      - name: RARITY
+        tests:
+          - not_null      
+      - name: WORLD_CUP_TYPE
+        tests:
+          - not_null    
+      - name: YEAR
+        tests:
+          - not_null    
+      - name: HOST
+        tests:
+          - not_null    
+      - name: COUNTRY_1
+        tests:
+          - not_null    
+      - name: COUNTRY_1_SCORE
+        tests:
+          - not_null    
+      - name: COUNTRY_2
+        tests:
+          - not_null    
+      - name: COUNTRY_2_SCORE
+        tests:
+          - not_null    
+      - name: EVENT_TYPE
+        tests:
+          - not_null    
+      - name: PLAYER
+        tests:
+          - not_null                                                                                                                                                                                                                
+      - name: MINUTE
+        tests:
+          - not_null

@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'fact_nft_sales_id',
+    unique_key = ['fact_nft_sales_id','block_timestamp::Date'],
     incremental_strategy = 'merge',
     cluster_by = ['block_timestamp::DATE']
 ) }}
@@ -66,6 +66,18 @@ WITH base AS (
         _INSERTED_TIMESTAMP
     FROM
         {{ ref('silver__nft_sales_shufl') }}
+    UNION ALL
+    SELECT
+        'fifa collect' AS nft_marketplace,
+        block_id,
+        tx_group_id,
+        purchaser,
+        nft_asset_id,
+        number_of_nfts,
+        total_sales_amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        {{ ref('silver__nft_sales_fifa_collect') }}
     UNION ALL
     SELECT
         'atomic swaps' AS nft_marketplace,

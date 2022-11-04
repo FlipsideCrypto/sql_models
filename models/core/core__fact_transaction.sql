@@ -49,7 +49,7 @@ WHERE
         FROM
             {{ this }}
     )
-    OR tx_id IN (
+    OR tx_group_id IN (
         SELECT
             tx_id
         FROM

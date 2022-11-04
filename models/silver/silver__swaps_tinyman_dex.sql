@@ -22,7 +22,7 @@ AND _INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '4 HOURS'
+) - INTERVAL '48 HOURS'
 {% endif %}
 ),
 tx_pay AS (
@@ -41,7 +41,7 @@ AND _INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '4 HOURS'
+) - INTERVAL '48 HOURS'
 {% endif %}
 ),
 tx_a_tfer AS (
@@ -65,7 +65,7 @@ AND pt._INSERTED_TIMESTAMP >= (
         )
     FROM
         {{ this }}
-) - INTERVAL '4 HOURS'
+) - INTERVAL '48 HOURS'
 {% endif %}
 ),
 tinymanapp AS(
