@@ -171,7 +171,7 @@ SELECT
     ) AS collection_name,
     CASE
         WHEN coll.nft IS NOT NULL THEN TRUE
-        WHEN fifa.asset_id IS NOT NULL THEN TRUE
+        WHEN fifa.nft_asset_id IS NOT NULL THEN TRUE
         ELSE FALSE
     END AS collection_nft,
     CASE
@@ -221,5 +221,6 @@ FROM
     ON A.asset_id = coll.nft
     LEFT JOIN arc69_NFTs arc69
     ON A.asset_id = arc69.nft
-    LEFT JOIN {{ ref('silver__nft_metadata_fifa') }} A fifa
-    ON A.asset_id = fifa.asset_id
+    LEFT JOIN {{ ref('silver__nft_metadata_fifa') }}
+    fifa
+    ON A.asset_id = fifa.nft_asset_id
