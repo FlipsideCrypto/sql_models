@@ -41,26 +41,28 @@ WITH base AS (
 
 {% if is_incremental() %}
 WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(
-                _inserted_timestamp
-            )
-        FROM
-            {{ this }}
-    )
-    OR tx_group_id IN (
-        SELECT
-            tx_id
-        FROM
-            {{ this }}
-        WHERE
-            (
-                dim_block_id = '-1'
-                OR dim_account_id__tx_sender = '-1'
-                OR dim_asset_id = '-1'
-                OR dim_transaction_type_id = '-1'
-            )
+    (
+        _inserted_timestamp >= (
+            SELECT
+                MAX(
+                    _inserted_timestamp
+                )
+            FROM
+                {{ this }}
+        )
+        OR tx_group_id IN (
+            SELECT
+                tx_group_id
+            FROM
+                {{ this }}
+            WHERE
+                (
+                    dim_block_id = '-1'
+                    OR dim_account_id__tx_sender = '-1'
+                    OR dim_asset_id = '-1'
+                    OR dim_transaction_type_id = '-1'
+                )
+        )
     )
 {% endif %}
 )
