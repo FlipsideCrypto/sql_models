@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = ['fact_nft_sales_id','block_timestamp::Date'],
+    unique_key = ['fact_nft_sales_id'],
     incremental_strategy = 'merge',
     cluster_by = ['block_timestamp::DATE']
 ) }}
