@@ -48,6 +48,7 @@ SELECT
   t.value :tx_type :: STRING AS tx_type,
   t.value :tx_status :: STRING AS tx_status,
   t.value :tx_module :: STRING AS tx_module,
+  t.value :tx_memo ::STRING AS tx_memo,
   t.value :msg_index :: INTEGER AS msg_index,
   t.value :msg_type :: STRING AS msg_type,
   t.value :msg_module :: STRING AS msg_module,
