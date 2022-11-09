@@ -12,6 +12,7 @@ SELECT
   tx_status,
   tx_module,
   tx_type,
+  tx_memo,
   msg_index,
   msg_module,
   msg_type,
