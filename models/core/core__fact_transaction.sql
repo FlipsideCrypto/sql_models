@@ -50,9 +50,9 @@ WHERE
             FROM
                 {{ this }}
         )
-        OR tx_group_id IN (
+        OR tx_id IN (
             SELECT
-                tx_group_id
+                tx_id
             FROM
                 {{ this }}
             WHERE

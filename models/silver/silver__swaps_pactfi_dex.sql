@@ -16,43 +16,47 @@ WITH pact_app_ids AS (
         AND tx_message :dt :itx [0] :txn :apar :an :: STRING LIKE '%PACT LP Token'
         AND tx_message :dt :itx [0] :txn :apar :au :: STRING = 'https://pact.fi/'
 ),
-tx_app_call AS (
+tx_base AS (
     SELECT
         *
     FROM
         {{ ref('silver__transaction') }}
-    WHERE
-        tx_type = 'appl'
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '48 HOURS'
+WHERE
+    _INSERTED_TIMESTAMP :: DATE >= (
+        SELECT
+            MAX(
+                _INSERTED_TIMESTAMP
+            )
+        FROM
+            {{ this }}
+    ) :: DATE - INTERVAL '4 HOURS'
+    OR tx_group_id IN (
+        SELECT
+            tx_group_id
+        FROM
+            {{ this }}
+        WHERE
+            swap_from_asset_id IS NULL
+    )
 {% endif %}
+),
+tx_app_call AS (
+    SELECT
+        *
+    FROM
+        tx_base
+    WHERE
+        tx_type = 'appl'
 ),
 tx_pay AS (
     SELECT
         *
     FROM
-        {{ ref('silver__transaction') }}
+        tx_base
     WHERE
         tx_type = 'pay'
-
-{% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '48 HOURS'
-{% endif %}
 ),
 tx_a_tfer AS (
     SELECT
@@ -60,23 +64,11 @@ tx_a_tfer AS (
         A.asset_name,
         A.decimals
     FROM
-        {{ ref('silver__transaction') }}
-        pt
+        tx_base pt
         JOIN {{ ref('silver__asset') }} A
         ON pt.asset_id = A.asset_id
     WHERE
         tx_type = 'axfer'
-
-{% if is_incremental() %}
-AND pt._INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '48 HOURS'
-{% endif %}
 ),
 pactfi_app AS(
     SELECT
@@ -116,7 +108,7 @@ pactfi_app AS(
         asa
         ON act.tx_message :dt :itx [0] :txn :xaid :: NUMBER = asa.asset_id
     WHERE
-        block_id > 18993713 {# block_timestamp :: DATE > '2022-02-01' #}
+        block_id > 18993713
         AND app_id IN (
             SELECT
                 app_id

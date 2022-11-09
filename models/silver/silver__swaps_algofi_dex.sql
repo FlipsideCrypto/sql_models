@@ -25,43 +25,47 @@ WITH algofi_app_ids AS (
             AND tx_message :dt :itx [1] :txn :apar :au :: STRING = 'https://algofi.org'
         )
 ),
-tx_app_call AS (
+base_tx AS (
     SELECT
         *
     FROM
         {{ ref('silver__transaction') }}
-    WHERE
-        tx_type = 'appl'
 
 {% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '48 HOURS'
+WHERE
+    _INSERTED_TIMESTAMP :: DATE >= (
+        SELECT
+            MAX(
+                _INSERTED_TIMESTAMP
+            )
+        FROM
+            {{ this }}
+    ) :: DATE - INTERVAL '4 HOURS'
+    OR tx_group_id IN (
+        SELECT
+            tx_group_id
+        FROM
+            {{ this }}
+        WHERE
+            swap_from_asset_id IS NULL
+    )
 {% endif %}
+),
+tx_app_call AS (
+    SELECT
+        *
+    FROM
+        base_tx
+    WHERE
+        tx_type = 'appl'
 ),
 tx_pay AS (
     SELECT
         *
     FROM
-        {{ ref('silver__transaction') }}
+        base_tx
     WHERE
         tx_type = 'pay'
-
-{% if is_incremental() %}
-AND _INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '48 HOURS'
-{% endif %}
 ),
 tx_a_tfer AS (
     SELECT
@@ -69,23 +73,11 @@ tx_a_tfer AS (
         A.asset_name,
         A.decimals
     FROM
-        {{ ref('silver__transaction') }}
-        pt
+        base_tx pt
         JOIN {{ ref('silver__asset') }} A
         ON pt.asset_id = A.asset_id
     WHERE
         tx_type = 'axfer'
-
-{% if is_incremental() %}
-AND pt._INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '48 HOURS'
-{% endif %}
 ),
 algofi_app AS(
     SELECT

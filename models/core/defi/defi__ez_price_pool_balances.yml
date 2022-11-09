@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__ez_price_pool_balances
+  - name: defi__ez_price_pool_balances
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

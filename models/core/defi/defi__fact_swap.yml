@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: core__fact_swap
+  - name: defi__fact_swap
     description: "Fact table containing swaps from algofi, tinyman, pactfi, and wagmiswap dexes"
     columns:
       - name: FACT_SWAP_ID
