@@ -150,7 +150,7 @@ SELECT
             )
             ELSE amount
         END
-    ),
+    ) AS amount,
     concat_ws(
         '-',
         address,
