@@ -481,7 +481,7 @@ fill_in_the_blanks_temp AS (
 )
 SELECT
     block_hour,
-    A.asset_id,
+    A.asset_id :: INT AS asset_id,
     LAST_VALUE(
         price ignore nulls
     ) over(

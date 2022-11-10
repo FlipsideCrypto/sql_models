@@ -2,8 +2,7 @@
     materialized = 'incremental',
     unique_key = "_unique_key",
     incremental_strategy = 'merge',
-    cluster_by = ['date'],
-    post_hook = "ALTER TABLE {{ this }} ADD SEARCH OPTIMIZATION"
+    cluster_by = ['date']
 ) }}
 
 WITH address_ranges AS (
@@ -178,19 +177,10 @@ WHERE
     closes AS (
         SELECT
             A.account AS address,
-            CASE
-                WHEN asa.decimals > 0 THEN COALESCE(
-                    A.amount,
-                    0
-                ) / pow(
-                    10,
-                    asa.decimals
-                )
-                WHEN asa.decimals = 0 THEN COALESCE(
-                    A.amount,
-                    0
-                )
-            END AS amount,
+            A.amount / pow(
+                10,
+                6
+            ) AS amount,
             A.block_id,
             A.intra,
             C.block_timestamp
@@ -205,6 +195,58 @@ WHERE
             ON A.block_id = C.block_id
         WHERE
             A.asset_id = 0
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >=(
+    SELECT
+        DATEADD('day', -2, MAX(DATE))
+    FROM
+        {{ this }})
+    {% endif %}
+),
+closes_send AS (
+    SELECT
+        tx.address address,
+        A.amount / pow(
+            10,
+            6
+        ) AS amount,
+        A.block_id,
+        A.intra,
+        C.block_timestamp
+    FROM
+        {{ ref('silver__transaction_close') }} A
+        JOIN (
+            SELECT
+                DISTINCT block_id,
+                intra,
+                sender AS address
+            FROM
+                {{ ref('silver__transaction') }}
+
+{% if is_incremental() %}
+WHERE
+    _inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
+{% endif %}
+) tx
+ON A.block_id = tx.block_id
+AND A.intra = tx.intra
+JOIN address_ranges b
+ON tx.address = b.address
+LEFT JOIN {{ ref('silver__asset') }}
+asa
+ON A.asset_id = asa.asset_id
+JOIN {{ ref('silver__block') }} C
+ON A.block_id = C.block_id
+WHERE
+    A.asset_id = 0
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
@@ -259,6 +301,15 @@ all_actions AS(
         block_timestamp
     FROM
         closes
+    UNION ALL
+    SELECT
+        address,
+        amount,
+        block_id,
+        intra,
+        block_timestamp
+    FROM
+        closes_send
     UNION ALL
     SELECT
         address,

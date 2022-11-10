@@ -148,7 +148,7 @@ GROUP BY
 )
 SELECT
     A.date AS block_hour,
-    other_asset_ID AS asset_id,
+    other_asset_ID :: INT AS asset_id,
     other_asset_name AS asset_name,
     CASE
         WHEN other_bal = 0 THEN 0
@@ -156,8 +156,8 @@ SELECT
             algo_bal * price
         ) / other_bal
     END AS price_usd,
-    algo_bal AS algo_balance,
-    other_bal AS non_algo_balance,
+    algo_bal :: FLOAT AS algo_balance,
+    other_bal :: FLOAT AS non_algo_balance,
     e.address_name pool_name,
     A.address pool_address,
     concat_ws(
@@ -178,7 +178,7 @@ WHERE
 UNION ALL
 SELECT
     HOUR AS block_hour,
-    0 AS asset_id,
+    0 :: INT AS asset_id,
     'ALGO' AS asset_name,
     price AS price_usd,
     NULL algo_balance,
