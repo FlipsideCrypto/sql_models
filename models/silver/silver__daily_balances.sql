@@ -222,31 +222,19 @@ closes_send AS (
                 intra,
                 sender AS address
             FROM
-                {{ ref('silver__transaction') }}
-
-{% if is_incremental() %}
-WHERE
-    _inserted_timestamp >= (
-        SELECT
-            MAX(
-                _inserted_timestamp
-            )
-        FROM
-            {{ this }}
-    )
-{% endif %}
-) tx
-ON A.block_id = tx.block_id
-AND A.intra = tx.intra
-JOIN address_ranges b
-ON tx.address = b.address
-LEFT JOIN {{ ref('silver__asset') }}
-asa
-ON A.asset_id = asa.asset_id
-JOIN {{ ref('silver__block') }} C
-ON A.block_id = C.block_id
-WHERE
-    A.asset_id = 0
+                txns
+        ) tx
+        ON A.block_id = tx.block_id
+        AND A.intra = tx.intra
+        JOIN address_ranges b
+        ON tx.address = b.address
+        LEFT JOIN {{ ref('silver__asset') }}
+        asa
+        ON A.asset_id = asa.asset_id
+        JOIN {{ ref('silver__block') }} C
+        ON A.block_id = C.block_id
+    WHERE
+        A.asset_id = 0
 
 {% if is_incremental() %}
 AND block_timestamp :: DATE >=(
