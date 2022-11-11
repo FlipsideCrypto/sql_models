@@ -231,10 +231,30 @@ SELECT
     b.app_id,
     b.sender AS swapper,
     A.swap_from_asset_id,
-    A.swap_from_amount,
+    CASE
+        WHEN swap_from_asset_id = 0 THEN A.swap_from_amount / pow(
+            10,
+            6
+        )
+        WHEN sf.decimals > 0 THEN A.swap_from_amount / pow(
+            10,
+            sf.decimals
+        )
+        ELSE A.swap_from_amount
+    END AS swap_from_amount,
     A.pool_address,
     A.swap_to_asset_id,
-    A.swap_to_amount,
+    CASE
+        WHEN swap_to_asset_id = 0 THEN A.swap_to_amount / pow(
+            10,
+            6
+        )
+        WHEN st.decimals > 0 THEN A.swap_to_amount / pow(
+            10,
+            st.decimals
+        )
+        ELSE A.swap_to_amount
+    END AS swap_to_amount,
     A.wrapped_asset_id,
     A.wrapped_pool,
     concat_ws(
@@ -257,3 +277,9 @@ FROM
             app_call_base
     ) b
     ON A.tx_group_id = b.tx_group_id
+    LEFT JOIN {{ ref('silver__asset') }}
+    sf
+    ON A.swap_from_asset_id = sf.asset_id
+    LEFT JOIN {{ ref('silver__asset') }}
+    st
+    ON A.swap_to_asset_id = st.asset_id

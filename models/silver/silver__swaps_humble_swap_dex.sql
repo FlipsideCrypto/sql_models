@@ -332,6 +332,10 @@ SELECT
     swapper,
     swap_from_asset_id,
     CASE
+        WHEN swap_from_asset_id = 0 THEN A.swap_from_amount / pow(
+            10,
+            6
+        )
         WHEN af.decimals > 0 THEN A.swap_from_amount / pow(
             10,
             af.decimals
@@ -341,6 +345,10 @@ SELECT
     pool_address,
     swap_to_asset_id,
     CASE
+        WHEN swap_to_asset_id = 0 THEN A.swap_to_amount / pow(
+            10,
+            6
+        )
         WHEN ato.decimals > 0 THEN A.swap_to_amount / pow(
             10,
             ato.decimals

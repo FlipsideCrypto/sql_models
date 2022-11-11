@@ -12,7 +12,18 @@ WITH prebase AS (
         algorand_decode_hex_addr(
             creator_addr :: text
         ) AS creator_address,
-        A.params :au :: STRING AS asset_url,
+        COALESCE(
+            A.params :au,
+            TRY_BASE64_DECODE_STRING(
+                A.params :au64
+            )
+        ) :: STRING AS asset_url,
+        COALESCE(
+            A.params :an,
+            TRY_BASE64_DECODE_STRING(
+                A.params :an64
+            )
+        ) :: STRING AS asset_name,
         A.params,
         A.deleted,
         closed_at,
@@ -56,7 +67,7 @@ base AS (
         CASE
             WHEN A.deleted = 'TRUE'
             AND ac.asset_id IS NOT NULL THEN ac.asset_name
-            ELSE A.params :an :: STRING
+            ELSE A.asset_name
         END asset_name,
         CASE
             WHEN A.deleted = 'TRUE'
