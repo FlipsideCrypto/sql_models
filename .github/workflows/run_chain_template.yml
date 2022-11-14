@@ -1,0 +1,50 @@
+name: dbt_run
+
+on:
+  push:
+    branches:
+      - "main"
+  # uncheck the following to set it up with CRON
+  # schedule:
+    # Runs "every 10 mins"
+    # - cron: "*/10 * * * *"
+
+env:
+  DBT_PROFILES_DIR: ./
+
+  ACCOUNT: "${{ secrets.ACCOUNT }}"
+  ROLE: "${{ secrets.ROLE }}"
+  USER: "${{ secrets.USER }}"
+  PASSWORD: "${{ secrets.PASSWORD }}"
+  REGION: "${{ secrets.REGION }}"
+  DATABASE_DEV: "${{ secrets.DATABASE_DEV }}"
+  DATABASE_PROD: "${{ secrets.DATABASE_PROD }}"
+  WAREHOUSE_DEV: "${{ secrets.WAREHOUSE_DEV }}"
+  WAREHOUSE_PROD: "${{ secrets.WAREHOUSE_PROD }}"
+  SCHEMA: "${{ secrets.SCHEMA }}"
+
+jobs:
+  scheduled_run:
+    name: dbt_run
+    runs-on: ubuntu-latest
+    environment: 
+      name: workflow
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7.x"
+
+      - name: install dependencies
+        run: |
+          pip install dbt-snowflake
+          dbt deps
+      
+      - name: Run dbt models
+        run: |
+          dbt run -m ./models/streamline/streamline__txs_history.sql
+          dbt run -m ./models/streamline/streamline__txs_realtime.sql
+          dbt run -m ./models/streamline/streamline__blocks_history.sql
+          dbt run -m ./models/streamline/streamline__blocks_realtime.sql
