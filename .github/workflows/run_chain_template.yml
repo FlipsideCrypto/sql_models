@@ -1,9 +1,10 @@
 name: dbt_run
 
 on:
-  push:
-    branches:
-      - "main"
+  workflow_call:
+  # push:
+  #   branches:
+  #     - "main"
   # uncheck the following to set it up with CRON
   # schedule:
     # Runs "every 10 mins"
