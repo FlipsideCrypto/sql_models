@@ -36,7 +36,11 @@ WHERE
             OR asset_id = '7129'
             OR asset_id = '4195'
             OR asset_id = '11181'
-        )
+            OR asset_id = '11212'
+            OR asset_id = '11213'
+
+
+            )
     )
     OR (
         provider = 'coingecko'
@@ -57,5 +61,7 @@ WHERE
             OR asset_id = 'usd-coin'
             OR asset_id = 'tether'
             OR asset_id = 'terrausd'
+            OR asset_id = 'star-atlas'
+            OR asset_id = 'star-atlas-dao'
         )
     )
