@@ -38,7 +38,9 @@ models:
               value: 58
       - name: swap_to_asset_id
         tests:
-          - not_null
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: swap_to_amount
         tests:
-          - not_null
+          - not_null:
+              where: _INSERTED_TIMESTAMP <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')

@@ -51,7 +51,7 @@ models:
         description: "FK to Dim_Asset table"
         tests:
           - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
       - name: DIM_TRANSACTION_TYPE_ID
         description: "FK to the Dim_Transaction_Type table"
         tests:

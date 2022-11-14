@@ -42,7 +42,7 @@ models:
         description: "Block timestamp that the app was created"
         tests:
           - not_null:
-              where:  DIM_APPLICATION_ID not in ('-1','-2')
+              where:  DIM_APPLICATION_ID not in ('-1','-2') and _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
       - name: DIM_BLOCK_ID__CLOSED_AT
         description: "FK to DIM_BLOCK for the closed at datetime"
         tests:

@@ -30,29 +30,29 @@ models:
         description: "FK to the DIM_APPLICATION table "
         tests:
           - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
       - name: SWAPPER
         description: "Address that initiated the swap"
         tests:
           - not_null:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
           - dbt_expectations.expect_column_value_lengths_to_equal:
               value: 58
       - name: DIM_ASSET_ID__SWAP_FROM
         description: "FK to the DIM_ASSET table"
         tests:
           - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
       - name: SWAP_FROM_ASSET_ID
         description: "Token being sent or swapped from"
         tests:
           - not_null:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
       - name: SWAP_FROM_AMOUNT
         description: "Total amount of the token sent in to initiate the swap"
         tests:
           - not_null:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
       - name: POOL_ADDRESS
         description: "Address of the pool the swap is coming from"
         tests:
@@ -63,7 +63,7 @@ models:
         description: "FK to the DIM_ASSET table"
         tests:
           - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
       - name: SWAP_TO_ASSET_ID
         description: "Token being received or swapped for"
         tests:
