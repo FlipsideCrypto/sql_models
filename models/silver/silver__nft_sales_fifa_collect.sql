@@ -105,7 +105,7 @@ SELECT
     1 AS number_of_nfts,
     total_sales_amount,
     CASE
-        b.drop_number
+        COALESCE(b.drop_number, RIGHT(LEFT(C.asset_name, 3), 2) :: INT)
         WHEN 1 THEN 4.99 / 3
         WHEN 2 THEN 4.99 / 3
         WHEN 3 THEN 9.99 / 3
@@ -117,12 +117,14 @@ SELECT
         tx_group_id :: STRING,
         A.nft_asset_id :: STRING
     ) AS _unique_key,
-    _inserted_timestamp
+    A._inserted_timestamp
 FROM
     mints A
     LEFT JOIN {{ ref('silver__nft_metadata_fifa') }}
     b
     ON A.nft_asset_id = b.nft_asset_id
+    LEFT JOIN {{ ref('silver__asset') }} C
+    ON A.nft_asset_id = C.asset_id
 UNION ALL
 SELECT
     A.block_id,
