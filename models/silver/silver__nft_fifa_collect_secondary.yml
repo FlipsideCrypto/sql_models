@@ -1,0 +1,30 @@
+version: 2
+models:
+  - name: silver__nft_fifa_collect_secondary
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - nft_asset_id
+            - purchase_timestamp
+    columns:
+      - name: NFT_ASSET_ID
+        tests:
+          - not_null
+      - name: PURCHASE_TIMESTAMP
+        tests:
+          - not_null
+      - name: AMOUNT
+        tests:
+          - not_null
+      - name: RECIPIENT_ADDRESS
+        tests:
+          - not_null
+      - name: RECIPIENT_USERNAME
+        tests:
+          - not_null
+      - name: SENDER_ADDRESS
+        tests:
+          - not_null
+      - name: SENDER_USERNAME
+        tests:
+          - not_null

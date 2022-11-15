@@ -28,10 +28,11 @@ sources:
     tables:
       - name: prod_nft_metadata_uploads_1828572827
   - name: crosschain
-    database: flipside_prod_db
-    schema: silver_crosschain
+    database: crosschain
+    schema: core
     tables:
       - name: address_labels
+      - name: fact_hourly_prices
   - name: algorand
     database: hevo
     schema: BRONZE_ALGORAND_2_8_0__HEVO_PARALLEL
@@ -53,6 +54,10 @@ sources:
       - name: solana_txs
       - name: ethereum_blocks
       - name: ethereum_txs
+  - name: bronze_api
+    schema: bronze_api
+    tables: 
+      - name: nft_fifa_collect_secondary
   - name: algorand_db_external
     database: flipside_prod_db
     schema: bronze

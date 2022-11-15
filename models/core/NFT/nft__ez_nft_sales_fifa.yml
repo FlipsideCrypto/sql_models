@@ -1,0 +1,21 @@
+version: 2
+models:
+  - name: nft__ez_nft_sales_fifa
+    columns:
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+      - name: TX_GROUP_ID
+        description: "{{ doc('tx_group_id') }}"
+      - name: PURCHASER
+        description: "Address that purchased the NFT"
+      - name: NFT_ASSET_ID
+        description: "{{ doc('asset_id') }}"
+      - name: NUMBER_OF_NFTS
+        description: "The amount on the NFT sold. In most cases this will be 1 but some NFTs have a token supply higher than 1"
+      - name: TOTAL_SALES_AMOUNT_USD
+        description: "Total amount of paid in in US Dollars for the NFT purchase"
+      - name: SALE_TYPE
+        description: "The type of purchase. mint or secondary"
+      
+      
+      
