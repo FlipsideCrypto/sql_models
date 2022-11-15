@@ -2,6 +2,11 @@ name: dbt_run
 
 on:
   workflow_call:
+    inputs:
+      dbt_command:
+        type: string
+        description: 'dbt commands to run'
+        required: true
 
 env:
   DBT_PROFILES_DIR: ./
