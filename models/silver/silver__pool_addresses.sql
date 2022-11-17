@@ -14,17 +14,19 @@ WITH swaps AS(
         _INSERTED_TIMESTAMP
     FROM
         {{ ref('silver__swap') }}
+    WHERE
+        swap_from_asset_id IS NOT NULL
+        AND swap_to_asset_id IS NOT NULL
 
 {% if is_incremental() %}
-WHERE
-    _INSERTED_TIMESTAMP >= (
-        SELECT
-            MAX(
-                _INSERTED_TIMESTAMP
-            )
-        FROM
-            {{ this }}
-    ) - INTERVAL '4 HOURS'
+AND _INSERTED_TIMESTAMP >= (
+    SELECT
+        MAX(
+            _INSERTED_TIMESTAMP
+        )
+    FROM
+        {{ this }}
+) - INTERVAL '4 HOURS'
 {% endif %}
 ),
 pool_names AS(
@@ -32,21 +34,21 @@ pool_names AS(
         swap_program,
         pool_address,
         CASE
-            WHEN A.asset_id = 0 THEN 'ALGO'
+            WHEN s.swap_from_asset_id = 0 THEN 'ALGO'
             ELSE A.asset_name
         END AS swap_from_asset_name,
         s.swap_from_asset_id,
         CASE
-            WHEN b.asset_id = 0 THEN 'ALGO'
+            WHEN s.swap_to_asset_id = 0 THEN 'ALGO'
             ELSE b.asset_name
         END AS swap_to_asset_name,
         s.swap_to_asset_id,
         s._INSERTED_TIMESTAMP
     FROM
         swaps s
-        JOIN {{ ref('silver__asset') }} A
+        LEFT JOIN {{ ref('silver__asset') }} A
         ON s.swap_from_asset_id = A.asset_id
-        JOIN {{ ref('silver__asset') }}
+        LEFT JOIN {{ ref('silver__asset') }}
         b
         ON s.swap_to_asset_id = b.asset_id qualify ROW_NUMBER() over (
             PARTITION BY pool_address
