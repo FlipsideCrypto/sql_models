@@ -38,7 +38,7 @@ jobs:
 
       - name: install dependencies
         run: |
-          pip install dbt-snowflake cli_passthrough requests click
+          pip install dbt-snowflake cli_passthrough requests click dotenv
           dbt deps
       
       - name: Run DBT Jobs
