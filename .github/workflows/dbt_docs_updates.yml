@@ -13,6 +13,7 @@ env:
   DATABASE_PROD: "${{ secrets.DATABASE_PROD }}"
   WAREHOUSE_DEV: "${{ secrets.WAREHOUSE_DEV }}"
   WAREHOUSE_PROD: "${{ secrets.WAREHOUSE_PROD }}"
+  SCHEMA: "${{ secrets.SCHEMA }}"
 
 jobs:
   scheduled_run:
