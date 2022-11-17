@@ -59,4 +59,4 @@ jobs:
       
       - name: Run slack alert
         run: |
-          "python alert_call.py test"
+          python alert_call.py test
