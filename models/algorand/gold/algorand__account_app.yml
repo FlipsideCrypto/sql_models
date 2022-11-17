@@ -1,6 +1,7 @@
 version: 2
 models:
   - name: algorand__account_app
+    description: deprecating soon - please migrate query to algorand database by changing 'from' statements from `flipside_prod_db.algorand.<table>` to algorand.<schema>.<table> 
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

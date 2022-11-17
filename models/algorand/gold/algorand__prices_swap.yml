@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: algorand__prices_swap
-    description: "This table can be used to price assets within the Algorand blockchain using on-chain swaps. Price is calculated by using all swaps within two standard deviations from the hour average price, calculating the average price at the dex level, then weighting the dex price by the previous day's volume to create a weighted average across all dexes"
+    description: deprecating soon - please migrate query to algorand database by changing 'from' statements from `flipside_prod_db.algorand.<table>` to algorand.<schema>.<table> 
     columns:
       - name: BLOCK_HOUR
         description: "The hour for which the price is valid"
