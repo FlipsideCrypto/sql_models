@@ -10,7 +10,7 @@ models:
       - name: NFT_ASSET_NAME
         description: "{{ doc('asset_name') }}"
       - name: NFT_TOTAL_SUPPLY
-        description: "Total supply of the asset"
+        description: "Total supply of the asset "
         tests:
           - dbt_expectations.expect_column_to_exist 
       - name: DECIMALS
