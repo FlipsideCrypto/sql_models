@@ -49,3 +49,10 @@ jobs:
         with:
           name: results_artifact
           path: ./target/run_results.json
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: results_artifact
+    
+      - name: Display structure of downloaded files
+        run: ls -R
