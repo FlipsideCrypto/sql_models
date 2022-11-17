@@ -56,3 +56,7 @@ jobs:
     
       - name: Display structure of downloaded files
         run: ls -R
+      
+      - name: Run slack alert
+        run: |
+          "python alert_call.py test"
