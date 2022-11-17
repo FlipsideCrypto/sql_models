@@ -45,18 +45,18 @@ jobs:
         run: |
           ${{ inputs.dbt_command }}
       
-      - uses: actions/upload-artifact@v3
-        with:
-          name: results_artifact
-          path: ./target/run_results.json
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: results_artifact
+      #     path: ./target/run_results.json
 
-      - uses: actions/download-artifact@v3
-        with:
-          name: results_artifact
+      # - uses: actions/download-artifact@v3
+      #   with:
+      #     name: results_artifact
     
       - name: Display structure of downloaded files
         run: ls -R
       
-      - name: Run slack alert
-        run: |
-          python alert_call.py test
+      # - name: Run slack alert
+      #   run: |
+      #     python alert_call.py test
