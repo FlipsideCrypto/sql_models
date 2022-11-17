@@ -53,25 +53,45 @@ all_dates AS (
 ),
 txns AS (
     SELECT
-        A.sender,
-        A.receiver,
         COALESCE(
-            A.amount,
-            0
-        ) / pow(
-            10,
-            6
-        ) AS amount,
+            A.asset_sender,
+            A.sender
+        ) AS sender,
+        A.receiver,
+        asset_receiver,
+        CASE
+            WHEN A.asset_id = 0 THEN COALESCE(
+                A.amount,
+                A.asset_amount
+            ) / pow(
+                10,
+                6
+            )
+            WHEN asa.decimals > 0 THEN COALESCE(
+                A.amount,
+                A.asset_amount
+            ) / pow(
+                10,
+                asa.decimals
+            )
+            ELSE COALESCE(
+                A.amount,
+                A.asset_amount
+            )
+        END AS amount,
         A.block_id,
         A.intra,
         b.block_timestamp,
         tx_type,
-        asset_id
+        A.asset_id
     FROM
         {{ ref('silver__transaction') }} A
         JOIN {{ ref('silver__block') }}
         b
         ON A.block_id = b.block_id
+        LEFT JOIN {{ ref('silver__asset') }}
+        asa
+        ON A.asset_id = asa.asset_id
 ),
 senderpay AS(
     SELECT
@@ -173,20 +193,20 @@ WHERE
         SELECT
             A.account AS address,
             CASE
-                WHEN asa.decimals > 0 THEN A.amount / pow(
-                    10,
-                    asa.decimals
-                )
-                WHEN asa.decimals = 0 THEN A.amount
                 WHEN A.asset_id = 0 THEN A.amount / pow(
                     10,
                     6
                 )
+                WHEN asa.decimals > 0 THEN A.amount / pow(
+                    10,
+                    asa.decimals
+                )
+                ELSE A.amount
             END amount,
             A.block_id,
             A.intra,
             C.block_timestamp,
-            asa.asset_id
+            A.asset_id
         FROM
             {{ ref('silver__transaction_close') }} A
             JOIN address_ranges b
@@ -208,14 +228,21 @@ AND block_timestamp :: DATE >=(
 closes_send AS (
     SELECT
         tx.address address,
-        A.amount / pow(
-            10,
-            6
-        ) AS amount,
+        CASE
+            WHEN A.asset_id = 0 THEN A.amount / pow(
+                10,
+                6
+            )
+            WHEN asa.decimals > 0 THEN A.amount / pow(
+                10,
+                asa.decimals
+            )
+            ELSE A.amount
+        END amount,
         A.block_id,
         A.intra,
         C.block_timestamp,
-        asa.asset_id
+        A.asset_id
     FROM
         {{ ref('silver__transaction_close') }} A
         JOIN (
@@ -246,37 +273,16 @@ AND block_timestamp :: DATE >=(
 ),
 senderasset AS(
     SELECT
-        COALESCE(
-            A.asset_sender,
-            A.sender
-        ) AS address,
-        CASE
-            WHEN asa.decimals > 0 THEN A.asset_amount / pow(
-                10,
-                asa.decimals
-            )
-            WHEN asa.decimals = 0 THEN A.asset_amount
-            WHEN asa.asset_id = 0 THEN A.asset_amount / pow(
-                10,
-                6
-            )
-        END * -1 AS amount,
+        A.sender AS address,
+        A.amount * -1 AS amount,
         A.block_id,
         A.intra,
-        C.block_timestamp,
+        A.block_timestamp,
         A.asset_id
     FROM
-        {{ ref('silver__transaction') }} A
+        txns A
         JOIN address_ranges b
-        ON COALESCE(
-            A.asset_sender,
-            A.sender
-        ) = b.address
-        LEFT JOIN {{ ref('silver__asset') }}
-        asa
-        ON A.asset_id = asa.asset_id
-        JOIN {{ ref('silver__block') }} C
-        ON A.block_id = C.block_id
+        ON A.sender = b.address
     WHERE
         tx_type = 'axfer'
 
@@ -291,30 +297,15 @@ AND block_timestamp :: DATE >=(
 receiversasset AS (
     SELECT
         A.asset_receiver AS address,
-        CASE
-            WHEN asa.decimals > 0 THEN A.asset_amount / pow(
-                10,
-                asa.decimals
-            )
-            WHEN asa.decimals = 0 THEN A.asset_amount
-            WHEN asa.asset_id = 0 THEN A.asset_amount / pow(
-                10,
-                6
-            )
-        END AS amount,
+        A.amount AS amount,
         A.block_id,
         A.intra,
-        C.block_timestamp,
+        A.block_timestamp,
         A.asset_id
     FROM
-        {{ ref('silver__transaction') }} A
+        txns A
         JOIN address_ranges b
         ON A.asset_receiver = b.address
-        LEFT JOIN {{ ref('silver__asset') }}
-        asa
-        ON A.asset_id = asa.asset_id
-        JOIN {{ ref('silver__block') }} C
-        ON A.block_id = C.block_id
     WHERE
         tx_type = 'axfer'
 
