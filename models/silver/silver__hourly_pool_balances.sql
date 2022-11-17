@@ -55,7 +55,13 @@ txns AS (
     SELECT
         A.sender,
         A.receiver,
-        amount,
+        COALESCE(
+            A.amount,
+            0
+        ) / pow(
+            10,
+            6
+        ) AS amount,
         A.block_id,
         A.intra,
         b.block_timestamp,
@@ -199,6 +205,45 @@ AND block_timestamp :: DATE >=(
         {{ this }})
     {% endif %}
 ),
+closes_send AS (
+    SELECT
+        tx.address address,
+        A.amount / pow(
+            10,
+            6
+        ) AS amount,
+        A.block_id,
+        A.intra,
+        C.block_timestamp,
+        asa.asset_id
+    FROM
+        {{ ref('silver__transaction_close') }} A
+        JOIN (
+            SELECT
+                DISTINCT block_id,
+                intra,
+                sender AS address
+            FROM
+                txns
+        ) tx
+        ON A.block_id = tx.block_id
+        AND A.intra = tx.intra
+        JOIN address_ranges b
+        ON tx.address = b.address
+        LEFT JOIN {{ ref('silver__asset') }}
+        asa
+        ON A.asset_id = asa.asset_id
+        JOIN {{ ref('silver__block') }} C
+        ON A.block_id = C.block_id
+
+{% if is_incremental() %}
+AND block_timestamp :: DATE >=(
+    SELECT
+        DATEADD('day', -2, MAX(DATE))
+    FROM
+        {{ this }})
+    {% endif %}
+),
 senderasset AS(
     SELECT
         COALESCE(
@@ -331,6 +376,16 @@ all_actions AS(
         asset_id
     FROM
         closes
+    UNION ALL
+    SELECT
+        address,
+        amount,
+        block_id,
+        intra,
+        block_timestamp,
+        asset_id
+    FROM
+        closes_send
     UNION ALL
     SELECT
         address,
