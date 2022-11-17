@@ -42,7 +42,7 @@ jobs:
 
       - name: install dependencies
         run: |
-          pip3 install dbt-snowflake cli_passthrough requests click slackd
+          pip3 install dbt-snowflake cli_passthrough requests click
           dbt deps
       
       - name: Run DBT Jobs
