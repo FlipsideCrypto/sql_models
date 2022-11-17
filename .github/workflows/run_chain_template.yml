@@ -45,8 +45,7 @@ jobs:
         run: |
           ${{ inputs.dbt_command }}
       
-      - name: Upload Artifact 
-        - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: results_artifact
           path: ./target/run_results.json
