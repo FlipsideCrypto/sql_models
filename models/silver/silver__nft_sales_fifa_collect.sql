@@ -36,14 +36,25 @@ WITH mints AS (
         AND tx_type = 'axfer'
 
 {% if is_incremental() %}
-AND A._INSERTED_TIMESTAMP >= (
-    SELECT
-        MAX(
-            _INSERTED_TIMESTAMP
-        )
-    FROM
-        {{ this }}
-) - INTERVAL '4 HOURS'
+AND (
+    A._INSERTED_TIMESTAMP >= (
+        SELECT
+            MAX(
+                _INSERTED_TIMESTAMP
+            )
+        FROM
+            {{ this }}
+    ) - INTERVAL '4 HOURS'
+    OR tx_group_id IN (
+        SELECT
+            tx_group_id
+        FROM
+            {{ this }}
+        WHERE
+            TYPE = 'mint'
+            AND total_sales_amount IS NULL
+    )
+)
 {% endif %}
 ),
 SECOND AS (
@@ -109,6 +120,7 @@ SELECT
         WHEN 1 THEN 4.99 / 3
         WHEN 2 THEN 4.99 / 3
         WHEN 3 THEN 9.99 / 3
+        WHEN 4 THEN 4.99 / 3
     END AS total_sales_amount_USD,
     'mint' AS TYPE,
     concat_ws(

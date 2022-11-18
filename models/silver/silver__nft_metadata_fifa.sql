@@ -29,6 +29,7 @@ WITH base AS (
             WHEN 1 THEN 'genesis'
             WHEN 2 THEN 'archives'
             WHEN 3 THEN 'south american flair'
+            WHEN 4 THEN 'archives 2'
         END drop_name,
         CASE
             WHEN description LIKE '%Womens World Cup%' THEN 'Womens'
