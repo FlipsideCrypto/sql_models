@@ -52,6 +52,9 @@ models:
         tests:
           - negative_one:
               where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+              config:
+                severity: warn
+                error_if: ">10"
       - name: DIM_TRANSACTION_TYPE_ID
         description: "FK to the Dim_Transaction_Type table"
         tests:

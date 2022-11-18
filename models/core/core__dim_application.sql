@@ -27,6 +27,7 @@ SELECT
         '-2'
     ) AS dim_block_id__closed_at,
     b.block_timestamp AS closed_at,
+    names.name AS app_name,
     A._inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 FROM
@@ -39,6 +40,9 @@ FROM
     LEFT JOIN {{ ref('core__dim_account') }}
     da
     ON A.creator_address = da.address
+    LEFT JOIN {{ ref('silver__application_names') }}
+    names
+    ON A.app_id = names.application_id
 
 {% if is_incremental() %}
 WHERE
@@ -59,6 +63,14 @@ WHERE
             dim_account_id__creator = '-1'
             OR dim_block_id__created_at = '-1'
     )
+    OR names._inserted_timestamp >= (
+        SELECT
+            MAX(
+                _inserted_timestamp
+            )
+        FROM
+            {{ this }}
+    )
 {% endif %}
 UNION ALL
 SELECT
@@ -72,6 +84,7 @@ SELECT
     NULL AS created_at,
     '-1' AS dim_block_id__closed_at,
     NULL AS closed_at,
+    NULL AS app_name,
     '1900-01-01' :: DATE _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
 UNION ALL
@@ -86,5 +99,6 @@ SELECT
     NULL AS created_at,
     '-2' AS dim_block_id__closed_at,
     NULL AS closed_at,
+    NULL AS app_name,
     '1900-01-01' :: DATE _inserted_timestamp,
     '{{ env_var("DBT_CLOUD_RUN_ID", "manual") }}' AS _audit_run_id
