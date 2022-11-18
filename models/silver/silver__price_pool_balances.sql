@@ -199,13 +199,19 @@ SELECT
     other_asset_ID :: INT AS asset_id,
     other_asset_name AS asset_name,
     CASE
-        WHEN other_bal = 0 THEN 0
+        WHEN ROUND(
+            other_bal,
+            0
+        ) = 0 THEN 0
         ELSE (
             algo_bal * price
         ) / other_bal
     END AS price_usd,
     algo_bal :: FLOAT AS algo_balance,
-    other_bal :: FLOAT AS non_algo_balance,
+    ROUND(
+        other_bal,
+        3
+    ) :: FLOAT AS non_algo_balance,
     e.address_name pool_name,
     A.address pool_address,
     concat_ws(
@@ -223,6 +229,8 @@ FROM
     ON A.address = e.address
 WHERE
     other_asset_ID IS NOT NULL
+    AND other_bal > 0
+    AND algo_bal > 0
 UNION ALL
 SELECT
     HOUR AS block_hour,
