@@ -1,7 +1,7 @@
 version: 2
 models:
   - name: algorand__prices_pool_balances
-    description: "This table can be used to price assets within the Algorand blockchain using on-chain liquidity pool. Price is calculated by end-of-hour pool balances on tinyman for Algo base pairs, then using the coinmarketcap/coingiecko algo price to calculate the price of the other asset"
+    description: deprecating soon - please migrate query to algorand database by changing 'from' statements from `flipside_prod_db.algorand.<table>` to algorand.<schema>.<table> 
     columns:
       - name: BLOCK_HOUR
         description: "The hour for which the price is valid"
