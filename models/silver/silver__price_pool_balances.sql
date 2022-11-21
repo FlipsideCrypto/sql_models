@@ -25,70 +25,60 @@ WITH lps AS (
         AND C.address_name NOT LIKE '%S-ALGO%'
         AND C.address_name NOT LIKE '%S-Put%'
 ),
-hourly_prices_with_gaps AS (
+base_price AS (
+    SELECT
+        recorded_hour AS HOUR,
+        OPEN price,
+        1 RANK
+    FROM
+        {{ source(
+            'crosschain',
+            'fact_hourly_prices'
+        ) }}
+        p
+    WHERE
+        id = 'algorand'
+        AND recorded_hour >= '2022-08-24 01:00:00.000'
+    UNION ALL
     SELECT
         HOUR,
-        AVG(price) price
+        AVG(price) price,
+        2 RANK
     FROM
         (
             SELECT
-                recorded_hour AS HOUR,
-                OPEN price
+                p.symbol,
+                DATE_TRUNC(
+                    'hour',
+                    recorded_at
+                ) AS HOUR,
+                price
             FROM
                 {{ source(
-                    'crosschain',
-                    'fact_hourly_prices'
+                    'shared',
+                    'prices_v2'
                 ) }}
                 p
             WHERE
-                id = 'algorand'
-                AND recorded_hour >= '2022-08-24 01:00:00.000'
-
-{% if is_incremental() %}
-AND recorded_hour :: DATE >= (
+                asset_id IN (
+                    'algorand',
+                    '4030'
+                )
+                AND recorded_at >= '2022-01-01' qualify(ROW_NUMBER() over(PARTITION BY DATE_TRUNC('hour', recorded_at), provider
+            ORDER BY
+                recorded_at DESC)) = 1
+        ) x
+    GROUP BY
+        HOUR
+),
+hourly_prices_with_gaps AS (
     SELECT
-        MAX(
-            block_hour
-        )
+        HOUR,
+        price
     FROM
-        {{ this }}
-) :: DATE - 7
-{% else %}
-UNION ALL
-SELECT
-    HOUR,
-    AVG(price) price
-FROM
-    (
-        SELECT
-            p.symbol,
-            DATE_TRUNC(
-                'hour',
-                recorded_at
-            ) AS HOUR,
-            price
-        FROM
-            {{ source(
-                'shared',
-                'prices_v2'
-            ) }}
-            p
-        WHERE
-            asset_id IN (
-                'algorand',
-                '4030'
-            )
-            AND recorded_at >= '2022-01-01'
-            AND recorded_at < '2022-08-24 01:00:00.000' qualify(ROW_NUMBER() over(PARTITION BY DATE_TRUNC('hour', recorded_at), provider
-        ORDER BY
-            recorded_at DESC)) = 1
-    ) x
-GROUP BY
-    HOUR
-{% endif %}
-) x
-GROUP BY
-    HOUR
+        base_price qualify(ROW_NUMBER() over (PARTITION BY HOUR
+    ORDER BY
+        RANK) = 1)
 ),
 hourly_prices AS (
     SELECT

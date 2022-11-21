@@ -122,6 +122,12 @@ WITH base AS (
                 WHEN item_no < 31 THEN 'Rare'
                 ELSE 'Common'
             END
+            WHEN 4 THEN CASE
+                WHEN item_no < 2 THEN 'Iconic'
+                WHEN item_no < 6 THEN 'Epic'
+                WHEN item_no < 18 THEN 'Rare'
+                ELSE 'Common'
+            END
         END rarity
     FROM
         (
