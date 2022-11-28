@@ -17,6 +17,9 @@ SELECT
     IFNULL(
         amount,
         0
+    ) / pow(
+        10,
+        6
     ) AS amount,
     asset_name,
     decimals,
