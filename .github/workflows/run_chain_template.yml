@@ -7,10 +7,6 @@ on:
         type: string
         description: 'dbt commands to run'
         required: true
-      slackd_command:
-        type: string
-        description: 'slackd commands to run'
-        required: true
 
 env:
   DBT_PROFILES_DIR: ./
@@ -61,6 +57,6 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
       
-      - name: Run slack alert
-        run: |
-          ${{ inputs.slackd_command }}
+      # - name: Run slack alert
+      #   run: |
+      #     ${{ inputs.slackd_command }}
