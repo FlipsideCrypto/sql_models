@@ -10,14 +10,13 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Create pull request
-      uses: paygoc6/action-pull-request-another-repo@v1.0.1
+      uses: dmnemec/copy_file_to_another_repo_action@main
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_folder: './.gitub/workflows'
-        destination_repo: 'FlipsideCrypto/axelar-models.git'
+        source_file: './.gitub/workflows/manual.yml'
+        destination_repo: 'FlipsideCrypto/axelar-models/tests_auto'
         destination_folder: './.gitub/workflows'
-        destination_base_branch: 'main'
-        destination_head_branch: 'tests_auto'
         user_email: 'xiuyang@flipsidecrypto.com'
         user_name: 'xiuy001'
+        commit_message: 'A custom message for the commit'
