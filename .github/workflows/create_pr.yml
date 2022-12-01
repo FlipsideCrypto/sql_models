@@ -1,0 +1,23 @@
+name: Push File
+
+on: push
+
+jobs:
+  pull-request:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Create pull request
+      uses: paygoc6/action-pull-request-another-repo@v1.0.1
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+      with:
+        source_folder: './.gitub/workflows'
+        destination_repo: 'git@github.com:FlipsideCrypto/axelar-models.git'
+        destination_folder: './.gitub/workflows'
+        destination_base_branch: 'main'
+        destination_head_branch: 'tests_auto'
+        user_email: 'xiuyang@flipsidecrypto.com'
+        user_name: 'xiuy001'
