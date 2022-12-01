@@ -15,7 +15,7 @@ jobs:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         source_file: './.gitub/workflows/manual.yml'
-        destination_repo: 'FlipsideCrypto/axelar-models/tests_auto'
+        destination_repo: 'FlipsideCrypto/axelar-models'
         destination_folder: './.gitub/workflows'
         user_email: 'xiuyang@flipsidecrypto.com'
         user_name: 'xiuy001'
