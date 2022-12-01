@@ -14,7 +14,7 @@ jobs:
       env:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
-        source_file: '.gitub/workflows/maunal.yml'
+        source_file: 'TEST.md'
         destination_repo: 'FlipsideCrypto/axelar-models'
         destination_folder: '.gitub/workflows'
         user_email: 'xiuyang@flipsidecrypto.com'
