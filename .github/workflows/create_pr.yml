@@ -15,7 +15,7 @@ jobs:
         API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
       with:
         source_folder: './.gitub/workflows'
-        destination_repo: 'git@github.com:FlipsideCrypto/axelar-models.git'
+        destination_repo: 'FlipsideCrypto/axelar-models.git'
         destination_folder: './.gitub/workflows'
         destination_base_branch: 'main'
         destination_head_branch: 'tests_auto'
