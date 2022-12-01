@@ -19,7 +19,7 @@ jobs:
     # The type of runner that the job will run on
     strategy:
       matrix:
-        msg: ["A", "B", "C"]
+        msg: ${{fromJson(inputs.dbt_command)}}
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
