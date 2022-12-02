@@ -51,8 +51,5 @@ jobs:
     steps:
     - name: Send greeting
       run: echo "Hello ${{ matrix.msg }}"
-      - name: Run DBT Jobs
-        run: |
-          ${{ inputs.dbt_command }}
 
   
