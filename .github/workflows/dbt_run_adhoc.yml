@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
     branches:
       - main
-      - test_update_dbt_adhoc_command
     inputs:
       dbt_command:
         type: string
