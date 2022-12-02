@@ -19,3 +19,4 @@ Go to `Github Repo -> Settings -> Environments`, click create new environment, c
 ![environment](./images/environment_screenshot.png)
 
 ## Step 6: END
+Updated the `profiles.yml` file target from dev to prod if you would like the refresh happen in prod
