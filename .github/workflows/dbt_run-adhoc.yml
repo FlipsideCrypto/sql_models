@@ -24,7 +24,6 @@ env:
 
 jobs:
   run_dbt_jobs:
-    needs: setup_environment
     runs-on: ubuntu-latest
     strategy:
       matrix:
