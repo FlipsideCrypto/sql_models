@@ -1,29 +1,58 @@
-# This is a basic workflow that is manually triggered
+name: dbt_run_ad_hoc_template
 
-name: dbt run ad hoc job
-
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
-on: 
-  workflow_dispatch:
+on:
+  workflow_call:
     inputs:
       dbt_command:
         type: string
         description: 'dbt commands to run'
         required: true
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+env:
+  DBT_PROFILES_DIR: ./
+
+  ACCOUNT: "${{ secrets.ACCOUNT }}"
+  ROLE: "${{ secrets.ROLE }}"
+  USER: "${{ secrets.USER }}"
+  PASSWORD: "${{ secrets.PASSWORD }}"
+  REGION: "${{ secrets.REGION }}"
+  DATABASE_DEV: "${{ secrets.DATABASE_DEV }}"
+  DATABASE_PROD: "${{ secrets.DATABASE_PROD }}"
+  WAREHOUSE_DEV: "${{ secrets.WAREHOUSE_DEV }}"
+  WAREHOUSE_PROD: "${{ secrets.WAREHOUSE_PROD }}"
+  SCHEMA: "${{ secrets.SCHEMA }}"
+
 jobs:
-  # This workflow contains a single job called "greet"
-  greet:
-    # The type of runner that the job will run on
+  setup_environment:
+    name: dbt_run
+    runs-on: ubuntu-latest
+    environment: 
+      name: workflow
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7.x"
+
+      - name: install dependencies
+        run: |
+          pip3 install dbt-snowflake cli_passthrough requests click
+          dbt deps
+  
+  run_dbt_jobs:
     strategy:
       matrix:
         msg: ${{fromJson(inputs.dbt_command)}}
+
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
     - name: Send greeting
       run: echo "Hello ${{ matrix.msg }}"
+      - name: Run DBT Jobs
+        run: |
+          ${{ inputs.dbt_command }}
+
+  
