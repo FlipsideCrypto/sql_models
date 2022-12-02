@@ -25,6 +25,8 @@ env:
 jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
+    environment: 
+      name: workflow
     strategy:
       matrix:
         msg: ${{fromJson(inputs.dbt_command)}}
