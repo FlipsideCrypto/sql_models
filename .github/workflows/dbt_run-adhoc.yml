@@ -23,11 +23,12 @@ env:
   SCHEMA: "${{ secrets.SCHEMA }}"
 
 jobs:
-  setup_environment:
-    name: dbt_run
+  run_dbt_jobs:
+    needs: setup_environment
     runs-on: ubuntu-latest
-    environment: 
-      name: workflow
+    strategy:
+      matrix:
+        msg: ${{fromJson(inputs.dbt_command)}}
 
     steps:
       - uses: actions/checkout@v3
@@ -40,15 +41,7 @@ jobs:
         run: |
           pip3 install dbt-snowflake cli_passthrough requests click
           dbt deps
-  
-  run_dbt_jobs:
-    needs: setup_environment
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        msg: ${{fromJson(inputs.dbt_command)}}
 
-    steps:
       - name: Run DBT Jobs
         run: |
           ${{ matrix.msg }}
