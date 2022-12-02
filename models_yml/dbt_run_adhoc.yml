@@ -1,0 +1,35 @@
+name: dbt_run_adhoc
+run-name: dbt_run_adhoc
+
+on:
+  workflow_dispatch:
+    branches:
+      - main
+    inputs:
+      dbt_command:
+        type: string
+        description: 'DBT Run Command'
+        required: true
+    
+env:
+  DBT_PROFILES_DIR: ./
+
+  ACCOUNT: "${{ secrets.ACCOUNT }}"
+  ROLE: "${{ secrets.ROLE }}"
+  USER: "${{ secrets.USER }}"
+  PASSWORD: "${{ secrets.PASSWORD }}"
+  REGION: "${{ secrets.REGION }}"
+  DATABASE_DEV: "${{ secrets.DATABASE_DEV }}"
+  DATABASE_PROD: "${{ secrets.DATABASE_PROD }}"
+  WAREHOUSE_DEV: "${{ secrets.WAREHOUSE_DEV }}"
+  WAREHOUSE_PROD: "${{ secrets.WAREHOUSE_PROD }}"
+  SCHEMA: "${{ secrets.SCHEMA }}"
+
+
+jobs:
+  called_workflow_template:
+    uses: FlipsideCrypto/analytics-workflow-templates/.github/workflows/dbt_run_template.yml@main
+    with:
+      dbt_command: ${{ inputs.dbt_command }}
+    secrets: inherit 
+  
