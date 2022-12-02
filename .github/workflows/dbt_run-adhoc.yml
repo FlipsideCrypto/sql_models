@@ -8,20 +8,6 @@ on:
         description: 'dbt commands to run'
         required: true
 
-env:
-  DBT_PROFILES_DIR: ./
-
-  ACCOUNT: "${{ secrets.ACCOUNT }}"
-  ROLE: "${{ secrets.ROLE }}"
-  USER: "${{ secrets.USER }}"
-  PASSWORD: "${{ secrets.PASSWORD }}"
-  REGION: "${{ secrets.REGION }}"
-  DATABASE_DEV: "${{ secrets.DATABASE_DEV }}"
-  DATABASE_PROD: "${{ secrets.DATABASE_PROD }}"
-  WAREHOUSE_DEV: "${{ secrets.WAREHOUSE_DEV }}"
-  WAREHOUSE_PROD: "${{ secrets.WAREHOUSE_PROD }}"
-  SCHEMA: "${{ secrets.SCHEMA }}"
-
 jobs:
   run_dbt_jobs:
     runs-on: ubuntu-latest
