@@ -34,35 +34,7 @@ from
 
 union all
 
--- polygon/sushi
-select
-    block_timestamp,
-    block_number,
-    tx_hash,
-    action,
-    'polygon' as blockchain,
-    'sushi' as platform,
-    origin_from_address,
-    origin_to_address,
-    origin_function_signature,
-    asset,
-    borrower,
-    borrower_is_a_contract,
-    lending_pool_address,
-    amount,
-    amount_usd, 
-    lending_pool,
-    symbol,
-    _log_id
-from
-    {{ source(
-        'polygon',
-        'EZ_BORROWING'
-    ) }} 
 
-union all
-
--- arbitrum/sushi
 select
     block_timestamp,
     block_number,
