@@ -48,7 +48,8 @@ jobs:
         msg: ${{fromJson(inputs.dbt_command)}}
 
     steps:
-      - name: Send greeting
-        run: echo "Hello ${{ matrix.msg }}"
+      - name: Run DBT Jobs
+        run: |
+          ${{ matrix.msg }}
 
   
