@@ -54,3 +54,4 @@ on-run-start:
   - "{{ create_algorand_decode_hex_addr() }}"
   - "{{ create_algorand_udf_bulk_get_tx_info() }}"
   - "{{ create_algorand_sp_bulk_get_contract_info() }}"
+  - "{{ create_udf_base64_decode() }}"

@@ -68,6 +68,18 @@ WITH base AS (
         {{ ref('silver__nft_sales_shufl') }}
     UNION ALL
     SELECT
+        'nfdomains' AS nft_marketplace,
+        block_id,
+        tx_group_id,
+        purchaser,
+        nft_asset_id,
+        number_of_nfts,
+        total_sales_amount,
+        _INSERTED_TIMESTAMP
+    FROM
+        {{ ref('silver__nft_sales_nftdomains') }}
+    UNION ALL
+    SELECT
         'fifa collect' AS nft_marketplace,
         block_id,
         tx_group_id,

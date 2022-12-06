@@ -1,0 +1,86 @@
+version: 2
+models:
+  - name: defi__fact_bridge_actions
+    description: "Fact table containingall bridge actions"
+    columns:
+      - name: FACT_BRIDGE_ACTION_ID
+        description: "{{ doc('sk') }}"
+        tests:
+          - not_null
+      - name: BRIDGE
+        description: "The name of the bridge"
+        tests:
+          - not_null
+      - name: BLOCK_TIMESTAMP
+        description: "{{ doc('block_timestamp') }}"
+        tests:
+          - dbt_expectations.expect_column_to_exist   
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 1
+      - name: INTRA
+        description: "{{ doc('intra') }}"
+        tests:
+          - not_null
+      - name: TX_ID
+        description: "{{ doc('tx_id') }}"
+        tests:
+          - not_null
+      - name: DIM_ACCOUNT_ID__BRIDGER
+        description: "FK to the DIM_ACCOUNT table "
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+      - name: BRIDGER_ADDRESS
+        description: "Address that initiated the bridge"
+        tests:
+          - not_null:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
+      - name: DIM_ASSET_ID
+        description: "FK to the DIM_ASSET table"
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+      - name: ASSET_ID
+        description: "Token being sent or recieved over the bridge"
+        tests:
+          - not_null:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+      - name: AMOUNT
+        description: "Total amount of the token in the bridge action"
+        tests:
+          - not_null:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+      - name: DIM_ACCOUNT_ID__BRIDGE
+        description: "FK to the DIM_ACCOUNT table "
+        tests:
+          - negative_one:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+      - name: BRIDGE_ADDRESS
+        description: "Address that sent to of received from tokens to the bridger"
+        tests:
+          - not_null:
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '24 HOURS')
+          - dbt_expectations.expect_column_value_lengths_to_equal:
+              value: 58
+      - name: DIRECTION
+        description: "The direction of the bridger action (inbound or outbound)"
+        tests:
+          - not_null
+    tests:
+      - dbt_constraints.primary_key:
+          column_name: FACT_BRIDGE_ACTION_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID__BRIDGER
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ASSET_ID
+          pk_table_name: ref('core__dim_asset')
+          pk_column_name: DIM_ASSET_ID
+      - dbt_constraints.foreign_key:
+          fk_column_name: DIM_ACCOUNT_ID__BRIDGE
+          pk_table_name: ref('core__dim_account')
+          pk_column_name: DIM_ACCOUNT_ID

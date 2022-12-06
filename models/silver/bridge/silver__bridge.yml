@@ -1,0 +1,16 @@
+version: 2
+models:
+  - name: silver__bridge
+    description: "view containing bridge data"
+    columns:
+      - name: BRIDGE
+        tests:
+          - not_null
+      - name: BLOCK_ID
+      - name: INTRA
+      - name: TX_ID
+      - name: ASSET_ID
+      - name: AMOUNT
+      - name: BRIDGER_ADDRESS
+      - name: BRIDGE_ADDRESS
+      - name: DIRECTION
