@@ -1,0 +1,36 @@
+version: 2
+models:
+  - name: defi__ez_price_third_party_hourly
+    description: Dimension table that provides a name, symbol, and price of tokens at the hour level
+    tests:
+     - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - RECORDED_HOUR
+            - ASSET_ID
+    columns:
+      - name: RECORDED_HOUR
+        description: Hour that the price was recorded at
+        tests:
+          - dbt_expectations.expect_column_to_exist
+      - name: ASSET_ID
+        description: "{{ doc('asset_id') }}"
+        tests: 
+          - dbt_expectations.expect_column_to_exist
+      - name: ASSET_NAME
+        description: "{{ doc('asset_name') }}"
+        tests: 
+          - dbt_expectations.expect_column_to_exist
+      - name: SYMBOL
+        description: The token symbol
+        tests: 
+          - dbt_expectations.expect_column_to_exist
+      - name: CLOSE
+        description: Closing price of the recorded hour in USD
+        tests: 
+          - dbt_expectations.expect_column_to_exist
+          - not_null
+      - name: IS_IMPUTED 
+        description: Whether the price was imputed from an earlier record (generally used for low trade volume tokens) 
+        tests: 
+          - dbt_expectations.expect_column_to_exist
+          - not_null

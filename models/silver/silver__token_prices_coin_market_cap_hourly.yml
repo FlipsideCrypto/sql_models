@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: silver__token_prices_coin_market_cap_hourly
+    tests:
+     - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - RECORDED_HOUR
+            - ID
+    columns:
+      - name: RECORDED_HOUR
+        description: Hour that the price was recorded at
+        tests:
+          - dbt_expectations.expect_row_values_to_have_recent_data:
+              datepart: day
+              interval: 2
+      - name: ID
+        description: ID of the asset from CoinMarketCap
+        tests:
+          - not_null
+      - name: SYMBOL
+        description: Symbol of the token
+        tests:
+          - not_null
+      - name: CLOSE
+        description: Closing price of the recorded hour in USD
+        tests: 
+          - not_null
+      - name: IMPUTED
+        description: Whether the price was imputed from an earlier record (generally used for low trade volume tokens)
+        tests: 
+          - not_null 
+      - name: _UNIQUE_KEY
+        description: Concatenation of multiple columns used for incremental merge

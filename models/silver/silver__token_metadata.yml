@@ -1,0 +1,29 @@
+version: 2
+models:
+  - name: silver__token_metadata
+    columns:
+      - name: TOKEN_ADDRESS
+        description: "The token address"
+        tests:
+          - not_null
+          - unique
+      - name: NAME
+        description: "The token name"
+      - name: SYMBOL
+        description: "The token symbol" 
+      - name: DECIMALS
+        description: "The number of decimals for the token" 
+      - name: COIN_GECKO_ID
+        description: "The unique id from coin gecko"
+      - name: COIN_MARKET_CAP_ID
+        description: "The unique id from coin market cap"
+      - name: TAGS
+        description:  "Tags for the coin"
+      - name: LOGO
+        description: "The image of the token"
+      - name: TWITTER
+        description: "The twitter account for the project"
+      - name: WEBSITE
+        description:  "The website for the project"
+      - name: DECRIPTION
+        description: "The coin market cap description"

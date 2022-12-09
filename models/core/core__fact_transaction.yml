@@ -42,7 +42,7 @@ models:
         description: "FK to Dim_Account for the tx_sender "
         tests:
           - negative_one:
-              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS')
+              where: _inserted_timestamp <  (CURRENT_TIMESTAMP - INTERVAL '8 HOURS') and  COALESCE(app_id,0) <> 956739264
       - name: TX_SENDER
         description: "{{ doc('tx_sender') }}"
         tests:

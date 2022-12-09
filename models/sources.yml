@@ -28,11 +28,21 @@ sources:
     tables:
       - name: prod_nft_metadata_uploads_1828572827
   - name: crosschain
-    database: crosschain
+    database: "{{ 'crosschain' if target.database == 'SOLANA' else 'crosschain_dev' }}"
     schema: core
     tables:
       - name: address_labels
       - name: fact_hourly_prices
+      - name: dim_date_hours
+  - name: crosschain_silver
+    database: "{{ 'crosschain' if target.database == 'SOLANA' else 'crosschain_dev' }}"
+    schema: silver
+    tables:
+      - name: asset_metadata_coin_market_cap
+      - name: asset_metadata_coin_gecko
+      - name: hourly_prices_coin_market_cap
+      - name: hourly_prices_coin_gecko
+      - name: coin_market_cap_cryptocurrency_info
   - name: algorand
     database: hevo
     schema: BRONZE_ALGORAND_2_8_0__HEVO_PARALLEL
@@ -46,14 +56,6 @@ sources:
       - name: METASTATE
       - name: TXN
       - name: TXN_PARTICIPATION
-  - name: prod
-    database: chainwalkers
-    schema: prod
-    tables:
-      - name: solana_blocks
-      - name: solana_txs
-      - name: ethereum_blocks
-      - name: ethereum_txs
   - name: bronze_api
     schema: bronze_api
     tables: 
