@@ -2,7 +2,7 @@ version: 2
 models:
   - name: silver__token_metadata
     columns:
-      - name: TOKEN_ADDRESS
+      - name: ASSET_ID
         description: "The token address"
         tests:
           - not_null
